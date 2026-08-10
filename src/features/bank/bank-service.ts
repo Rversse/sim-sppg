@@ -220,10 +220,16 @@ export async function getBankIncomeTransactions(
 }
 
 export async function getBankOverview(
-  startDate: string,
-  endDate: string,
   client: SupabaseClient = supabase
 ): Promise<BankOverview> {
+  const startDate = '2026-07-20'
+  const now = new Date()
+  const endDate = [
+    now.getFullYear(),
+    String(now.getMonth() + 1).padStart(2, '0'),
+    String(now.getDate()).padStart(2, '0')
+  ].join('-')
+
   const [accounts, transactions, incomeTransactions] = await Promise.all([
     getBankAccounts(client),
     getBankTransactions(startDate, endDate, client),
