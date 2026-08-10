@@ -191,20 +191,13 @@ function calculateHistory(
     })
 
   let runningBalance = summary.balance
-  const dailyTransactionOrder = new Map<string, number>()
 
-  const rows = accountTransactions.map((item, index) => {
+  const rows = accountTransactions.map((item) => {
     const transferAmount = Number(item.transaction.transfer_amount) || 0
     const adminFee = Number(item.transaction.admin_fee) || 0
-    const dateKey = item.transaction.transaction_date
-    const order = (dailyTransactionOrder.get(dateKey) ?? 0) + 1
-
-    dailyTransactionOrder.set(dateKey, order)
 
     const row = {
       ...item,
-      order,
-      isLatest: index === 0,
       runningBalance
     }
 
@@ -1151,7 +1144,9 @@ export function BankPage() {
         }
 
         .bank-history-row {
-          display: block;
+          display: grid;
+          grid-template-columns: minmax(0, 1fr) auto;
+          gap: 14px;
           padding: 14px;
           border: 1px solid #e5eaf0;
           border-radius: 11px;
@@ -1174,58 +1169,35 @@ export function BankPage() {
           min-width: 0;
         }
 
-        .bank-history-recipient-row {
+        .bank-history-top {
           display: flex;
+          flex-wrap: wrap;
           align-items: center;
           gap: 7px;
-          min-width: 0;
         }
 
-        .bank-history-recipient {
-          min-width: 0;
-          overflow: hidden;
+        .bank-history-top strong {
           color: #0b132b;
           font-size: 11px;
           font-weight: 800;
-          line-height: 1.3;
-          text-overflow: ellipsis;
-          white-space: nowrap;
         }
 
-        .bank-history-badges {
-          display: flex;
-          align-items: center;
-          gap: 5px;
-          flex: 0 0 auto;
-        }
-
-        .bank-history-latest-badge,
-        .bank-history-order {
-          display: inline-flex;
-          align-items: center;
-          min-height: 18px;
-          padding: 0 6px;
+        .bank-history-badge {
+          padding: 3px 6px;
           border-radius: 6px;
           font-size: 7px;
           font-weight: 900;
           letter-spacing: 0.04em;
         }
 
-        .bank-history-latest-badge {
-          background: #0b132b;
-          color: #fff;
+        .bank-history-badge.incoming {
+          background: #ecfdf3;
+          color: #15803d;
         }
 
-        .bank-history-order {
-          background: #f1f5f9;
-          color: #64748b;
-        }
-
-        .bank-history-actions {
-          display: flex;
-          justify-content: flex-end;
-          gap: 6px;
-          margin-left: auto;
+        .bank-history-badge.outgoing {
+          background: #fff1f2;
+          color: #be123c;
         }
 
         .bank-history-meta {
@@ -1234,71 +1206,55 @@ export function BankPage() {
           font-size: 9px;
         }
 
-        .bank-history-details {
-          margin-top: 10px;
-          padding: 9px 10px;
-          border: 1px solid #eef2f7;
-          border-radius: 8px;
-          background: #f8fafc;
-        }
-
-        .bank-history-detail-row {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          gap: 12px;
-          min-height: 22px;
-        }
-
-        .bank-history-detail-row span {
+        .bank-history-purpose {
+          margin-top: 8px;
           color: #64748b;
           font-size: 9px;
         }
 
-        .bank-history-detail-row strong {
+        .bank-history-purpose strong {
           color: #334155;
-          font-size: 10px;
-          font-weight: 800;
+        }
+
+        .bank-history-values {
+          min-width: 145px;
           text-align: right;
-          white-space: nowrap;
         }
 
-        .bank-history-admin {
-          color: #64748b !important;
+        .bank-history-values > strong {
+          display: block;
+          color: #0b132b;
+          font-size: 12px;
+          font-weight: 800;
         }
 
-        .bank-history-divider {
-          height: 1px;
-          margin: 5px 0;
-          background: #e2e8f0;
+        .bank-history-values p {
+          margin: 5px 0 0;
+          color: #94a3b8;
+          font-size: 9px;
         }
 
         .bank-history-balance {
+          margin-top: 5px !important;
           color: #334155 !important;
-          font-weight: 800 !important;
+          font-weight: 700;
         }
 
-        .bank-history-purpose {
-          display: inline-flex;
-          max-width: 100%;
+        .bank-history-actions {
+          display: flex;
+          justify-content: flex-end;
+          gap: 6px;
           margin-top: 8px;
-          padding: 4px 7px;
-          border: 1px solid #e2e8f0;
-          border-radius: 6px;
-          background: #fff;
-          color: #64748b;
-          font-size: 8px;
-          line-height: 1.25;
         }
 
         .bank-history-action {
-          min-height: 26px;
-          padding: 0 8px;
+          min-height: 28px;
+          padding: 0 9px;
           border: 1px solid #dbe3ed;
           border-radius: 7px;
           background: #fff;
           color: #475569;
-          font-size: 8px;
+          font-size: 9px;
           font-weight: 800;
           cursor: pointer;
         }
@@ -1810,7 +1766,11 @@ export function BankPage() {
                 <h2 id="bank-history-title">History Rekening</h2>
 
                 <p>
-                  {getAccountDisplayName(historySummary.account)}
+                  {historySummary.account.name}
+                  {' • '}
+                  {historySummary.account.bank}
+                  {' • '}
+                  {historySummary.account.account_number || '—'}
                   {' • '}
                   Periode 20 Juli 2026 – Hari Ini
                 </p>
@@ -1889,48 +1849,18 @@ export function BankPage() {
                         key={`${item.direction}-${transaction.id}`}
                       >
                         <div className="bank-history-main">
-                          <div className="bank-history-recipient-row">
-                            <div className="bank-history-recipient">
+                          <div className="bank-history-top">
+                            <strong>
                               {getPartnerName(transaction, incoming)}
-                            </div>
+                            </strong>
 
-                            <div className="bank-history-badges">
-                              {item.isLatest ? (
-                                <span className="bank-history-latest-badge">
-                                  TERBARU
-                                </span>
-                              ) : null}
-
-                              <span className="bank-history-order">
-                                #{item.order}
-                              </span>
-                            </div>
-
-                            {canCreateTransaction ? (
-                              <div className="bank-history-actions">
-                                <button
-                                  type="button"
-                                  className="bank-history-action edit"
-                                  disabled={isDeletingTransaction}
-                                  onClick={() => openEditModal(transaction)}
-                                  title="Edit"
-                                >
-                                  Edit
-                                </button>
-
-                                <button
-                                  type="button"
-                                  className="bank-history-action delete"
-                                  disabled={isDeletingTransaction}
-                                  onClick={() =>
-                                    void handleDeleteTransaction(transaction)
-                                  }
-                                  title="Hapus"
-                                >
-                                  Hapus
-                                </button>
-                              </div>
-                            ) : null}
+                            <span
+                              className={`bank-history-badge ${
+                                incoming ? 'incoming' : 'outgoing'
+                              }`}
+                            >
+                              {incoming ? 'TRANSFER MASUK' : 'TRANSFER KELUAR'}
+                            </span>
                           </div>
 
                           <div className="bank-history-meta">
@@ -1939,51 +1869,53 @@ export function BankPage() {
                             {formatDateTime(transaction.created_at)}
                           </div>
 
-                          <div className="bank-history-details">
-                            <div className="bank-history-detail-row">
-                              <span>
-                                {incoming ? 'Dana Diterima' : 'Transfer Keluar'}
-                              </span>
-                              <strong
-                                className={
-                                  incoming ? 'bank-income' : 'bank-expense'
-                                }
-                              >
-                                {formatRupiah(transferAmount)}
-                              </strong>
-                            </div>
-
-                            {!incoming ? (
-                              <>
-                                <div className="bank-history-detail-row">
-                                  <span>Biaya Admin</span>
-                                  <strong className="bank-history-admin">
-                                    {formatRupiah(adminFee)}
-                                  </strong>
-                                </div>
-
-                                <div className="bank-history-divider" />
-
-                                <div className="bank-history-detail-row">
-                                  <span>Total Dana Terpotong</span>
-                                  <strong className="bank-expense">
-                                    {formatRupiah(total)}
-                                  </strong>
-                                </div>
-                              </>
-                            ) : null}
-
-                            <div className="bank-history-detail-row">
-                              <span>Saldo</span>
-                              <strong className="bank-history-balance">
-                                {formatRupiah(item.runningBalance)}
-                              </strong>
-                            </div>
-                          </div>
-
                           {transaction.payment_for?.trim() ? (
                             <div className="bank-history-purpose">
-                              {transaction.payment_for.trim()}
+                              Keperluan:{' '}
+                              <strong>{transaction.payment_for.trim()}</strong>
+                            </div>
+                          ) : null}
+                        </div>
+
+                        <div className="bank-history-values">
+                          <strong
+                            className={
+                              incoming ? 'bank-income' : 'bank-expense'
+                            }
+                          >
+                            {incoming ? '+' : '-'}
+                            {formatRupiah(incoming ? transferAmount : total)}
+                          </strong>
+
+                          {!incoming && adminFee > 0 ? (
+                            <p>Admin: {formatRupiah(adminFee)}</p>
+                          ) : null}
+
+                          <p className="bank-history-balance">
+                            Saldo: {formatRupiah(item.runningBalance)}
+                          </p>
+
+                          {canCreateTransaction ? (
+                            <div className="bank-history-actions">
+                              <button
+                                type="button"
+                                className="bank-history-action edit"
+                                disabled={isDeletingTransaction}
+                                onClick={() => openEditModal(transaction)}
+                              >
+                                Edit
+                              </button>
+
+                              <button
+                                type="button"
+                                className="bank-history-action delete"
+                                disabled={isDeletingTransaction}
+                                onClick={() =>
+                                  void handleDeleteTransaction(transaction)
+                                }
+                              >
+                                Hapus
+                              </button>
                             </div>
                           ) : null}
                         </div>
