@@ -3,6 +3,7 @@ import type { UserRole } from './auth-types'
 export type Permission =
   | 'dashboard.view'
   | 'dashboard.transaction.create'
+  | 'kitchen.view'
   | 'kitchen.manage'
   | 'supplier.manage'
   | 'bank.view'
@@ -10,13 +11,14 @@ export type Permission =
   | 'reports.view'
 
 const permissions: Record<Permission, readonly UserRole[]> = {
-  'dashboard.view': ['admin', 'operator'],
+  'dashboard.view': ['admin', 'operator', 'viewer'],
   'dashboard.transaction.create': ['admin'],
+  'kitchen.view': ['admin', 'operator'],
   'kitchen.manage': ['admin'],
   'supplier.manage': ['admin'],
   'bank.view': ['admin', 'operator', 'viewer'],
   'bank.transaction.create': ['admin', 'operator'],
-  'reports.view': ['admin', 'operator', 'viewer']
+  'reports.view': ['admin']
 }
 
 export function canAccess(

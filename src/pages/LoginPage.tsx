@@ -40,19 +40,13 @@ export function LoginPage() {
   if (isLoading) {
     return (
       <main className="flex min-h-screen items-center justify-center">
-        <p className="text-sm text-muted-foreground">Memuat sesi...</p>
+        <p>Memuat sesi...</p>
       </main>
     )
   }
 
   if (user) {
-    const destination = user.role === 'viewer' ? '/bank' : '/dashboard'
-
-    return <Navigate to={destination} replace />
-  }
-
-  function getDestination(role: string) {
-    return role === 'viewer' ? '/bank' : '/dashboard'
+    return <Navigate to="/dashboard" replace />
   }
 
   async function handleLogin() {
@@ -70,19 +64,12 @@ export function LoginPage() {
     setIsLoggingIn(true)
 
     try {
-      const session = await loginWithUsername(
+      await loginWithUsername(
         selectedUsername,
         selectedUsername === 'guest' ? undefined : pin
       )
 
-      const role =
-        session.user.user_metadata?.role === 'viewer'
-          ? 'viewer'
-          : selectedUsername === 'guest'
-            ? 'viewer'
-            : selectedUsername
-
-      navigate(getDestination(role), { replace: true })
+      navigate('/dashboard', { replace: true })
     } catch (error) {
       console.error('Login failed:', error)
 
@@ -117,7 +104,7 @@ export function LoginPage() {
 
     try {
       await loginWithUsername('guest')
-      navigate('/bank', { replace: true })
+      navigate('/dashboard', { replace: true })
     } catch (error) {
       console.error('Guest login failed:', error)
       setErrorMessage('Login Guest gagal')
@@ -159,11 +146,12 @@ export function LoginPage() {
   }
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-muted/30 p-6">
-      <section className="w-full max-w-md rounded-xl border bg-background p-6 shadow-sm">
-        <div className="mb-6">
-          <h1 className="text-2xl font-semibold">SIM SPPG</h1>
-          <p className="mt-1 text-sm text-muted-foreground">
+    <main className="flex min-h-screen items-center justify-center">
+      <section className="w-full max-w-md">
+        <div className="mb-6 text-center">
+          <h1 className="text-2xl font-bold">SIM SPPG</h1>
+
+          <p className="mt-2 text-sm text-muted-foreground">
             Pilih akun untuk masuk
           </p>
         </div>

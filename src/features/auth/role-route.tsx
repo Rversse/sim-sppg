@@ -1,4 +1,4 @@
-import { Navigate, Outlet, useLocation } from 'react-router-dom'
+import { Navigate, Outlet } from 'react-router-dom'
 
 import type { Permission } from './role-policy'
 import { canAccess } from './role-policy'
@@ -10,7 +10,6 @@ type RoleRouteProps = {
 
 export function RoleRoute({ permission }: RoleRouteProps) {
   const { user, isLoading } = useAuth()
-  const location = useLocation()
 
   if (isLoading) {
     return (
@@ -25,13 +24,6 @@ export function RoleRoute({ permission }: RoleRouteProps) {
   }
 
   const allowed = canAccess(user.role, permission)
-
-  console.log('SIM SPPG RoleRoute:', {
-    pathname: location.pathname,
-    role: user.role,
-    permission,
-    allowed
-  })
 
   if (!allowed) {
     return <Navigate to="/unauthorized" replace />
