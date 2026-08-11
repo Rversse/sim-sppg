@@ -9,6 +9,8 @@ export type TransactionOption = {
 
 export type KitchenOption = TransactionOption
 
+export type TransactionFlow = 'income' | 'expense' | 'neutral'
+
 export type TransactionAccount = {
   id: string
   name: string
@@ -142,6 +144,34 @@ export function getAccountLabel(account: TransactionAccount): string {
   const owner = supplier?.owner_name ? ` / ${supplier.owner_name}` : ''
 
   return `${account.name}${owner} (${account.bank} - ${account.account_number})`
+}
+
+export async function getAvailableTransactionFlows(
+  kitchenId: string,
+  client: SupabaseClient = supabase
+): Promise<TransactionFlow[]> {
+  if (!kitchenId) {
+    return []
+  }
+
+  const { data: rules, error } = await client
+    .from('kitchen_account_rules')
+    .select('flow_type')
+    .eq('kitchen_id', kitchenId)
+
+  if (error) {
+    throw error
+  }
+
+  const hasNeutral = (rules ?? []).some((row) => row.flow_type === 'neutral')
+
+  const flows: TransactionFlow[] = ['income', 'expense']
+
+  if (hasNeutral) {
+    flows.push('neutral')
+  }
+
+  return flows
 }
 
 export async function getAccountsForFlow(

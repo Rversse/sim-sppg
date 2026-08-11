@@ -188,7 +188,8 @@ export function validateTransactionPayload(
 
 export async function hasDuplicateTransaction(
   payload: TransactionPayload,
-  client: SupabaseClient = supabase
+  client: SupabaseClient = supabase,
+  excludeId?: string
 ): Promise<boolean> {
   let query = client
     .from('transactions')
@@ -200,6 +201,10 @@ export async function hasDuplicateTransaction(
     .eq('kitchen_id', payload.kitchen_id)
     .eq('flow_type', payload.flow_type)
     .eq('amount', payload.amount)
+
+  if (excludeId) {
+    query = query.neq('id', excludeId)
+  }
 
   if (payload.flow_type === 'expense') {
     query = query.eq('supplier_id', payload.supplier_id)
@@ -266,6 +271,12 @@ export async function updateTransaction(
 
   if (validationError) {
     throw new Error(validationError)
+  }
+
+  const duplicate = await hasDuplicateTransaction(payload, client, id)
+
+  if (duplicate) {
+    throw new Error('Transaksi dengan data yang sama sudah ada')
   }
 
   const { data, error } = await client

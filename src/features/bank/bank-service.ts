@@ -2,6 +2,8 @@ import type { SupabaseClient } from '@Supabase/supabase-js'
 
 import { supabase } from '@/lib/supabase'
 
+const BANK_MODULE_START_DATE = '2026-07-20'
+
 export type BankAccount = {
   id: string
   name: string
@@ -222,7 +224,7 @@ export async function getBankIncomeTransactions(
 export async function getBankOverview(
   client: SupabaseClient = supabase
 ): Promise<BankOverview> {
-  const startDate = '2026-07-20'
+  const startDate = BANK_MODULE_START_DATE
   const now = new Date()
   const endDate = [
     now.getFullYear(),
@@ -423,6 +425,13 @@ export async function hasSufficientBalance(
   client: SupabaseClient = supabase,
   editingTransactionId?: string
 ): Promise<boolean> {
+  const now = new Date()
+  const today = [
+    now.getFullYear(),
+    String(now.getMonth() + 1).padStart(2, '0'),
+    String(now.getDate()).padStart(2, '0')
+  ].join('-')
+
   const { data: account, error: accountError } = await client
     .from('accounts')
     .select('opening_balance')
@@ -438,6 +447,8 @@ export async function hasSufficientBalance(
     .select('amount')
     .eq('account_id', accountId)
     .in('flow_type', ['income', 'neutral'])
+    .gte('transaction_date', BANK_MODULE_START_DATE)
+    .lte('transaction_date', today)
 
   if (incomeError) {
     throw incomeError
@@ -447,6 +458,8 @@ export async function hasSufficientBalance(
     .from('bank_transactions')
     .select('transfer_amount')
     .eq('recipient_account_id', accountId)
+    .gte('transaction_date', BANK_MODULE_START_DATE)
+    .lte('transaction_date', today)
 
   if (incomingError) {
     throw incomingError
@@ -456,6 +469,8 @@ export async function hasSufficientBalance(
     .from('bank_transactions')
     .select('id,transfer_amount,admin_fee')
     .eq('account_id', accountId)
+    .gte('transaction_date', BANK_MODULE_START_DATE)
+    .lte('transaction_date', today)
 
   if (outgoingError) {
     throw outgoingError

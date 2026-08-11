@@ -25,6 +25,7 @@ import {
 
 import {
   getAccountsForFlow,
+  getAvailableTransactionFlows,
   getDefaultOperationalAccount,
   getDefaultSupplier,
   getSuppliersForKitchen,
@@ -114,6 +115,9 @@ export function DashboardPage() {
   const [formDate, setFormDate] = useState(today)
   const [formKitchenId, setFormKitchenId] = useState('')
   const [formFlowType, setFormFlowType] = useState<DashboardFlow | ''>('')
+  const [availableFormFlows, setAvailableFormFlows] = useState<DashboardFlow[]>(
+    []
+  )
   const [formAccountId, setFormAccountId] = useState('')
   const [formSupplierId, setFormSupplierId] = useState('')
   const [formAmount, setFormAmount] = useState('')
@@ -175,6 +179,11 @@ export function DashboardPage() {
 
   const net = filters.flowType === '' ? summary.income - summary.expense : 0
   const supplierDisabled = filters.flowType === 'neutral'
+  const selectedFormKitchen = kitchens.find(
+    (kitchen) => kitchen.id === formKitchenId
+  )
+  const isSukarajaFormKitchen =
+    selectedFormKitchen?.name?.includes('Sukaraja') ?? false
 
   const chartData = activity.map(
     (item) =>
@@ -237,6 +246,7 @@ export function DashboardPage() {
     setFormDate(today)
     setFormKitchenId('')
     setFormFlowType('')
+    setAvailableFormFlows([])
     setFormAccountId('')
     setFormSupplierId('')
     setFormAmount('')
@@ -282,7 +292,7 @@ export function DashboardPage() {
       } else if (flowType === 'neutral') {
         setFormAccountId(getDefaultOperationalAccount(accounts))
       } else {
-        setFormAccountId(accounts.length === 1 ? accounts[0].value : '')
+        setFormAccountId('')
       }
 
       return
@@ -300,7 +310,12 @@ export function DashboardPage() {
     ) {
       setFormSupplierId(preserveSupplierId)
     } else {
-      setFormSupplierId(getDefaultSupplier(suppliers))
+      const selectedKitchen = kitchens.find(
+        (kitchen) => kitchen.id === kitchenId
+      )
+      const isSukaraja = selectedKitchen?.name?.includes('Sukaraja') ?? false
+
+      setFormSupplierId(isSukaraja ? '' : getDefaultSupplier(suppliers))
     }
   }
 
@@ -328,9 +343,16 @@ export function DashboardPage() {
     setFormSupplierId(transaction.supplier_id ?? '')
     setFormAccounts([])
     setFormSuppliers([])
+    setAvailableFormFlows([])
     setModalOpen(true)
 
     try {
+      const availableFlows = await getAvailableTransactionFlows(
+        transaction.kitchen_id ?? ''
+      )
+
+      setAvailableFormFlows(availableFlows)
+
       await loadFormOptions(
         transaction.kitchen_id ?? '',
         transaction.flow_type,
@@ -351,13 +373,22 @@ export function DashboardPage() {
     setFormSuppliers([])
     setFormError(null)
 
-    if (!value || !formFlowType) return
+    if (!value) {
+      setAvailableFormFlows([])
+      setFormFlowType('')
+      return
+    }
 
     try {
-      await loadFormOptions(value, formFlowType)
+      const availableFlows = await getAvailableTransactionFlows(value)
+
+      setAvailableFormFlows(availableFlows)
+      setFormFlowType('')
     } catch (loadError) {
       console.error(loadError)
-      setFormError('Gagal memuat rekening atau supplier transaksi.')
+      setAvailableFormFlows([])
+      setFormFlowType('')
+      setFormError('Gagal memuat jenis transaksi.')
     }
   }
 
@@ -521,7 +552,7 @@ export function DashboardPage() {
     <div className="dashboard-page">
       <section className="dashboard-hero">
         <div>
-          <p className="dashboard-eyebrow">SIM SPPG • {roleLabel}</p>
+          <p className="dashboard-eyebrow">{roleLabel}</p>
           <h1>Dashboard</h1>
           <p>Pantau aktivitas dan penggunaan dana SPPG dalam satu tampilan.</p>
         </div>
@@ -1061,13 +1092,15 @@ export function DashboardPage() {
                   }
                 >
                   <option value="">Pilih jenis transaksi</option>
-                  {FLOW_OPTIONS.filter((option) => option.value !== '').map(
-                    (option) => (
-                      <option key={option.value} value={option.value}>
-                        {option.label}
-                      </option>
-                    )
-                  )}
+                  {FLOW_OPTIONS.filter(
+                    (option) =>
+                      option.value !== '' &&
+                      availableFormFlows.includes(option.value as DashboardFlow)
+                  ).map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
                 </select>
               </label>
 
@@ -1076,7 +1109,7 @@ export function DashboardPage() {
                   <span>Supplier</span>
                   <select
                     value={formSupplierId}
-                    disabled={modalMode === 'edit'}
+                    disabled={modalMode === 'edit' || !isSukarajaFormKitchen}
                     onChange={(event) => setFormSupplierId(event.target.value)}
                   >
                     <option value="">Pilih supplier</option>
