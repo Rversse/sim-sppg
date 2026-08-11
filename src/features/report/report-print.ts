@@ -14,15 +14,11 @@ function printReport() {
     return
   }
 
-  const startDate =
-    activeSection.querySelector<HTMLInputElement>(
-      '.reports-filter-panel input[type="date"]'
-    )?.value ?? ''
-
   const dateInputs = activeSection.querySelectorAll<HTMLInputElement>(
     '.reports-filter-panel input[type="date"]'
   )
 
+  const startDate = dateInputs[0]?.value ?? ''
   const endDate = dateInputs[1]?.value ?? startDate
 
   const kitchenSelect = activeSection.querySelector<HTMLSelectElement>(
@@ -32,19 +28,20 @@ function printReport() {
   const kitchenName =
     kitchenSelect?.selectedOptions[0]?.textContent?.trim() ?? ''
 
+  /*
+   * V1 print menggunakan isi report sebagai sumber, lalu menyembunyikan
+   * elemen filter/detail/button khusus print.
+   *
+   * V2 memakai class berbeda, jadi kita clone section aktif dan buang
+   * elemen yang memang tidak boleh masuk hasil cetak.
+   */
   const reportClone = activeSection.cloneNode(true) as HTMLElement
 
-  // Print hanya report utama.
   reportClone
     .querySelectorAll(
-      '.reports-filter-panel, .reports-detail-list, .reports-detail'
+      '.reports-filter-panel, .reports-detail-list, .reports-detail, .reports-total-row, button'
     )
     .forEach((element) => element.remove())
-
-  // Buang tombol apa pun yang mungkin ada di dalam report.
-  reportClone.querySelectorAll('button').forEach((element) => {
-    element.remove()
-  })
 
   const title =
     reportPage
@@ -58,247 +55,312 @@ function printReport() {
 
   const period =
     startDate && endDate
-      ? `Periode: ${formatPrintDate(startDate)} s/d ${formatPrintDate(endDate)}`
-      : ''
+      ? startDate === endDate
+        ? `Periode: ${formatPrintDate(startDate)}`
+        : `Periode: ${formatPrintDate(startDate)} s/d ${formatPrintDate(endDate)}`
+      : startDate
+        ? `Periode: ${formatPrintDate(startDate)}`
+        : ''
 
   const kitchen =
     kitchenName && kitchenName !== 'Semua Dapur' ? `Dapur: ${kitchenName}` : ''
 
   const html = `
-    <!doctype html>
-    <html lang="id">
-      <head>
-        <meta charset="UTF-8">
-        <title>${escapeHtml(title)}</title>
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>${escapeHtml(title)}</title>
 
-        <style>
-          @page {
-            size: A4 landscape;
-            margin: 10mm;
-          }
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
 
-          * {
-            box-sizing: border-box;
-          }
+    html,
+    body {
+      width: 100%;
+      min-height: 100%;
+      background: white;
+    }
 
-          html,
-          body {
-            margin: 0;
-            padding: 0;
-            background: #fff;
-          }
+    body {
+      font-family: Arial, sans-serif;
+      color: #18293F;
+      padding: 22px 28px;
+      font-size: 11px;
+      background: white;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
 
-          body {
-            font-family:
-              Inter,
-              ui-sans-serif,
-              system-ui,
-              -apple-system,
-              BlinkMacSystemFont,
-              "Segoe UI",
-              sans-serif;
-            color: #0f172a;
-            font-size: 10px;
-            -webkit-print-color-adjust: exact;
-            print-color-adjust: exact;
-          }
+    /*
+     * Sama seperti V1:
+     * filter, tombol, dan rincian tidak dibawa ke hasil print.
+     */
+    .reports-filter-panel,
+    .reports-detail-list,
+    .reports-detail,
+    button {
+      display: none !important;
+    }
 
-          .print-page {
-            width: 100%;
-          }
+    .reports-page {
+      width: 100%;
+    }
 
-          .print-header {
-            margin-bottom: 12px;
-            padding-bottom: 8px;
-            border-bottom: 2px solid #0f172a;
-          }
+    .reports-header {
+      display: block;
+      margin-bottom: 18px;
+      border-bottom: 2px solid #0D2137;
+      padding-bottom: 10px;
+    }
 
-          .print-header h1 {
-            margin: 0;
-            font-size: 20px;
-            line-height: 1.15;
-            font-weight: 800;
-            color: #0f172a;
-          }
+    .reports-header h1 {
+      font-size: 20px;
+      line-height: 1.2;
+      margin: 0;
+      color: #18293F;
+    }
 
-          .print-header p {
-            margin: 4px 0 0;
-            color: #64748b;
-            font-size: 10px;
-          }
+    .reports-header p {
+      font-size: 12px;
+      color: #637A96;
+      margin-top: 4px;
+    }
 
-          .print-meta {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 4px 18px;
-            margin-top: 5px;
-            color: #475569;
-            font-size: 10px;
-            font-weight: 600;
-          }
+    .print-meta {
+      display: flex;
+      gap: 18px;
+      flex-wrap: wrap;
+      margin-top: 5px;
+      color: #637A96;
+      font-size: 11px;
+    }
 
-          .reports-section {
-            display: block !important;
-          }
+    .reports-section {
+      display: block !important;
+      width: 100%;
+    }
 
-          .reports-summary-grid {
-            display: grid !important;
-            grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
-            gap: 8px !important;
-            margin-bottom: 10px !important;
-          }
+    .reports-summary-grid {
+      display: grid !important;
+      grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+      gap: 12px !important;
+      margin-bottom: 14px !important;
+    }
 
-          .reports-summary-grid.reports-summary-single {
-            grid-template-columns: minmax(0, 1fr) !important;
-          }
+    .reports-summary-grid.reports-summary-single {
+      grid-template-columns: 1fr !important;
+    }
 
-          .reports-summary-card {
-            min-height: auto !important;
-            padding: 10px 12px !important;
-            border: 1px solid #dbe3ed !important;
-            border-radius: 8px !important;
-            background: #fff !important;
-            box-shadow: none !important;
-            break-inside: avoid;
-          }
+    .reports-summary-card {
+      background: #fff !important;
+      border: 1.5px solid #d2daea !important;
+      border-radius: 10px !important;
+      padding: 14px 16px !important;
+      min-height: 0 !important;
+      box-shadow: none !important;
+      break-inside: avoid;
+    }
 
-          .reports-summary-card > span {
-            display: block;
-            color: #64748b;
-            font-size: 8px;
-            font-weight: 800;
-            text-transform: uppercase;
-          }
+    .reports-summary-card:nth-child(1) {
+      border-left: 5px solid #16a34a !important;
+    }
 
-          .reports-summary-card > strong {
-            display: block;
-            margin-top: 6px;
-            color: #0f172a;
-            font-size: 15px;
-            line-height: 1.15;
-          }
+    .reports-summary-card:nth-child(2) {
+      border-left: 5px solid #dc2626 !important;
+    }
 
-          .reports-table-wrapper {
-            width: 100%;
-            overflow: visible !important;
-            border: 1px solid #cbd5e1 !important;
-            border-radius: 7px !important;
-            box-shadow: none !important;
-          }
+    .reports-summary-card:nth-child(3) {
+      border-left: 5px solid #d97706 !important;
+    }
 
-          .reports-table {
-            width: 100% !important;
-            min-width: 0 !important;
-            border-collapse: collapse !important;
-            font-size: 9px !important;
-          }
+    .reports-summary-card:nth-child(4) {
+      border-left: 5px solid #2563eb !important;
+    }
 
-          .reports-table th,
-          .reports-table td {
-            padding: 6px 8px !important;
-            border: 1px solid #dbe3ed !important;
-            white-space: nowrap;
-          }
+    .reports-summary-card > span {
+      display: block;
+      font-size: 10px;
+      font-weight: bold;
+      text-transform: uppercase;
+      color: #637A96;
+      margin-bottom: 4px;
+    }
 
-          .reports-table th {
-            background: #f1f5f9 !important;
-            color: #475569 !important;
-            font-size: 8px !important;
-            font-weight: 800 !important;
-            text-transform: uppercase;
-          }
+    .reports-summary-card > strong {
+      display: block;
+      font-size: 18px;
+      line-height: 1.2;
+      margin: 0;
+      color: #18293F;
+    }
 
-          .reports-table td {
-            color: #0f172a !important;
-          }
+    .reports-summary-card > small {
+      display: block;
+      font-size: 9px;
+      line-height: 1.35;
+      color: #637A96;
+      margin-top: 5px;
+    }
 
-          .reports-table .positive {
-            color: #16a34a !important;
-            font-weight: 700;
-          }
+    .reports-summary-card > strong.negative {
+      color: #E8404A !important;
+    }
 
-          .reports-table .negative {
-            color: #dc2626 !important;
-            font-weight: 700;
-          }
+    .reports-table-wrapper {
+      width: 100% !important;
+      overflow: visible !important;
+      border: 0 !important;
+      border-radius: 0 !important;
+      box-shadow: none !important;
+      background: white !important;
+    }
 
-          .reports-total-row td {
-            background: #f8fafc !important;
-            color: #0f172a !important;
-            font-weight: 800 !important;
-            border-top: 2px solid #0f172a !important;
-          }
+    .reports-table {
+      width: 100% !important;
+      min-width: 0 !important;
+      border-collapse: collapse !important;
+      table-layout: auto;
+      line-height: 1.4;
+    }
 
-          .reports-empty,
-          .reports-error {
-            border: 1px solid #cbd5e1 !important;
-            box-shadow: none !important;
-          }
-        </style>
-      </head>
+    .reports-table th {
+      background: #ECF0F6 !important;
+      vertical-align: middle;
+      color: #637A96 !important;
+      font-size: 9px !important;
+      text-transform: uppercase;
+      padding: 8px 10px !important;
+      border-bottom: 2px solid #D2DAEA !important;
+      white-space: nowrap;
+    }
 
-      <body>
-        <main class="print-page">
-          <header class="print-header">
-            <h1>${escapeHtml(title)}</h1>
-            <p>${escapeHtml(subtitle)}</p>
+    .reports-table td {
+      font-size: 11px !important;
+      padding: 8px 10px !important;
+      text-align: center;
+      vertical-align: middle;
+      border-bottom: 1px solid #D2DAEA !important;
+      white-space: nowrap;
+      color: #18293F !important;
+    }
 
-            <div class="print-meta">
-              ${period ? `<span>${escapeHtml(period)}</span>` : ''}
-              ${kitchen ? `<span>${escapeHtml(kitchen)}</span>` : ''}
-            </div>
-          </header>
+    .reports-table th:first-child,
+    .reports-table td:first-child {
+      text-align: left;
+    }
 
-          ${reportClone.outerHTML}
-        </main>
-      </body>
-    </html>
-  `
+    .reports-total-row td {
+      font-weight: bold !important;
+      background: #ECF0F6 !important;
+      border-top: 2px solid #D2DAEA !important;
+    }
 
+    .reports-table .positive {
+      color: #1DB96A !important;
+      font-weight: bold;
+    }
+
+    .reports-table .negative {
+      color: #E8404A !important;
+      font-weight: bold;
+    }
+
+    .reports-empty,
+    .reports-error {
+      border: 1px solid #d2daea !important;
+      box-shadow: none !important;
+      background: white !important;
+    }
+
+    .print-footer {
+      margin-top: 18px;
+      text-align: right;
+      font-size: 10px;
+      color: #637A96;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="reports-page">
+    <header class="reports-header">
+      <h1>${escapeHtml(title)}</h1>
+      <p>${escapeHtml(subtitle)}</p>
+
+      <div class="print-meta">
+        ${period ? `<span>${escapeHtml(period)}</span>` : ''}
+        ${kitchen ? `<span>${escapeHtml(kitchen)}</span>` : ''}
+      </div>
+    </header>
+
+    ${reportClone.outerHTML}
+
+    <div class="print-footer">
+      Dicetak:
+      ${new Date().toLocaleString('id-ID', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      })}
+    </div>
+  </div>
+</body>
+</html>
+`
+
+  /*
+   * Ini sengaja mengikuti mekanisme V1:
+   * iframe full viewport → write document → print → cleanup.
+   */
   const iframe = document.createElement('iframe')
 
   iframe.style.cssText = `
     position: fixed;
-    inset: 0;
+    top: 0;
+    left: 0;
     width: 100%;
     height: 100%;
-    border: 0;
-    opacity: 0;
-    pointer-events: none;
+    border: none;
     z-index: 99999;
+    background: white;
   `
 
   document.body.appendChild(iframe)
 
-  const contentDocument = iframe.contentDocument
-  const contentWindow = iframe.contentWindow
+  const cleanup = () => {
+    if (iframe.parentNode) {
+      iframe.parentNode.removeChild(iframe)
+    }
+  }
+
+  const { contentDocument, contentWindow } = iframe
 
   if (!contentDocument || !contentWindow) {
-    iframe.remove()
+    cleanup()
     return
   }
-
-  let cleaned = false
-
-  const cleanup = () => {
-    if (cleaned) return
-    cleaned = true
-    iframe.remove()
-  }
-
-  contentWindow.addEventListener('afterprint', cleanup, { once: true })
 
   contentDocument.open()
   contentDocument.write(html)
   contentDocument.close()
 
+  contentWindow.onafterprint = cleanup
+
   window.setTimeout(() => {
     contentWindow.focus()
     contentWindow.print()
 
-    // Fallback untuk browser yang tidak mengirim afterprint.
-    window.setTimeout(cleanup, 1500)
-  }, 250)
+    // Fallback jika browser tidak memanggil onafterprint.
+    window.setTimeout(cleanup, 1000)
+  }, 400)
 }
 
 function formatPrintDate(value: string) {
@@ -319,11 +381,5 @@ function escapeHtml(value: string) {
     .replaceAll('"', '&quot;')
     .replaceAll("'", '&#039;')
 }
-
-// Alias supaya kompatibel dengan pemanggilan Print yang sudah ada.
-export const printReports = printReport
-export const printOverallReport = printReport
-export const printIncomeReport = printReport
-export const printExpenseReport = printReport
 
 export { printReport }

@@ -16,6 +16,7 @@ import {
   exportIncomeReport,
   exportSupplierReport
 } from '@/features/report/report-export'
+import { printReport } from '@/features/report/report-print'
 
 type ReportTab = 'overall' | 'income' | 'supplier'
 
@@ -277,6 +278,13 @@ function OverallReportView({
         >
           Export Excel
         </button>
+        <button
+          type="button"
+          onClick={() => printReport()}
+          disabled={!report || loading}
+        >
+          Print
+        </button>
       </div>
 
       {loading && <LoadingState />}
@@ -293,7 +301,7 @@ function OverallReportView({
             />
 
             <SummaryCard
-              label="Total Tagihan Supplier"
+              label="Total Supplier"
               value={report.totals.expense}
               note="Total pembayaran ke supplier pada periode terpilih"
             />
@@ -307,7 +315,7 @@ function OverallReportView({
             <SummaryCard
               label="Total"
               value={report.totals.remaining}
-              note="Sisa dana setelah dilakukan pembayaran ke supplier pada periode terpilih"
+              note="Sisa dana setelah dilakukan pembayaran ke supplier dari RAB pada periode terpilih"
               negative={report.totals.remaining < 0}
             />
           </div>
@@ -317,10 +325,10 @@ function OverallReportView({
               <thead>
                 <tr>
                   <th>DAPUR</th>
-                  <th>BGN</th>
+                  <th>RAB</th>
                   <th>SUPPLIER</th>
                   <th>OPS</th>
-                  <th>SISA</th>
+                  <th>TOTAL</th>
                 </tr>
               </thead>
 
@@ -378,10 +386,10 @@ function OverallReportView({
                     <thead>
                       <tr>
                         <th>TANGGAL</th>
-                        <th>BGN</th>
+                        <th>RAB</th>
                         <th>SUPPLIER</th>
                         <th>OPS</th>
-                        <th>SISA</th>
+                        <th>TOTAL</th>
                       </tr>
                     </thead>
 
@@ -501,6 +509,13 @@ function IncomeReportView() {
           disabled={!report || loading}
         >
           Export Excel
+        </button>
+        <button
+          type="button"
+          onClick={() => printReport()}
+          disabled={!report || loading}
+        >
+          Print
         </button>
       </div>
 
@@ -733,6 +748,13 @@ function SupplierReportView({
           disabled={!report || loading}
         >
           Export Excel
+        </button>
+        <button
+          type="button"
+          onClick={() => printReport()}
+          disabled={!report || loading}
+        >
+          Print
         </button>
       </div>
 

@@ -733,8 +733,8 @@ export function DashboardPage() {
               : formatRupiah(filters.flowType === '' ? net : 0)}
           </strong>
           <small>
-            Sisa dana setelah dilakukan pembayaran ke supplier pada periode
-            terpilih
+            Sisa dana setelah dilakukan pembayaran ke supplier dari RAB pada
+            periode terpilih
           </small>
         </article>
       </section>
