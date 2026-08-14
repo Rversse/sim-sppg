@@ -88,9 +88,14 @@ type ReportTransaction = {
   flow_type: 'income' | 'expense' | 'neutral'
   kitchen_id: string | null
   created_at: string
-  supplier?: {
-    name: string | null
-  } | null
+  suppliers?:
+    | {
+        name: string | null
+      }
+    | {
+        name: string | null
+      }[]
+    | null
   kitchens?: {
     id: string
     name: string
@@ -107,6 +112,24 @@ type ReportTransaction = {
 
 function getAmount(value: number | string | null) {
   return Number(value ?? 0) || 0
+}
+
+function getSupplierName(
+  supplier:
+    | {
+        name: string | null
+      }
+    | {
+        name: string | null
+      }[]
+    | null
+    | undefined
+) {
+  if (Array.isArray(supplier)) {
+    return supplier[0]?.name ?? '-'
+  }
+
+  return supplier?.name ?? '-'
 }
 
 function createSupplierValues(): Omit<SupplierSummaryRow, 'kitchenName'> {
@@ -481,7 +504,7 @@ export async function getSupplierReport(
     }
 
     if (transaction.flow_type === 'expense') {
-      const supplierName = transaction.supplier?.name ?? '-'
+      const supplierName = getSupplierName(transaction.suppliers)
 
       addSupplierExpense(summaryRow, totals, supplierName, amount)
 
@@ -498,6 +521,12 @@ export async function getSupplierReport(
         supplierName,
         amount
       )
+
+      // Match V1 behavior: every supplier expense contributes to Total,
+      // while the supplier-specific columns are populated when recognized.
+      summaryRow.Total += amount
+      dailyRow.Total += amount
+      totals.Total += amount
 
       continue
     }
@@ -517,16 +546,6 @@ export async function getSupplierReport(
         },
         amount
       )
-    }
-  }
-
-  for (const row of summary.values()) {
-    row.Total = row.Arutala + row.Sukalarang + row.Aris + row.Babinsa
-  }
-
-  for (const dateRows of daily.values()) {
-    for (const row of dateRows.values()) {
-      row.Total = row.Arutala + row.Sukalarang + row.Aris + row.Babinsa
     }
   }
 
