@@ -1,4 +1,4 @@
-import type { SupabaseClient } from '@supabase/supabase-js'
+import type { SupabaseClient } from '@Supabase/supabase-js'
 
 import { supabase } from '@/lib/supabase'
 
@@ -20,12 +20,10 @@ export type TransactionAccount = {
     | {
         business_name: string | null
         owner_name: string | null
-        is_active: boolean
       }
     | {
         business_name: string | null
         owner_name: string | null
-        is_active: boolean
       }[]
     | null
 }
@@ -37,6 +35,13 @@ type KitchenAccountRuleRow = {
 }
 
 const SUKARAJA_NAME = 'Sukaraja'
+const CIHAUR_NAME = 'Cihaur'
+
+function isOperationalExcludedKitchen(
+  name: string | null | undefined
+): boolean {
+  return name === SUKARAJA_NAME || name === CIHAUR_NAME
+}
 
 export async function getActiveKitchens(
   client: SupabaseClient = supabase
@@ -98,8 +103,7 @@ export async function getTransactionAccounts(
         account_number,
         income_suppliers(
           business_name,
-          owner_name,
-          is_active
+          owner_name
         )
       )
     `
@@ -124,7 +128,9 @@ export async function getTransactionAccounts(
       ? account.income_suppliers[0]
       : account.income_suppliers
 
-    if (!supplier?.is_active) {
+    // RAB/Income availability is determined by the kitchen_account_rules mapping.
+    // income_suppliers.is_active is no longer part of the model.
+    if (!supplier) {
       continue
     }
 
@@ -154,6 +160,16 @@ export async function getAvailableTransactionFlows(
     return []
   }
 
+  const { data: kitchen, error: kitchenError } = await client
+    .from('kitchens')
+    .select('name')
+    .eq('id', kitchenId)
+    .maybeSingle()
+
+  if (kitchenError) {
+    throw kitchenError
+  }
+
   const { data: rules, error } = await client
     .from('kitchen_account_rules')
     .select('flow_type')
@@ -163,11 +179,13 @@ export async function getAvailableTransactionFlows(
     throw error
   }
 
-  const hasNeutral = (rules ?? []).some((row) => row.flow_type === 'neutral')
+  const hasNeutralRule = (rules ?? []).some(
+    (row) => row.flow_type === 'neutral'
+  )
 
   const flows: TransactionFlow[] = ['income', 'expense']
 
-  if (hasNeutral) {
+  if (hasNeutralRule && !isOperationalExcludedKitchen(kitchen?.name)) {
     flows.push('neutral')
   }
 
@@ -197,33 +215,48 @@ export async function getSuppliersForKitchen(
     return suppliers
   }
 
-  const { data: kitchen, error } = await client
+  const { data: kitchen, error: kitchenError } = await client
     .from('kitchens')
     .select('name')
     .eq('id', kitchenId)
     .maybeSingle()
 
-  if (error) {
-    throw error
+  if (kitchenError) {
+    throw kitchenError
   }
 
   const isSukaraja = kitchen?.name?.includes(SUKARAJA_NAME) ?? false
 
-  if (isSukaraja) {
-    return suppliers
+  if (!isSukaraja) {
+    return suppliers.filter((supplier) => supplier.label === 'Koperasi Arutala')
   }
 
-  return suppliers.filter((supplier) => supplier.label === 'Koperasi Arutala')
+  const { data: rules, error: rulesError } = await client
+    .from('kitchen_supplier_rules')
+    .select('supplier_id')
+    .eq('kitchen_id', kitchenId)
+
+  if (rulesError) {
+    throw rulesError
+  }
+
+  const mappedSupplierIds = new Set(
+    (rules ?? []).map((rule) => rule.supplier_id)
+  )
+
+  return suppliers.filter((supplier) => mappedSupplierIds.has(supplier.value))
 }
 
 export function getDefaultOperationalAccount(
   accounts: TransactionOption[]
 ): string {
-  const operationalAccount = accounts.find((account) =>
-    account.label.includes('BNI')
+  const arutalaBniAccounts = accounts.filter((account) =>
+    /^ARUTALA(?:\s*\/.*)?\s*\(BNI\s*-\s*/i.test(account.label)
   )
 
-  return operationalAccount?.value ?? ''
+  // Never choose an arbitrary BNI account. Auto-select only when the
+  // mapped operational options identify exactly one ARUTALA BNI account.
+  return arutalaBniAccounts.length === 1 ? arutalaBniAccounts[0].value : ''
 }
 
 export function getDefaultSupplier(suppliers: TransactionOption[]): string {

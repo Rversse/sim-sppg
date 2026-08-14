@@ -93,6 +93,9 @@ export function DashboardPage() {
   const [supplierOptions, setSupplierOptions] = useState<
     { value: string; label: string }[]
   >([])
+  const [availableFilterFlows, setAvailableFilterFlows] = useState<
+    DashboardFlow[]
+  >(['income', 'expense', 'neutral'])
   const [summary, setSummary] = useState<DashboardSummary>({
     income: 0,
     expense: 0,
@@ -125,6 +128,7 @@ export function DashboardPage() {
 
   const [formAccounts, setFormAccounts] = useState<TransactionOption[]>([])
   const [formSuppliers, setFormSuppliers] = useState<TransactionOption[]>([])
+  const [formEntryUnlocked, setFormEntryUnlocked] = useState(false)
 
   const loadDashboard = useCallback(async () => {
     setLoading(true)
@@ -178,7 +182,39 @@ export function DashboardPage() {
   }, [loadDashboard])
 
   const net = filters.flowType === '' ? summary.income - summary.expense : 0
-  const supplierDisabled = filters.flowType === 'neutral'
+
+  const selectedFilterKitchen = kitchens.find(
+    (kitchen) => kitchen.id === filters.kitchenId
+  )
+  const isSukarajaFilterKitchen =
+    selectedFilterKitchen?.name?.includes('Sukaraja') ?? false
+
+  const supplierLockedToArutala =
+    filters.flowType === 'expense' &&
+    Boolean(filters.kitchenId) &&
+    !isSukarajaFilterKitchen
+
+  const supplierDisabled =
+    filters.flowType === 'neutral' || supplierLockedToArutala
+
+  const supplierFilterLabel =
+    filters.flowType === 'income'
+      ? 'Rekening Supplier'
+      : filters.flowType === 'expense'
+        ? 'Supplier'
+        : filters.flowType === 'neutral'
+          ? 'Rekening Operasional'
+          : 'Supplier / Rekening'
+
+  const supplierPlaceholder = supplierDisabled
+    ? filters.flowType === 'neutral'
+      ? 'Arutala BNI'
+      : 'Koperasi Arutala'
+    : filters.flowType === 'expense' && isSukarajaFilterKitchen
+      ? 'Semua supplier'
+      : filters.flowType === 'income'
+        ? 'Semua rekening'
+        : 'Semua supplier / rekening'
   const selectedFormKitchen = kitchens.find(
     (kitchen) => kitchen.id === formKitchenId
   )
@@ -226,20 +262,67 @@ export function DashboardPage() {
 
   function handleKitchen(value: string) {
     setTransactionPage(1)
+
+    // Changing the kitchen always resets the dependent filters.
     setFilters((current) => ({
       ...current,
       kitchenId: value,
+      flowType: '',
       supplierFilter: ''
     }))
+
+    // Start from the common flows while the kitchen-specific rules load.
+    // This prevents a stale "Operasional" selection from surviving a kitchen change.
+    if (!value) {
+      setAvailableFilterFlows(['income', 'expense', 'neutral'])
+      return
+    }
+
+    setAvailableFilterFlows(['income', 'expense'])
+
+    void getAvailableTransactionFlows(value)
+      .then((flows) => {
+        setAvailableFilterFlows(flows)
+      })
+      .catch((loadError) => {
+        console.error(loadError)
+        setAvailableFilterFlows(['income', 'expense'])
+      })
   }
 
-  function handleFlow(value: DashboardFlow | '') {
+  async function handleFlow(value: DashboardFlow | '') {
     setTransactionPage(1)
     setFilters((current) => ({
       ...current,
       flowType: value,
       supplierFilter: ''
     }))
+
+    if (value === 'neutral') {
+      try {
+        const options = await getSupplierOptions({
+          startDate: filters.startDate,
+          endDate: filters.endDate,
+          kitchenId: filters.kitchenId,
+          flowType: value
+        })
+
+        const operationalAccount = options[0]
+
+        if (operationalAccount) {
+          setFilters((current) => {
+            if (current.flowType !== 'neutral') return current
+
+            return {
+              ...current,
+              supplierFilter: operationalAccount.value
+            }
+          })
+        }
+      } catch (loadError) {
+        console.error(loadError)
+      }
+    }
   }
 
   function resetTransactionForm() {
@@ -254,6 +337,7 @@ export function DashboardPage() {
     setFormError(null)
     setFormAccounts([])
     setFormSuppliers([])
+    setFormEntryUnlocked(false)
   }
 
   function closeTransactionModal() {
@@ -289,10 +373,14 @@ export function DashboardPage() {
         accounts.some((item) => item.value === preserveAccountId)
       ) {
         setFormAccountId(preserveAccountId)
+        setFormEntryUnlocked(true)
       } else if (flowType === 'neutral') {
-        setFormAccountId(getDefaultOperationalAccount(accounts))
+        const operationalAccount = getDefaultOperationalAccount(accounts)
+        setFormAccountId(operationalAccount)
+        setFormEntryUnlocked(Boolean(operationalAccount))
       } else {
         setFormAccountId('')
+        setFormEntryUnlocked(false)
       }
 
       return
@@ -309,13 +397,16 @@ export function DashboardPage() {
       suppliers.some((item) => item.value === preserveSupplierId)
     ) {
       setFormSupplierId(preserveSupplierId)
+      setFormEntryUnlocked(true)
     } else {
       const selectedKitchen = kitchens.find(
         (kitchen) => kitchen.id === kitchenId
       )
       const isSukaraja = selectedKitchen?.name?.includes('Sukaraja') ?? false
+      const defaultSupplier = isSukaraja ? '' : getDefaultSupplier(suppliers)
 
-      setFormSupplierId(isSukaraja ? '' : getDefaultSupplier(suppliers))
+      setFormSupplierId(defaultSupplier)
+      setFormEntryUnlocked(Boolean(defaultSupplier))
     }
   }
 
@@ -339,6 +430,7 @@ export function DashboardPage() {
     setFormFlowType(transaction.flow_type)
     setFormAmount(String(Number(transaction.amount) || 0))
     setFormNote(transaction.note ?? '')
+    setFormEntryUnlocked(true)
     setFormAccountId(transaction.account_id ?? '')
     setFormSupplierId(transaction.supplier_id ?? '')
     setFormAccounts([])
@@ -369,6 +461,9 @@ export function DashboardPage() {
     setFormKitchenId(value)
     setFormAccountId('')
     setFormSupplierId('')
+    setFormAmount('')
+    setFormNote('')
+    setFormEntryUnlocked(false)
     setFormAccounts([])
     setFormSuppliers([])
     setFormError(null)
@@ -376,6 +471,7 @@ export function DashboardPage() {
     if (!value) {
       setAvailableFormFlows([])
       setFormFlowType('')
+      setFormEntryUnlocked(false)
       return
     }
 
@@ -396,6 +492,9 @@ export function DashboardPage() {
     setFormFlowType(value)
     setFormAccountId('')
     setFormSupplierId('')
+    setFormAmount('')
+    setFormNote('')
+    setFormEntryUnlocked(false)
     setFormAccounts([])
     setFormSuppliers([])
     setFormError(null)
@@ -429,6 +528,19 @@ export function DashboardPage() {
     }
 
     const amount = Number(formAmount)
+
+    if (!transactionDetailsUnlocked) {
+      setFormError(
+        formFlowType === 'income'
+          ? 'Pilih rekening supplier terlebih dahulu.'
+          : formFlowType === 'expense'
+            ? 'Pilih supplier terlebih dahulu.'
+            : formFlowType === 'neutral'
+              ? 'Rekening operasional belum siap.'
+              : 'Lengkapi dapur dan jenis transaksi terlebih dahulu.'
+      )
+      return
+    }
 
     if (!Number.isFinite(amount) || amount <= 0) {
       setFormError('Nominal harus lebih dari 0.')
@@ -494,10 +606,40 @@ export function DashboardPage() {
         await updateTransaction(editingId, payload)
       }
 
-      setModalOpen(false)
-      setModalMode('create')
-      setEditingId(null)
-      resetTransactionForm()
+      if (modalMode === 'edit') {
+        setModalOpen(false)
+        setModalMode('create')
+        setEditingId(null)
+        resetTransactionForm()
+      } else {
+        // Keep the modal open for rapid multi-entry input.
+        // Preserve kitchen + flow + date, clear only the field that
+        // identifies the next transaction within that flow.
+        setFormAmount('')
+        setFormNote('')
+        setFormError(null)
+
+        if (formFlowType === 'income') {
+          // RAB: choose a different supplier account for the next entry.
+          setFormAccountId('')
+          setFormEntryUnlocked(false)
+        } else if (formFlowType === 'expense') {
+          const isSukaraja = isSukarajaFormKitchen
+
+          if (isSukaraja) {
+            // Sukaraja: choose a supplier again for the next entry.
+            setFormSupplierId('')
+            setFormEntryUnlocked(false)
+          } else {
+            // Other kitchens: supplier is permanently Koperasi Arutala.
+            // Keep it selected/locked so the next entry can be keyed immediately.
+            setFormEntryUnlocked(true)
+          }
+        } else if (formFlowType === 'neutral') {
+          // Operational: Arutala BNI stays selected and locked.
+          setFormEntryUnlocked(Boolean(formAccountId))
+        }
+      }
 
       if (transactionPage !== 1) {
         setTransactionPage(1)
@@ -540,6 +682,8 @@ export function DashboardPage() {
       setError('Transaksi gagal dihapus.')
     }
   }
+
+  const transactionDetailsUnlocked = modalMode === 'edit' || formEntryUnlocked
 
   const roleLabel =
     user?.role === 'admin'
@@ -656,7 +800,11 @@ export function DashboardPage() {
                 handleFlow(event.target.value as DashboardFlow | '')
               }
             >
-              {FLOW_OPTIONS.map((option) => (
+              {FLOW_OPTIONS.filter(
+                (option) =>
+                  option.value === '' ||
+                  availableFilterFlows.includes(option.value as DashboardFlow)
+              ).map((option) => (
                 <option key={option.value} value={option.value}>
                   {option.label}
                 </option>
@@ -665,22 +813,30 @@ export function DashboardPage() {
           </label>
 
           <label>
-            <span>Supplier</span>
+            <span>{supplierFilterLabel}</span>
             <select
-              value={filters.supplierFilter}
+              value={
+                supplierLockedToArutala
+                  ? 'Koperasi Arutala'
+                  : filters.supplierFilter
+              }
               disabled={supplierDisabled}
               onChange={(event) =>
                 updateFilter('supplierFilter', event.target.value)
               }
             >
-              <option value="">
-                {supplierDisabled ? 'Tidak berlaku' : 'Semua supplier'}
-              </option>
-              {supplierOptions.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
+              <option value="">{supplierPlaceholder}</option>
+              {supplierOptions
+                .filter(
+                  (option) =>
+                    !supplierLockedToArutala ||
+                    option.value === 'Koperasi Arutala'
+                )
+                .map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
             </select>
           </label>
         </div>
@@ -1110,7 +1266,11 @@ export function DashboardPage() {
                   <select
                     value={formSupplierId}
                     disabled={modalMode === 'edit' || !isSukarajaFormKitchen}
-                    onChange={(event) => setFormSupplierId(event.target.value)}
+                    onChange={(event) => {
+                      const value = event.target.value
+                      setFormSupplierId(value)
+                      setFormEntryUnlocked(Boolean(value))
+                    }}
                   >
                     <option value="">Pilih supplier</option>
                     {formSuppliers.map((supplier) => (
@@ -1122,13 +1282,21 @@ export function DashboardPage() {
                 </label>
               ) : formFlowType ? (
                 <label>
-                  <span>Rekening</span>
+                  <span>
+                    {formFlowType === 'neutral'
+                      ? 'Rekening Operasional'
+                      : 'Rekening'}
+                  </span>
                   <select
                     value={formAccountId}
                     disabled={
                       formFlowType === 'neutral' || modalMode === 'edit'
                     }
-                    onChange={(event) => setFormAccountId(event.target.value)}
+                    onChange={(event) => {
+                      const value = event.target.value
+                      setFormAccountId(value)
+                      setFormEntryUnlocked(Boolean(value))
+                    }}
                   >
                     <option value="">Pilih rekening</option>
                     {formAccounts.map((account) => (
@@ -1147,6 +1315,7 @@ export function DashboardPage() {
                   min="1"
                   step="1"
                   value={formAmount}
+                  disabled={!transactionDetailsUnlocked}
                   onChange={(event) => setFormAmount(event.target.value)}
                   placeholder="0"
                 />
@@ -1157,8 +1326,9 @@ export function DashboardPage() {
                 <textarea
                   rows={3}
                   value={formNote}
+                  disabled={!transactionDetailsUnlocked}
                   onChange={(event) => setFormNote(event.target.value)}
-                  placeholder="Opsional"
+                  placeholder="Pilih dapur, jenis transaksi, dan tujuan terlebih dahulu"
                 />
               </label>
             </div>

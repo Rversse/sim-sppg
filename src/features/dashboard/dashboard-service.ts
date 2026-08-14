@@ -48,24 +48,6 @@ export type DashboardActivity = {
   operational: number
 }
 
-type SupplierAccountRow = {
-  account_id: string
-  accounts:
-    | {
-        id: string
-        name: string
-        bank: string
-        account_category: string
-      }
-    | {
-        id: string
-        name: string
-        bank: string
-        account_category: string
-      }[]
-    | null
-}
-
 const supplierNames = [
   'Koperasi Arutala',
   'Sukalarang',
@@ -121,7 +103,33 @@ export async function getSupplierOptions(
   >,
   client: SupabaseClient = supabase
 ): Promise<{ value: string; label: string }[]> {
-  if (filters.flowType === 'neutral') return []
+  if (filters.flowType === 'neutral') {
+    const { data: account, error: accountError } = await client
+      .from('accounts')
+      .select('id,name,bank,account_category')
+      .eq('name', 'ARUTALA')
+      .eq('bank', 'BNI')
+      .eq('account_category', 'supplier')
+      .maybeSingle()
+
+    if (accountError) throw accountError
+    if (!account) return []
+
+    if (filters.kitchenId) {
+      const { data: rule, error: ruleError } = await client
+        .from('kitchen_account_rules')
+        .select('account_id')
+        .eq('kitchen_id', filters.kitchenId)
+        .eq('flow_type', 'neutral')
+        .eq('account_id', account.id)
+        .maybeSingle()
+
+      if (ruleError) throw ruleError
+      if (!rule) return []
+    }
+
+    return [{ value: account.id, label: 'Arutala BNI' }]
+  }
 
   if (filters.flowType === 'expense') {
     const kitchen = filters.kitchenId
@@ -141,14 +149,29 @@ export async function getSupplierOptions(
     return names.map((name) => ({ value: name, label: name }))
   }
 
-  let query = client
-    .from('transactions')
-    .select('account_id,accounts!inner(id,name,bank,account_category)')
-    .gte('transaction_date', filters.startDate)
-    .lte('transaction_date', filters.endDate)
+  const query = client
+    .from('kitchen_account_rules')
+    .select(
+      `
+      kitchen_id,
+      flow_type,
+      accounts!inner(
+        id,
+        name,
+        bank,
+        account_category,
+        income_suppliers!inner(
+          business_name,
+          owner_name
+        )
+      )
+      `
+    )
+    .eq('flow_type', 'income')
 
-  if (filters.kitchenId) query = query.eq('kitchen_id', filters.kitchenId)
-  if (filters.flowType) query = query.eq('flow_type', filters.flowType)
+  if (filters.kitchenId) {
+    query.eq('kitchen_id', filters.kitchenId)
+  }
 
   const { data, error } = await query
 
@@ -156,10 +179,16 @@ export async function getSupplierOptions(
 
   const accounts = new Map<string, { name: string; bank: string }>()
 
-  for (const row of (data ?? []) as unknown as SupplierAccountRow[]) {
+  for (const row of data ?? []) {
     const account = Array.isArray(row.accounts) ? row.accounts[0] : row.accounts
 
     if (!account || account.account_category !== 'supplier') continue
+
+    const supplier = Array.isArray(account.income_suppliers)
+      ? account.income_suppliers[0]
+      : account.income_suppliers
+
+    if (!supplier) continue
 
     accounts.set(account.id, {
       name: account.name,
@@ -211,9 +240,13 @@ export async function getDashboardTransactions(
       }
 
       query = query.eq('flow_type', 'expense').eq('supplier_id', supplier.id)
-    } else if (filters.flowType === 'income' || filters.flowType === '') {
+    } else if (
+      filters.flowType === 'income' ||
+      filters.flowType === '' ||
+      filters.flowType === 'neutral'
+    ) {
       query = query
-        .eq('flow_type', 'income')
+        .eq('flow_type', filters.flowType === '' ? 'income' : filters.flowType)
         .eq('account_id', filters.supplierFilter)
     }
   }
@@ -275,9 +308,13 @@ export async function getDashboardTransactionPage(
       }
 
       query = query.eq('flow_type', 'expense').eq('supplier_id', supplier.id)
-    } else if (filters.flowType === 'income' || filters.flowType === '') {
+    } else if (
+      filters.flowType === 'income' ||
+      filters.flowType === '' ||
+      filters.flowType === 'neutral'
+    ) {
       query = query
-        .eq('flow_type', 'income')
+        .eq('flow_type', filters.flowType === '' ? 'income' : filters.flowType)
         .eq('account_id', filters.supplierFilter)
     }
   }
@@ -311,6 +348,28 @@ export async function getDashboardActivity(
 
   if (filters.flowType) {
     query = query.eq('flow_type', filters.flowType)
+  }
+
+  if (filters.supplierFilter) {
+    if (filters.flowType === 'expense') {
+      const { data: supplier, error: supplierError } = await client
+        .from('suppliers')
+        .select('id')
+        .eq('name', filters.supplierFilter)
+        .maybeSingle()
+
+      if (supplierError) throw supplierError
+      if (!supplier) return []
+
+      query = query.eq('flow_type', 'expense').eq('supplier_id', supplier.id)
+    } else if (
+      filters.flowType === 'income' ||
+      filters.flowType === 'neutral'
+    ) {
+      query = query
+        .eq('flow_type', filters.flowType)
+        .eq('account_id', filters.supplierFilter)
+    }
   }
 
   const { data, error } = await query

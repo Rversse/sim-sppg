@@ -39,7 +39,7 @@ export function LoginPage() {
 
   if (isLoading) {
     return (
-      <main className="flex min-h-screen items-center justify-center">
+      <main className="login-page">
         <p>Memuat sesi...</p>
       </main>
     )
@@ -146,17 +146,15 @@ export function LoginPage() {
   }
 
   return (
-    <main className="flex min-h-screen items-center justify-center">
-      <section className="w-full max-w-md">
-        <div className="mb-6 text-center">
-          <h1 className="text-2xl font-bold">SIM SPPG</h1>
+    <main className="login-page">
+      <section className="login-card">
+        <div className="login-header">
+          <h1>SIM SPPG</h1>
 
-          <p className="mt-2 text-sm text-muted-foreground">
-            Pilih akun untuk masuk
-          </p>
+          <p>Pilih akun untuk masuk</p>
         </div>
 
-        <div className="grid grid-cols-3 gap-2">
+        <div className="login-account-grid">
           {accounts.map((account) => (
             <Button
               key={account.username}
@@ -173,10 +171,8 @@ export function LoginPage() {
         </div>
 
         {selectedUsername !== 'guest' && (
-          <div className="mt-6">
-            <label htmlFor="pin" className="mb-2 block text-sm font-medium">
-              PIN
-            </label>
+          <div className="login-pin-field">
+            <label htmlFor="pin">PIN</label>
 
             <input
               id="pin"
@@ -187,13 +183,13 @@ export function LoginPage() {
               value={pin}
               disabled={isLoggingIn}
               onChange={(event) => handlePinChange(event.target.value)}
-              className="h-12 w-full rounded-md border bg-background px-4 text-center text-xl tracking-[0.5em] outline-none focus:ring-2 focus:ring-ring"
+              className="login-pin-input"
             />
           </div>
         )}
 
         {errorMessage && (
-          <p role="alert" className="mt-4 text-sm text-destructive">
+          <p role="alert" className="login-error">
             {errorMessage}
           </p>
         )}
@@ -201,7 +197,7 @@ export function LoginPage() {
         {selectedUsername !== 'guest' && (
           <Button
             type="button"
-            className="mt-6 w-full"
+            className="login-submit"
             disabled={isLoggingIn || pin.length !== PIN_LENGTH}
             onClick={() => void handleLogin()}
           >

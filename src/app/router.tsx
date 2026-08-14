@@ -7,6 +7,7 @@ import { LoginPage } from '@/pages/LoginPage'
 import { UnauthorizedPage } from '@/pages/UnauthorizedPage'
 import { DashboardPage } from '@/pages/DashboardPage'
 import { KitchenPage } from '@/pages/KitchenPage'
+import { VehiclePage } from '@/pages/VehiclePage'
 import { SupplierPage } from '@/pages/SupplierPage'
 import { BankPage } from '@/pages/BankPage'
 import { ReportsPage } from '@/pages/ReportsPage'
@@ -50,7 +51,16 @@ export const router = createBrowserRouter([
             ]
           },
           {
-            element: <RoleRoute permission="supplier.manage" />,
+            element: <RoleRoute permission="vehicle.view" />,
+            children: [
+              {
+                path: 'master/vehicle',
+                element: <VehiclePage />
+              }
+            ]
+          },
+          {
+            element: <RoleRoute permission="supplier.view" />,
             children: [
               {
                 path: 'master/supplier',

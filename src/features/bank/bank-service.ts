@@ -14,12 +14,12 @@ export type BankAccount = {
   is_holding_destination: boolean
   income_suppliers:
     | {
+        business_name: string | null
         owner_name: string | null
-        is_active: boolean
       }
     | {
+        business_name: string | null
         owner_name: string | null
-        is_active: boolean
       }[]
     | null
 }
@@ -127,8 +127,8 @@ export async function getBankAccounts(
         account_category,
         is_holding_destination,
         income_suppliers(
-          owner_name,
-          is_active
+          business_name,
+          owner_name
         )
       `
     )
@@ -171,8 +171,8 @@ export async function getBankTransactions(
           account_category,
           is_holding_destination,
           income_suppliers(
-            owner_name,
-            is_active
+            business_name,
+            owner_name
           )
         ),
         recipient:accounts!bank_transactions_recipient_account_fkey(
@@ -184,8 +184,8 @@ export async function getBankTransactions(
           account_category,
           is_holding_destination,
           income_suppliers(
-            owner_name,
-            is_active
+            business_name,
+            owner_name
           )
         )
       `
@@ -276,25 +276,46 @@ export async function getBankOverview(
     )
   }
 
-  const summaries = accounts.map((account) => {
-    const disbursementIncome = incomeByAccount.get(account.id) ?? 0
-    const transferIncome = transferIncomeByAccount.get(account.id) ?? 0
-    const transferExpense = transferExpenseByAccount.get(account.id) ?? 0
+  // Account cards are shown only for accounts that have actually been used
+  // in the bank module period. An opening balance by itself does not make an
+  // account visible; the account must participate in a transaction.
+  const usedAccountIds = new Set<string>()
 
-    const balance =
-      Number(account.opening_balance) +
-      disbursementIncome +
-      transferIncome -
-      transferExpense
-
-    return {
-      account,
-      disbursementIncome,
-      transferIncome,
-      transferExpense,
-      balance
+  for (const transaction of incomeTransactions) {
+    if (transaction.account_id) {
+      usedAccountIds.add(transaction.account_id)
     }
-  })
+  }
+
+  for (const transaction of transactions) {
+    usedAccountIds.add(transaction.account_id)
+
+    if (transaction.recipient_account_id) {
+      usedAccountIds.add(transaction.recipient_account_id)
+    }
+  }
+
+  const summaries = accounts
+    .filter((account) => usedAccountIds.has(account.id))
+    .map((account) => {
+      const disbursementIncome = incomeByAccount.get(account.id) ?? 0
+      const transferIncome = transferIncomeByAccount.get(account.id) ?? 0
+      const transferExpense = transferExpenseByAccount.get(account.id) ?? 0
+
+      const balance =
+        Number(account.opening_balance) +
+        disbursementIncome +
+        transferIncome -
+        transferExpense
+
+      return {
+        account,
+        disbursementIncome,
+        transferIncome,
+        transferExpense,
+        balance
+      }
+    })
 
   return {
     accounts,

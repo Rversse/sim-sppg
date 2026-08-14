@@ -3,6 +3,7 @@ import { NavLink, Outlet } from 'react-router-dom'
 import { supabase } from '@/lib/supabase'
 import { canAccess, type Permission } from '@/features/auth/role-policy'
 import { useAuth } from '@/features/auth/use-auth'
+import { VehicleExpiryNotification } from '@/components/VehicleExpiryNotification'
 
 type NavigationItem = {
   label: string
@@ -38,9 +39,15 @@ const navigationSections: NavigationSection[] = [
         short: 'DP'
       },
       {
-        label: 'Supplier',
+        label: 'Data Kendaraan',
+        to: '/master/vehicle',
+        permission: 'vehicle.view',
+        short: 'KD'
+      },
+      {
+        label: 'Data Supplier',
         to: '/master/supplier',
-        permission: 'supplier.manage',
+        permission: 'supplier.view',
         short: 'SP'
       }
     ]
@@ -143,6 +150,7 @@ export function AppLayout() {
           </div>
 
           <div className="app-user">
+            <VehicleExpiryNotification />
             <span className="app-user-role">{user?.role ?? 'user'}</span>
 
             <span className="app-user-avatar">
