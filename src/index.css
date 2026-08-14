@@ -3866,18 +3866,15 @@ select {
 }
 
 /* =========================================================
-   SIM SPPG — GLOBAL UI POLISH
-   Presentation-only layer. No business-flow changes.
+   GLOBAL UI POLISH / MOTION
+   Keeps page logic unchanged; visual behavior only.
    ========================================================= */
 
 :root {
-  --ui-radius-sm: 9px;
-  --ui-radius-md: 14px;
-  --ui-radius-lg: 18px;
-  --ui-shadow-sm: 0 1px 2px rgb(15 23 42 / 0.04);
-  --ui-shadow-md: 0 10px 30px rgb(15 23 42 / 0.07);
-  --ui-shadow-lg: 0 20px 55px rgb(15 23 42 / 0.12);
-  --ui-transition: 180ms cubic-bezier(0.2, 0.7, 0.2, 1);
+  --app-motion-fast: 140ms;
+  --app-motion: 220ms;
+  --app-motion-slow: 320ms;
+  --app-ease: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 html {
@@ -3885,291 +3882,351 @@ html {
 }
 
 body {
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
 }
 
-.app-main {
-  padding: 22px 28px 40px;
+button,
+a,
+input,
+select,
+textarea {
+  -webkit-tap-highlight-color: transparent;
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid var(--app-accent);
+  outline-offset: 2px;
+}
+
+/* ----- App shell ----- */
+
+.app-shell {
+  --sidebar-width: 252px;
 }
 
 .app-sidebar {
-  box-shadow: 8px 0 28px rgb(15 23 42 / 0.035);
+  position: relative;
+  z-index: 20;
+  width: var(--sidebar-width);
+  flex-basis: var(--sidebar-width);
+  overflow: hidden;
+  transition:
+    width var(--app-motion) var(--app-ease),
+    flex-basis var(--app-motion) var(--app-ease),
+    box-shadow var(--app-motion) ease;
 }
 
-.app-nav-item,
-.app-user-role,
+.app-sidebar::after {
+  position: absolute;
+  inset: 0 0 0 auto;
+  width: 1px;
+  background: rgb(255 255 255 / 0.05);
+  content: '';
+  pointer-events: none;
+}
+
+.app-sidebar-toggle {
+  position: absolute;
+  top: 18px;
+  right: -11px;
+  z-index: 4;
+  display: grid;
+  width: 24px;
+  height: 24px;
+  place-items: center;
+  padding: 0;
+  border: 1px solid rgb(255 255 255 / 0.14);
+  border-radius: 50%;
+  background: #111b39;
+  color: #fff;
+  cursor: pointer;
+  box-shadow: 0 8px 18px rgb(0 0 0 / 0.2);
+  transition:
+    transform var(--app-motion-fast) ease,
+    background-color var(--app-motion-fast) ease,
+    box-shadow var(--app-motion-fast) ease;
+}
+
+.app-sidebar-toggle:hover {
+  transform: scale(1.06);
+  background: #18244a;
+  box-shadow: 0 10px 22px rgb(0 0 0 / 0.24);
+}
+
+.app-sidebar-toggle:active {
+  transform: scale(0.96);
+}
+
+.app-sidebar-toggle span {
+  font-size: 15px;
+  line-height: 1;
+  transform: translateY(-1px);
+}
+
+.app-brand,
+.app-nav,
+.app-sidebar-footer {
+  transition:
+    opacity var(--app-motion-fast) ease,
+    transform var(--app-motion) var(--app-ease);
+}
+
+.app-nav-link {
+  position: relative;
+  overflow: hidden;
+  transition:
+    transform var(--app-motion-fast) var(--app-ease),
+    background-color var(--app-motion-fast) ease,
+    color var(--app-motion-fast) ease,
+    box-shadow var(--app-motion-fast) ease;
+}
+
+.app-nav-link::before {
+  position: absolute;
+  top: 7px;
+  bottom: 7px;
+  left: 0;
+  width: 3px;
+  border-radius: 0 3px 3px 0;
+  background: var(--app-accent);
+  content: '';
+  opacity: 0;
+  transform: scaleY(0.5);
+  transform-origin: center;
+  transition:
+    opacity var(--app-motion-fast) ease,
+    transform var(--app-motion-fast) var(--app-ease);
+}
+
+.app-nav-link:hover {
+  transform: translateX(2px);
+}
+
+.app-nav-link.is-active::before {
+  opacity: 1;
+  transform: scaleY(1);
+}
+
+.app-nav-icon {
+  flex: 0 0 27px;
+  transition:
+    transform var(--app-motion-fast) var(--app-ease),
+    background-color var(--app-motion-fast) ease;
+}
+
+.app-nav-link:hover .app-nav-icon {
+  transform: scale(1.06);
+}
+
+/* ----- Collapsed desktop sidebar ----- */
+
+.app-shell.sidebar-collapsed {
+  --sidebar-width: 78px;
+}
+
+.app-shell.sidebar-collapsed .app-brand {
+  justify-content: center;
+  padding-inline: 10px;
+}
+
+.app-shell.sidebar-collapsed .app-brand-copy,
+.app-shell.sidebar-collapsed .app-nav-label,
+.app-shell.sidebar-collapsed .app-nav-section-label,
+.app-shell.sidebar-collapsed .app-sidebar-footer span:last-child {
+  width: 0;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateX(-8px);
+}
+
+.app-shell.sidebar-collapsed .app-nav {
+  gap: 14px;
+  padding-inline: 10px;
+}
+
+.app-shell.sidebar-collapsed .app-nav-section-items {
+  gap: 6px;
+}
+
+.app-shell.sidebar-collapsed .app-nav-link {
+  justify-content: center;
+  padding-inline: 8px;
+}
+
+.app-shell.sidebar-collapsed .app-nav-link:hover {
+  transform: translateX(0) scale(1.02);
+}
+
+.app-shell.sidebar-collapsed .app-nav-section {
+  gap: 0;
+}
+
+.app-shell.sidebar-collapsed .app-sidebar-footer {
+  justify-content: center;
+  padding-inline: 10px;
+}
+
+.app-shell.sidebar-collapsed .app-sidebar-toggle {
+  right: -12px;
+}
+
+/* ----- Header / page transitions ----- */
+
+.app-header {
+  transition:
+    box-shadow var(--app-motion) ease,
+    background-color var(--app-motion) ease;
+}
+
 .app-user-avatar {
   transition:
-    background-color var(--ui-transition),
-    border-color var(--ui-transition),
-    color var(--ui-transition),
-    transform var(--ui-transition),
-    box-shadow var(--ui-transition);
-}
-
-.app-nav-item:hover {
-  transform: translateX(2px);
+    transform var(--app-motion-fast) var(--app-ease),
+    box-shadow var(--app-motion-fast) ease;
 }
 
 .app-user-avatar:hover {
   transform: translateY(-1px);
-  box-shadow: 0 6px 18px rgb(57 255 136 / 0.14);
+  box-shadow: 0 6px 18px rgb(11 19 43 / 0.16);
 }
 
-/* Page entrance */
-.dashboard-page,
-.kitchen-page,
-.supplier-page,
-.vehicle-page,
-.bank-page,
-.report-page,
-.unauthorized-page {
-  animation: sim-page-in 280ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+.app-logout-button {
+  transition:
+    transform var(--app-motion-fast) var(--app-ease),
+    border-color var(--app-motion-fast) ease,
+    background-color var(--app-motion-fast) ease;
 }
 
-@keyframes sim-page-in {
-  from {
-    opacity: 0;
-    transform: translateY(7px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+.app-logout-button:hover {
+  transform: translateY(-1px);
 }
 
-/* Shared controls */
-input,
-select,
-textarea,
+.app-main {
+  animation: app-page-enter var(--app-motion-slow) var(--app-ease) both;
+}
+
+/* ----- Common interactive controls ----- */
+
 button {
   transition:
-    border-color var(--ui-transition),
-    box-shadow var(--ui-transition),
-    background-color var(--ui-transition),
-    color var(--ui-transition),
-    transform var(--ui-transition);
-}
-
-input:hover,
-select:hover,
-textarea:hover {
-  border-color: #cbd5e1;
-}
-
-input:focus-visible,
-select:focus-visible,
-textarea:focus-visible {
-  outline: none;
-  border-color: #39ff88;
-  box-shadow: 0 0 0 3px rgb(57 255 136 / 0.13);
+    transform var(--app-motion-fast) var(--app-ease),
+    box-shadow var(--app-motion-fast) ease,
+    background-color var(--app-motion-fast) ease,
+    border-color var(--app-motion-fast) ease,
+    color var(--app-motion-fast) ease,
+    opacity var(--app-motion-fast) ease;
 }
 
 button:not(:disabled):active {
   transform: translateY(1px);
 }
-button:disabled {
-  cursor: not-allowed;
+
+input:not(:disabled),
+select:not(:disabled),
+textarea:not(:disabled) {
+  transition:
+    border-color var(--app-motion-fast) ease,
+    box-shadow var(--app-motion-fast) ease,
+    background-color var(--app-motion-fast) ease;
 }
 
-/* Shared panels */
-.kitchen-panel,
-.supplier-panel,
-.vehicle-panel,
-.bank-accounts-panel,
+/* ----- Generic panel / table polish ----- */
+
 .dashboard-filter-card,
-.dashboard-panel {
-  box-shadow: var(--ui-shadow-sm);
-  transition:
-    box-shadow var(--ui-transition),
-    border-color var(--ui-transition);
-}
-
-.kitchen-panel:hover,
-.supplier-panel:hover,
-.vehicle-panel:hover,
-.bank-accounts-panel:hover,
-.dashboard-filter-card:hover,
-.dashboard-panel:hover {
-  border-color: #d7e0eb;
-  box-shadow: var(--ui-shadow-md);
-}
-
-/* Tables */
-.kitchen-table tbody tr,
-.supplier-table tbody tr,
-.vehicle-table tbody tr {
-  transition:
-    background-color var(--ui-transition),
-    transform var(--ui-transition);
-}
-
-.kitchen-table tbody tr:hover,
-.supplier-table tbody tr:hover,
-.vehicle-table tbody tr:hover {
-  background: #f8fafc;
-}
-
-/* Buttons */
-.kitchen-button,
-.vehicle-button,
-.supplier-button,
-.bank-primary-button,
-.dashboard-primary-button {
-  box-shadow: 0 5px 14px rgb(11 19 43 / 0.1);
-}
-
-.kitchen-button:hover:not(:disabled),
-.vehicle-button:hover:not(:disabled),
-.supplier-button:hover:not(:disabled),
-.bank-primary-button:hover:not(:disabled),
-.dashboard-primary-button:hover:not(:disabled) {
-  transform: translateY(-1px);
-  box-shadow: 0 8px 20px rgb(11 19 43 / 0.14);
-}
-
-/* KPI / summary cards */
+.dashboard-panel,
 .dashboard-kpi,
-.bank-summary-card {
-  animation: sim-card-in 360ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
-}
-
-.dashboard-kpi:nth-child(2),
-.bank-summary-card:nth-child(2) {
-  animation-delay: 35ms;
-}
-
-.dashboard-kpi:nth-child(3),
-.bank-summary-card:nth-child(3) {
-  animation-delay: 70ms;
-}
-
-.dashboard-kpi:nth-child(4),
-.bank-summary-card:nth-child(4) {
-  animation-delay: 105ms;
-}
-
-@keyframes sim-card-in {
-  from {
-    opacity: 0;
-    transform: translateY(10px) scale(0.99);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
-
-/* Bank cards */
-.bank-account-card {
+.bank-summary-card,
+.bank-accounts-panel,
+.reports-summary-card,
+.reports-filter-panel,
+.vehicle-panel,
+.kitchen-panel,
+.supplier-panel {
   transition:
-    transform var(--ui-transition),
-    box-shadow var(--ui-transition),
-    border-color var(--ui-transition);
+    border-color var(--app-motion-fast) ease,
+    box-shadow var(--app-motion) ease,
+    transform var(--app-motion) var(--app-ease);
 }
 
-.bank-account-card:hover {
-  transform: translateY(-3px);
-  border-color: #cbd5e1;
-  box-shadow: var(--ui-shadow-md);
+.dashboard-panel:hover,
+.bank-accounts-panel:hover,
+.reports-filter-panel:hover,
+.vehicle-panel:hover,
+.kitchen-panel:hover,
+.supplier-panel:hover {
+  border-color: color-mix(in srgb, var(--app-border) 72%, var(--app-primary));
 }
 
-/* Modal polish */
-.modal-backdrop,
+.dashboard-history-row,
+.kitchen-table tbody tr,
+.vehicle-table tbody tr,
+.supplier-table tbody tr {
+  transition:
+    background-color var(--app-motion-fast) ease,
+    box-shadow var(--app-motion-fast) ease;
+}
+
+.dashboard-history-row:hover,
+.kitchen-table tbody tr:hover,
+.vehicle-table tbody tr:hover,
+.supplier-table tbody tr:hover {
+  background: #fbfdff;
+}
+
+/* ----- Loading shimmer utility ----- */
+
+.app-skeleton,
+.dashboard-skeleton,
+.bank-skeleton,
+.reports-skeleton,
+.disbursement-skeleton {
+  position: relative;
+  overflow: hidden;
+  background: #eef2f7;
+}
+
+.app-skeleton::after,
+.dashboard-skeleton::after,
+.bank-skeleton::after,
+.reports-skeleton::after,
+.disbursement-skeleton::after {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgb(255 255 255 / 0.56) 45%,
+    rgb(255 255 255 / 0.82) 50%,
+    transparent 55%
+  );
+  content: '';
+  transform: translateX(-100%);
+  animation: app-shimmer 1.35s ease-in-out infinite;
+}
+
+/* ----- Modal entrance helpers ----- */
+
+.dashboard-transaction-modal-backdrop,
 .kitchen-modal-backdrop,
+.supplier-modal-backdrop,
 .vehicle-modal-backdrop,
-.bank-modal-backdrop,
-.bank-history-modal-backdrop,
-.dashboard-transaction-modal-backdrop {
-  animation: sim-overlay-in 160ms ease-out both;
+.bank-modal-backdrop {
+  animation: app-fade-in var(--app-motion-fast) ease both;
 }
 
-.modal,
+.dashboard-transaction-modal,
 .kitchen-modal,
+.supplier-modal,
 .vehicle-modal,
-.bank-form-modal,
-.bank-history-modal,
-.dashboard-transaction-modal {
-  animation: sim-modal-in 220ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
-  box-shadow: var(--ui-shadow-lg);
+.bank-modal {
+  animation: app-modal-in var(--app-motion) var(--app-ease) both;
 }
 
-@keyframes sim-overlay-in {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-@keyframes sim-modal-in {
-  from {
-    opacity: 0;
-    transform: translateY(10px) scale(0.985);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
-
-/* Notification badge */
-.app-notification-badge,
-.notification-badge,
-.vehicle-notification-badge {
-  animation: sim-notification-pulse 2.4s ease-in-out infinite;
-}
-
-@keyframes sim-notification-pulse {
-  0%,
-  72%,
-  100% {
-    box-shadow: 0 0 0 0 rgb(220 38 38 / 0);
-  }
-  84% {
-    box-shadow: 0 0 0 5px rgb(220 38 38 / 0.12);
-  }
-}
-
-/* Scrollbars */
-* {
-  scrollbar-width: thin;
-  scrollbar-color: #cbd5e1 transparent;
-}
-
-*::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-
-*::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-*::-webkit-scrollbar-thumb {
-  border: 2px solid transparent;
-  border-radius: 999px;
-  background-clip: padding-box;
-  background-color: #cbd5e1;
-}
-
-*::-webkit-scrollbar-thumb:hover {
-  background-color: #94a3b8;
-}
-
-@media (max-width: 900px) {
-  .app-main {
-    padding: 18px 18px 32px;
-  }
-}
-
-@media (max-width: 600px) {
-  .app-main {
-    padding: 14px 12px 28px;
-  }
-}
+/* ----- Reduced motion ----- */
 
 @media (prefers-reduced-motion: reduce) {
   html {
@@ -4182,5 +4239,75 @@ button:disabled {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ----- Keep mobile navigation behavior unchanged ----- */
+
+@media (max-width: 760px) {
+  .app-sidebar {
+    width: 252px;
+    flex-basis: 252px;
+  }
+
+  .app-sidebar-toggle {
+    display: none;
+  }
+
+  .app-shell.sidebar-collapsed {
+    --sidebar-width: 252px;
+  }
+
+  .app-shell.sidebar-collapsed .app-brand-copy,
+  .app-shell.sidebar-collapsed .app-nav-label,
+  .app-shell.sidebar-collapsed .app-nav-section-label,
+  .app-shell.sidebar-collapsed .app-sidebar-footer span:last-child {
+    width: auto;
+    opacity: 1;
+    pointer-events: auto;
+    transform: none;
+  }
+}
+
+/* ----- Motion keyframes ----- */
+
+@keyframes app-page-enter {
+  from {
+    opacity: 0;
+    transform: translateY(7px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes app-fade-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes app-modal-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.985);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes app-shimmer {
+  to {
+    transform: translateX(100%);
   }
 }

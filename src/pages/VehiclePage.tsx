@@ -141,11 +141,15 @@ export function VehiclePage() {
   if (!canView) return <div className="app-access-denied">Akses ditolak.</div>
 
   function openAdd() {
+    if (!canManage) return
+
     setEditingId(null)
     setForm({ ...EMPTY })
     setFormOpen(true)
   }
   function openEdit(vehicle: Vehicle) {
+    if (!canManage) return
+
     setEditingId(vehicle.id)
     setForm({
       kitchen_id: vehicle.kitchen_id,
@@ -165,7 +169,7 @@ export function VehiclePage() {
   }
 
   async function save() {
-    if (saving) return
+    if (!canManage || saving) return
     setSaving(true)
     try {
       if (editingId) await updateVehicle(editingId, form)
@@ -183,6 +187,8 @@ export function VehiclePage() {
   }
 
   async function remove(vehicle: Vehicle) {
+    if (!canManage) return
+
     if (
       !window.confirm(
         `Hapus kendaraan ${vehicle.vehicle_name || vehicle.plate_number}?`

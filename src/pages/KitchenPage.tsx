@@ -88,12 +88,16 @@ export function KitchenPage() {
   if (!canView) return <div className="app-access-denied">Akses ditolak.</div>
 
   function openAdd() {
+    if (!canManage) return
+
     setEditingId(null)
     setForm({ ...EMPTY_INPUT })
     setIsFormOpen(true)
   }
 
   function openEdit(kitchen: Kitchen) {
+    if (!canManage) return
+
     setEditingId(kitchen.id)
     setForm({
       name: kitchen.name,
@@ -113,7 +117,7 @@ export function KitchenPage() {
   }
 
   async function save() {
-    if (saving) return
+    if (!canManage || saving) return
     setSaving(true)
     try {
       if (editingId) await updateKitchen(editingId, form)
@@ -131,6 +135,7 @@ export function KitchenPage() {
   }
 
   async function remove(kitchen: Kitchen) {
+    if (!canManage) return
     if (!window.confirm(`Hapus dapur "${kitchen.name}"?`)) return
     try {
       await deleteKitchen(kitchen.id)

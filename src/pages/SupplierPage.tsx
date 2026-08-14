@@ -24,7 +24,8 @@ const EMPTY_SUPPLIER: SupplierInput = {
   owner_name: '',
   product_type: '',
   phone: '',
-  address: ''
+  address: '',
+  is_active: true
 }
 const EMPTY_ACCOUNT: AccountInput = {
   bank: 'BNI',
@@ -108,25 +109,30 @@ export function SupplierPage() {
   if (!canView) return <div style={{ padding: 24 }}>Akses ditolak.</div>
 
   function openAddSupplier() {
+    if (!canManage) return
+
     setEditingSupplierId(null)
     setSupplierForm(structuredClone(EMPTY_SUPPLIER))
     setSupplierModal(true)
   }
 
   function openEditSupplier(supplier: Supplier) {
+    if (!canManage) return
+
     setEditingSupplierId(supplier.id)
     setSupplierForm({
       business_name: supplier.business_name,
       owner_name: supplier.owner_name ?? '',
       product_type: supplier.product_type ?? '',
       phone: supplier.phone ?? '',
-      address: supplier.address ?? ''
+      address: supplier.address ?? '',
+      is_active: supplier.is_active
     })
     setSupplierModal(true)
   }
 
   async function saveSupplier() {
-    if (busy) return
+    if (!canManage || busy) return
     setBusy(true)
     try {
       if (editingSupplierId)
@@ -145,6 +151,8 @@ export function SupplierPage() {
   }
 
   async function removeSupplier(supplier: Supplier) {
+    if (!canManage) return
+
     if (
       !window.confirm(
         `Yakin ingin menghapus supplier "${supplier.business_name}"?`
@@ -163,6 +171,8 @@ export function SupplierPage() {
   }
 
   function openAccountManager(supplierId: string) {
+    if (!canManage) return
+
     setAccountSupplierId(supplierId)
     setEditingAccountId(null)
     setAccountForm(structuredClone(EMPTY_ACCOUNT))
@@ -177,6 +187,8 @@ export function SupplierPage() {
     suppliers.find((supplier) => supplier.id === accountSupplierId) ?? null
 
   function openEditAccount(account: Supplier['accounts'][number]) {
+    if (!canManage) return
+
     setEditingAccountId(account.id)
     setAccountForm({
       bank: account.bank,
@@ -186,7 +198,7 @@ export function SupplierPage() {
   }
 
   async function saveAccount() {
-    if (!accountSupplierId || busy) return
+    if (!canManage || !accountSupplierId || busy) return
     setBusy(true)
     try {
       await saveSupplierAccount(
@@ -208,7 +220,13 @@ export function SupplierPage() {
   }
 
   async function removeAccount(accountId: string) {
-    if (!accountSupplierId || !window.confirm('Hapus rekening ini?')) return
+    if (
+      !canManage ||
+      !accountSupplierId ||
+      !window.confirm('Hapus rekening ini?')
+    ) {
+      return
+    }
     try {
       await deleteSupplierAccount(accountSupplierId, accountId)
       await load()
@@ -221,6 +239,8 @@ export function SupplierPage() {
   }
 
   async function openMapping(accountId: string) {
+    if (!canManage) return
+
     setMappingAccountId(accountId)
     try {
       setSelectedKitchens(await getAccountKitchenIds(accountId))
@@ -232,7 +252,7 @@ export function SupplierPage() {
   }
 
   async function saveMapping() {
-    if (!mappingAccountId || busy) return
+    if (!canManage || !mappingAccountId || busy) return
     setBusy(true)
     try {
       await saveAccountKitchenMapping(mappingAccountId, selectedKitchens)
@@ -305,6 +325,7 @@ export function SupplierPage() {
                 <th>No. HP</th>
                 <th>Alamat</th>
                 <th>Rekening</th>
+                <th>Status</th>
                 <th>Aksi</th>
               </tr>
             </thead>
@@ -324,6 +345,13 @@ export function SupplierPage() {
                       onClick={() => openAccountManager(supplier.id)}
                     >
                       {supplier.accounts.length} Rek
+                    </span>
+                  </td>
+                  <td>
+                    <span
+                      className={`badge ${supplier.is_active ? 'active' : 'inactive'}`}
+                    >
+                      {supplier.is_active ? 'Aktif' : 'Nonaktif'}
                     </span>
                   </td>
                   <td>
@@ -417,6 +445,21 @@ export function SupplierPage() {
                       setSupplierForm((f) => ({ ...f, phone: e.target.value }))
                     }
                   />
+                </div>
+                <div className="field">
+                  <label>Status</label>
+                  <select
+                    value={String(supplierForm.is_active)}
+                    onChange={(e) =>
+                      setSupplierForm((f) => ({
+                        ...f,
+                        is_active: e.target.value === 'true'
+                      }))
+                    }
+                  >
+                    <option value="true">Aktif</option>
+                    <option value="false">Nonaktif</option>
+                  </select>
                 </div>
                 <div className="field full">
                   <label>Alamat</label>

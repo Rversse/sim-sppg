@@ -54,65 +54,6 @@ function getPriorityIndex(account: BankAccountSummary['account']) {
   return PRIORITY_OWNERS.indexOf(ownerName as (typeof PRIORITY_OWNERS)[number])
 }
 
-function getSupplierInfo(account: BankAccountSummary['account']) {
-  const supplier = Array.isArray(account.income_suppliers)
-    ? account.income_suppliers[0]
-    : account.income_suppliers
-
-  return {
-    businessName: supplier?.business_name?.trim() ?? '',
-    ownerName: supplier?.owner_name?.trim() ?? ''
-  }
-}
-
-type AccountSort = 'business-asc' | 'business-desc' | 'owner-asc' | 'owner-desc'
-
-function compareAccountValues(
-  a: BankAccountSummary,
-  b: BankAccountSummary,
-  sortBy: AccountSort
-) {
-  const aInfo = getSupplierInfo(a.account)
-  const bInfo = getSupplierInfo(b.account)
-
-  const [aValue, bValue] = sortBy.startsWith('owner-')
-    ? [aInfo.ownerName || a.account.name, bInfo.ownerName || b.account.name]
-    : [
-        aInfo.businessName || a.account.name,
-        bInfo.businessName || b.account.name
-      ]
-
-  const result = aValue.localeCompare(bValue, 'id', { sensitivity: 'base' })
-
-  if (result !== 0) {
-    return sortBy.endsWith('desc') ? -result : result
-  }
-
-  return a.account.name.localeCompare(b.account.name, 'id', {
-    sensitivity: 'base'
-  })
-}
-
-function matchesAccountSearch(summary: BankAccountSummary, searchTerm: string) {
-  if (!searchTerm.trim()) {
-    return true
-  }
-
-  const account = summary.account
-  const { businessName, ownerName } = getSupplierInfo(account)
-  const haystack = [
-    account.name,
-    businessName,
-    ownerName,
-    account.bank,
-    account.account_number ?? ''
-  ]
-    .join(' ')
-    .toLocaleLowerCase('id')
-
-  return haystack.includes(searchTerm.trim().toLocaleLowerCase('id'))
-}
-
 function getAccountGroups(summaries: BankAccountSummary[]) {
   const holding: BankAccountSummary[] = []
   const priority: BankAccountSummary[] = []
@@ -137,11 +78,12 @@ function getAccountGroups(summaries: BankAccountSummary[]) {
     others.push(summary)
   }
 
-  const sortByAccountName = (a: BankAccountSummary, b: BankAccountSummary) =>
+  const sortByBusinessName = (a: BankAccountSummary, b: BankAccountSummary) =>
     a.account.name.localeCompare(b.account.name, 'id')
 
-  holding.sort(sortByAccountName)
-  priority.sort(sortByAccountName)
+  holding.sort(sortByBusinessName)
+  priority.sort(sortByBusinessName)
+  others.sort(sortByBusinessName)
 
   return {
     holding,
@@ -348,8 +290,6 @@ export function BankPage() {
 
   const [historyAccountId, setHistoryAccountId] = useState<string | null>(null)
   const [historyPage, setHistoryPage] = useState(1)
-  const [accountSearch, setAccountSearch] = useState('')
-  const [accountSort, setAccountSort] = useState<AccountSort>('business-asc')
 
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
   const [editingTransactionId, setEditingTransactionId] = useState<
@@ -443,23 +383,6 @@ export function BankPage() {
     historyPage * HISTORY_PAGE_SIZE
   )
 
-  const visibleAccountGroups = useMemo(() => {
-    const summaries = overview?.summaries ?? []
-    const groups = getAccountGroups(summaries)
-    const filter = (items: BankAccountSummary[]) =>
-      items.filter((summary) => matchesAccountSearch(summary, accountSearch))
-
-    const others = filter(groups.others).sort((a, b) =>
-      compareAccountValues(a, b, accountSort)
-    )
-
-    return {
-      holding: filter(groups.holding),
-      priority: filter(groups.priority),
-      others
-    }
-  }, [overview, accountSearch, accountSort])
-
   const recipientAccounts = useMemo(() => {
     if (!overview || !transferForm.accountId) {
       return []
@@ -479,6 +402,8 @@ export function BankPage() {
   }
 
   function openCreateModal() {
+    if (!canCreateTransaction) return
+
     const firstAccountId = overview?.accounts[0]?.id ?? ''
 
     setEditingTransactionId(null)
@@ -488,6 +413,8 @@ export function BankPage() {
   }
 
   function openEditModal(transaction: BankTransaction) {
+    if (!canCreateTransaction) return
+
     setHistoryAccountId(null)
     setEditingTransactionId(transaction.id)
     setTransferForm({
@@ -635,7 +562,7 @@ export function BankPage() {
   }
 
   async function handleDeleteTransaction(transaction: BankTransaction) {
-    if (isDeletingTransaction) {
+    if (!canCreateTransaction || isDeletingTransaction) {
       return
     }
 
@@ -747,35 +674,6 @@ export function BankPage() {
                   <p>Klik History untuk melihat detail per rekening.</p>
                 </div>
 
-                <div className="bank-account-toolbar">
-                  <label className="bank-account-search">
-                    <span className="app-sr-only">Cari rekening</span>
-                    <input
-                      type="search"
-                      value={accountSearch}
-                      onChange={(event) => setAccountSearch(event.target.value)}
-                      placeholder="Cari rekening, usaha, pemilik, bank, atau nomor rekening..."
-                    />
-                  </label>
-
-                  <label className="bank-account-sort">
-                    <span className="app-sr-only">
-                      Urutkan rekening lainnya
-                    </span>
-                    <select
-                      value={accountSort}
-                      onChange={(event) =>
-                        setAccountSort(event.target.value as AccountSort)
-                      }
-                    >
-                      <option value="business-asc">Business Name A–Z</option>
-                      <option value="business-desc">Business Name Z–A</option>
-                      <option value="owner-asc">Owner Name A–Z</option>
-                      <option value="owner-desc">Owner Name Z–A</option>
-                    </select>
-                  </label>
-                </div>
-
                 <span className="bank-count">
                   {overview?.summaries.length ?? 0} rekening
                 </span>
@@ -783,7 +681,7 @@ export function BankPage() {
 
               {overview?.summaries.length ? (
                 (() => {
-                  const groups = visibleAccountGroups
+                  const groups = getAccountGroups(overview.summaries)
 
                   const renderGroup = (
                     title: string,
@@ -817,21 +715,6 @@ export function BankPage() {
                     )
                   }
 
-                  const hasVisibleAccounts =
-                    groups.holding.length > 0 ||
-                    groups.priority.length > 0 ||
-                    groups.others.length > 0
-
-                  if (!hasVisibleAccounts) {
-                    return (
-                      <div className="bank-empty">
-                        {accountSearch.trim()
-                          ? 'Tidak ada rekening yang cocok dengan pencarian.'
-                          : 'Tidak ada rekening yang tersedia.'}
-                      </div>
-                    )
-                  }
-
                   return (
                     <>
                       {renderGroup('Rekening Penampung', groups.holding)}
@@ -842,9 +725,7 @@ export function BankPage() {
                 })()
               ) : (
                 <div className="bank-empty">
-                  {accountSearch.trim()
-                    ? 'Tidak ada rekening yang cocok dengan pencarian.'
-                    : 'Tidak ada rekening yang tersedia.'}
+                  Tidak ada rekening yang tersedia.
                 </div>
               )}
             </section>

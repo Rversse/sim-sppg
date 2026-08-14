@@ -3,14 +3,16 @@ import { createBrowserRouter, Navigate } from 'react-router-dom'
 import { AppLayout } from '@/app/AppLayout'
 import { ProtectedRoute } from '@/features/auth/protected-route'
 import { RoleRoute } from '@/features/auth/role-route'
-import { LoginPage } from '@/pages/LoginPage'
-import { UnauthorizedPage } from '@/pages/UnauthorizedPage'
-import { DashboardPage } from '@/pages/DashboardPage'
-import { KitchenPage } from '@/pages/KitchenPage'
-import { VehiclePage } from '@/pages/VehiclePage'
-import { SupplierPage } from '@/pages/SupplierPage'
 import { BankPage } from '@/pages/BankPage'
+import { DashboardPage } from '@/pages/DashboardPage'
+import { DisbursementPage } from '@/pages/DisbursementPage'
+import { KitchenPage } from '@/pages/KitchenPage'
+import { LoginPage } from '@/pages/LoginPage'
 import { ReportsPage } from '@/pages/ReportsPage'
+import { SupplierPage } from '@/pages/SupplierPage'
+import { UnauthorizedPage } from '@/pages/UnauthorizedPage'
+import { VehiclePage } from '@/pages/VehiclePage'
+import { DefaultRoute } from '@/pages/DefaultRoute'
 
 export const router = createBrowserRouter([
   {
@@ -29,12 +31,12 @@ export const router = createBrowserRouter([
         element: <AppLayout />,
         children: [
           {
+            index: true,
+            element: <DefaultRoute />
+          },
+          {
             element: <RoleRoute permission="dashboard.view" />,
             children: [
-              {
-                index: true,
-                element: <DashboardPage />
-              },
               {
                 path: 'dashboard',
                 element: <DashboardPage />
@@ -83,6 +85,15 @@ export const router = createBrowserRouter([
               {
                 path: 'reports',
                 element: <ReportsPage />
+              }
+            ]
+          },
+          {
+            element: <RoleRoute permission="disbursement.view" />,
+            children: [
+              {
+                path: 'disbursement',
+                element: <DisbursementPage />
               }
             ]
           }

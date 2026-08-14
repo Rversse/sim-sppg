@@ -11,24 +11,32 @@ export type Permission =
   | 'supplier.manage'
   | 'bank.view'
   | 'bank.transaction.create'
+  | 'disbursement.view'
   | 'reports.view'
 
 const permissions: Record<Permission, readonly UserRole[]> = {
-  'dashboard.view': ['admin', 'operator', 'viewer'],
+  // Dashboard
+  'dashboard.view': ['admin', 'operator'],
   'dashboard.transaction.create': ['admin'],
 
+  // Master Data
   'kitchen.view': ['admin', 'operator'],
-  'kitchen.manage': ['admin', 'operator'],
+  'kitchen.manage': ['admin'],
 
   'vehicle.view': ['admin', 'operator'],
-  'vehicle.manage': ['admin', 'operator'],
+  'vehicle.manage': ['admin'],
 
   'supplier.view': ['admin', 'operator'],
-  'supplier.manage': ['admin', 'operator'],
+  'supplier.manage': ['admin'],
 
+  // Transaksi Bank
   'bank.view': ['admin', 'operator', 'viewer'],
   'bank.transaction.create': ['admin', 'operator'],
 
+  // Pencairan
+  'disbursement.view': ['admin'],
+
+  // Laporan
   'reports.view': ['admin']
 }
 

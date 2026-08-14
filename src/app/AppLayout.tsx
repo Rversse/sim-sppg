@@ -1,9 +1,9 @@
+import { useEffect, useState } from 'react'
 import { NavLink, Outlet } from 'react-router-dom'
 
 import { supabase } from '@/lib/supabase'
 import { canAccess, type Permission } from '@/features/auth/role-policy'
 import { useAuth } from '@/features/auth/use-auth'
-import { VehicleExpiryNotification } from '@/components/VehicleExpiryNotification'
 
 type NavigationItem = {
   label: string
@@ -60,6 +60,12 @@ const navigationSections: NavigationSection[] = [
         to: '/bank',
         permission: 'bank.view',
         short: 'BK'
+      },
+      {
+        label: 'Pencairan',
+        to: '/disbursement',
+        permission: 'disbursement.view',
+        short: 'PC'
       }
     ]
   },
@@ -76,8 +82,17 @@ const navigationSections: NavigationSection[] = [
   }
 ]
 
+const SIDEBAR_COLLAPSED_KEY = 'sim-sppg.sidebar-collapsed'
+
 export function AppLayout() {
   const { user } = useAuth()
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
+    return localStorage.getItem(SIDEBAR_COLLAPSED_KEY) === 'true'
+  })
+
+  useEffect(() => {
+    localStorage.setItem(SIDEBAR_COLLAPSED_KEY, String(sidebarCollapsed))
+  }, [sidebarCollapsed])
 
   const visibleSections = navigationSections
     .map((section) => ({
@@ -99,12 +114,21 @@ export function AppLayout() {
   }
 
   return (
-    <div className="app-shell">
+    <div className={`app-shell${sidebarCollapsed ? ' sidebar-collapsed' : ''}`}>
       <aside className="app-sidebar">
+        <button
+          type="button"
+          className="app-sidebar-toggle"
+          onClick={() => setSidebarCollapsed((current) => !current)}
+          aria-label={sidebarCollapsed ? 'Buka sidebar' : 'Tutup sidebar'}
+          title={sidebarCollapsed ? 'Buka sidebar' : 'Tutup sidebar'}
+        >
+          <span>{sidebarCollapsed ? '›' : '‹'}</span>
+        </button>
         <div className="app-brand">
           <span className="app-brand-mark">S</span>
 
-          <div>
+          <div className="app-brand-copy">
             <strong>SIM SPPG</strong>
             <span>Management System</span>
           </div>
@@ -125,7 +149,7 @@ export function AppLayout() {
                     }
                   >
                     <span className="app-nav-icon">{item.short}</span>
-                    <span>{item.label}</span>
+                    <span className="app-nav-label">{item.label}</span>
                   </NavLink>
                 ))}
               </div>
@@ -150,7 +174,6 @@ export function AppLayout() {
           </div>
 
           <div className="app-user">
-            <VehicleExpiryNotification />
             <span className="app-user-role">{user?.role ?? 'user'}</span>
 
             <span className="app-user-avatar">

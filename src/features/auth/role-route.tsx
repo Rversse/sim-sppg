@@ -23,11 +23,16 @@ export function RoleRoute({ permission }: RoleRouteProps) {
     return <Navigate to="/login" replace />
   }
 
-  const allowed = canAccess(user.role, permission)
-
-  if (!allowed) {
-    return <Navigate to="/unauthorized" replace />
+  if (canAccess(user.role, permission)) {
+    return <Outlet />
   }
 
-  return <Outlet />
+  // Viewer/guest only has access to Transaksi Bank.
+  // If they arrive at a protected route directly (for example /dashboard),
+  // send them to Bank instead of showing a dead-end Unauthorized page.
+  if (user.role === 'viewer' && permission !== 'bank.view') {
+    return <Navigate to="/bank" replace />
+  }
+
+  return <Navigate to="/unauthorized" replace />
 }
