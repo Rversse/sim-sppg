@@ -6,13 +6,13 @@
 /* KITCHEN */
 .kitchen-page {
   display: grid;
-  gap: 14px;
+  gap: 16px;
 }
 .kitchen-header {
   display: flex;
+  align-items: center;
   justify-content: space-between;
-  gap: 12px;
-  align-items: flex-end;
+  gap: 16px;
 }
 .kitchen-header h1 {
   margin: 0;
@@ -59,10 +59,10 @@
   border-color: #fecaca;
 }
 .kitchen-panel {
-  border: 1px solid var(--app-border-strong);
-  border-radius: 14px;
-  background: var(--app-white);
   overflow: auto;
+  border: 1px solid var(--app-border-strong);
+  border-radius: 16px;
+  background: var(--app-white);
 }
 .kitchen-table {
   width: 100%;
@@ -71,11 +71,11 @@
 }
 .kitchen-table th,
 .kitchen-table td {
-  padding: 10px 12px;
+  padding: 11px 13px;
   border-bottom: 1px solid #eef2f7;
   text-align: left;
   font-size: 10px;
-  vertical-align: top;
+  vertical-align: middle;
 }
 .kitchen-table th {
   background: var(--app-bg-soft);

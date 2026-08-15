@@ -6,13 +6,13 @@
 /* VEHICLE */
 .vehicle-page {
   display: grid;
-  gap: 14px;
+  gap: 16px;
 }
 .vehicle-header {
   display: flex;
+  align-items: center;
   justify-content: space-between;
-  align-items: flex-end;
-  gap: 12px;
+  gap: 16px;
 }
 .vehicle-header h1 {
   margin: 0;
@@ -57,23 +57,23 @@
   border-color: #fecaca;
 }
 .vehicle-panel {
-  border: 1px solid var(--app-border-strong);
-  border-radius: 14px;
-  background: var(--app-white);
   overflow: auto;
+  border: 1px solid var(--app-border-strong);
+  border-radius: 16px;
+  background: var(--app-white);
 }
 .vehicle-table {
   width: 100%;
   border-collapse: collapse;
-  min-width: 1200px;
+  min-width: 1100px;
 }
 .vehicle-table th,
 .vehicle-table td {
-  padding: 10px 12px;
+  padding: 11px 13px;
   border-bottom: 1px solid #eef2f7;
   text-align: left;
   font-size: 10px;
-  vertical-align: top;
+  vertical-align: middle;
 }
 .vehicle-table th {
   background: var(--app-bg-soft);

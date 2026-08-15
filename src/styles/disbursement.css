@@ -18,8 +18,8 @@
 
 .disbursement-page {
   display: grid;
-  gap: 18px;
-  padding: 8px 2px 24px;
+  gap: 16px;
+  padding: 6px 2px 20px;
   animation: app-page-enter var(--app-motion-slow, 320ms)
     var(--app-ease, cubic-bezier(0.22, 1, 0.36, 1)) both;
 }
@@ -128,9 +128,9 @@
 
 .disbursement-summary-card {
   display: grid;
-  grid-template-columns: minmax(0, 1.45fr) minmax(260px, 0.8fr);
-  gap: 18px;
-  padding: 20px;
+  grid-template-columns: minmax(0, 1.45fr) minmax(240px, 0.8fr);
+  gap: 16px;
+  padding: 18px;
 }
 
 .disbursement-summary-main {
@@ -229,7 +229,7 @@
 }
 
 .disbursement-panel {
-  padding: 18px;
+  padding: 16px;
   overflow: hidden;
 }
 
@@ -237,8 +237,8 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 16px;
-  margin-bottom: 16px;
+  gap: 14px;
+  margin-bottom: 14px;
 }
 
 .disbursement-panel-header h2 {

@@ -10,10 +10,10 @@
 
 .dashboard-hero {
   display: flex;
-  align-items: flex-end;
+  align-items: center;
   justify-content: space-between;
-  gap: 24px;
-  padding: 8px 2px 4px;
+  gap: 20px;
+  padding: 6px 2px 2px;
 }
 
 .dashboard-eyebrow {
@@ -40,8 +40,8 @@
 }
 
 .dashboard-date-chip {
-  min-width: 170px;
-  padding: 12px 14px;
+  min-width: 160px;
+  padding: 11px 13px;
   border: 1px solid #e2e8f0;
   border-radius: 12px;
   background: var(--app-white);
@@ -192,10 +192,10 @@
 .dashboard-kpi {
   position: relative;
   overflow: hidden;
-  min-height: 148px;
-  padding: 20px;
+  min-height: 132px;
+  padding: 18px;
   border: 1px solid #e2e8f0;
-  border-radius: 18px;
+  border-radius: 16px;
   background: var(--app-white);
   box-shadow: var(--app-shadow-card);
   transition:
@@ -242,11 +242,11 @@
   position: relative;
   z-index: 1;
   display: block;
-  margin-top: 18px;
+  margin-top: 14px;
   color: #0b132b;
-  font-size: clamp(20px, 2.25vw, 28px);
+  font-size: clamp(19px, 2.1vw, 26px);
   font-weight: 800;
-  letter-spacing: -0.045em;
+  letter-spacing: -0.04em;
   line-height: 1.1;
   overflow-wrap: anywhere;
 }
@@ -324,11 +324,11 @@
 
 .dashboard-chart {
   display: flex;
-  height: 245px;
+  height: 220px;
   align-items: stretch;
   gap: 8px;
-  margin-top: 24px;
-  padding: 12px 4px 0;
+  margin-top: 20px;
+  padding: 10px 4px 0;
   border-bottom: 1px solid #e2e8f0;
 }
 
@@ -345,8 +345,8 @@
 
 .dashboard-bars {
   display: flex;
-  width: min(48px, 78%);
-  height: 205px;
+  width: min(44px, 78%);
+  height: 185px;
   align-items: flex-end;
   gap: 3px;
 }
@@ -541,10 +541,10 @@
 
 .dashboard-history-row {
   display: grid;
-  grid-template-columns: 170px minmax(0, 1fr) auto;
+  grid-template-columns: 150px minmax(0, 1fr) auto;
   align-items: center;
-  gap: 18px;
-  padding: 14px 4px;
+  gap: 16px;
+  padding: 12px 4px;
   border-bottom: 1px solid #eef2f7;
   transition: background-color 150ms ease;
 }

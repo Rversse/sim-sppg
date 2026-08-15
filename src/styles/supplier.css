@@ -6,13 +6,13 @@
 /* SUPPLIER */
 .supplier-page {
   display: grid;
-  gap: 14px;
+  gap: 16px;
 }
 .supplier-header {
   display: flex;
+  align-items: center;
   justify-content: space-between;
-  align-items: flex-end;
-  gap: 12px;
+  gap: 16px;
 }
 .supplier-header h1 {
   margin: 0;
@@ -39,21 +39,21 @@
 .supplier-panel {
   overflow: auto;
   border: 1px solid var(--app-border-strong);
-  border-radius: 14px;
+  border-radius: 16px;
   background: var(--app-white);
 }
 .supplier-table {
   width: 100%;
-  min-width: 1150px;
+  min-width: 1050px;
   border-collapse: collapse;
 }
 .supplier-table th,
 .supplier-table td {
-  padding: 10px 12px;
+  padding: 11px 13px;
   border-bottom: 1px solid #eef2f7;
   text-align: left;
   font-size: 10px;
-  vertical-align: top;
+  vertical-align: middle;
 }
 .supplier-table th {
   background: var(--app-bg-soft);

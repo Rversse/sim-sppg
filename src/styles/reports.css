@@ -9,7 +9,7 @@
 
 .reports-page {
   display: grid;
-  gap: 18px;
+  gap: 16px;
 }
 
 .reports-header {
@@ -94,6 +94,7 @@
  * `display: contents` makes those controls participate directly in the
  * five-column parent grid, so all controls stay on one row on desktop.
  */
+
 .reports-filter-panel {
   display: grid;
   grid-template-columns:
@@ -103,10 +104,10 @@
     auto
     auto;
   align-items: end;
-  gap: 12px;
-  padding: 18px;
+  gap: 10px;
+  padding: 16px;
   border: 1px solid var(--app-border);
-  border-radius: 18px;
+  border-radius: 16px;
   background: var(--app-surface);
   box-shadow: var(--app-shadow-card);
 }
@@ -210,8 +211,8 @@
 
 .reports-summary-card {
   min-width: 0;
-  min-height: 118px;
-  padding: 18px;
+  min-height: 108px;
+  padding: 16px;
   border: 1px solid var(--app-border);
   border-radius: 16px;
   background: var(--app-surface);
@@ -238,10 +239,10 @@
 
 .reports-summary-card > strong {
   display: block;
-  margin-top: 18px;
+  margin-top: 14px;
   overflow-wrap: anywhere;
   color: var(--app-primary);
-  font-size: clamp(19px, 2vw, 27px);
+  font-size: clamp(19px, 2vw, 26px);
   font-weight: 800;
   letter-spacing: -0.04em;
   line-height: 1.1;
