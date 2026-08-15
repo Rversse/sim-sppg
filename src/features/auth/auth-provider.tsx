@@ -1,4 +1,4 @@
-import { useEffect, useState, type ReactNode } from 'react'
+import { useEffect, useRef, useState, type ReactNode } from 'react'
 import type { Session } from '@supabase/supabase-js'
 
 import { supabase } from '@/lib/supabase'
@@ -34,6 +34,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null)
   const [user, setUser] = useState<CurrentUser | null>(null)
   const [isLoading, setIsLoading] = useState(true)
+  const authInitializedRef = useRef(false)
 
   useEffect(() => {
     let isMounted = true
@@ -47,6 +48,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (!isMounted) {
         return
       }
+
+      authInitializedRef.current = true
 
       if (error) {
         console.error('Failed to get session:', error)
@@ -71,7 +74,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (event === 'SIGNED_OUT' || !nextSession) {
         setSession(null)
         setUser(null)
-        setIsLoading(false)
+
+        if (authInitializedRef.current) {
+          setIsLoading(false)
+        }
+
         return
       }
 
@@ -88,6 +95,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     let isMounted = true
 
     async function resolveUser() {
+      if (!authInitializedRef.current) {
+        return
+      }
+
       if (!session) {
         if (isMounted) {
           setUser(null)
@@ -100,12 +111,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setIsLoading(true)
 
       const currentUser = await loadCurrentUser(session)
-
-      console.log('SIM SPPG Auth:', {
-        userId: session.user.id,
-        email: session.user.email,
-        role: currentUser?.role
-      })
 
       if (!isMounted) {
         return
