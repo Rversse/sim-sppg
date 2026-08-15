@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 
 import { canAccess } from '@/features/auth/role-policy'
 import { useAuth } from '@/features/auth/use-auth'
+import { useToast } from '@/features/ui/toast-context'
 import {
   createSupplier,
   deleteSupplier,
@@ -36,6 +37,7 @@ export function SupplierPage() {
   const { user } = useAuth()
   const canView = canAccess(user?.role, 'supplier.view')
   const canManage = canAccess(user?.role, 'supplier.manage')
+  const { success, error: showError } = useToast()
   const [suppliers, setSuppliers] = useState<Supplier[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -133,15 +135,24 @@ export function SupplierPage() {
     if (!canManage || busy) return
     setBusy(true)
     try {
-      if (editingSupplierId)
-        await updateSupplier(editingSupplierId, supplierForm)
+      const isEditing = Boolean(editingSupplierId)
+
+      if (isEditing) await updateSupplier(editingSupplierId!, supplierForm)
       else await createSupplier(supplierForm)
+
       setSupplierModal(false)
       await load()
+      success(
+        isEditing ? 'Supplier diperbarui' : 'Supplier ditambahkan',
+        isEditing
+          ? 'Data supplier berhasil diperbarui.'
+          : 'Data supplier berhasil ditambahkan.'
+      )
     } catch (err) {
       console.error(err)
-      window.alert(
-        err instanceof Error ? err.message : 'Gagal menyimpan supplier.'
+      showError(
+        'Gagal menyimpan supplier',
+        err instanceof Error ? err.message : 'Silakan coba lagi.'
       )
     } finally {
       setBusy(false)
@@ -160,10 +171,12 @@ export function SupplierPage() {
     try {
       await deleteSupplier(supplier.id)
       await load()
+      success('Supplier dihapus', 'Data supplier berhasil dihapus.')
     } catch (err) {
       console.error(err)
-      window.alert(
-        err instanceof Error ? err.message : 'Gagal menghapus supplier.'
+      showError(
+        'Gagal menghapus supplier',
+        err instanceof Error ? err.message : 'Silakan coba lagi.'
       )
     }
   }
@@ -199,6 +212,8 @@ export function SupplierPage() {
     if (!canManage || !accountSupplierId || busy) return
     setBusy(true)
     try {
+      const isEditing = Boolean(editingAccountId)
+
       await saveSupplierAccount(
         accountSupplierId,
         editingAccountId,
@@ -207,10 +222,18 @@ export function SupplierPage() {
       setEditingAccountId(null)
       setAccountForm(structuredClone(EMPTY_ACCOUNT))
       await load()
+
+      success(
+        isEditing ? 'Rekening diperbarui' : 'Rekening ditambahkan',
+        isEditing
+          ? 'Data rekening supplier berhasil diperbarui.'
+          : 'Rekening supplier berhasil ditambahkan.'
+      )
     } catch (err) {
       console.error(err)
-      window.alert(
-        err instanceof Error ? err.message : 'Gagal menyimpan rekening.'
+      showError(
+        'Gagal menyimpan rekening',
+        err instanceof Error ? err.message : 'Silakan coba lagi.'
       )
     } finally {
       setBusy(false)
@@ -228,10 +251,12 @@ export function SupplierPage() {
     try {
       await deleteSupplierAccount(accountSupplierId, accountId)
       await load()
+      success('Rekening dihapus', 'Rekening supplier berhasil dihapus.')
     } catch (err) {
       console.error(err)
-      window.alert(
-        err instanceof Error ? err.message : 'Gagal menghapus rekening.'
+      showError(
+        'Gagal menghapus rekening',
+        err instanceof Error ? err.message : 'Silakan coba lagi.'
       )
     }
   }
@@ -245,7 +270,10 @@ export function SupplierPage() {
       setKitchens(await getActiveKitchens())
     } catch (err) {
       console.error(err)
-      window.alert('Gagal memuat mapping dapur.')
+      showError(
+        'Gagal memuat mapping',
+        err instanceof Error ? err.message : 'Silakan coba lagi.'
+      )
     }
   }
 
@@ -256,10 +284,15 @@ export function SupplierPage() {
       await saveAccountKitchenMapping(mappingAccountId, selectedKitchens)
       setMappingAccountId(null)
       await load()
+      success(
+        'Mapping disimpan',
+        'Mapping rekening ke dapur berhasil disimpan.'
+      )
     } catch (err) {
       console.error(err)
-      window.alert(
-        err instanceof Error ? err.message : 'Gagal menyimpan mapping.'
+      showError(
+        'Gagal menyimpan mapping',
+        err instanceof Error ? err.message : 'Silakan coba lagi.'
       )
     } finally {
       setBusy(false)
@@ -275,7 +308,7 @@ export function SupplierPage() {
   return (
     <div className="supplier-page">
       <style>{`
-        .supplier-page{display:grid;gap:14px}.supplier-header{display:flex;justify-content:space-between;align-items:flex-end;gap:12px}.supplier-header h1{margin:0;color:#0b132b;font-size:28px}.supplier-header p{margin:5px 0 0;color:#94a3b8;font-size:11px}.supplier-toolbar{display:flex;gap:8px;align-items:center}.supplier-input{min-height:38px;border:1px solid #dbe3ed;border-radius:9px;padding:0 11px;background:#fff}.supplier-panel{overflow:auto;border:1px solid #dbe3ed;border-radius:14px;background:#fff}.supplier-table{width:100%;min-width:1150px;border-collapse:collapse}.supplier-table th,.supplier-table td{padding:10px 12px;border-bottom:1px solid #eef2f7;text-align:left;font-size:10px;vertical-align:top}.supplier-table th{background:#f8fafc;color:#64748b;font-size:8px;text-transform:uppercase}.action-row{display:flex;gap:5px;flex-wrap:wrap}.btn{min-height:32px;padding:0 10px;border:1px solid #0b132b;border-radius:8px;background:#0b132b;color:#fff;font-size:9px;font-weight:800;cursor:pointer}.btn.secondary{border-color:#dbe3ed;background:#fff;color:#334155}.btn.danger{border-color:#fecaca;background:#fff;color:#dc2626}account-count{cursor:pointer;color:#0f5fbd;font-weight:800}.modal-backdrop{position:fixed;inset:0;z-index:1000;display:grid;place-items:center;padding:20px;background:rgb(15 23 42 / .52);backdrop-filter:blur(4px)}.modal{width:min(720px,100%);max-height:calc(100vh - 40px);overflow:auto;border-radius:16px;background:#fff;border:1px solid #dbe3ed}.modal-head{display:flex;justify-content:space-between;padding:16px 18px;border-bottom:1px solid #eef2f7}.modal-head h2{margin:0;font-size:16px;color:#0b132b}.modal-body{padding:18px;display:grid;gap:12px}.form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.field{display:grid;gap:6px}.field.full{grid-column:1/-1}.field label{font-size:9px;color:#64748b;font-weight:800}.field input,.field select{min-height:40px;border:1px solid #dbe3ed;border-radius:9px;padding:0 11px}.account-card{padding:12px;border:1px solid #e5eaf0;border-radius:10px}.account-card+.account-card{margin-top:8px}.account-top{display:flex;justify-content:space-between;gap:10px}.mapping-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.mapping-item{padding:9px;border:1px solid #e5eaf0;border-radius:9px;font-size:10px}.modal-actions{display:flex;justify-content:flex-end;gap:8px}.empty{padding:28px;color:#94a3b8;text-align:center;font-size:11px}@media(max-width:700px){.supplier-header{align-items:stretch;flex-direction:column}.form-grid,.mapping-list{grid-template-columns:1fr}.field.full{grid-column:auto}}
+        .supplier-page{display:grid;gap:14px}.supplier-header{display:flex;justify-content:space-between;align-items:flex-end;gap:12px}.supplier-header h1{margin:0;color:#0b132b;font-size:28px}.supplier-header p{margin:5px 0 0;color:#94a3b8;font-size:11px}.supplier-toolbar{display:flex;gap:8px;align-items:center}.supplier-input{min-height:38px;border:1px solid #dbe3ed;border-radius:9px;padding:0 11px;background:#fff}.supplier-panel{overflow:auto;border:1px solid #dbe3ed;border-radius:14px;background:#fff}.supplier-table{width:100%;min-width:1150px;border-collapse:collapse}.supplier-table th,.supplier-table td{padding:10px 12px;border-bottom:1px solid #eef2f7;text-align:left;font-size:10px;vertical-align:top}.supplier-table th{background:#f8fafc;color:#64748b;font-size:8px;text-transform:uppercase}.action-row{display:flex;gap:5px;flex-wrap:wrap}.btn{min-height:32px;padding:0 10px;border:1px solid #0b132b;border-radius:8px;background:#0b132b;color:#fff;font-size:9px;font-weight:800;cursor:pointer}.btn.secondary{border-color:#dbe3ed;background:#fff;color:#334155}.btn.danger{border-color:#fecaca;background:#fff;color:#dc2626}.account-count{cursor:pointer;color:#0f5fbd;font-weight:800}.modal-backdrop{position:fixed;inset:0;z-index:1000;display:grid;place-items:center;padding:20px;background:rgb(15 23 42 / .52);backdrop-filter:blur(4px)}.modal{width:min(720px,100%);max-height:calc(100vh - 40px);overflow:auto;border-radius:16px;background:#fff;border:1px solid #dbe3ed}.modal-head{display:flex;justify-content:space-between;padding:16px 18px;border-bottom:1px solid #eef2f7}.modal-head h2{margin:0;font-size:16px;color:#0b132b}.modal-body{padding:18px;display:grid;gap:12px}.form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.field{display:grid;gap:6px}.field.full{grid-column:1/-1}.field label{font-size:9px;color:#64748b;font-weight:800}.field input,.field select{min-height:40px;border:1px solid #dbe3ed;border-radius:9px;padding:0 11px}.account-card{padding:12px;border:1px solid #e5eaf0;border-radius:10px}.account-card+.account-card{margin-top:8px}.account-top{display:flex;justify-content:space-between;gap:10px}.mapping-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.mapping-item{padding:9px;border:1px solid #e5eaf0;border-radius:9px;font-size:10px}.modal-actions{display:flex;justify-content:flex-end;gap:8px}.empty{padding:28px;color:#94a3b8;text-align:center;font-size:11px}@media(max-width:700px){.supplier-header{align-items:stretch;flex-direction:column}.form-grid,.mapping-list{grid-template-columns:1fr}.field.full{grid-column:auto}}
       `}</style>
 
       <div className="supplier-header">

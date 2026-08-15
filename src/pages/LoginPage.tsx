@@ -3,6 +3,7 @@ import { Navigate, useNavigate } from 'react-router-dom'
 
 import { Button } from '@/components/ui/button'
 import { useAuth } from '@/features/auth/use-auth'
+import { useToast } from '@/features/ui/toast-context'
 import { loginWithUsername } from '@/features/auth/auth-service'
 
 type LoginUsername = 'admin' | 'operator' | 'guest'
@@ -30,6 +31,7 @@ const accounts: Array<{
 export function LoginPage() {
   const navigate = useNavigate()
   const { user, isLoading } = useAuth()
+  const { error: toastError } = useToast()
 
   const [selectedUsername, setSelectedUsername] =
     useState<LoginUsername>('admin')
@@ -46,7 +48,9 @@ export function LoginPage() {
   }
 
   if (user) {
-    return <Navigate to="/dashboard" replace />
+    return (
+      <Navigate to={user.role === 'viewer' ? '/bank' : '/dashboard'} replace />
+    )
   }
 
   async function handleLogin() {
@@ -69,16 +73,19 @@ export function LoginPage() {
         selectedUsername === 'guest' ? undefined : pin
       )
 
-      navigate('/dashboard', { replace: true })
+      navigate(selectedUsername === 'guest' ? '/bank' : '/dashboard', {
+        replace: true
+      })
     } catch (error) {
       console.error('Login failed:', error)
 
-      setErrorMessage(
+      const message =
         selectedUsername === 'guest'
           ? 'Login Guest gagal'
           : 'Username atau PIN salah'
-      )
 
+      setErrorMessage(message)
+      toastError('Login gagal', message)
       setPin('')
     } finally {
       setIsLoggingIn(false)
@@ -104,10 +111,12 @@ export function LoginPage() {
 
     try {
       await loginWithUsername('guest')
-      navigate('/dashboard', { replace: true })
+      navigate('/bank', { replace: true })
     } catch (error) {
       console.error('Guest login failed:', error)
-      setErrorMessage('Login Guest gagal')
+      const message = 'Login Guest gagal'
+      setErrorMessage(message)
+      toastError('Login gagal', message)
     } finally {
       setIsLoggingIn(false)
     }
@@ -138,7 +147,9 @@ export function LoginPage() {
     } catch (error) {
       console.error('Login failed:', error)
 
-      setErrorMessage('Username atau PIN salah')
+      const message = 'Username atau PIN salah'
+      setErrorMessage(message)
+      toastError('Login gagal', message)
       setPin('')
     } finally {
       setIsLoggingIn(false)

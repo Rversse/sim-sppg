@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 
 import { canAccess } from '@/features/auth/role-policy'
 import { useAuth } from '@/features/auth/use-auth'
+import { useToast } from '@/features/ui/toast-context'
 import { getActiveKitchens } from '@/features/kitchen/kitchen-service'
 import {
   createVehicle,
@@ -60,6 +61,7 @@ function expiryLabel(value: string | null) {
 
 export function VehiclePage() {
   const { user } = useAuth()
+  const { success, error: toastError } = useToast()
   const canView = canAccess(user?.role, 'vehicle.view')
   const canManage = canAccess(user?.role, 'vehicle.manage')
   const [vehicles, setVehicles] = useState<Vehicle[]>([])
@@ -172,15 +174,20 @@ export function VehiclePage() {
     if (!canManage || saving) return
     setSaving(true)
     try {
-      if (editingId) await updateVehicle(editingId, form)
-      else await createVehicle(form)
+      if (editingId) {
+        await updateVehicle(editingId, form)
+        success('Kendaraan diperbarui', 'Data kendaraan berhasil diperbarui.')
+      } else {
+        await createVehicle(form)
+        success('Kendaraan ditambahkan', 'Data kendaraan berhasil ditambahkan.')
+      }
       closeForm()
       await load()
     } catch (err) {
       console.error(err)
-      window.alert(
+      const message =
         err instanceof Error ? err.message : 'Gagal menyimpan kendaraan.'
-      )
+      toastError('Gagal menyimpan kendaraan', message)
     } finally {
       setSaving(false)
     }
@@ -197,12 +204,13 @@ export function VehiclePage() {
       return
     try {
       await deleteVehicle(vehicle.id)
+      success('Kendaraan dihapus', 'Data kendaraan berhasil dihapus.')
       await load()
     } catch (err) {
       console.error(err)
-      window.alert(
+      const message =
         err instanceof Error ? err.message : 'Gagal menghapus kendaraan.'
-      )
+      toastError('Gagal menghapus kendaraan', message)
     }
   }
 

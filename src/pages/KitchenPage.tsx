@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 
 import { canAccess } from '@/features/auth/role-policy'
 import { useAuth } from '@/features/auth/use-auth'
+import { useToast } from '@/features/ui/toast-context'
 import {
   createKitchen,
   deleteKitchen,
@@ -28,6 +29,7 @@ function formatDateTime(value: string | null) {
 
 export function KitchenPage() {
   const { user } = useAuth()
+  const { success, error: toastError } = useToast()
   const canView = canAccess(user?.role, 'kitchen.view')
   const canManage = canAccess(user?.role, 'kitchen.manage')
   const [kitchens, setKitchens] = useState<Kitchen[]>([])
@@ -120,15 +122,20 @@ export function KitchenPage() {
     if (!canManage || saving) return
     setSaving(true)
     try {
-      if (editingId) await updateKitchen(editingId, form)
-      else await createKitchen(form)
+      if (editingId) {
+        await updateKitchen(editingId, form)
+        success('Dapur diperbarui', 'Data dapur berhasil diperbarui.')
+      } else {
+        await createKitchen(form)
+        success('Dapur ditambahkan', 'Data dapur berhasil ditambahkan.')
+      }
       closeForm()
       await load()
     } catch (err) {
       console.error(err)
-      window.alert(
+      const message =
         err instanceof Error ? err.message : 'Gagal menyimpan data dapur.'
-      )
+      toastError('Gagal menyimpan dapur', message)
     } finally {
       setSaving(false)
     }
@@ -139,12 +146,13 @@ export function KitchenPage() {
     if (!window.confirm(`Hapus dapur "${kitchen.name}"?`)) return
     try {
       await deleteKitchen(kitchen.id)
+      success('Dapur dihapus', 'Data dapur berhasil dihapus.')
       await load()
     } catch (err) {
       console.error(err)
-      window.alert(
+      const message =
         err instanceof Error ? err.message : 'Gagal menghapus data dapur.'
-      )
+      toastError('Gagal menghapus dapur', message)
     }
   }
 

@@ -15,6 +15,7 @@ import {
 
 import { canAccess } from '@/features/auth/role-policy'
 import { useAuth } from '@/features/auth/use-auth'
+import { useToast } from '@/features/ui/toast-context'
 
 const HISTORY_PAGE_SIZE = 10
 const BANK_MODULE_START_DATE = '2026-07-20'
@@ -283,6 +284,7 @@ function AccountCard({
 
 export function BankPage() {
   const { user } = useAuth()
+  const { success, error: showError } = useToast()
 
   const [overview, setOverview] = useState<BankOverview | null>(null)
   const [loading, setLoading] = useState(true)
@@ -545,15 +547,29 @@ export function BankPage() {
       const refreshedOverview = await getBankOverview()
       setOverview(refreshedOverview)
       setErrorMessage('')
+      success('Transaksi bank berhasil dihapus.')
+
+      success(
+        editingTransactionId
+          ? 'Transaksi bank berhasil diperbarui.'
+          : 'Transaksi bank berhasil disimpan.'
+      )
     } catch (error: unknown) {
       console.error(error)
 
-      setCreateError(
+      const message =
         error instanceof Error
           ? error.message
           : editingTransactionId
             ? 'Gagal mengubah transaksi bank.'
             : 'Gagal menyimpan transaksi bank.'
+
+      setCreateError(message)
+      showError(
+        editingTransactionId
+          ? 'Gagal memperbarui transaksi bank.'
+          : 'Gagal menyimpan transaksi bank.',
+        message
       )
     } finally {
       setIsSavingTransaction(false)
@@ -592,10 +608,12 @@ export function BankPage() {
       setErrorMessage('')
     } catch (error: unknown) {
       console.error(error)
-      window.alert(
+
+      showError(
+        'Gagal menghapus transaksi bank.',
         error instanceof Error
           ? error.message
-          : 'Gagal menghapus transaksi bank.'
+          : 'Terjadi kesalahan saat menghapus transaksi bank.'
       )
     } finally {
       setIsDeletingTransaction(false)

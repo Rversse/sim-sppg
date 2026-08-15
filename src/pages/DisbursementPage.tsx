@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 
 import { canAccess } from '@/features/auth/role-policy'
 import { useAuth } from '@/features/auth/use-auth'
+import { useToast } from '@/features/ui/toast-context'
 import {
   calculateDisbursementProgress,
   DISBURSEMENT_ITEMS,
@@ -27,6 +28,7 @@ function formatDate(value: string) {
 
 export function DisbursementPage() {
   const { user } = useAuth()
+  const { error: toastError } = useToast()
   const canView = canAccess(user?.role, 'disbursement.view')
 
   const [selectedDate, setSelectedDate] = useState(() => {
@@ -60,9 +62,10 @@ export function DisbursementPage() {
         if (cancelled) return
 
         console.error(err)
-        setError(
+        const message =
           err instanceof Error ? err.message : 'Gagal memuat data pencairan.'
-        )
+
+        setError(message)
       })
       .finally(() => {
         if (cancelled) return
@@ -139,11 +142,13 @@ export function DisbursementPage() {
         console.error(reloadError)
       }
 
-      setError(
+      const message =
         err instanceof Error
           ? err.message
           : 'Gagal menyimpan checklist pencairan.'
-      )
+
+      setError(message)
+      toastError('Checklist gagal disimpan', message)
     } finally {
       setSavingKey(null)
     }

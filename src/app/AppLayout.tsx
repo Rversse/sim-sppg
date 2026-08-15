@@ -4,6 +4,7 @@ import { NavLink, Outlet } from 'react-router-dom'
 import { supabase } from '@/lib/supabase'
 import { canAccess, type Permission } from '@/features/auth/role-policy'
 import { useAuth } from '@/features/auth/use-auth'
+import { useToast } from '@/features/ui/toast-context'
 
 type NavigationItem = {
   label: string
@@ -86,6 +87,7 @@ const SIDEBAR_COLLAPSED_KEY = 'sim-sppg.sidebar-collapsed'
 
 export function AppLayout() {
   const { user } = useAuth()
+  const { success, error } = useToast()
   const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
     return localStorage.getItem(SIDEBAR_COLLAPSED_KEY) === 'true'
   })
@@ -106,11 +108,15 @@ export function AppLayout() {
   const visibleNavigation = visibleSections.flatMap((section) => section.items)
 
   async function handleLogout() {
-    const { error } = await supabase.auth.signOut()
+    const { error: signOutError } = await supabase.auth.signOut()
 
-    if (error) {
-      console.error('Logout gagal:', error)
+    if (signOutError) {
+      console.error('Logout gagal:', signOutError)
+      error('Gagal keluar', signOutError.message)
+      return
     }
+
+    success('Berhasil keluar', 'Sesi Anda telah diakhiri.')
   }
 
   return (
