@@ -42,7 +42,7 @@
   .app-logout-button,
   .vehicle-notification-button
 ):focus-visible {
-  box-shadow: 0 0 0 3px var(--app-focus-ring);
+  box-shadow: var(--app-focus-ring);
 }
 
 :where(

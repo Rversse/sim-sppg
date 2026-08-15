@@ -2,25 +2,26 @@
 
 /*
  * SIM SPPG stylesheet entrypoint.
- * Keep module import order stable: the cascade follows this sequence.
+ * Baseline system styles load before page-specific styles so page modules
+ * remain authoritative for their own visual details.
  */
 
 @import './styles/foundation.css';
-@import './styles/dashboard.css';
-@import './styles/reports.css';
+@import './styles/system.css';
 @import './styles/responsive.css';
 @import './styles/page-shared.css';
+@import './styles/global-polish.css';
+
+@import './styles/dashboard.css';
+@import './styles/reports.css';
 @import './styles/kitchen.css';
 @import './styles/supplier.css';
 @import './styles/vehicle.css';
 @import './styles/bank.css';
-@import './styles/auth-notifications.css';
-@import './styles/global-polish.css';
 @import './styles/disbursement.css';
 @import './styles/bank-history.css';
+@import './styles/auth-notifications.css';
 
-/* Consolidated shared late-cascade system layer. */
-@import './styles/system.css';
-
+/* Shared component states remain late-cascade interaction polish. */
 @import './styles/component-surfaces.css';
 @import './styles/bank-ui-polish.css';
