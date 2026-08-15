@@ -1,13 +1,17 @@
-/* Global polish adds cross-cutting behavior only; page-specific responsive rules live in their modules. */
-
-/* GLOBAL UI POLISH + APP SHELL MOTION
-   Extracted from the legacy src/index.css during CSS-only refactor.
-   Cascade order is preserved by src/index.css imports.
-*/
-
 /* =========================================================
-   GLOBAL UI POLISH / MOTION
-   Keeps page logic unchanged; visual behavior only.
+   GLOBAL POLISH
+   Cross-cutting interaction, motion, header polish, and visual
+   normalization only.
+
+   Ownership:
+   - foundation.css owns app-shell geometry/layout.
+   - responsive.css owns breakpoint/layout overrides.
+   - page CSS owns page-specific geometry.
+   - component-surfaces.css owns shared component states.
+
+   This file intentionally does NOT redefine:
+   .app-shell, .app-sidebar geometry, .app-content, .app-main
+   width/height/position/flex-basis/overflow.
    ========================================================= */
 
 :root {
@@ -42,70 +46,67 @@ textarea:focus-visible {
   outline-offset: 2px;
 }
 
-/* ----- App shell ----- */
+/* =========================================================
+   APP HEADER
+   ========================================================= */
 
-.app-shell {
-  --sidebar-width: 252px;
+.app-page-heading {
+  min-width: 0;
 }
 
-.app-sidebar {
-  position: relative;
-  z-index: 20;
-  width: var(--sidebar-width);
-  flex-basis: var(--sidebar-width);
-  overflow: hidden;
-  transition:
-    width var(--app-motion) var(--app-ease),
-    flex-basis var(--app-motion) var(--app-ease),
-    box-shadow var(--app-motion) ease;
-}
-
-.app-sidebar::after {
-  position: absolute;
-  inset: 0 0 0 auto;
-  width: 1px;
-  background: rgb(255 255 255 / 0.05);
-  content: '';
-  pointer-events: none;
-}
-
-.app-sidebar-toggle {
-  position: absolute;
-  top: 18px;
-  right: -11px;
-  z-index: 4;
-  display: grid;
-  width: 24px;
-  height: 24px;
-  place-items: center;
-  padding: 0;
-  border: 1px solid rgb(255 255 255 / 0.14);
-  border-radius: 50%;
-  background: #111b39;
-  color: var(--app-white);
-  cursor: pointer;
-  box-shadow: 0 8px 18px rgb(0 0 0 / 0.2);
-  transition:
-    transform var(--app-motion-fast) ease,
-    background-color var(--app-motion-fast) ease,
-    box-shadow var(--app-motion-fast) ease;
-}
-
-.app-sidebar-toggle:hover {
-  transform: scale(1.06);
-  background: #18244a;
-  box-shadow: 0 10px 22px rgb(0 0 0 / 0.24);
-}
-
-.app-sidebar-toggle:active {
-  transform: scale(0.96);
-}
-
-.app-sidebar-toggle span {
-  font-size: 15px;
+.app-header-kicker {
+  display: block;
+  margin-bottom: 2px;
+  color: #64748b;
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 0.16em;
   line-height: 1;
-  transform: translateY(-1px);
+  text-transform: uppercase;
 }
+
+.app-page-title {
+  margin: 0;
+  color: var(--app-primary);
+  font-size: 17px;
+  font-weight: 800;
+  line-height: 1.15;
+  letter-spacing: -0.025em;
+}
+
+.app-user {
+  flex: 0 0 auto;
+}
+
+.app-user-avatar {
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  color: var(--app-accent);
+  font-size: 12px;
+  font-weight: 900;
+}
+
+/* =========================================================
+   PAGE-LEVEL TITLES
+   The canonical page title now lives in AppLayout.
+   Keep page descriptions/actions, but remove duplicate h1s.
+   ========================================================= */
+
+.dashboard-hero h1,
+.reports-header h1,
+.bank-hero h1,
+.kitchen-header h1,
+.vehicle-header h1,
+.supplier-header h1,
+.disbursement-header h1 {
+  display: none;
+}
+
+/* =========================================================
+   SIDEBAR / NAVIGATION INTERACTION
+   Geometry remains exclusively in foundation.css.
+   ========================================================= */
 
 .app-brand,
 .app-nav,
@@ -153,16 +154,24 @@ textarea:focus-visible {
 
 .app-nav-icon {
   flex: 0 0 27px;
-  transition:
-    transform var(--app-motion-fast) var(--app-ease),
-    background-color var(--app-motion-fast) ease;
 }
 
-.app-nav-link:hover .app-nav-icon {
+.app-nav-icon svg {
+  width: 16px;
+  height: 16px;
+  stroke-width: 2;
+  transition:
+    transform var(--app-motion-fast) var(--app-ease),
+    opacity var(--app-motion-fast) ease;
+}
+
+.app-nav-link:hover .app-nav-icon svg {
   transform: scale(1.06);
 }
 
-/* ----- Header / page transitions ----- */
+/* =========================================================
+   HEADER / PAGE TRANSITIONS
+   ========================================================= */
 
 .app-header {
   transition:
@@ -196,7 +205,9 @@ textarea:focus-visible {
   animation: app-page-enter var(--app-motion-slow) var(--app-ease) both;
 }
 
-/* ----- Common interactive controls ----- */
+/* =========================================================
+   COMMON INTERACTIVE CONTROLS
+   ========================================================= */
 
 button {
   transition:
@@ -221,7 +232,9 @@ textarea:not(:disabled) {
     background-color var(--app-motion-fast) ease;
 }
 
-/* ----- Generic panel / table polish ----- */
+/* =========================================================
+   GENERIC PANEL / TABLE POLISH
+   ========================================================= */
 
 .dashboard-filter-card,
 .dashboard-panel,
@@ -264,7 +277,19 @@ textarea:not(:disabled) {
   background: #fbfdff;
 }
 
-/** Loading shimmer utility (disbursement) **/
+/* =========================================================
+   MOBILE NAV ICONS
+   ========================================================= */
+
+.app-mobile-link svg {
+  width: 18px;
+  height: 18px;
+  stroke-width: 2;
+}
+
+/* =========================================================
+   DISBURSEMENT LOADING
+   ========================================================= */
 
 .disbursement-skeleton {
   position: relative;
@@ -272,7 +297,9 @@ textarea:not(:disabled) {
   background: #eef2f7;
 }
 
-/* ----- Modal entrance helpers ----- */
+/* =========================================================
+   MODAL ENTRANCE
+   ========================================================= */
 
 .dashboard-transaction-modal-backdrop,
 .kitchen-modal-backdrop,
@@ -290,7 +317,23 @@ textarea:not(:disabled) {
   animation: app-modal-in var(--app-motion) var(--app-ease) both;
 }
 
-/* ----- Reduced motion ----- */
+/* =========================================================
+   RESPONSIVE HEADER
+   ========================================================= */
+
+@media (max-width: 760px) {
+  .app-page-title {
+    font-size: 15px;
+  }
+
+  .app-header-kicker {
+    font-size: 7px;
+  }
+}
+
+/* =========================================================
+   REDUCED MOTION
+   ========================================================= */
 
 @media (prefers-reduced-motion: reduce) {
   html {
@@ -307,7 +350,9 @@ textarea:not(:disabled) {
   }
 }
 
-/* ----- Motion keyframes ----- */
+/* =========================================================
+   MOTION KEYFRAMES
+   ========================================================= */
 
 @keyframes app-page-enter {
   from {
@@ -348,7 +393,3 @@ textarea:not(:disabled) {
     transform: translateX(100%);
   }
 }
-
-/* =========================================================
-   FINAL GLOBAL POLISH — DISBURSEMENT + PANEL VARIANTS
-   ========================================================= */

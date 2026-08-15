@@ -1,4 +1,14 @@
-import { NavLink, Outlet } from 'react-router-dom'
+import { NavLink, Outlet, useLocation } from 'react-router-dom'
+import {
+  ArrowLeftRight,
+  Building2,
+  Car,
+  ChefHat,
+  FileText,
+  LayoutDashboard,
+  Wallet,
+  type LucideIcon
+} from 'lucide-react'
 
 import { supabase } from '@/lib/supabase'
 import { canAccess, type Permission } from '@/features/auth/role-policy'
@@ -9,7 +19,7 @@ type NavigationItem = {
   label: string
   to: string
   permission: Permission
-  short: string
+  icon: LucideIcon
 }
 
 type NavigationSection = {
@@ -25,7 +35,7 @@ const navigationSections: NavigationSection[] = [
         label: 'Dashboard',
         to: '/dashboard',
         permission: 'dashboard.view',
-        short: 'DB'
+        icon: LayoutDashboard
       }
     ]
   },
@@ -36,19 +46,19 @@ const navigationSections: NavigationSection[] = [
         label: 'Data Dapur',
         to: '/master/kitchen',
         permission: 'kitchen.view',
-        short: 'DP'
+        icon: ChefHat
       },
       {
         label: 'Data Kendaraan',
         to: '/master/vehicle',
         permission: 'vehicle.view',
-        short: 'KD'
+        icon: Car
       },
       {
         label: 'Data Supplier',
         to: '/master/supplier',
         permission: 'supplier.view',
-        short: 'SP'
+        icon: Building2
       }
     ]
   },
@@ -59,13 +69,13 @@ const navigationSections: NavigationSection[] = [
         label: 'Transaksi Bank',
         to: '/bank',
         permission: 'bank.view',
-        short: 'BK'
+        icon: ArrowLeftRight
       },
       {
         label: 'Pencairan',
         to: '/disbursement',
         permission: 'disbursement.view',
-        short: 'PC'
+        icon: Wallet
       }
     ]
   },
@@ -76,15 +86,30 @@ const navigationSections: NavigationSection[] = [
         label: 'Laporan',
         to: '/reports',
         permission: 'reports.view',
-        short: 'LP'
+        icon: FileText
       }
     ]
   }
 ]
 
+const pageTitles: Array<{ match: string; title: string }> = [
+  { match: '/dashboard', title: 'Dashboard' },
+  { match: '/master/kitchen', title: 'Data Dapur' },
+  { match: '/master/vehicle', title: 'Data Kendaraan' },
+  { match: '/master/supplier', title: 'Data Supplier' },
+  { match: '/bank', title: 'Transaksi Bank' },
+  { match: '/disbursement', title: 'Pencairan' },
+  { match: '/reports', title: 'Laporan' }
+]
+
+function getPageTitle(pathname: string) {
+  return pageTitles.find(({ match }) => pathname === match)?.title ?? 'SIM SPPG'
+}
+
 export function AppLayout() {
   const { user } = useAuth()
   const { success, error } = useToast()
+  const { pathname } = useLocation()
 
   const visibleSections = navigationSections
     .map((section) => ({
@@ -96,6 +121,8 @@ export function AppLayout() {
     .filter((section) => section.items.length > 0)
 
   const visibleNavigation = visibleSections.flatMap((section) => section.items)
+
+  const pageTitle = getPageTitle(pathname)
 
   async function handleLogout() {
     const { error: signOutError } = await supabase.auth.signOut()
@@ -113,7 +140,9 @@ export function AppLayout() {
     <div className="app-shell">
       <aside className="app-sidebar">
         <div className="app-brand">
-          <span className="app-brand-mark">S</span>
+          <span className="app-brand-mark" aria-hidden="true">
+            S
+          </span>
 
           <div className="app-brand-copy">
             <strong>SIM SPPG</strong>
@@ -127,37 +156,40 @@ export function AppLayout() {
               <span className="app-nav-section-label">{section.label}</span>
 
               <div className="app-nav-section-items">
-                {section.items.map((item) => (
-                  <NavLink
-                    key={item.to}
-                    to={item.to}
-                    className={({ isActive }) =>
-                      `app-nav-link${isActive ? ' is-active' : ''}`
-                    }
-                  >
-                    <span className="app-nav-icon">{item.short}</span>
-                    <span className="app-nav-label">{item.label}</span>
-                  </NavLink>
-                ))}
+                {section.items.map((item) => {
+                  const Icon = item.icon
+
+                  return (
+                    <NavLink
+                      key={item.to}
+                      to={item.to}
+                      className={({ isActive }) =>
+                        `app-nav-link${isActive ? ' is-active' : ''}`
+                      }
+                    >
+                      <span className="app-nav-icon" aria-hidden="true">
+                        <Icon />
+                      </span>
+                      <span className="app-nav-label">{item.label}</span>
+                    </NavLink>
+                  )
+                })}
               </div>
             </div>
           ))}
         </nav>
 
         <div className="app-sidebar-footer">
-          <span className="app-online-dot" />
+          <span className="app-online-dot" aria-hidden="true" />
           <span>System online</span>
         </div>
       </aside>
 
       <div className="app-content">
         <header className="app-header">
-          <div>
-            <span className="app-header-kicker">
-              SISTEM INFORMASI MANAJEMEN
-            </span>
-
-            <strong>SATUAN PELAYANAN PEMENUHAN GIZI</strong>
+          <div className="app-page-heading">
+            <span className="app-header-kicker">SIM SPPG</span>
+            <h1 className="app-page-title">{pageTitle}</h1>
           </div>
 
           <div className="app-user">
@@ -183,18 +215,24 @@ export function AppLayout() {
       </div>
 
       <nav className="app-mobile-nav" aria-label="Navigasi mobile">
-        {visibleNavigation.map((item) => (
-          <NavLink
-            key={item.to}
-            to={item.to}
-            className={({ isActive }) =>
-              `app-mobile-link${isActive ? ' is-active' : ''}`
-            }
-          >
-            <span>{item.short}</span>
-            <small>{item.label}</small>
-          </NavLink>
-        ))}
+        {visibleNavigation.map((item) => {
+          const Icon = item.icon
+
+          return (
+            <NavLink
+              key={item.to}
+              to={item.to}
+              className={({ isActive }) =>
+                `app-mobile-link${isActive ? ' is-active' : ''}`
+              }
+              aria-label={item.label}
+              title={item.label}
+            >
+              <Icon aria-hidden="true" />
+              <small>{item.label}</small>
+            </NavLink>
+          )
+        })}
       </nav>
     </div>
   )
