@@ -356,7 +356,7 @@ export function SupplierPage() {
                 <th>No. HP</th>
                 <th>Alamat</th>
                 <th>Rekening</th>
-                <th>Aksi</th>
+                {canManage && <th>Aksi</th>}
               </tr>
             </thead>
             <tbody>
@@ -377,8 +377,8 @@ export function SupplierPage() {
                       {supplier.accounts.length} Rek
                     </span>
                   </td>
-                  <td>
-                    {canManage ? (
+                  {canManage && (
+                    <td>
                       <div className="action-row">
                         <button
                           className="btn secondary"
@@ -399,10 +399,8 @@ export function SupplierPage() {
                           Hapus
                         </button>
                       </div>
-                    ) : (
-                      <span style={{ color: '#94a3b8' }}>—</span>
-                    )}
-                  </td>
+                    </td>
+                  )}
                 </tr>
               ))}
             </tbody>
