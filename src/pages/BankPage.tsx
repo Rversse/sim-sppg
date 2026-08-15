@@ -118,16 +118,6 @@ function formatDate(value: string) {
   }).format(new Date(`${value}T00:00:00`))
 }
 
-function formatDateTime(value: string) {
-  return new Intl.DateTimeFormat('id-ID', {
-    day: '2-digit',
-    month: 'short',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit'
-  }).format(new Date(value))
-}
-
 function getPartnerName(transaction: BankTransaction, incoming: boolean) {
   if (incoming) {
     return (
@@ -1068,25 +1058,22 @@ export function BankPage() {
                                 incoming ? 'incoming' : 'outgoing'
                               }`}
                             >
-                              {incoming ? 'TRANSFER MASUK' : 'TRANSFER KELUAR'}
+                              {incoming ? 'Transfer Masuk' : 'Transfer Keluar'}
                             </span>
                           </div>
 
                           <div className="bank-history-meta">
                             {formatDate(transaction.transaction_date)}
-                            {' • '}
-                            {formatDateTime(transaction.created_at)}
                           </div>
 
                           {transaction.payment_for?.trim() ? (
                             <div className="bank-history-purpose">
-                              Keperluan:{' '}
-                              <strong>{transaction.payment_for.trim()}</strong>
+                              {transaction.payment_for.trim()}
                             </div>
                           ) : null}
                         </div>
 
-                        <div className="bank-history-values">
+                        <div className="bank-history-amount">
                           <strong
                             className={
                               incoming ? 'bank-income' : 'bank-expense'
@@ -1095,17 +1082,20 @@ export function BankPage() {
                             {incoming ? '+' : '-'}
                             {formatRupiah(incoming ? transferAmount : total)}
                           </strong>
-
                           {!incoming && adminFee > 0 ? (
-                            <p>Admin: {formatRupiah(adminFee)}</p>
+                            <span className="bank-history-fee">
+                              Admin {formatRupiah(adminFee)}
+                            </span>
                           ) : null}
+                        </div>
 
-                          <p className="bank-history-balance">
-                            Saldo: {formatRupiah(item.runningBalance)}
-                          </p>
+                        <div className="bank-history-balance">
+                          {formatRupiah(item.runningBalance)}
+                        </div>
 
+                        <div className="bank-history-actions">
                           {canCreateTransaction ? (
-                            <div className="bank-history-actions">
+                            <>
                               <button
                                 type="button"
                                 className="bank-history-action edit"
@@ -1114,7 +1104,6 @@ export function BankPage() {
                               >
                                 Edit
                               </button>
-
                               <button
                                 type="button"
                                 className="bank-history-action delete"
@@ -1125,70 +1114,95 @@ export function BankPage() {
                               >
                                 Hapus
                               </button>
-                            </div>
+                            </>
                           ) : null}
                         </div>
                       </article>
                     )
                   })}
-
-                  {historyTotalPages > 1 ? (
-                    <div className="bank-history-pagination">
-                      <span className="bank-history-pagination-info">
-                        Menampilkan {(historyPage - 1) * HISTORY_PAGE_SIZE + 1}–
-                        {Math.min(
-                          historyPage * HISTORY_PAGE_SIZE,
-                          historyTransactions.length
-                        )}{' '}
-                        dari {historyTransactions.length} transaksi
-                      </span>
-
-                      <div className="bank-history-pagination-buttons">
-                        <button
-                          type="button"
-                          className="bank-history-page"
-                          disabled={historyPage === 1}
-                          onClick={() =>
-                            setHistoryPage((page) => Math.max(1, page - 1))
-                          }
-                        >
-                          ←
-                        </button>
-
-                        {Array.from(
-                          { length: historyTotalPages },
-                          (_, index) => index + 1
-                        ).map((page) => (
-                          <button
-                            key={page}
-                            type="button"
-                            className={`bank-history-page ${
-                              page === historyPage ? 'active' : ''
-                            }`}
-                            onClick={() => setHistoryPage(page)}
-                          >
-                            {page}
-                          </button>
-                        ))}
-
-                        <button
-                          type="button"
-                          className="bank-history-page"
-                          disabled={historyPage === historyTotalPages}
-                          onClick={() =>
-                            setHistoryPage((page) =>
-                              Math.min(historyTotalPages, page + 1)
-                            )
-                          }
-                        >
-                          →
-                        </button>
-                      </div>
-                    </div>
-                  ) : null}
                 </>
               )}
             </div>
+
+            <footer
+              className="bank-history-pagination"
+              aria-label="Paginasi riwayat transaksi"
+            >
+              <span className="bank-history-pagination-info">
+                {historyTransactions.length === 0
+                  ? '0 transaksi'
+                  : `Menampilkan ${(historyPage - 1) * HISTORY_PAGE_SIZE + 1}–${Math.min(
+                      historyPage * HISTORY_PAGE_SIZE,
+                      historyTransactions.length
+                    )} dari ${historyTransactions.length} transaksi`}
+              </span>
+
+              <div className="bank-history-pagination-buttons">
+                <button
+                  type="button"
+                  className="bank-history-page bank-history-page-nav"
+                  disabled={historyPage === 1}
+                  onClick={() =>
+                    setHistoryPage((page) => Math.max(1, page - 1))
+                  }
+                  aria-label="Halaman sebelumnya"
+                >
+                  ‹
+                </button>
+
+                {Array.from(
+                  { length: historyTotalPages },
+                  (_, index) => index + 1
+                )
+                  .filter((page) => {
+                    if (historyTotalPages <= 7) return true
+                    return (
+                      page === 1 ||
+                      page === historyTotalPages ||
+                      Math.abs(page - historyPage) <= 1
+                    )
+                  })
+                  .map((page, index, pages) => {
+                    const previous = pages[index - 1]
+                    const needsEllipsis =
+                      previous !== undefined && page - previous > 1
+
+                    return (
+                      <span key={page} className="bank-history-page-slot">
+                        {needsEllipsis ? (
+                          <span className="bank-history-page-ellipsis">…</span>
+                        ) : null}
+                        <button
+                          type="button"
+                          className={`bank-history-page ${
+                            page === historyPage ? 'active' : ''
+                          }`}
+                          onClick={() => setHistoryPage(page)}
+                          aria-current={
+                            page === historyPage ? 'page' : undefined
+                          }
+                        >
+                          {page}
+                        </button>
+                      </span>
+                    )
+                  })}
+
+                <button
+                  type="button"
+                  className="bank-history-page bank-history-page-nav"
+                  disabled={historyPage === historyTotalPages}
+                  onClick={() =>
+                    setHistoryPage((page) =>
+                      Math.min(historyTotalPages, page + 1)
+                    )
+                  }
+                  aria-label="Halaman berikutnya"
+                >
+                  ›
+                </button>
+              </div>
+            </footer>
           </section>
         </div>
       ) : null}

@@ -1,0 +1,215 @@
+/* SHARED RESPONSIVE RULES
+   Extracted from the legacy src/index.css during CSS-only refactor.
+   Cascade order is preserved by src/index.css imports.
+*/
+
+@media (max-width: 1100px) {
+  .dashboard-filter-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .dashboard-kpi-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .dashboard-main-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 760px) {
+  .app-shell {
+    display: block;
+  }
+
+  .app-sidebar {
+    display: none;
+  }
+
+  .app-header {
+    height: 60px;
+    padding: 0 16px;
+  }
+
+  .app-header-kicker {
+    font-size: 7px;
+  }
+
+  .app-header strong {
+    font-size: 11px;
+  }
+
+  .app-user-role {
+    display: none;
+  }
+
+  .app-user-avatar {
+    width: 32px;
+    height: 32px;
+  }
+
+  .app-main {
+    padding: 17px 14px 92px;
+  }
+
+  .app-mobile-nav {
+    position: fixed;
+    right: 10px;
+    bottom: 10px;
+    left: 10px;
+    z-index: 30;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(48px, 1fr));
+    gap: 2px;
+    padding: 6px;
+    border: 1px solid var(--app-border-strong);
+    border-radius: 16px;
+    background: rgb(11 19 43 / 0.96);
+    box-shadow: 0 16px 40px rgb(15 23 42 / 0.22);
+    backdrop-filter: blur(12px);
+  }
+
+  .app-mobile-link {
+    display: grid;
+    min-width: 0;
+    place-items: center;
+    gap: 2px;
+    padding: 7px 2px;
+    border-radius: 11px;
+    color: #94a3b8;
+    text-decoration: none;
+  }
+
+  .app-mobile-link.is-active {
+    background: #39ff88;
+    color: #0b132b;
+  }
+
+  .app-mobile-link span {
+    font-size: 8px;
+    font-weight: 900;
+  }
+
+  .app-mobile-link small {
+    overflow: hidden;
+    max-width: 100%;
+    font-size: 7px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .dashboard-hero {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .dashboard-date-chip {
+    width: 100%;
+  }
+
+  .dashboard-filter-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .dashboard-filter-heading {
+    align-items: flex-start;
+  }
+
+  .dashboard-kpi-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .dashboard-kpi {
+    min-height: 130px;
+    padding: 14px;
+  }
+
+  .dashboard-kpi > strong {
+    margin-top: 13px;
+    font-size: 18px;
+  }
+
+  .dashboard-history-row {
+    grid-template-columns: 1fr auto;
+    gap: 8px 14px;
+  }
+
+  .dashboard-history-detail {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+
+  .dashboard-history-amount {
+    grid-column: 2;
+    grid-row: 1;
+  }
+}
+
+@media (max-width: 470px) {
+  .dashboard-filter-grid,
+  .dashboard-kpi-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .dashboard-filter-heading {
+    flex-direction: column;
+  }
+
+  .dashboard-reset {
+    padding: 0;
+  }
+
+  .dashboard-panel,
+  .dashboard-filter-card {
+    padding: 14px;
+    border-radius: 13px;
+  }
+
+  .dashboard-chart {
+    height: 205px;
+    gap: 4px;
+    margin-top: 18px;
+    padding-right: 0;
+    padding-left: 0;
+  }
+
+  .dashboard-bars {
+    width: min(38px, 82%);
+    height: 165px;
+    gap: 2px;
+  }
+
+  .dashboard-status-summary {
+    gap: 5px;
+  }
+
+  .dashboard-panel-header {
+    align-items: flex-start;
+  }
+
+  .dashboard-panel-header > div {
+    min-width: 0;
+  }
+
+  .dashboard-panel-header h2,
+  .dashboard-panel-header h3 {
+    overflow-wrap: anywhere;
+  }
+
+  .dashboard-panel-badge {
+    flex: 0 0 auto;
+    font-size: 8px;
+  }
+
+  .dashboard-chart-column {
+    min-width: 18px;
+  }
+
+  .dashboard-chart-column small {
+    font-size: 7px;
+  }
+
+  .dashboard-legend {
+    gap: 10px;
+  }
+}

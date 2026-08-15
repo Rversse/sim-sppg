@@ -1,0 +1,138 @@
+/* =========================================================
+   13 - TYPOGRAPHY
+   Phase 5C: readability baseline
+   Only presentation-level font sizing/line-height.
+   No layout, color, or business-flow changes.
+   ========================================================= */
+
+:root {
+  --app-font-xs: 0.75rem;
+  --app-font-sm: 0.8125rem;
+  --app-font-md: 0.875rem;
+  --app-font-lg: 1rem;
+  --app-font-xl: 1.125rem;
+  --app-line-tight: 1.25;
+  --app-line-normal: 1.45;
+}
+
+/* Global chrome */
+.app-nav-link {
+  font-size: var(--app-font-md);
+}
+
+.app-nav-section-label {
+  font-size: var(--app-font-xs);
+}
+
+.app-sidebar-footer {
+  font-size: var(--app-font-sm);
+}
+
+.app-sidebar-footer span:last-child {
+  font-size: var(--app-font-xs);
+}
+
+.app-header-kicker {
+  font-size: var(--app-font-xs);
+}
+
+.app-user-role {
+  font-size: var(--app-font-xs);
+}
+
+/* Shared form controls */
+.dashboard-filter-grid label > span,
+.reports-filter-panel label > span,
+.dashboard-transaction-form-grid label > span,
+.bank-form-grid label > span,
+.kitchen-form-grid label > span,
+.vehicle-form-grid label > span,
+.supplier-form-grid label > span {
+  font-size: var(--app-font-xs);
+}
+
+.dashboard-filter-grid input,
+.dashboard-filter-grid select,
+.reports-filter-panel input,
+.reports-filter-panel select,
+.dashboard-transaction-form-grid input,
+.dashboard-transaction-form-grid select,
+.dashboard-transaction-form-grid textarea,
+.bank-form-grid input,
+.bank-form-grid select,
+.supplier-form-grid input,
+.supplier-form-grid select,
+.vehicle-form-grid input,
+.vehicle-form-grid select,
+.kitchen-form-grid input,
+.kitchen-form-grid select {
+  font-size: var(--app-font-md);
+}
+
+/* Tables: readable body text; keep headers visually compact. */
+.reports-table,
+.kitchen-table,
+.vehicle-table,
+.supplier-table {
+  font-size: var(--app-font-sm);
+}
+
+.reports-table thead th,
+.kitchen-table thead th,
+.vehicle-table thead th,
+.supplier-table thead th {
+  font-size: var(--app-font-xs);
+}
+
+/* Bank history: this was one of the smallest areas in the original UI. */
+.bank-history-row,
+.bank-history-main,
+.bank-history-values {
+  line-height: var(--app-line-normal);
+}
+
+.bank-history-meta,
+.bank-history-purpose,
+.bank-history-balance,
+.bank-history-values p {
+  font-size: var(--app-font-xs);
+}
+
+.bank-history-top strong,
+.bank-history-values > strong {
+  font-size: var(--app-font-md);
+}
+
+.bank-history-badge,
+.bank-history-action,
+.bank-history-page {
+  font-size: var(--app-font-xs);
+}
+
+.bank-history-pagination-info {
+  font-size: var(--app-font-xs);
+}
+
+/* Dashboard history/status secondary text */
+.dashboard-history-date span,
+.dashboard-history-detail small,
+.dashboard-status-row > div:first-child span {
+  font-size: var(--app-font-xs);
+}
+
+.dashboard-flow,
+.dashboard-history-actions button,
+.dashboard-pagination-button {
+  font-size: var(--app-font-xs);
+}
+
+/* Keep small-screen navigation labels legible. */
+@media (max-width: 760px) {
+  .app-mobile-link span {
+    font-size: 0.625rem;
+  }
+
+  .app-mobile-link small {
+    font-size: 0.5625rem;
+  }
+}

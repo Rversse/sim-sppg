@@ -1,4 +1,3 @@
-import { useEffect, useState } from 'react'
 import { NavLink, Outlet } from 'react-router-dom'
 
 import { supabase } from '@/lib/supabase'
@@ -83,18 +82,9 @@ const navigationSections: NavigationSection[] = [
   }
 ]
 
-const SIDEBAR_COLLAPSED_KEY = 'sim-sppg.sidebar-collapsed'
-
 export function AppLayout() {
   const { user } = useAuth()
   const { success, error } = useToast()
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
-    return localStorage.getItem(SIDEBAR_COLLAPSED_KEY) === 'true'
-  })
-
-  useEffect(() => {
-    localStorage.setItem(SIDEBAR_COLLAPSED_KEY, String(sidebarCollapsed))
-  }, [sidebarCollapsed])
 
   const visibleSections = navigationSections
     .map((section) => ({
@@ -120,19 +110,10 @@ export function AppLayout() {
   }
 
   return (
-    <div className={`app-shell${sidebarCollapsed ? ' sidebar-collapsed' : ''}`}>
+    <div className="app-shell">
       <aside className="app-sidebar">
-        <button
-          type="button"
-          className="app-sidebar-toggle"
-          onClick={() => setSidebarCollapsed((current) => !current)}
-          aria-label={sidebarCollapsed ? 'Buka sidebar' : 'Tutup sidebar'}
-          title={sidebarCollapsed ? 'Buka sidebar' : 'Tutup sidebar'}
-        >
-          <span>{sidebarCollapsed ? '›' : '‹'}</span>
-        </button>
         <div className="app-brand">
-          <img className="app-brand-mark" src="/logo.png" alt="SIM SPPG" />
+          <span className="app-brand-mark">S</span>
 
           <div className="app-brand-copy">
             <strong>SIM SPPG</strong>
@@ -182,17 +163,9 @@ export function AppLayout() {
           <div className="app-user">
             <span className="app-user-role">{user?.role ?? 'user'}</span>
 
-            <img
-              className="app-user-avatar"
-              src={
-                user?.role === 'admin'
-                  ? '/admin.png'
-                  : user?.role === 'operator'
-                    ? '/operator.png'
-                    : '/viewer.png'
-              }
-              alt={`Avatar ${user?.role ?? 'viewer'}`}
-            />
+            <span className="app-user-avatar">
+              {(user?.email?.[0] ?? 'U').toUpperCase()}
+            </span>
 
             <button
               type="button"

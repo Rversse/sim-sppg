@@ -1,0 +1,101 @@
+/* =========================================================
+   15 - CONTROLS & TABLE DENSITY
+   Phase 5C.3: readable controls and consistent data density.
+   Presentation only; no business-flow changes.
+   ========================================================= */
+
+:root {
+  --app-control-height: 42px;
+  --app-control-radius: 10px;
+  --app-table-cell-y: 11px;
+  --app-table-cell-x: 14px;
+}
+
+.dashboard-filter-grid input,
+.dashboard-filter-grid select,
+.reports-filter-panel input,
+.reports-filter-panel select,
+.dashboard-transaction-form-grid input,
+.dashboard-transaction-form-grid select,
+.dashboard-transaction-form-grid textarea,
+.bank-form-grid input,
+.bank-form-grid select,
+.bank-form-grid textarea,
+.kitchen-form-grid input,
+.kitchen-form-grid select,
+.vehicle-form-grid input,
+.vehicle-form-grid select,
+.supplier-form-grid input,
+.supplier-form-grid select {
+  min-height: var(--app-control-height);
+  border-radius: var(--app-control-radius);
+}
+
+.dashboard-filter-grid input,
+.dashboard-filter-grid select,
+.reports-filter-panel input,
+.reports-filter-panel select,
+.dashboard-transaction-form-grid input,
+.dashboard-transaction-form-grid select,
+.dashboard-transaction-form-grid textarea,
+.bank-form-grid input,
+.bank-form-grid select,
+.bank-form-grid textarea,
+.kitchen-form-grid input,
+.kitchen-form-grid select,
+.vehicle-form-grid input,
+.vehicle-form-grid select,
+.supplier-form-grid input,
+.supplier-form-grid select {
+  padding-inline: 12px;
+}
+
+.dashboard-filter-grid input:focus-visible,
+.dashboard-filter-grid select:focus-visible,
+.reports-filter-panel input:focus-visible,
+.reports-filter-panel select:focus-visible,
+.dashboard-transaction-form-grid input:focus-visible,
+.dashboard-transaction-form-grid select:focus-visible,
+.dashboard-transaction-form-grid textarea:focus-visible,
+.bank-form-grid input:focus-visible,
+.bank-form-grid select:focus-visible,
+.bank-form-grid textarea:focus-visible,
+.kitchen-form-grid input:focus-visible,
+.kitchen-form-grid select:focus-visible,
+.vehicle-form-grid input:focus-visible,
+.vehicle-form-grid select:focus-visible,
+.supplier-form-grid input:focus-visible,
+.supplier-form-grid select:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--app-accent) 62%, white);
+  outline-offset: 1px;
+}
+
+.reports-table th,
+.reports-table td,
+.kitchen-table th,
+.kitchen-table td,
+.vehicle-table th,
+.vehicle-table td,
+.supplier-table th,
+.supplier-table td,
+.disbursement-table th,
+.disbursement-table td {
+  padding-block: var(--app-table-cell-y);
+  padding-inline: var(--app-table-cell-x);
+}
+
+.reports-table tbody td,
+.kitchen-table tbody td,
+.vehicle-table tbody td,
+.supplier-table tbody td,
+.disbursement-table tbody td {
+  line-height: 1.45;
+}
+
+@media (max-width: 760px) {
+  :root {
+    --app-control-height: 40px;
+    --app-table-cell-y: 10px;
+    --app-table-cell-x: 11px;
+  }
+}

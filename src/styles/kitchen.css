@@ -1,0 +1,182 @@
+/* KITCHEN
+   Extracted from the legacy src/index.css during CSS-only refactor.
+   Cascade order is preserved by src/index.css imports.
+*/
+
+/* KITCHEN */
+.kitchen-page {
+  display: grid;
+  gap: 14px;
+}
+.kitchen-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: flex-end;
+}
+.kitchen-header h1 {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 800;
+  color: #0b132b;
+}
+.kitchen-header p {
+  margin: 5px 0 0;
+  color: #94a3b8;
+  font-size: 11px;
+}
+.kitchen-toolbar {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.kitchen-input {
+  min-height: 38px;
+  border: 1px solid var(--app-border-strong);
+  border-radius: 9px;
+  padding: 0 11px;
+  background: var(--app-white);
+  color: #0b132b;
+}
+.kitchen-button {
+  min-height: 38px;
+  padding: 0 13px;
+  border: 1px solid #0b132b;
+  border-radius: 9px;
+  background: #0b132b;
+  color: var(--app-white);
+  font-weight: 800;
+  cursor: pointer;
+}
+.kitchen-secondary {
+  background: var(--app-white);
+  color: var(--app-text-dark);
+  border-color: var(--app-border-strong);
+}
+.kitchen-danger {
+  background: var(--app-white);
+  color: #dc2626;
+  border-color: #fecaca;
+}
+.kitchen-panel {
+  border: 1px solid var(--app-border-strong);
+  border-radius: 14px;
+  background: var(--app-white);
+  overflow: auto;
+}
+.kitchen-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 900px;
+}
+.kitchen-table th,
+.kitchen-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid #eef2f7;
+  text-align: left;
+  font-size: 10px;
+  vertical-align: top;
+}
+.kitchen-table th {
+  background: var(--app-bg-soft);
+  color: #64748b;
+  font-size: 8px;
+  text-transform: uppercase;
+}
+.kitchen-badge {
+  display: inline-flex;
+  padding: 4px 7px;
+  border-radius: 999px;
+  font-size: 8px;
+  font-weight: 800;
+}
+.kitchen-badge-active {
+  background: #ecfdf3;
+  color: #15803d;
+}
+.kitchen-badge-off {
+  background: var(--app-white) 1f2;
+  color: #be123c;
+}
+.kitchen-empty {
+  padding: 26px;
+  color: #94a3b8;
+  text-align: center;
+  font-size: 11px;
+}
+.kitchen-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgb(15 23 42 / 0.52);
+  backdrop-filter: blur(4px);
+}
+.kitchen-modal {
+  width: min(620px, 100%);
+  max-height: calc(100vh - 40px);
+  overflow: auto;
+  border: 1px solid var(--app-border-strong);
+  border-radius: 16px;
+  background: var(--app-white);
+  box-shadow: 0 24px 70px rgb(15 23 42 / 0.24);
+}
+.kitchen-modal-head {
+  display: flex;
+  justify-content: space-between;
+  padding: 16px 18px;
+  border-bottom: 1px solid #eef2f7;
+}
+.kitchen-modal-head h2 {
+  margin: 0;
+  font-size: 16px;
+  color: #0b132b;
+}
+.kitchen-modal-body {
+  padding: 18px;
+  display: grid;
+  gap: 14px;
+}
+.kitchen-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+.kitchen-field {
+  display: grid;
+  gap: 6px;
+}
+.kitchen-field.kitchen-full {
+  grid-column: 1/-1;
+}
+.kitchen-field label {
+  font-size: 9px;
+  font-weight: 800;
+  color: #64748b;
+}
+.kitchen-field input,
+.kitchen-field select {
+  min-height: 40px;
+  border: 1px solid var(--app-border-strong);
+  border-radius: 9px;
+  padding: 0 11px;
+}
+.kitchen-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+@media (max-width: 700px) {
+  .kitchen-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .kitchen-form-grid {
+    grid-template-columns: 1fr;
+  }
+  .kitchen-field.kitchen-full {
+    grid-column: auto;
+  }
+}

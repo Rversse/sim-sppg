@@ -1,0 +1,96 @@
+/* PHASE 5D.1 — BANK UI FINAL POLISH
+   NOTE: all .bank-history-* rules live in 12-bank-history.css now —
+   this file only handles the summary cards + account cards + sidebar.
+*/
+
+/* Correct legacy token-replacement artifacts and establish a calmer bank surface. */
+.bank-summary-grid {
+  gap: 12px;
+}
+
+.bank-summary-card {
+  min-height: 96px;
+  padding: 15px 16px;
+  border-radius: 14px;
+  box-shadow: 0 5px 18px rgb(15 23 42 / 0.035);
+}
+
+.bank-summary-card span {
+  color: var(--app-text-muted);
+  font-size: 10px;
+  letter-spacing: 0.04em;
+}
+
+.bank-summary-card strong {
+  margin-top: 9px;
+  font-size: 19px;
+  letter-spacing: -0.025em;
+}
+
+.bank-summary-card small {
+  margin-top: 6px;
+  color: var(--app-text-subtle);
+  font-size: 9px;
+  line-height: 1.35;
+}
+
+.bank-summary-card.income {
+  border-color: #b7ebcf;
+  background: #effcf4;
+}
+
+.bank-summary-card.transfer-in {
+  border-color: #c9d5e4;
+  background: #f7faff;
+}
+
+.bank-summary-card.expense {
+  border-color: #f1d28b;
+  background: #fffaf0;
+}
+
+.bank-summary-card.balance {
+  border-color: #cbd5e1;
+  background: #f8fafc;
+}
+
+.bank-account-card {
+  border-color: #dce4ed;
+  border-radius: 14px;
+  box-shadow: 0 4px 16px rgb(15 23 42 / 0.025);
+}
+
+.bank-account-card:hover {
+  border-color: #c8d3e0;
+  box-shadow: 0 10px 22px rgb(15 23 42 / 0.055);
+}
+
+.app-shell.sidebar-collapsed .app-sidebar {
+  width: 252px;
+  flex-basis: 252px;
+}
+
+.app-shell.sidebar-collapsed .app-sidebar-toggle {
+  right: 10px;
+}
+
+.app-shell.sidebar-collapsed .app-brand,
+.app-shell.sidebar-collapsed .app-nav-link,
+.app-shell.sidebar-collapsed .app-sidebar-footer {
+  justify-content: flex-start;
+}
+
+@media (max-width: 640px) {
+  .bank-summary-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .bank-summary-card {
+    min-height: 92px;
+    padding: 13px;
+  }
+
+  .bank-summary-card strong {
+    font-size: 17px;
+  }
+}

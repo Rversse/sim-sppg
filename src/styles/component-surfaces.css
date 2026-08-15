@@ -1,0 +1,171 @@
+/* =========================================================
+   COMPONENT SURFACES — 5C.5
+   Shared interaction and surface polish.
+   This layer normalizes states without changing component structure.
+   ========================================================= */
+
+:where(
+  .bank-primary-button,
+  .bank-secondary-button,
+  .bank-history-button,
+  .bank-history-action,
+  .dashboard-transaction-action,
+  .dashboard-pagination-button,
+  .kitchen-button,
+  .vehicle-button,
+  .supplier-action-button,
+  .supplier-account-action,
+  .reports-tabs button,
+  .reports-filter-panel button,
+  .disbursement-button,
+  .app-logout-button,
+  .vehicle-notification-button
+) {
+  -webkit-tap-highlight-color: transparent;
+  outline: none;
+}
+
+:where(
+  .bank-primary-button,
+  .bank-secondary-button,
+  .bank-history-button,
+  .bank-history-action,
+  .dashboard-transaction-action,
+  .dashboard-pagination-button,
+  .kitchen-button,
+  .vehicle-button,
+  .supplier-action-button,
+  .supplier-account-action,
+  .reports-tabs button,
+  .reports-filter-panel button,
+  .disbursement-button,
+  .app-logout-button,
+  .vehicle-notification-button
+):focus-visible {
+  box-shadow: 0 0 0 3px var(--app-focus-ring);
+}
+
+:where(
+  .bank-primary-button,
+  .bank-secondary-button,
+  .dashboard-transaction-action,
+  .kitchen-button,
+  .vehicle-button,
+  .reports-filter-panel button,
+  .disbursement-button,
+  .app-logout-button
+) {
+  border-radius: var(--app-radius-md);
+  font-weight: 800;
+  transition:
+    transform 150ms ease,
+    box-shadow 150ms ease,
+    border-color 150ms ease,
+    background-color 150ms ease,
+    color 150ms ease,
+    opacity 150ms ease;
+}
+
+:where(
+    .bank-primary-button,
+    .dashboard-transaction-action,
+    .kitchen-button,
+    .vehicle-button,
+    .reports-filter-panel button,
+    .disbursement-button
+  ):hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+:where(
+  .bank-primary-button,
+  .bank-secondary-button,
+  .bank-history-button,
+  .bank-history-action,
+  .dashboard-pagination-button,
+  .kitchen-button,
+  .vehicle-button,
+  .supplier-action-button,
+  .supplier-account-action,
+  .reports-tabs button,
+  .reports-filter-panel button,
+  .disbursement-button,
+  .app-logout-button,
+  .vehicle-notification-button
+):disabled {
+  cursor: not-allowed;
+  opacity: 0.52;
+}
+
+:where(
+  .bank-history-badge,
+  .kitchen-badge,
+  .supplier-badge,
+  .vehicle-notification-badge,
+  .disbursement-progress-badge,
+  .dashboard-panel-badge,
+  .dashboard-flow
+) {
+  border-radius: var(--app-radius-sm);
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+:where(
+  .bank-empty,
+  .dashboard-empty,
+  .reports-empty,
+  .kitchen-empty,
+  .supplier-empty,
+  .disbursement-empty,
+  .vehicle-notification-empty
+) {
+  border-radius: var(--app-radius-lg);
+  line-height: 1.5;
+}
+
+:where(
+  .bank-modal-backdrop,
+  .bank-modal,
+  .bank-form-modal,
+  .bank-history-modal,
+  .dashboard-transaction-modal-backdrop,
+  .dashboard-transaction-modal,
+  .kitchen-modal-backdrop,
+  .kitchen-modal,
+  .supplier-modal-backdrop,
+  .supplier-modal,
+  .vehicle-modal-backdrop,
+  .vehicle-modal,
+  .disbursement-modal-backdrop,
+  .disbursement-modal
+) {
+  scrollbar-width: thin;
+}
+
+:where(.bank-modal-close, .app-logout-button):focus-visible {
+  border-color: var(--app-accent) !important;
+  color: var(--app-primary) !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :where(
+    .bank-primary-button,
+    .bank-secondary-button,
+    .bank-history-button,
+    .bank-history-action,
+    .dashboard-transaction-action,
+    .dashboard-pagination-button,
+    .kitchen-button,
+    .vehicle-button,
+    .supplier-action-button,
+    .supplier-account-action,
+    .reports-tabs button,
+    .reports-filter-panel button,
+    .disbursement-button,
+    .app-logout-button,
+    .vehicle-notification-button
+  ) {
+    transition: none;
+  }
+}

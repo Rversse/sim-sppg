@@ -1,0 +1,513 @@
+/* DASHBOARD VARIANTS + DISBURSEMENT
+   Extracted from the legacy src/index.css during CSS-only refactor.
+   Cascade order is preserved by src/index.css imports.
+*/
+
+/* Dashboard panel variants */
+.dashboard-chart-panel {
+  min-width: 0;
+}
+
+.dashboard-status-panel {
+  min-width: 0;
+}
+
+/* =========================================================
+   DISBURSEMENT
+   ========================================================= */
+
+.disbursement-page {
+  display: grid;
+  gap: 18px;
+  padding: 8px 2px 24px;
+  animation: app-page-enter var(--app-motion-slow, 320ms)
+    var(--app-ease, cubic-bezier(0.22, 1, 0.36, 1)) both;
+}
+
+.disbursement-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.disbursement-eyebrow {
+  margin: 0 0 7px;
+  color: var(--app-text-muted);
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.disbursement-header h1 {
+  margin: 0;
+  color: var(--app-primary);
+  font-size: clamp(28px, 3.6vw, 38px);
+  font-weight: 800;
+  letter-spacing: -0.045em;
+  line-height: 1;
+}
+
+.disbursement-header p:not(.disbursement-eyebrow) {
+  margin: 9px 0 0;
+  color: var(--app-text-muted);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.disbursement-date-card {
+  min-width: 230px;
+  padding: 13px 15px;
+  border: 1px solid var(--app-border);
+  border-radius: 14px;
+  background: var(--app-surface);
+  box-shadow: 0 8px 26px rgb(15 23 42 / 0.045);
+}
+
+.disbursement-date-card label {
+  display: grid;
+  gap: 6px;
+}
+
+.disbursement-date-card label span {
+  color: var(--app-text-muted);
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.disbursement-date-card input {
+  width: 100%;
+  min-height: 39px;
+  padding: 0 10px;
+  border: 1px solid var(--app-border-strong);
+  border-radius: 9px;
+  outline: 0;
+  background: var(--app-white);
+  color: var(--app-text);
+  font-size: 11px;
+}
+
+.disbursement-date-card input:hover {
+  border-color: var(--app-border-mid);
+}
+
+.disbursement-date-card input:focus {
+  border-color: var(--app-accent);
+  box-shadow: var(--app-focus-ring);
+}
+
+.disbursement-date-card > strong {
+  display: block;
+  margin-top: 8px;
+  color: var(--app-primary);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.disbursement-error {
+  padding: 11px 14px;
+  border: 1px solid #fecaca;
+  border-radius: 12px;
+  background: var(--app-danger-bg);
+  color: var(--app-danger);
+  font-size: 11px;
+  line-height: 1.45;
+}
+
+.disbursement-summary-card,
+.disbursement-panel {
+  min-width: 0;
+  border: 1px solid var(--app-border);
+  border-radius: 18px;
+  background: var(--app-surface);
+  box-shadow: var(--app-shadow-card);
+}
+
+.disbursement-summary-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1.45fr) minmax(260px, 0.8fr);
+  gap: 18px;
+  padding: 20px;
+}
+
+.disbursement-summary-main {
+  min-width: 0;
+}
+
+.disbursement-summary-main > strong,
+.disbursement-summary-main > span {
+  display: block;
+}
+
+.disbursement-summary-main > strong {
+  color: var(--app-primary);
+  font-size: 16px;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+}
+
+.disbursement-summary-main > span {
+  margin-top: 4px;
+  color: var(--app-text-muted);
+  font-size: 10px;
+}
+
+.disbursement-progress-track {
+  width: 100%;
+  height: 9px;
+  margin-top: 14px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #edf2f7;
+}
+
+.disbursement-progress-track > span {
+  display: block;
+  height: 100%;
+  min-width: 0;
+  border-radius: inherit;
+  background: var(--app-accent);
+  box-shadow: 0 0 12px rgb(57 255 136 / 0.2);
+  transition: width 360ms var(--app-ease, cubic-bezier(0.22, 1, 0.36, 1));
+}
+
+.disbursement-status-summary {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  align-content: start;
+}
+
+.disbursement-status-summary > span {
+  display: block;
+  padding: 11px 9px;
+  border: 1px solid transparent;
+  border-radius: 11px;
+  text-align: center;
+  font-size: 9px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.disbursement-status-summary > span b {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 18px;
+  line-height: 1;
+}
+
+.disbursement-status-summary .is-danger {
+  border-color: rgb(220 38 38 / 0.16);
+  background: var(--app-danger-bg);
+  color: var(--app-danger);
+}
+
+.disbursement-status-summary .is-warning {
+  border-color: rgb(217 119 6 / 0.18);
+  background: var(--app-warning-bg);
+  color: var(--app-warning);
+}
+
+.disbursement-status-summary .is-success {
+  border-color: rgb(22 163 74 / 0.16);
+  background: var(--app-success-bg);
+  color: var(--app-success);
+}
+
+.disbursement-lock {
+  grid-column: 1 / -1;
+  padding: 10px 12px;
+  border: 1px solid #fde68a;
+  border-radius: 10px;
+  background: var(--app-white) beb;
+  color: #92400e;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.disbursement-panel {
+  padding: 18px;
+  overflow: hidden;
+}
+
+.disbursement-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.disbursement-panel-header h2 {
+  margin: 0;
+  color: var(--app-primary);
+  font-size: 14px;
+  letter-spacing: -0.02em;
+}
+
+.disbursement-panel-header p {
+  margin: 4px 0 0;
+  color: var(--app-text-subtle);
+  font-size: 10px;
+  line-height: 1.45;
+}
+
+.disbursement-panel-header > span {
+  flex: 0 0 auto;
+  padding: 5px 8px;
+  border: 1px solid var(--app-border);
+  border-radius: 7px;
+  background: var(--app-bg-soft);
+  color: var(--app-text-muted);
+  font-size: 9px;
+  font-weight: 800;
+}
+
+.disbursement-table-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--app-border);
+  border-radius: 13px;
+}
+
+.disbursement-table {
+  width: 100%;
+  min-width: 820px;
+  border-collapse: collapse;
+  background: var(--app-white);
+}
+
+.disbursement-table th,
+.disbursement-table td {
+  padding: 11px 12px;
+  border-right: 1px solid var(--app-border);
+  border-bottom: 1px solid var(--app-border-soft);
+  text-align: center;
+  vertical-align: middle;
+  font-size: 10px;
+}
+
+.disbursement-table th:last-child,
+.disbursement-table td:last-child {
+  border-right: 0;
+  width: 12%;
+}
+.disbursement-table tbody tr {
+  transition: background-color var(--app-motion-fast, 140ms) ease;
+}
+
+.disbursement-table tbody tr:hover {
+  background: #fbfdff;
+}
+
+.disbursement-table td:first-child strong {
+  color: var(--app-primary);
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.disbursement-checkbox {
+  position: relative;
+  display: inline-grid;
+  width: 24px;
+  height: 24px;
+  place-items: center;
+  cursor: pointer;
+}
+
+.disbursement-checkbox input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.disbursement-checkbox span {
+  position: relative;
+  display: block;
+  width: 17px;
+  height: 17px;
+  border: 1.5px solid var(--app-border-mid);
+  border-radius: 5px;
+  background: var(--app-white);
+  transition:
+    border-color 140ms ease,
+    background-color 140ms ease,
+    transform 140ms ease,
+    box-shadow 140ms ease;
+}
+
+.disbursement-checkbox span::after {
+  position: absolute;
+  top: 3px;
+  left: 5px;
+  width: 4px;
+  height: 7px;
+  border: solid #0b132b;
+  border-width: 0 2px 2px 0;
+  content: '';
+  opacity: 0;
+  transform: rotate(45deg) scale(0.6);
+  transition:
+    opacity 140ms ease,
+    transform 140ms ease;
+}
+
+.disbursement-checkbox input:checked + span {
+  border-color: var(--app-accent);
+  background: var(--app-accent);
+  box-shadow: 0 4px 12px rgb(57 255 136 / 0.16);
+}
+
+.disbursement-checkbox input:checked + span::after {
+  opacity: 1;
+  transform: rotate(45deg) scale(1);
+}
+
+.disbursement-checkbox input:focus-visible + span {
+  outline: 2px solid var(--app-accent);
+  outline-offset: 2px;
+}
+
+.disbursement-checkbox:hover span {
+  border-color: #94a3b8;
+  transform: scale(1.05);
+}
+
+.disbursement-checkbox input:disabled + span {
+  cursor: not-allowed;
+  opacity: 0.58;
+}
+
+.disbursement-progress-badge {
+  display: inline-flex;
+  min-width: 62px;
+  justify-content: center;
+  padding: 5px 8px;
+  border: 1px solid var(--app-border);
+  border-radius: 999px;
+  background: var(--app-bg-soft);
+  color: #64748b;
+  font-size: 9px;
+  font-weight: 800;
+}
+
+.disbursement-progress-badge.is-complete,
+.disbursement-progress-badge.complete,
+.disbursement-progress-badge.success {
+  border-color: rgb(22 163 74 / 0.16);
+  background: var(--app-success-bg);
+  color: var(--app-success);
+}
+
+.disbursement-progress-badge.is-progress,
+.disbursement-progress-badge.progress,
+.disbursement-progress-badge.warning {
+  border-color: rgb(217 119 6 / 0.18);
+  background: var(--app-warning-bg);
+  color: var(--app-warning);
+}
+
+.disbursement-progress-badge.is-not-started,
+.disbursement-progress-badge.not-started,
+.disbursement-progress-badge.danger {
+  border-color: rgb(220 38 38 / 0.16);
+  background: var(--app-danger-bg);
+  color: var(--app-danger);
+}
+
+.disbursement-empty {
+  display: grid;
+  min-height: 140px;
+  place-items: center;
+  padding: 24px;
+  color: var(--app-text-subtle);
+  font-size: 11px;
+  text-align: center;
+}
+
+.disbursement-loading {
+  display: grid;
+  gap: 10px;
+}
+
+.disbursement-skeleton {
+  position: relative;
+  height: 72px;
+  overflow: hidden;
+  border-radius: 12px;
+  background: #eef2f7;
+}
+
+.disbursement-skeleton-summary {
+  height: 125px;
+}
+
+.disbursement-skeleton::after {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgb(255 255 255 / 0.6) 45%,
+    rgb(255 255 255 / 0.85) 50%,
+    transparent 55%
+  );
+  content: '';
+  transform: translateX(-100%);
+  animation: app-shimmer 1.35s ease-in-out infinite;
+}
+
+@media (max-width: 900px) {
+  .disbursement-summary-card {
+    grid-template-columns: 1fr;
+  }
+
+  .disbursement-lock {
+    grid-column: auto;
+  }
+}
+
+@media (max-width: 760px) {
+  .disbursement-page {
+    padding-top: 0;
+  }
+
+  .disbursement-header {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .disbursement-date-card {
+    min-width: 0;
+  }
+
+  .disbursement-panel {
+    padding: 14px;
+    border-radius: 14px;
+  }
+
+  .disbursement-summary-card {
+    padding: 15px;
+    border-radius: 14px;
+  }
+
+  .disbursement-panel-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .disbursement-panel-header > span {
+    align-self: flex-start;
+  }
+}
+
+@media (max-width: 470px) {
+  .disbursement-status-summary {
+    grid-template-columns: 1fr;
+  }
+}
