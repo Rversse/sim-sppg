@@ -208,34 +208,30 @@ function OverallReportView({
   useEffect(() => {
     let cancelled = false
 
-    const loadInitialReport = async () => {
-      setLoading(true)
-      setError(null)
-
-      try {
-        const result = await getOverallReport({
-          startDate: today,
-          endDate: today,
-          kitchenId: selectedKitchen
-        })
-
-        if (!cancelled) {
-          setReport(result)
+    void getOverallReport({
+      startDate: today,
+      endDate: today,
+      kitchenId: selectedKitchen
+    })
+      .then((result) => {
+        if (cancelled) {
+          return
         }
-      } catch (error) {
+
+        setReport(result)
+      })
+      .catch((error) => {
         console.error(error)
 
         if (!cancelled) {
           setError('Gagal memuat laporan keseluruhan')
         }
-      } finally {
+      })
+      .finally(() => {
         if (!cancelled) {
           setLoading(false)
         }
-      }
-    }
-
-    void loadInitialReport()
+      })
 
     return () => {
       cancelled = true
@@ -278,6 +274,7 @@ function OverallReportView({
         >
           Export Excel
         </button>
+
         <button
           type="button"
           onClick={() => printReport()}
@@ -453,30 +450,27 @@ function IncomeReportView() {
   useEffect(() => {
     let cancelled = false
 
-    async function loadInitialReport() {
-      try {
-        const result = await getIncomeReport({
-          startDate,
-          endDate
-        })
-
+    void getIncomeReport({
+      startDate,
+      endDate
+    })
+      .then((result) => {
         if (!cancelled) {
           setReport(result)
         }
-      } catch (error) {
+      })
+      .catch((error) => {
         console.error(error)
 
         if (!cancelled) {
           setError('Gagal memuat rekap pemasukan')
         }
-      } finally {
+      })
+      .finally(() => {
         if (!cancelled) {
           setLoading(false)
         }
-      }
-    }
-
-    void loadInitialReport()
+      })
 
     return () => {
       cancelled = true
@@ -510,6 +504,7 @@ function IncomeReportView() {
         >
           Export Excel
         </button>
+
         <button
           type="button"
           onClick={() => printReport()}
@@ -554,18 +549,14 @@ function IncomeReportView() {
                         key={`${row.supplierName}-${row.ownerName}-${row.bank}`}
                       >
                         <td>{row.supplierName}</td>
-
                         <td>{row.ownerName}</td>
-
                         <td>{row.bank}</td>
-
                         <td>{formatRupiah(row.total)}</td>
                       </tr>
                     ))}
 
                     <tr className="reports-total-row">
                       <td colSpan={3}>GRAND TOTAL</td>
-
                       <td>{formatRupiah(report.grandTotal)}</td>
                     </tr>
                   </tbody>
@@ -610,7 +601,6 @@ function IncomeReportView() {
                               .map(([date, amount]) => (
                                 <tr key={date}>
                                   <td>{formatDate(date)}</td>
-
                                   <td>{formatRupiah(amount)}</td>
                                 </tr>
                               ))}
@@ -682,34 +672,31 @@ function SupplierReportView({
   useEffect(() => {
     let cancelled = false
 
-    const timer = window.setTimeout(() => {
-      void getSupplierReport({
-        startDate: initialDates.startDate,
-        endDate: initialDates.endDate,
-        kitchenId: selectedKitchen
+    void getSupplierReport({
+      startDate: initialDates.startDate,
+      endDate: initialDates.endDate,
+      kitchenId: selectedKitchen
+    })
+      .then((result) => {
+        if (!cancelled) {
+          setReport(result)
+        }
       })
-        .then((result) => {
-          if (!cancelled) {
-            setReport(result)
-          }
-        })
-        .catch((error) => {
-          console.error(error)
+      .catch((error) => {
+        console.error(error)
 
-          if (!cancelled) {
-            setError('Gagal memuat rekap pengeluaran')
-          }
-        })
-        .finally(() => {
-          if (!cancelled) {
-            setLoading(false)
-          }
-        })
-    }, 0)
+        if (!cancelled) {
+          setError('Gagal memuat rekap pengeluaran')
+        }
+      })
+      .finally(() => {
+        if (!cancelled) {
+          setLoading(false)
+        }
+      })
 
     return () => {
       cancelled = true
-      window.clearTimeout(timer)
     }
   }, [selectedKitchen, initialDates])
 
@@ -749,6 +736,7 @@ function SupplierReportView({
         >
           Export Excel
         </button>
+
         <button
           type="button"
           onClick={() => printReport()}
@@ -785,34 +773,22 @@ function SupplierReportView({
                   {report.summaryRows.map((row) => (
                     <tr key={row.kitchenName}>
                       <td>{row.kitchenName}</td>
-
                       <td>{formatRupiah(row.Arutala)}</td>
-
                       <td>{formatRupiah(row.Sukalarang)}</td>
-
                       <td>{formatRupiah(row.Aris)}</td>
-
                       <td>{formatRupiah(row.Babinsa)}</td>
-
                       <td>{formatRupiah(row.Operational)}</td>
-
                       <td>{formatRupiah(row.Total)}</td>
                     </tr>
                   ))}
 
                   <tr className="reports-total-row">
                     <td>GRAND TOTAL</td>
-
                     <td>{formatRupiah(report.totals.Arutala)}</td>
-
                     <td>{formatRupiah(report.totals.Sukalarang)}</td>
-
                     <td>{formatRupiah(report.totals.Aris)}</td>
-
                     <td>{formatRupiah(report.totals.Babinsa)}</td>
-
                     <td>{formatRupiah(report.totals.Operational)}</td>
-
                     <td>{formatRupiah(report.totals.Total)}</td>
                   </tr>
                 </tbody>
@@ -847,17 +823,11 @@ function SupplierReportView({
                       {day.kitchens.map((row) => (
                         <tr key={row.kitchenName}>
                           <td>{row.kitchenName}</td>
-
                           <td>{formatRupiah(row.Arutala)}</td>
-
                           <td>{formatRupiah(row.Sukalarang)}</td>
-
                           <td>{formatRupiah(row.Aris)}</td>
-
                           <td>{formatRupiah(row.Babinsa)}</td>
-
                           <td>{formatRupiah(row.Operational)}</td>
-
                           <td>{formatRupiah(row.Total)}</td>
                         </tr>
                       ))}

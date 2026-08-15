@@ -99,7 +99,7 @@
   color: #15803d;
 }
 .supplier-inactive {
-  background: var(--app-white) 1f2;
+  background: #fff1f2;
   color: #be123c;
 }
 .supplier-account-count {

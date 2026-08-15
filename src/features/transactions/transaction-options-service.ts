@@ -1,4 +1,4 @@
-import type { SupabaseClient } from '@Supabase/supabase-js'
+import type { SupabaseClient } from '@supabase/supabase-js'
 
 import { supabase } from '@/lib/supabase'
 

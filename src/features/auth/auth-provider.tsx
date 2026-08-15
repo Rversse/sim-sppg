@@ -94,17 +94,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     let isMounted = true
 
-    async function resolveUser() {
-      if (!authInitializedRef.current) {
+    void Promise.resolve().then(async () => {
+      if (!isMounted || !authInitializedRef.current) {
         return
       }
 
       if (!session) {
-        if (isMounted) {
-          setUser(null)
-          setIsLoading(false)
-        }
-
+        setUser(null)
+        setIsLoading(false)
         return
       }
 
@@ -118,9 +115,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       setUser(currentUser)
       setIsLoading(false)
-    }
-
-    void resolveUser()
+    })
 
     return () => {
       isMounted = false

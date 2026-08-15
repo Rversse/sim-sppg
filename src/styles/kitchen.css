@@ -95,7 +95,7 @@
   color: #15803d;
 }
 .kitchen-badge-off {
-  background: var(--app-white) 1f2;
+  background: #fff1f2;
   color: #be123c;
 }
 .kitchen-empty {

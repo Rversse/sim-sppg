@@ -18,10 +18,9 @@
 @import './styles/global-polish.css';
 @import './styles/disbursement.css';
 @import './styles/bank-history.css';
-@import './styles/typography.css';
-@import './styles/ui-hierarchy.css';
-@import './styles/controls-table.css';
-@import './styles/spacing-surfaces.css';
+
+/* Consolidated shared late-cascade system layer. */
+@import './styles/system.css';
 
 @import './styles/component-surfaces.css';
 @import './styles/bank-ui-polish.css';

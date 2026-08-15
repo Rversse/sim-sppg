@@ -358,23 +358,31 @@ export async function getDashboardActivity(
         .eq('name', filters.supplierFilter)
         .maybeSingle()
 
-      if (supplierError) throw supplierError
-      if (!supplier) return []
+      if (supplierError) {
+        throw supplierError
+      }
+
+      if (!supplier) {
+        return []
+      }
 
       query = query.eq('flow_type', 'expense').eq('supplier_id', supplier.id)
     } else if (
       filters.flowType === 'income' ||
+      filters.flowType === '' ||
       filters.flowType === 'neutral'
     ) {
       query = query
-        .eq('flow_type', filters.flowType)
+        .eq('flow_type', filters.flowType === '' ? 'income' : filters.flowType)
         .eq('account_id', filters.supplierFilter)
     }
   }
 
   const { data, error } = await query
 
-  if (error) throw error
+  if (error) {
+    throw error
+  }
 
   const buckets = new Map<string, DashboardActivity>()
 

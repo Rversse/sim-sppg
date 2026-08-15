@@ -94,3 +94,9 @@
     font-size: 17px;
   }
 }
+
+@media (max-width: 600px) {
+  .bank-summary-grid {
+    grid-template-columns: 1fr;
+  }
+}

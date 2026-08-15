@@ -164,11 +164,15 @@ export function buildTransactionPayload(
 export function validateTransactionPayload(
   payload: TransactionPayload
 ): string | null {
+  if (!payload.transaction_date) {
+    return 'Tanggal wajib diisi'
+  }
+
   if (!payload.kitchen_id) {
     return 'Pilih dapur'
   }
 
-  if (payload.amount <= 0) {
+  if (!Number.isFinite(payload.amount) || payload.amount <= 0) {
     return 'Nominal harus lebih dari 0'
   }
 
