@@ -1,65 +1,19 @@
-import type { SupabaseClient } from '@supabase/supabase-js'
-
 import { supabase } from '@/lib/supabase'
 import type { Kitchen, KitchenInput } from './kitchen-types'
 
-type ProfileRow = { id: string; username: string | null }
-
-type KitchenRow = Omit<Kitchen, 'created_by_name' | 'updated_by_name'>
-
-async function getProfileNames(
-  ids: string[],
-  client: SupabaseClient
-): Promise<Map<string, string>> {
-  const uniqueIds = [...new Set(ids.filter(Boolean))]
-  if (!uniqueIds.length) return new Map()
-
-  const { data, error } = await client
-    .from('profiles')
-    .select('id,username')
-    .in('id', uniqueIds)
-
-  if (error) throw error
-
-  return new Map(
-    ((data ?? []) as ProfileRow[]).map((profile) => [
-      profile.id,
-      profile.username ?? profile.id
-    ])
-  )
-}
-
-export async function getKitchens(
-  client: SupabaseClient = supabase
-): Promise<Kitchen[]> {
+export async function getKitchens(client = supabase): Promise<Kitchen[]> {
   const { data, error } = await client
     .from('kitchens')
-    .select(
-      'id,name,pic,foundation,address,is_active,created_at,created_by,updated_at,updated_by'
-    )
+    .select('id,name,pic,foundation,address,is_active')
     .order('name')
 
   if (error) throw error
 
-  const rows = (data ?? []) as KitchenRow[]
-  const profileNames = await getProfileNames(
-    rows.flatMap((row) => [row.created_by ?? '', row.updated_by ?? '']),
-    client
-  )
-
-  return rows.map((row) => ({
-    ...row,
-    created_by_name: row.created_by
-      ? (profileNames.get(row.created_by) ?? row.created_by)
-      : null,
-    updated_by_name: row.updated_by
-      ? (profileNames.get(row.updated_by) ?? row.updated_by)
-      : null
-  }))
+  return (data ?? []) as Kitchen[]
 }
 
 export async function getActiveKitchens(
-  client: SupabaseClient = supabase
+  client = supabase
 ): Promise<Pick<Kitchen, 'id' | 'name'>[]> {
   const { data, error } = await client
     .from('kitchens')
@@ -78,7 +32,7 @@ function validateKitchenInput(input: KitchenInput): string | null {
 
 export async function createKitchen(
   input: KitchenInput,
-  client: SupabaseClient = supabase
+  client = supabase
 ): Promise<Pick<Kitchen, 'id'>> {
   const validationError = validateKitchenInput(input)
   if (validationError) throw new Error(validationError)
@@ -102,7 +56,7 @@ export async function createKitchen(
 export async function updateKitchen(
   id: string,
   input: KitchenInput,
-  client: SupabaseClient = supabase
+  client = supabase
 ): Promise<void> {
   if (!id) throw new Error('ID dapur tidak ditemukan.')
 
@@ -125,7 +79,7 @@ export async function updateKitchen(
 
 export async function deleteKitchen(
   id: string,
-  client: SupabaseClient = supabase
+  client = supabase
 ): Promise<void> {
   if (!id) throw new Error('ID dapur tidak ditemukan.')
 
@@ -134,18 +88,22 @@ export async function deleteKitchen(
       .from('transactions')
       .select('*', { count: 'exact', head: true })
       .eq('kitchen_id', id),
+
     client
       .from('kitchen_account_rules')
       .select('*', { count: 'exact', head: true })
       .eq('kitchen_id', id),
+
     client
       .from('kitchen_supplier_rules')
       .select('*', { count: 'exact', head: true })
       .eq('kitchen_id', id),
+
     client
       .from('disbursement_checklists')
       .select('*', { count: 'exact', head: true })
       .eq('kitchen_id', id),
+
     client
       .from('kitchen_vehicles')
       .select('*', { count: 'exact', head: true })
@@ -163,7 +121,9 @@ export async function deleteKitchen(
     'checklist',
     'kendaraan'
   ]
+
   const dependency = checks.findIndex((check) => (check.count ?? 0) > 0)
+
   if (dependency >= 0) {
     throw new Error(
       `Dapur tidak dapat dihapus karena masih memiliki ${labels[dependency]}.`
@@ -171,5 +131,6 @@ export async function deleteKitchen(
   }
 
   const { error } = await client.from('kitchens').delete().eq('id', id)
+
   if (error) throw error
 }

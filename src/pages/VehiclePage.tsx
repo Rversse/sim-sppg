@@ -32,13 +32,6 @@ function formatDate(value: string | null) {
   )
 }
 
-function formatDateTime(value: string) {
-  return new Intl.DateTimeFormat('id-ID', {
-    dateStyle: 'medium',
-    timeStyle: 'short'
-  }).format(new Date(value))
-}
-
 function daysUntil(value: string | null) {
   if (!value) return null
   const target = new Date(`${value}T00:00:00`)
@@ -271,7 +264,6 @@ export function VehiclePage() {
                 <th>No. Polisi</th>
                 <th>PKB</th>
                 <th>STNK</th>
-                <th>Audit</th>
                 {canManage && <th>Aksi</th>}
               </tr>
             </thead>
@@ -302,15 +294,6 @@ export function VehiclePage() {
                         <span>{formatDate(vehicle.stnk_expiry)}</span>
                         <span className={stnk.className}>{stnk.text}</span>
                       </div>
-                    </td>
-                    <td className="vehicle-audit">
-                      Dibuat: {vehicle.created_by_name || '—'}
-                      <br />
-                      {formatDateTime(vehicle.created_at)}
-                      <br />
-                      Diubah: {vehicle.updated_by_name || '—'}
-                      <br />
-                      {formatDateTime(vehicle.updated_at)}
                     </td>
                     {canManage && (
                       <td>
@@ -427,21 +410,6 @@ export function VehiclePage() {
                   />
                 </div>
               </div>
-              {editingId &&
-                (() => {
-                  const item = vehicles.find((v) => v.id === editingId)
-                  return item ? (
-                    <div className="vehicle-audit">
-                      Terakhir diubah oleh{' '}
-                      <strong>{item.updated_by_name || '—'}</strong> pada{' '}
-                      {formatDateTime(item.updated_at)}.<br />
-                      Dibuat oleh <strong>
-                        {item.created_by_name || '—'}
-                      </strong>{' '}
-                      pada {formatDateTime(item.created_at)}.
-                    </div>
-                  ) : null
-                })()}
               <div className="vehicle-actions">
                 <button
                   className="vehicle-button vehicle-secondary"

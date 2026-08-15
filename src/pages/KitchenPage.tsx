@@ -19,14 +19,6 @@ const EMPTY_INPUT: KitchenInput = {
   is_active: true
 }
 
-function formatDateTime(value: string | null) {
-  if (!value) return '—'
-  return new Intl.DateTimeFormat('id-ID', {
-    dateStyle: 'medium',
-    timeStyle: 'short'
-  }).format(new Date(value))
-}
-
 export function KitchenPage() {
   const { user } = useAuth()
   const { success, error: toastError } = useToast()
@@ -196,7 +188,6 @@ export function KitchenPage() {
                 <th>Perwakilan</th>
                 <th>Alamat</th>
                 <th>Status</th>
-                <th>Audit</th>
                 {canManage && <th>Aksi</th>}
               </tr>
             </thead>
@@ -215,15 +206,6 @@ export function KitchenPage() {
                     >
                       {kitchen.is_active ? 'Aktif' : 'Nonaktif'}
                     </span>
-                  </td>
-                  <td className="kitchen-audit">
-                    Dibuat: {kitchen.created_by_name || '—'}
-                    <br />
-                    {formatDateTime(kitchen.created_at)}
-                    <br />
-                    Diubah: {kitchen.updated_by_name || '—'}
-                    <br />
-                    {formatDateTime(kitchen.updated_at)}
                   </td>
                   {canManage && (
                     <td>
@@ -321,21 +303,6 @@ export function KitchenPage() {
                   </select>
                 </div>
               </div>
-              {editingId &&
-                (() => {
-                  const item = kitchens.find((k) => k.id === editingId)
-                  return item ? (
-                    <div className="kitchen-audit-box kitchen-audit">
-                      Terakhir diubah oleh{' '}
-                      <strong>{item.updated_by_name || '—'}</strong> pada{' '}
-                      {formatDateTime(item.updated_at)}.<br />
-                      Dibuat oleh <strong>
-                        {item.created_by_name || '—'}
-                      </strong>{' '}
-                      pada {formatDateTime(item.created_at)}.
-                    </div>
-                  ) : null
-                })()}
               <div className="kitchen-modal-actions">
                 <button
                   className="kitchen-button kitchen-secondary"

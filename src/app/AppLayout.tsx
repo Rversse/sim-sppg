@@ -132,7 +132,7 @@ export function AppLayout() {
           <span>{sidebarCollapsed ? '›' : '‹'}</span>
         </button>
         <div className="app-brand">
-          <span className="app-brand-mark">S</span>
+          <img className="app-brand-mark" src="/logo.png" alt="SIM SPPG" />
 
           <div className="app-brand-copy">
             <strong>SIM SPPG</strong>
@@ -182,9 +182,17 @@ export function AppLayout() {
           <div className="app-user">
             <span className="app-user-role">{user?.role ?? 'user'}</span>
 
-            <span className="app-user-avatar">
-              {(user?.email?.[0] ?? 'U').toUpperCase()}
-            </span>
+            <img
+              className="app-user-avatar"
+              src={
+                user?.role === 'admin'
+                  ? '/admin.png'
+                  : user?.role === 'operator'
+                    ? '/operator.png'
+                    : '/viewer.png'
+              }
+              alt={`Avatar ${user?.role ?? 'viewer'}`}
+            />
 
             <button
               type="button"

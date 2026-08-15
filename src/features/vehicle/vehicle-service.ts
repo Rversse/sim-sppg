@@ -10,10 +10,9 @@ async function getProfileNames(ids: string[], client: SupabaseClient) {
   const uniqueIds = [...new Set(ids.filter(Boolean))]
   if (!uniqueIds.length) return new Map<string, string>()
 
-  const { data, error } = await client
-    .from('profiles')
-    .select('id,username')
-    .in('id', uniqueIds)
+  const { data, error } = await client.rpc('get_profile_names', {
+    profile_ids: uniqueIds
+  })
   if (error) throw error
 
   return new Map(
