@@ -900,7 +900,7 @@ export function ReportsPage() {
     <main className="reports-page">
       <header className="reports-header">
         <div>
-          <h1>Laporan & Rekap</h1>
+          <h1>Laporan</h1>
 
           <p>Rekap transaksi berdasarkan periode dan dapur.</p>
         </div>
@@ -912,7 +912,7 @@ export function ReportsPage() {
           className={tab === 'overall' ? 'active' : ''}
           onClick={() => setTab('overall')}
         >
-          Laporan Keseluruhan
+          Keseluruhan
         </button>
 
         <button

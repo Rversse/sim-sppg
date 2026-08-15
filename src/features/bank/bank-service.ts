@@ -63,12 +63,31 @@ export type BankAccountSummary = {
 export type BankOverview = {
   accounts: BankAccount[]
   summaries: BankAccountSummary[]
-  transactions: BankTransaction[]
+}
+
+export type BankHistoryItem = {
+  transaction: BankTransaction
+  direction: 'in' | 'out'
+  runningBalance: number
+}
+
+export type BankHistoryPage = {
+  transactions: BankHistoryItem[]
+  total: number
+  page: number
+  pageSize: number
 }
 
 type TransactionIncomeRow = {
   account_id: string | null
   amount: number | string | null
+}
+
+type BankTransferSummaryRow = {
+  account_id: string
+  recipient_account_id: string | null
+  transfer_amount: number | string | null
+  admin_fee: number | string | null
 }
 
 function getSupplierOwnerName(
@@ -232,9 +251,9 @@ export async function getBankOverview(
     String(now.getDate()).padStart(2, '0')
   ].join('-')
 
-  const [accounts, transactions, incomeTransactions] = await Promise.all([
+  const [accounts, transferRows, incomeTransactions] = await Promise.all([
     getBankAccounts(client),
-    getBankTransactions(startDate, endDate, client),
+    getBankTransferSummaryRows(startDate, endDate, client),
     getBankIncomeTransactions(startDate, endDate, client)
   ])
 
@@ -256,7 +275,7 @@ export async function getBankOverview(
   const transferIncomeByAccount = new Map<string, number>()
   const transferExpenseByAccount = new Map<string, number>()
 
-  for (const transaction of transactions) {
+  for (const transaction of transferRows) {
     const amount = Number(transaction.transfer_amount) || 0
     const adminFee = Number(transaction.admin_fee) || 0
 
@@ -276,9 +295,6 @@ export async function getBankOverview(
     )
   }
 
-  // Account cards are shown only for accounts that have actually been used
-  // in the bank module period. An opening balance by itself does not make an
-  // account visible; the account must participate in a transaction.
   const usedAccountIds = new Set<string>()
 
   for (const transaction of incomeTransactions) {
@@ -287,7 +303,7 @@ export async function getBankOverview(
     }
   }
 
-  for (const transaction of transactions) {
+  for (const transaction of transferRows) {
     usedAccountIds.add(transaction.account_id)
 
     if (transaction.recipient_account_id) {
@@ -319,8 +335,201 @@ export async function getBankOverview(
 
   return {
     accounts,
-    summaries,
-    transactions
+    summaries
+  }
+}
+
+async function getBankTransferSummaryRows(
+  startDate: string,
+  endDate: string,
+  client: SupabaseClient = supabase
+): Promise<BankTransferSummaryRow[]> {
+  const { data, error } = await client
+    .from('bank_transactions')
+    .select('account_id,recipient_account_id,transfer_amount,admin_fee')
+    .gte('transaction_date', startDate)
+    .lte('transaction_date', endDate)
+
+  if (error) {
+    throw error
+  }
+
+  return (data ?? []) as BankTransferSummaryRow[]
+}
+
+export async function getBankHistoryPage(
+  accountId: string,
+  page: number,
+  pageSize = 10,
+  balance: number,
+  client: SupabaseClient = supabase
+): Promise<BankHistoryPage> {
+  if (!accountId) {
+    throw new Error('Rekening history tidak ditemukan.')
+  }
+
+  if (!Number.isInteger(page) || page < 1) {
+    throw new Error('Halaman history tidak valid.')
+  }
+
+  if (!Number.isInteger(pageSize) || pageSize < 1) {
+    throw new Error('Ukuran halaman history tidak valid.')
+  }
+
+  const startDate = BANK_MODULE_START_DATE
+  const now = new Date()
+  const endDate = [
+    now.getFullYear(),
+    String(now.getMonth() + 1).padStart(2, '0'),
+    String(now.getDate()).padStart(2, '0')
+  ].join('-')
+
+  const accountFilter = `account_id.eq.${accountId},recipient_account_id.eq.${accountId}`
+
+  const { count, error: countError } = await client
+    .from('bank_transactions')
+    .select('id', { count: 'exact', head: true })
+    .or(accountFilter)
+    .gte('transaction_date', startDate)
+    .lte('transaction_date', endDate)
+
+  if (countError) {
+    throw countError
+  }
+
+  const total = count ?? 0
+  const offset = (page - 1) * pageSize
+  const end = offset + pageSize - 1
+
+  const { data, error } = await client
+    .from('bank_transactions')
+    .select(
+      `
+        id,
+        account_id,
+        recipient_account_id,
+        recipient_name,
+        payment_for,
+        transfer_amount,
+        admin_fee,
+        transaction_date,
+        created_at,
+        transfer_type,
+        created_by,
+        sender:accounts!bank_transactions_account_fkey(
+          id,
+          name,
+          bank,
+          account_number,
+          opening_balance,
+          account_category,
+          is_holding_destination,
+          income_suppliers(
+            business_name,
+            owner_name
+          )
+        ),
+        recipient:accounts!bank_transactions_recipient_account_fkey(
+          id,
+          name,
+          bank,
+          account_number,
+          opening_balance,
+          account_category,
+          is_holding_destination,
+          income_suppliers(
+            business_name,
+            owner_name
+          )
+        )
+      `
+    )
+    .or(accountFilter)
+    .gte('transaction_date', startDate)
+    .lte('transaction_date', endDate)
+    .order('transaction_date', { ascending: false })
+    .order('created_at', { ascending: false })
+    .range(offset, end)
+
+  if (error) {
+    throw error
+  }
+
+  const transactions = (data ?? []) as unknown as BankTransaction[]
+
+  if (!transactions.length) {
+    return {
+      transactions: [],
+      total,
+      page,
+      pageSize
+    }
+  }
+
+  let runningBalance = Number(balance) || 0
+
+  if (page > 1) {
+    const boundary = transactions[0]
+    const boundaryDate = boundary.transaction_date
+    const boundaryCreatedAt = boundary.created_at
+
+    const { data: newerRows, error: newerRowsError } = await client
+      .from('bank_transactions')
+      .select('account_id,recipient_account_id,transfer_amount,admin_fee')
+      .or(accountFilter)
+      .gte('transaction_date', startDate)
+      .lte('transaction_date', endDate)
+      .or(
+        `transaction_date.gt.${boundaryDate},and(transaction_date.eq.${boundaryDate},created_at.gt.${boundaryCreatedAt})`
+      )
+
+    if (newerRowsError) {
+      throw newerRowsError
+    }
+
+    for (const row of newerRows ?? []) {
+      const amount = Number(row.transfer_amount) || 0
+      const adminFee = Number(row.admin_fee) || 0
+
+      if (row.recipient_account_id === accountId) {
+        runningBalance -= amount
+      } else if (row.account_id === accountId) {
+        runningBalance += amount + adminFee
+      }
+    }
+  }
+
+  const history = transactions.map((transaction) => {
+    const incoming = transaction.recipient_account_id === accountId
+    const outgoing = transaction.account_id === accountId
+
+    if (!incoming && !outgoing) {
+      throw new Error('Transaksi history tidak sesuai dengan rekening.')
+    }
+
+    const row = {
+      transaction,
+      direction: incoming ? ('in' as const) : ('out' as const),
+      runningBalance
+    }
+
+    const amount = Number(transaction.transfer_amount) || 0
+    const adminFee = Number(transaction.admin_fee) || 0
+
+    if (incoming) {
+      runningBalance -= amount
+    } else {
+      runningBalance += amount + adminFee
+    }
+
+    return row
+  })
+
+  return {
+    transactions: history,
+    total,
+    page,
+    pageSize
   }
 }
 

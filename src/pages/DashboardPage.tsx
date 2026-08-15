@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 
 import { useAuth } from '@/features/auth/use-auth'
-import { useToast } from '@/features/ui/toast-context'
 import {
   getActiveKitchens,
   getDashboardActivity,
@@ -80,7 +79,6 @@ type StatusData = Awaited<ReturnType<typeof getDailyStatus>>
 
 export function DashboardPage() {
   const { user } = useAuth()
-  const { success, error: toastError } = useToast()
   const today = getTodayLocal()
 
   const [filters, setFilters] = useState<DashboardFilters>({
@@ -166,7 +164,7 @@ export function DashboardPage() {
     } catch (loadError) {
       console.error(loadError)
       setError(
-        'Data Dashboard gagal dimuat. Coba refresh atau periksa koneksi.'
+        'Gagal memuat Dashboard. Coba refresh atau periksa koneksi.'
       )
     } finally {
       setLoading(false)
@@ -197,22 +195,26 @@ export function DashboardPage() {
     !isSukarajaFilterKitchen
 
   const supplierDisabled =
-    !filters.flowType ||
-    filters.flowType === 'neutral' ||
-    supplierLockedToArutala
+    filters.flowType === 'neutral' || supplierLockedToArutala
 
   const supplierFilterLabel =
-    filters.flowType === 'expense' ? 'Supplier' : 'Rekening'
+    filters.flowType === 'income'
+      ? 'Rekening Supplier'
+      : filters.flowType === 'expense'
+        ? 'Supplier'
+        : filters.flowType === 'neutral'
+          ? 'Rekening Operasional'
+          : 'Supplier / Rekening'
 
-  const supplierPlaceholder = !filters.flowType
-    ? 'Pilih jenis transaksi'
-    : filters.flowType === 'neutral'
+  const supplierPlaceholder = supplierDisabled
+    ? filters.flowType === 'neutral'
       ? 'Arutala BNI'
-      : supplierLockedToArutala
-        ? 'Koperasi Arutala'
-        : filters.flowType === 'expense'
-          ? 'Semua supplier'
-          : 'Semua rekening'
+      : 'Koperasi Arutala'
+    : filters.flowType === 'expense' && isSukarajaFilterKitchen
+      ? 'Semua supplier'
+      : filters.flowType === 'income'
+        ? 'Semua rekening'
+        : 'Semua supplier / rekening'
   const selectedFormKitchen = kitchens.find(
     (kitchen) => kitchen.id === formKitchenId
   )
@@ -605,7 +607,6 @@ export function DashboardPage() {
       }
 
       if (modalMode === 'edit') {
-        success('Transaksi diperbarui', 'Transaksi berhasil diperbarui.')
         setModalOpen(false)
         setModalMode('create')
         setEditingId(null)
@@ -638,8 +639,6 @@ export function DashboardPage() {
           // Operational: Arutala BNI stays selected and locked.
           setFormEntryUnlocked(Boolean(formAccountId))
         }
-
-        success('Transaksi tersimpan', 'Transaksi baru berhasil disimpan.')
       }
 
       if (transactionPage !== 1) {
@@ -649,13 +648,11 @@ export function DashboardPage() {
       }
     } catch (saveError) {
       console.error(saveError)
-      const message =
+      setFormError(
         saveError instanceof Error
           ? saveError.message
-          : 'Transaksi gagal disimpan.'
-
-      setFormError(message)
-      toastError('Transaksi gagal disimpan', message)
+          : 'Gagal menyimpan transaksi.'
+      )
     } finally {
       setSaving(false)
     }
@@ -674,7 +671,6 @@ export function DashboardPage() {
 
     try {
       await deleteTransaction(transaction.id)
-      success('Transaksi dihapus', 'Transaksi berhasil dihapus.')
 
       if (transactionPage > 1 && transactions.length === 1) {
         setTransactionPage((current) => current - 1)
@@ -683,13 +679,7 @@ export function DashboardPage() {
       }
     } catch (deleteError) {
       console.error(deleteError)
-      const message =
-        deleteError instanceof Error
-          ? deleteError.message
-          : 'Transaksi gagal dihapus.'
-
-      setError(message)
-      toastError('Transaksi gagal dihapus', message)
+      setError('Gagal menghapus transaksi.')
     }
   }
 

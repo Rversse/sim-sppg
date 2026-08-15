@@ -1,27 +1,55 @@
+import {
+  createElement,
+  Suspense,
+  type ComponentType,
+  type ReactElement
+} from 'react'
 import { createBrowserRouter, Navigate } from 'react-router-dom'
 
 import { AppLayout } from '@/app/AppLayout'
 import { ProtectedRoute } from '@/features/auth/protected-route'
 import { RoleRoute } from '@/features/auth/role-route'
-import { BankPage } from '@/pages/BankPage'
-import { DashboardPage } from '@/pages/DashboardPage'
-import { DisbursementPage } from '@/pages/DisbursementPage'
-import { KitchenPage } from '@/pages/KitchenPage'
-import { LoginPage } from '@/pages/LoginPage'
-import { ReportsPage } from '@/pages/ReportsPage'
-import { SupplierPage } from '@/pages/SupplierPage'
-import { UnauthorizedPage } from '@/pages/UnauthorizedPage'
-import { VehiclePage } from '@/pages/VehiclePage'
-import { DefaultRoute } from '@/pages/DefaultRoute'
+import { lazyPages } from '@/app/lazy-pages'
+
+const {
+  LoginPage,
+  UnauthorizedPage,
+  DashboardPage,
+  KitchenPage,
+  VehiclePage,
+  SupplierPage,
+  BankPage,
+  ReportsPage,
+  DisbursementPage,
+  DefaultRoute
+} = lazyPages
+
+const pageFallback = createElement(
+  'div',
+  {
+    className: 'app-page-loading',
+    role: 'status',
+    'aria-live': 'polite'
+  },
+  'Memuat halaman...'
+)
+
+function pageElement(Component: ComponentType): ReactElement {
+  return createElement(
+    Suspense,
+    { fallback: pageFallback },
+    createElement(Component)
+  )
+}
 
 export const router = createBrowserRouter([
   {
     path: '/login',
-    element: <LoginPage />
+    element: pageElement(LoginPage)
   },
   {
     path: '/unauthorized',
-    element: <UnauthorizedPage />
+    element: pageElement(UnauthorizedPage)
   },
   {
     element: <ProtectedRoute />,
@@ -32,14 +60,14 @@ export const router = createBrowserRouter([
         children: [
           {
             index: true,
-            element: <DefaultRoute />
+            element: pageElement(DefaultRoute)
           },
           {
             element: <RoleRoute permission="dashboard.view" />,
             children: [
               {
                 path: 'dashboard',
-                element: <DashboardPage />
+                element: pageElement(DashboardPage)
               }
             ]
           },
@@ -48,7 +76,7 @@ export const router = createBrowserRouter([
             children: [
               {
                 path: 'master/kitchen',
-                element: <KitchenPage />
+                element: pageElement(KitchenPage)
               }
             ]
           },
@@ -57,7 +85,7 @@ export const router = createBrowserRouter([
             children: [
               {
                 path: 'master/vehicle',
-                element: <VehiclePage />
+                element: pageElement(VehiclePage)
               }
             ]
           },
@@ -66,7 +94,7 @@ export const router = createBrowserRouter([
             children: [
               {
                 path: 'master/supplier',
-                element: <SupplierPage />
+                element: pageElement(SupplierPage)
               }
             ]
           },
@@ -75,7 +103,7 @@ export const router = createBrowserRouter([
             children: [
               {
                 path: 'bank',
-                element: <BankPage />
+                element: pageElement(BankPage)
               }
             ]
           },
@@ -84,7 +112,7 @@ export const router = createBrowserRouter([
             children: [
               {
                 path: 'reports',
-                element: <ReportsPage />
+                element: pageElement(ReportsPage)
               }
             ]
           },
@@ -93,7 +121,7 @@ export const router = createBrowserRouter([
             children: [
               {
                 path: 'disbursement',
-                element: <DisbursementPage />
+                element: pageElement(DisbursementPage)
               }
             ]
           }
