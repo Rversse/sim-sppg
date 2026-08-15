@@ -24,8 +24,7 @@ const EMPTY_SUPPLIER: SupplierInput = {
   owner_name: '',
   product_type: '',
   phone: '',
-  address: '',
-  is_active: true
+  address: ''
 }
 const EMPTY_ACCOUNT: AccountInput = {
   bank: 'BNI',
@@ -125,8 +124,7 @@ export function SupplierPage() {
       owner_name: supplier.owner_name ?? '',
       product_type: supplier.product_type ?? '',
       phone: supplier.phone ?? '',
-      address: supplier.address ?? '',
-      is_active: supplier.is_active
+      address: supplier.address ?? ''
     })
     setSupplierModal(true)
   }
@@ -277,7 +275,7 @@ export function SupplierPage() {
   return (
     <div className="supplier-page">
       <style>{`
-        .supplier-page{display:grid;gap:14px}.supplier-header{display:flex;justify-content:space-between;align-items:flex-end;gap:12px}.supplier-header h1{margin:0;color:#0b132b;font-size:28px}.supplier-header p{margin:5px 0 0;color:#94a3b8;font-size:11px}.supplier-toolbar{display:flex;gap:8px;align-items:center}.supplier-input{min-height:38px;border:1px solid #dbe3ed;border-radius:9px;padding:0 11px;background:#fff}.supplier-panel{overflow:auto;border:1px solid #dbe3ed;border-radius:14px;background:#fff}.supplier-table{width:100%;min-width:1150px;border-collapse:collapse}.supplier-table th,.supplier-table td{padding:10px 12px;border-bottom:1px solid #eef2f7;text-align:left;font-size:10px;vertical-align:top}.supplier-table th{background:#f8fafc;color:#64748b;font-size:8px;text-transform:uppercase}.action-row{display:flex;gap:5px;flex-wrap:wrap}.btn{min-height:32px;padding:0 10px;border:1px solid #0b132b;border-radius:8px;background:#0b132b;color:#fff;font-size:9px;font-weight:800;cursor:pointer}.btn.secondary{border-color:#dbe3ed;background:#fff;color:#334155}.btn.danger{border-color:#fecaca;background:#fff;color:#dc2626}.badge{display:inline-flex;padding:4px 7px;border-radius:999px;font-size:8px;font-weight:800}.active{background:#ecfdf3;color:#15803d}.inactive{background:#fff1f2;color:#be123c}.account-count{cursor:pointer;color:#0f5fbd;font-weight:800}.modal-backdrop{position:fixed;inset:0;z-index:1000;display:grid;place-items:center;padding:20px;background:rgb(15 23 42 / .52);backdrop-filter:blur(4px)}.modal{width:min(720px,100%);max-height:calc(100vh - 40px);overflow:auto;border-radius:16px;background:#fff;border:1px solid #dbe3ed}.modal-head{display:flex;justify-content:space-between;padding:16px 18px;border-bottom:1px solid #eef2f7}.modal-head h2{margin:0;font-size:16px;color:#0b132b}.modal-body{padding:18px;display:grid;gap:12px}.form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.field{display:grid;gap:6px}.field.full{grid-column:1/-1}.field label{font-size:9px;color:#64748b;font-weight:800}.field input,.field select{min-height:40px;border:1px solid #dbe3ed;border-radius:9px;padding:0 11px}.account-card{padding:12px;border:1px solid #e5eaf0;border-radius:10px}.account-card+.account-card{margin-top:8px}.account-top{display:flex;justify-content:space-between;gap:10px}.mapping-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.mapping-item{padding:9px;border:1px solid #e5eaf0;border-radius:9px;font-size:10px}.modal-actions{display:flex;justify-content:flex-end;gap:8px}.empty{padding:28px;color:#94a3b8;text-align:center;font-size:11px}@media(max-width:700px){.supplier-header{align-items:stretch;flex-direction:column}.form-grid,.mapping-list{grid-template-columns:1fr}.field.full{grid-column:auto}}
+        .supplier-page{display:grid;gap:14px}.supplier-header{display:flex;justify-content:space-between;align-items:flex-end;gap:12px}.supplier-header h1{margin:0;color:#0b132b;font-size:28px}.supplier-header p{margin:5px 0 0;color:#94a3b8;font-size:11px}.supplier-toolbar{display:flex;gap:8px;align-items:center}.supplier-input{min-height:38px;border:1px solid #dbe3ed;border-radius:9px;padding:0 11px;background:#fff}.supplier-panel{overflow:auto;border:1px solid #dbe3ed;border-radius:14px;background:#fff}.supplier-table{width:100%;min-width:1150px;border-collapse:collapse}.supplier-table th,.supplier-table td{padding:10px 12px;border-bottom:1px solid #eef2f7;text-align:left;font-size:10px;vertical-align:top}.supplier-table th{background:#f8fafc;color:#64748b;font-size:8px;text-transform:uppercase}.action-row{display:flex;gap:5px;flex-wrap:wrap}.btn{min-height:32px;padding:0 10px;border:1px solid #0b132b;border-radius:8px;background:#0b132b;color:#fff;font-size:9px;font-weight:800;cursor:pointer}.btn.secondary{border-color:#dbe3ed;background:#fff;color:#334155}.btn.danger{border-color:#fecaca;background:#fff;color:#dc2626}account-count{cursor:pointer;color:#0f5fbd;font-weight:800}.modal-backdrop{position:fixed;inset:0;z-index:1000;display:grid;place-items:center;padding:20px;background:rgb(15 23 42 / .52);backdrop-filter:blur(4px)}.modal{width:min(720px,100%);max-height:calc(100vh - 40px);overflow:auto;border-radius:16px;background:#fff;border:1px solid #dbe3ed}.modal-head{display:flex;justify-content:space-between;padding:16px 18px;border-bottom:1px solid #eef2f7}.modal-head h2{margin:0;font-size:16px;color:#0b132b}.modal-body{padding:18px;display:grid;gap:12px}.form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.field{display:grid;gap:6px}.field.full{grid-column:1/-1}.field label{font-size:9px;color:#64748b;font-weight:800}.field input,.field select{min-height:40px;border:1px solid #dbe3ed;border-radius:9px;padding:0 11px}.account-card{padding:12px;border:1px solid #e5eaf0;border-radius:10px}.account-card+.account-card{margin-top:8px}.account-top{display:flex;justify-content:space-between;gap:10px}.mapping-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.mapping-item{padding:9px;border:1px solid #e5eaf0;border-radius:9px;font-size:10px}.modal-actions{display:flex;justify-content:flex-end;gap:8px}.empty{padding:28px;color:#94a3b8;text-align:center;font-size:11px}@media(max-width:700px){.supplier-header{align-items:stretch;flex-direction:column}.form-grid,.mapping-list{grid-template-columns:1fr}.field.full{grid-column:auto}}
       `}</style>
 
       <div className="supplier-header">
@@ -325,7 +323,6 @@ export function SupplierPage() {
                 <th>No. HP</th>
                 <th>Alamat</th>
                 <th>Rekening</th>
-                <th>Status</th>
                 <th>Aksi</th>
               </tr>
             </thead>
@@ -345,13 +342,6 @@ export function SupplierPage() {
                       onClick={() => openAccountManager(supplier.id)}
                     >
                       {supplier.accounts.length} Rek
-                    </span>
-                  </td>
-                  <td>
-                    <span
-                      className={`badge ${supplier.is_active ? 'active' : 'inactive'}`}
-                    >
-                      {supplier.is_active ? 'Aktif' : 'Nonaktif'}
                     </span>
                   </td>
                   <td>
@@ -445,21 +435,6 @@ export function SupplierPage() {
                       setSupplierForm((f) => ({ ...f, phone: e.target.value }))
                     }
                   />
-                </div>
-                <div className="field">
-                  <label>Status</label>
-                  <select
-                    value={String(supplierForm.is_active)}
-                    onChange={(e) =>
-                      setSupplierForm((f) => ({
-                        ...f,
-                        is_active: e.target.value === 'true'
-                      }))
-                    }
-                  >
-                    <option value="true">Aktif</option>
-                    <option value="false">Nonaktif</option>
-                  </select>
                 </div>
                 <div className="field full">
                   <label>Alamat</label>
