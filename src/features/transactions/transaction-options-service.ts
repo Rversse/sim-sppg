@@ -65,10 +65,13 @@ export async function getActiveKitchens(
 export async function getActiveSuppliers(
   client: SupabaseClient = supabase
 ): Promise<TransactionOption[]> {
+  // Supplier options for Pembayaran Supplier still use the legacy
+  // `suppliers` table because `transactions.supplier_id` and
+  // `kitchen_supplier_rules.supplier_id` reference that table.
+  // Supplier availability is determined by kitchen mapping, not is_active.
   const { data, error } = await client
     .from('suppliers')
     .select('id,name')
-    .eq('is_active', true)
     .order('name')
 
   if (error) {

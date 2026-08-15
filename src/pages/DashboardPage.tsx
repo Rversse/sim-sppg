@@ -197,26 +197,22 @@ export function DashboardPage() {
     !isSukarajaFilterKitchen
 
   const supplierDisabled =
-    filters.flowType === 'neutral' || supplierLockedToArutala
+    !filters.flowType ||
+    filters.flowType === 'neutral' ||
+    supplierLockedToArutala
 
   const supplierFilterLabel =
-    filters.flowType === 'income'
-      ? 'Rekening Supplier'
-      : filters.flowType === 'expense'
-        ? 'Supplier'
-        : filters.flowType === 'neutral'
-          ? 'Rekening Operasional'
-          : 'Supplier / Rekening'
+    filters.flowType === 'expense' ? 'Supplier' : 'Rekening'
 
-  const supplierPlaceholder = supplierDisabled
-    ? filters.flowType === 'neutral'
+  const supplierPlaceholder = !filters.flowType
+    ? 'Pilih jenis transaksi'
+    : filters.flowType === 'neutral'
       ? 'Arutala BNI'
-      : 'Koperasi Arutala'
-    : filters.flowType === 'expense' && isSukarajaFilterKitchen
-      ? 'Semua supplier'
-      : filters.flowType === 'income'
-        ? 'Semua rekening'
-        : 'Semua supplier / rekening'
+      : supplierLockedToArutala
+        ? 'Koperasi Arutala'
+        : filters.flowType === 'expense'
+          ? 'Semua supplier'
+          : 'Semua rekening'
   const selectedFormKitchen = kitchens.find(
     (kitchen) => kitchen.id === formKitchenId
   )
