@@ -733,24 +733,25 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 10px;
+  gap: 6px;
+  flex-wrap: wrap;
   padding: 14px 4px 2px;
   border-top: 1px solid var(--app-border-soft);
 }
 
-.dashboard-pagination > span {
-  min-width: 110px;
-  color: var(--app-text-muted);
-  font-size: 9px;
-  font-weight: 800;
-  text-align: center;
+.dashboard-pagination-pages {
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }
 
-.dashboard-pagination-button {
-  min-height: 30px;
-  padding: 0 10px;
+.dashboard-pagination-button,
+.dashboard-pagination-page {
+  min-width: 32px;
+  min-height: 32px;
+  padding: 0 9px;
   border: 1px solid var(--app-border);
-  border-radius: 7px;
+  border-radius: 8px;
   background: var(--app-surface);
   color: var(--app-text-muted);
   font-size: 9px;
@@ -763,13 +764,36 @@
     opacity 150ms ease;
 }
 
-.dashboard-pagination-button:hover:not(:disabled) {
+.dashboard-pagination-button:hover:not(:disabled),
+.dashboard-pagination-page:hover:not(:disabled) {
   border-color: var(--app-border-mid);
   background: var(--app-bg-soft);
   color: var(--app-primary);
 }
 
-.dashboard-pagination-button:disabled {
+.dashboard-pagination-page.is-active {
+  border-color: var(--app-primary);
+  background: var(--app-primary);
+  color: var(--app-surface);
+}
+
+.dashboard-pagination-ellipsis {
+  min-width: 20px;
+  color: var(--app-text-subtle);
+  font-size: 12px;
+  text-align: center;
+}
+
+.dashboard-pagination-summary {
+  margin: 0 4px;
+  color: var(--app-text-muted);
+  font-size: 9px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.dashboard-pagination-button:disabled,
+.dashboard-pagination-page:disabled {
   cursor: not-allowed;
   opacity: 0.45;
 }
@@ -1001,15 +1025,18 @@
   }
 
   .dashboard-pagination {
-    gap: 6px;
+    gap: 5px;
   }
 
-  .dashboard-pagination > span {
-    min-width: 0;
-    flex: 1;
+  .dashboard-pagination-summary {
+    width: 100%;
+    margin: 0;
+    text-align: center;
   }
 
-  .dashboard-pagination-button {
+  .dashboard-pagination-button,
+  .dashboard-pagination-page {
+    min-width: 30px;
     padding: 0 8px;
   }
 

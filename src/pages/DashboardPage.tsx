@@ -75,6 +75,36 @@ function flowClass(flow: DashboardFlow) {
   return 'dashboard-flow dashboard-flow-neutral'
 }
 
+function getDashboardPaginationPages(
+  currentPage: number,
+  totalPages: number
+): Array<number | 'ellipsis'> {
+  if (totalPages <= 7) {
+    return Array.from({ length: totalPages }, (_, index) => index + 1)
+  }
+
+  const pages: Array<number | 'ellipsis'> = [1]
+
+  if (currentPage > 4) {
+    pages.push('ellipsis')
+  }
+
+  for (
+    let page = Math.max(2, currentPage - 1);
+    page <= Math.min(totalPages - 1, currentPage + 1);
+    page += 1
+  ) {
+    pages.push(page)
+  }
+
+  if (currentPage < totalPages - 3) {
+    pages.push('ellipsis')
+  }
+
+  pages.push(totalPages)
+  return pages
+}
+
 type StatusData = Awaited<ReturnType<typeof getDailyStatus>>
 
 export function DashboardPage() {
@@ -130,56 +160,97 @@ export function DashboardPage() {
   const [formSuppliers, setFormSuppliers] = useState<TransactionOption[]>([])
   const [formEntryUnlocked, setFormEntryUnlocked] = useState(false)
 
-  const loadDashboard = useCallback(async () => {
+  const loadDashboardData = useCallback(async () => {
+    const [
+      nextSummary,
+      nextActivity,
+      nextStatus,
+      nextKitchens,
+      nextTransactions,
+      nextSuppliers
+    ] = await Promise.all([
+      getDashboardSummary(filters),
+      getDashboardActivity(filters),
+      getDailyStatus(filters.startDate),
+      kitchens.length ? Promise.resolve(kitchens) : getActiveKitchens(),
+      getDashboardTransactionPage(filters, transactionPage, 10),
+      getSupplierOptions(filters)
+    ])
+
+    return {
+      summary: nextSummary,
+      activity: nextActivity,
+      dailyStatus: nextStatus,
+      kitchens: nextKitchens,
+      transactions: nextTransactions,
+      supplierOptions: nextSuppliers
+    }
+  }, [filters, kitchens, transactionPage])
+
+  const applyDashboardData = useCallback(
+    (data: Awaited<ReturnType<typeof loadDashboardData>>) => {
+      setSummary(data.summary)
+      setTransactions(data.transactions.data)
+      setTotalTransactions(data.transactions.total)
+      setActivity(data.activity)
+      setDailyStatus(data.dailyStatus)
+      setKitchens(data.kitchens)
+      setSupplierOptions(data.supplierOptions)
+    },
+    []
+  )
+
+  const refreshDashboard = useCallback(async () => {
     setLoading(true)
     setError(null)
 
     try {
-      const [nextSummary, nextActivity, nextStatus, nextKitchens] =
-        await Promise.all([
-          getDashboardSummary(filters),
-          getDashboardActivity(filters),
-          getDailyStatus(filters.startDate),
-          kitchens.length ? Promise.resolve(kitchens) : getActiveKitchens()
-        ])
-
-      const nextTransactions = await getDashboardTransactionPage(
-        filters,
-        transactionPage,
-        10
-      )
-
-      setSummary(nextSummary)
-      setTransactions(nextTransactions.data)
-      setTotalTransactions(nextTransactions.total)
-      setActivity(nextActivity)
-      setDailyStatus(nextStatus)
-
-      if (!kitchens.length) {
-        setKitchens(nextKitchens)
-      }
-
-      const nextSuppliers = await getSupplierOptions(filters)
-      setSupplierOptions(nextSuppliers)
+      const data = await loadDashboardData()
+      applyDashboardData(data)
     } catch (loadError) {
       console.error(loadError)
-      setError(
-        'Gagal memuat Dashboard. Coba refresh atau periksa koneksi.'
-      )
+      setError('Gagal memuat Dashboard. Coba refresh atau periksa koneksi.')
     } finally {
       setLoading(false)
     }
-  }, [filters, kitchens, transactionPage])
+  }, [applyDashboardData, loadDashboardData])
 
   useEffect(() => {
-    const timer = window.setTimeout(() => {
-      void loadDashboard()
-    }, 0)
+    let cancelled = false
+
+    void Promise.resolve()
+      .then(() => {
+        if (cancelled) {
+          return null
+        }
+
+        setLoading(true)
+        setError(null)
+
+        return loadDashboardData()
+      })
+      .then((data) => {
+        if (!data || cancelled) {
+          return
+        }
+
+        applyDashboardData(data)
+        setLoading(false)
+      })
+      .catch((loadError: unknown) => {
+        if (cancelled) {
+          return
+        }
+
+        console.error(loadError)
+        setError('Gagal memuat Dashboard. Coba refresh atau periksa koneksi.')
+        setLoading(false)
+      })
 
     return () => {
-      window.clearTimeout(timer)
+      cancelled = true
     }
-  }, [loadDashboard])
+  }, [applyDashboardData, loadDashboardData])
 
   const net = filters.flowType === '' ? summary.income - summary.expense : 0
 
@@ -644,7 +715,7 @@ export function DashboardPage() {
       if (transactionPage !== 1) {
         setTransactionPage(1)
       } else {
-        await loadDashboard()
+        await refreshDashboard()
       }
     } catch (saveError) {
       console.error(saveError)
@@ -675,7 +746,7 @@ export function DashboardPage() {
       if (transactionPage > 1 && transactions.length === 1) {
         setTransactionPage((current) => current - 1)
       } else {
-        await loadDashboard()
+        await refreshDashboard()
       }
     } catch (deleteError) {
       console.error(deleteError)
@@ -691,6 +762,12 @@ export function DashboardPage() {
       : user?.role === 'viewer'
         ? 'Viewer'
         : 'Operator'
+
+  const totalTransactionPages = Math.max(1, Math.ceil(totalTransactions / 10))
+  const transactionPaginationPages = getDashboardPaginationPages(
+    transactionPage,
+    totalTransactionPages
+  )
 
   return (
     <div className="dashboard-page">
@@ -1131,8 +1208,11 @@ export function DashboardPage() {
           )}
         </div>
 
-        {totalTransactions > 10 ? (
-          <div className="dashboard-pagination">
+        {totalTransactions > 0 ? (
+          <nav
+            className="dashboard-pagination"
+            aria-label="Pagination riwayat transaksi"
+          >
             <button
               type="button"
               className="dashboard-pagination-button"
@@ -1144,25 +1224,50 @@ export function DashboardPage() {
               Sebelumnya
             </button>
 
-            <span>
-              Halaman {transactionPage} dari {Math.ceil(totalTransactions / 10)}
+            <div className="dashboard-pagination-pages">
+              {transactionPaginationPages.map((page, index) =>
+                page === 'ellipsis' ? (
+                  <span
+                    className="dashboard-pagination-ellipsis"
+                    key={`ellipsis-${index}`}
+                    aria-hidden="true"
+                  >
+                    …
+                  </span>
+                ) : (
+                  <button
+                    key={page}
+                    type="button"
+                    className={`dashboard-pagination-page ${
+                      page === transactionPage ? 'is-active' : ''
+                    }`}
+                    aria-current={page === transactionPage ? 'page' : undefined}
+                    disabled={loading}
+                    onClick={() => setTransactionPage(page)}
+                  >
+                    {page}
+                  </button>
+                )
+              )}
+            </div>
+
+            <span className="dashboard-pagination-summary">
+              {totalTransactions} transaksi
             </span>
 
             <button
               type="button"
               className="dashboard-pagination-button"
-              disabled={
-                transactionPage >= Math.ceil(totalTransactions / 10) || loading
-              }
+              disabled={transactionPage >= totalTransactionPages || loading}
               onClick={() =>
                 setTransactionPage((current) =>
-                  Math.min(Math.ceil(totalTransactions / 10), current + 1)
+                  Math.min(totalTransactionPages, current + 1)
                 )
               }
             >
               Berikutnya
             </button>
-          </div>
+          </nav>
         ) : null}
       </section>
 
