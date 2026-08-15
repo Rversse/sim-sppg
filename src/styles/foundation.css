@@ -111,12 +111,18 @@ select {
 }
 
 .app-brand-mark {
-  display: block;
+  display: grid;
   width: 38px;
   height: 38px;
   flex: 0 0 38px;
+  place-items: center;
+  border: 1px solid rgb(57 255 136 / 0.22);
   border-radius: 12px;
-  object-fit: contain;
+  background: rgb(57 255 136 / 0.1);
+  color: var(--app-accent);
+  font-size: 14px;
+  font-weight: 900;
+  line-height: 1;
 }
 
 .app-brand strong,
