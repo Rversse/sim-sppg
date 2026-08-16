@@ -59,7 +59,11 @@ export async function getDashboardSummary(
   filters: DashboardFilters,
   client: SupabaseClient = supabase
 ): Promise<DashboardSummary> {
-  const flowTypes = filters.flowType ? [filters.flowType] : null
+  const flowTypes = filters.flowType
+    ? [filters.flowType]
+    : filters.supplierFilter
+      ? ['income']
+      : null
 
   const { data, error } = await client.rpc('get_dashboard_summary', {
     start_date: filters.startDate,
