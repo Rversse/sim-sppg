@@ -150,41 +150,38 @@ export function VehicleExpiryNotification() {
 
           <div className="vehicle-notification-list">
             {reminders.length ? (
-              reminders.map((item) => (
-                <div
-                  className="vehicle-notification-item"
-                  key={`${item.kind}-${item.vehicle.id}`}
-                >
-                  <div className="vehicle-notification-item-top">
-                    <strong
-                      className={
-                        item.days <= 7
-                          ? 'vehicle-notification-danger'
-                          : 'vehicle-notification-warning'
-                      }
-                    >
-                      {item.kind}
-                    </strong>
+              reminders.map((item) => {
+                const severityClass =
+                  item.days <= 7 ? 'is-danger' : 'is-warning'
 
-                    <span>
-                      {item.days < 0
-                        ? `Terlambat ${Math.abs(item.days)} hari`
-                        : `${item.days} hari lagi`}
-                    </span>
+                return (
+                  <div
+                    className={`vehicle-notification-item ${severityClass}`}
+                    key={`${item.kind}-${item.vehicle.id}`}
+                  >
+                    <div className="vehicle-notification-item-top">
+                      <strong>{item.kind}</strong>
+
+                      <span>
+                        {item.days < 0
+                          ? `Terlambat ${Math.abs(item.days)} hari`
+                          : `${item.days} hari lagi`}
+                      </span>
+                    </div>
+
+                    <div className="vehicle-notification-name">
+                      {item.vehicle.vehicle_name || item.vehicle.plate_number}
+                    </div>
+
+                    <div>
+                      {item.vehicle.plate_number} •{' '}
+                      {item.vehicle.kitchen?.name || 'Dapur tidak diketahui'}
+                    </div>
+
+                    <div>{formatDate(item.date)}</div>
                   </div>
-
-                  <div className="vehicle-notification-name">
-                    {item.vehicle.vehicle_name || item.vehicle.plate_number}
-                  </div>
-
-                  <div>
-                    {item.vehicle.plate_number} •{' '}
-                    {item.vehicle.kitchen?.name || 'Dapur tidak diketahui'}
-                  </div>
-
-                  <div>{formatDate(item.date)}</div>
-                </div>
-              ))
+                )
+              })
             ) : (
               <div className="vehicle-notification-empty">
                 Tidak ada kendaraan yang perlu diperhatikan.

@@ -1,5 +1,5 @@
 /* =========================================================
-   COMPONENT SURFACES — 5C.7
+   COMPONENT SURFACES — 5C.8
    Shared interaction, modal, and surface normalization.
    ========================================================= */
 
@@ -139,7 +139,7 @@
 }
 
 /* =========================================================
-   HEADER COMPACT USER AREA
+   COMPACT HEADER USER AREA
    ========================================================= */
 
 .app-user {
@@ -163,9 +163,6 @@
 
 /* =========================================================
    MODAL SYSTEM
-   =========================================================
-   Important: .app-main must never create a transformed containing
-   block for fixed-position overlays.
    ========================================================= */
 
 .app-main {
@@ -197,7 +194,7 @@
   z-index: 2000 !important;
   display: grid !important;
   place-items: center !important;
-  padding: 20px !important;
+  padding: 16px !important;
   overflow: auto !important;
   background: transparent !important;
   backdrop-filter: blur(5px) !important;
@@ -216,17 +213,125 @@
 ) {
   position: relative !important;
   z-index: 1 !important;
-  width: min(760px, calc(100vw - 40px)) !important;
-  max-width: 760px !important;
-  max-height: calc(100dvh - 40px) !important;
   margin: auto !important;
+  max-height: calc(100dvh - 32px) !important;
   overflow: hidden !important;
-  border-radius: var(--app-radius-xl) !important;
   background: var(--app-white) !important;
   box-shadow: 0 28px 80px rgb(15 23 42 / 0.18) !important;
 }
 
-/* Long form/account modals keep a fixed header while the body scrolls. */
+/* =========================================================
+   TRANSACTION MODAL — COMPACT
+   ========================================================= */
+
+.dashboard-transaction-modal {
+  width: min(680px, calc(100vw - 32px)) !important;
+  max-width: 680px !important;
+  border-radius: 16px !important;
+}
+
+.dashboard-transaction-modal-header {
+  align-items: center !important;
+  gap: 12px !important;
+  padding: 14px 16px !important;
+}
+
+.dashboard-transaction-modal-header > div {
+  min-width: 0 !important;
+}
+
+.dashboard-transaction-modal-header > div > span {
+  display: none !important;
+}
+
+.dashboard-transaction-modal-header h2 {
+  margin: 0 !important;
+  color: var(--app-primary) !important;
+  font-size: 17px !important;
+  font-weight: 800 !important;
+  letter-spacing: -0.03em !important;
+  line-height: 1.15 !important;
+}
+
+.dashboard-transaction-modal-header > button {
+  width: 30px !important;
+  height: 30px !important;
+  flex: 0 0 30px !important;
+}
+
+.dashboard-transaction-form-error {
+  margin: 10px 16px 0 !important;
+  padding: 8px 10px !important;
+  font-size: 9px !important;
+}
+
+.dashboard-transaction-form-grid {
+  gap: 10px !important;
+  padding: 14px 16px 16px !important;
+}
+
+.dashboard-transaction-form-grid label {
+  gap: 5px !important;
+}
+
+.dashboard-transaction-form-grid label > span {
+  font-size: 9px !important;
+}
+
+.dashboard-transaction-form-grid input,
+.dashboard-transaction-form-grid select {
+  height: 36px !important;
+  padding: 0 9px !important;
+  font-size: 10px !important;
+}
+
+.dashboard-transaction-form-grid textarea {
+  min-height: 68px !important;
+  padding: 8px 9px !important;
+  font-size: 10px !important;
+  line-height: 1.4 !important;
+}
+
+.dashboard-transaction-modal-actions {
+  gap: 7px !important;
+  padding: 11px 16px !important;
+}
+
+.dashboard-transaction-modal-actions > button:first-child {
+  min-height: 34px !important;
+  padding: 0 12px !important;
+  font-size: 9px !important;
+}
+
+.dashboard-transaction-modal-actions > .dashboard-transaction-action {
+  min-height: 34px !important;
+  padding: 0 13px !important;
+  font-size: 9px !important;
+}
+
+/* Other modal headers already use one title; keep their geometry compact. */
+:where(
+  .kitchen-modal-head,
+  .supplier-modal-head,
+  .vehicle-modal-head,
+  .bank-modal-header
+) {
+  min-height: 0 !important;
+  gap: 10px !important;
+  padding: 13px 16px !important;
+}
+
+:where(
+  .kitchen-modal-head h2,
+  .supplier-modal-head h2,
+  .vehicle-modal-head h2,
+  .bank-modal-header h2
+) {
+  margin: 0 !important;
+  font-size: 16px !important;
+}
+
+/* Long forms scroll in their body, not in the page. */
 :where(
   .modal,
   .bank-form-modal,
@@ -257,7 +362,7 @@
 }
 
 :where(.modal > .modal-body) {
-  padding-bottom: 20px;
+  padding-bottom: 16px;
 }
 
 :where(.modal > .modal-body)::-webkit-scrollbar,
@@ -294,12 +399,11 @@
   background: var(--app-border-mid);
 }
 
-/* Supplier's long account modal gets a slightly taller usable body. */
 .supplier-page .modal {
-  width: min(760px, calc(100vw - 40px)) !important;
+  width: min(720px, calc(100vw - 32px)) !important;
+  max-width: 720px !important;
 }
 
-/* Prevent the centered modal from becoming wider than the viewport. */
 @media (max-width: 760px) {
   :where(
     .bank-modal,
@@ -312,37 +416,30 @@
     .disbursement-modal,
     .modal
   ) {
-    width: min(100%, calc(100vw - 24px)) !important;
-    max-height: calc(100dvh - 24px) !important;
+    width: min(100%, calc(100vw - 20px)) !important;
+    max-width: none !important;
+    max-height: calc(100dvh - 20px) !important;
+  }
+
+  .dashboard-transaction-form-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .dashboard-transaction-form-note {
+    grid-column: auto !important;
+  }
+
+  .dashboard-transaction-modal-actions {
+    padding: 10px 12px !important;
+  }
+
+  .dashboard-transaction-modal-actions > button {
+    flex: 1 1 0 !important;
   }
 }
-
-/* =========================================================
-   REDUCED MOTION
-   ========================================================= */
 
 @media (prefers-reduced-motion: reduce) {
   .app-main {
     animation: none !important;
-  }
-
-  :where(
-    .bank-primary-button,
-    .bank-secondary-button,
-    .bank-history-button,
-    .bank-history-action,
-    .dashboard-transaction-action,
-    .dashboard-pagination-button,
-    .kitchen-button,
-    .vehicle-button,
-    .supplier-action-button,
-    .supplier-account-action,
-    .reports-tabs button,
-    .reports-filter-panel button,
-    .disbursement-button,
-    .app-logout-button,
-    .vehicle-notification-button
-  ) {
-    transition: none;
   }
 }
