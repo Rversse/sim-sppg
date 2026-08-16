@@ -5,28 +5,65 @@ import { supabase } from '@/lib/supabase'
 import { AuthContext } from './auth-context'
 import type { CurrentUser, UserRole } from './auth-types'
 
+const AUTH_REQUEST_TIMEOUT_MS = 10_000
+
+async function withTimeout<T>(
+  promise: PromiseLike<T>,
+  timeoutMs: number,
+  message: string
+): Promise<T> {
+  let timeoutId: ReturnType<typeof setTimeout> | undefined
+
+  try {
+    return await Promise.race([
+      Promise.resolve(promise),
+      new Promise<T>((_, reject) => {
+        timeoutId = setTimeout(() => {
+          reject(new Error(message))
+        }, timeoutMs)
+      })
+    ])
+  } finally {
+    if (timeoutId !== undefined) {
+      clearTimeout(timeoutId)
+    }
+  }
+}
+
 async function loadCurrentUser(session: Session): Promise<CurrentUser | null> {
-  const { data: profile, error } = await supabase
-    .from('profiles')
-    .select('role')
-    .eq('id', session.user.id)
-    .single()
+  try {
+    const { data: profile, error } = await withTimeout(
+      supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', session.user.id)
+        .single(),
+      AUTH_REQUEST_TIMEOUT_MS,
+      'Loading the current profile timed out.'
+    )
 
-  if (error || !profile) {
-    await supabase.auth.signOut()
+    if (error || !profile) {
+      console.error('Failed to load current user profile:', error)
+      void supabase.auth.signOut()
+      return null
+    }
+
+    const role = profile.role
+
+    if (role !== 'admin' && role !== 'operator' && role !== 'viewer') {
+      console.error('Invalid user role returned by profiles:', role)
+      void supabase.auth.signOut()
+      return null
+    }
+
+    return {
+      ...session.user,
+      role: role as UserRole
+    }
+  } catch (error) {
+    console.error('Failed to load current user profile:', error)
+    void supabase.auth.signOut()
     return null
-  }
-
-  const role = profile.role
-
-  if (role !== 'admin' && role !== 'operator' && role !== 'viewer') {
-    await supabase.auth.signOut()
-    return null
-  }
-
-  return {
-    ...session.user,
-    role: role as UserRole
   }
 }
 
@@ -34,32 +71,78 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null)
   const [user, setUser] = useState<CurrentUser | null>(null)
   const [isLoading, setIsLoading] = useState(true)
+
   const authInitializedRef = useRef(false)
+  const authRequestIdRef = useRef(0)
 
   useEffect(() => {
     let isMounted = true
 
-    async function initializeAuth() {
-      const {
-        data: { session: initialSession },
-        error
-      } = await supabase.auth.getSession()
+    async function applySession(nextSession: Session | null) {
+      const requestId = ++authRequestIdRef.current
 
-      if (!isMounted) {
-        return
-      }
+      if (!nextSession) {
+        if (!isMounted || requestId !== authRequestIdRef.current) {
+          return
+        }
 
-      authInitializedRef.current = true
-
-      if (error) {
-        console.error('Failed to get session:', error)
         setSession(null)
         setUser(null)
         setIsLoading(false)
         return
       }
 
-      setSession(initialSession)
+      setIsLoading(true)
+
+      const currentUser = await loadCurrentUser(nextSession)
+
+      if (!isMounted || requestId !== authRequestIdRef.current) {
+        return
+      }
+
+      setSession(nextSession)
+      setUser(currentUser)
+      setIsLoading(false)
+    }
+
+    async function initializeAuth() {
+      try {
+        const {
+          data: { session: initialSession },
+          error
+        } = await withTimeout(
+          supabase.auth.getSession(),
+          AUTH_REQUEST_TIMEOUT_MS,
+          'Supabase session initialization timed out.'
+        )
+
+        if (!isMounted) {
+          return
+        }
+
+        authInitializedRef.current = true
+
+        if (error) {
+          console.error('Failed to get session:', error)
+          setSession(null)
+          setUser(null)
+          setIsLoading(false)
+          return
+        }
+
+        await applySession(initialSession)
+      } catch (error) {
+        if (!isMounted) {
+          return
+        }
+
+        console.error('Failed to initialize authentication:', error)
+
+        authInitializedRef.current = true
+        setSession(null)
+        setUser(null)
+        setIsLoading(false)
+      }
     }
 
     void initializeAuth()
@@ -71,18 +154,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return
       }
 
-      if (event === 'SIGNED_OUT' || !nextSession) {
-        setSession(null)
-        setUser(null)
-
-        if (authInitializedRef.current) {
-          setIsLoading(false)
-        }
-
+      if (!authInitializedRef.current) {
         return
       }
 
-      setSession(nextSession)
+      if (event === 'SIGNED_OUT' || !nextSession) {
+        ++authRequestIdRef.current
+
+        setSession(null)
+        setUser(null)
+        setIsLoading(false)
+        return
+      }
+
+      void applySession(nextSession)
     })
 
     return () => {
@@ -91,39 +176,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, [])
 
-  useEffect(() => {
-    let isMounted = true
-
-    void Promise.resolve().then(async () => {
-      if (!isMounted || !authInitializedRef.current) {
-        return
-      }
-
-      if (!session) {
-        setUser(null)
-        setIsLoading(false)
-        return
-      }
-
-      setIsLoading(true)
-
-      const currentUser = await loadCurrentUser(session)
-
-      if (!isMounted) {
-        return
-      }
-
-      setUser(currentUser)
-      setIsLoading(false)
-    })
-
-    return () => {
-      isMounted = false
-    }
-  }, [session])
-
   return (
-    <AuthContext.Provider value={{ session, user, isLoading }}>
+    <AuthContext.Provider
+      value={{
+        session,
+        user,
+        isLoading
+      }}
+    >
       {children}
     </AuthContext.Provider>
   )
