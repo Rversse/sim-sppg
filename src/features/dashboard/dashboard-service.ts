@@ -59,11 +59,7 @@ export async function getDashboardSummary(
   filters: DashboardFilters,
   client: SupabaseClient = supabase
 ): Promise<DashboardSummary> {
-  const flowTypes = filters.flowType
-    ? [filters.flowType]
-    : filters.supplierFilter
-      ? ['income']
-      : null
+  const flowTypes = filters.flowType ? [filters.flowType] : null
 
   const { data, error } = await client.rpc('get_dashboard_summary', {
     start_date: filters.startDate,
@@ -312,13 +308,17 @@ export async function getDashboardTransactionPage(
       }
 
       query = query.eq('flow_type', 'expense').eq('supplier_id', supplier.id)
-    } else if (
-      filters.flowType === 'income' ||
-      filters.flowType === '' ||
-      filters.flowType === 'neutral'
-    ) {
+    } else if (filters.flowType === 'income') {
       query = query
-        .eq('flow_type', filters.flowType === '' ? 'income' : filters.flowType)
+        .eq('flow_type', 'income')
+        .eq('account_id', filters.supplierFilter)
+    } else if (filters.flowType === 'neutral') {
+      query = query
+        .eq('flow_type', 'neutral')
+        .eq('account_id', filters.supplierFilter)
+    } else {
+      query = query
+        .in('flow_type', ['income', 'neutral'])
         .eq('account_id', filters.supplierFilter)
     }
   }
@@ -371,13 +371,17 @@ export async function getDashboardActivity(
       }
 
       query = query.eq('flow_type', 'expense').eq('supplier_id', supplier.id)
-    } else if (
-      filters.flowType === 'income' ||
-      filters.flowType === '' ||
-      filters.flowType === 'neutral'
-    ) {
+    } else if (filters.flowType === 'income') {
       query = query
-        .eq('flow_type', filters.flowType === '' ? 'income' : filters.flowType)
+        .eq('flow_type', 'income')
+        .eq('account_id', filters.supplierFilter)
+    } else if (filters.flowType === 'neutral') {
+      query = query
+        .eq('flow_type', 'neutral')
+        .eq('account_id', filters.supplierFilter)
+    } else {
+      query = query
+        .in('flow_type', ['income', 'neutral'])
         .eq('account_id', filters.supplierFilter)
     }
   }
