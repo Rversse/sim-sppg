@@ -78,6 +78,11 @@ export type BankHistoryPage = {
   pageSize: number
 }
 
+export type RecipientHistoryOption = {
+  value: string
+  label: string
+}
+
 type TransactionIncomeRow = {
   account_id: string | null
   amount: number | string | null
@@ -106,29 +111,60 @@ export function getAccountDisplayName(account: BankAccount): string {
 
 export function getAccountNumberTail(accountNumber: string | null): string {
   if (!accountNumber) {
-    return '—'
+    return 'Belum diisi'
   }
 
-  if (accountNumber.length <= 3) {
-    return accountNumber
+  const digits = accountNumber.replace(/\D/g, '')
+
+  if (!digits) {
+    return 'Belum diisi'
   }
 
-  return accountNumber.slice(-3)
+  return `••${digits.slice(-3)}`
 }
 
 export function getAccountLabel(account: BankAccount): string {
   return `${getAccountDisplayName(account)} • ${account.bank} • ${getAccountNumberTail(account.account_number)}`
 }
 
+export function isPriorityAccount(
+  account: BankAccount,
+  priorityOwners: readonly string[]
+): boolean {
+  if (account.account_category !== 'supplier') {
+    return false
+  }
+
+  const owner = getAccountDisplayName(account).trim().toUpperCase()
+
+  return priorityOwners.includes(owner)
+}
+
 export function getRecipientAccounts(
   accounts: BankAccount[],
-  senderId: string
+  senderId: string,
+  mode: 'holding' | 'priority' | 'all' = 'holding',
+  priorityOwners: readonly string[] = []
 ): BankAccount[] {
   return accounts
-    .filter(
-      (account) => account.is_holding_destination && account.id !== senderId
+    .filter((account) => {
+      if (account.id === senderId) {
+        return false
+      }
+
+      if (mode === 'holding') {
+        return account.is_holding_destination
+      }
+
+      if (mode === 'priority') {
+        return isPriorityAccount(account, priorityOwners)
+      }
+
+      return true
+    })
+    .sort((a, b) =>
+      getAccountDisplayName(a).localeCompare(getAccountDisplayName(b), 'id')
     )
-    .sort((a, b) => a.name.localeCompare(b.name, 'id'))
 }
 
 export async function getBankAccounts(
@@ -260,9 +296,7 @@ export async function getBankOverview(
   const incomeByAccount = new Map<string, number>()
 
   for (const transaction of incomeTransactions) {
-    if (!transaction.account_id) {
-      continue
-    }
+    if (!transaction.account_id) continue
 
     const amount = Number(transaction.amount) || 0
 
@@ -470,8 +504,6 @@ export async function getBankHistoryPage(
 
   if (page > 1) {
     const boundary = transactions[0]
-    const boundaryDate = boundary.transaction_date
-    const boundaryCreatedAt = boundary.created_at
 
     const { data: newerRows, error: newerRowsError } = await client
       .from('bank_transactions')
@@ -480,7 +512,7 @@ export async function getBankHistoryPage(
       .gte('transaction_date', startDate)
       .lte('transaction_date', endDate)
       .or(
-        `transaction_date.gt.${boundaryDate},and(transaction_date.eq.${boundaryDate},created_at.gt.${boundaryCreatedAt})`
+        `transaction_date.gt.${boundary.transaction_date},and(transaction_date.eq.${boundary.transaction_date},created_at.gt.${boundary.created_at})`
       )
 
     if (newerRowsError) {
@@ -533,14 +565,37 @@ export async function getBankHistoryPage(
   }
 }
 
+function normalizePaymentPurpose(value: string | null | undefined) {
+  if (!value) return ''
+
+  return value
+    .trim()
+    .replace(/\s+/g, ' ')
+    .replace(/\bTgl\.?\s*(\d{1,4}[/.-]\d{1,2}[/.-]\d{1,4})/gi, 'Tgl')
+    .replace(/\s+/g, ' ')
+    .trim()
+}
+
 export async function getRecipientHistory(
   startDate: string,
   client: SupabaseClient = supabase
-): Promise<string[]> {
+): Promise<RecipientHistoryOption[]> {
   const { data, error } = await client
     .from('bank_transactions')
-    .select('recipient_name,recipient_account_id,transaction_date')
-    .is('recipient_account_id', null)
+    .select(
+      `
+        recipient_name,
+        recipient_account_id,
+        transaction_date,
+        recipient:accounts!bank_transactions_recipient_account_fkey(
+          bank,
+          income_suppliers(
+            business_name,
+            owner_name
+          )
+        )
+      `
+    )
     .gte('transaction_date', startDate)
     .order('transaction_date', { ascending: false })
 
@@ -548,24 +603,33 @@ export async function getRecipientHistory(
     throw error
   }
 
-  const result: string[] = []
+  const result: RecipientHistoryOption[] = []
   const used = new Set<string>()
 
   for (const item of data ?? []) {
     const name = item.recipient_name?.trim().replace(/\s+/g, ' ')
 
-    if (!name) {
-      continue
-    }
+    if (!name) continue
 
-    const key = name.toLowerCase()
+    const recipient = Array.isArray(item.recipient)
+      ? item.recipient[0]
+      : item.recipient
 
-    if (used.has(key)) {
-      continue
-    }
+    const owner = recipient?.income_suppliers?.[0]?.owner_name
+
+    const displayName = owner?.trim() || name
+    const bank = recipient?.bank?.trim()
+
+    const key = `${name.toLowerCase()}|${(bank ?? '').toLowerCase()}`
+
+    if (used.has(key)) continue
 
     used.add(key)
-    result.push(name)
+
+    result.push({
+      value: name,
+      label: bank ? `${displayName} (${bank})` : displayName
+    })
   }
 
   return result
@@ -589,17 +653,13 @@ export async function getPaymentHistory(
   const used = new Set<string>()
 
   for (const item of data ?? []) {
-    const value = item.payment_for?.trim().replace(/\s+/g, ' ')
+    const value = normalizePaymentPurpose(item.payment_for)
 
-    if (!value) {
-      continue
-    }
+    if (!value) continue
 
     const key = value.toLowerCase()
 
-    if (used.has(key)) {
-      continue
-    }
+    if (used.has(key)) continue
 
     used.add(key)
     result.push(value)
