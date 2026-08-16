@@ -39,6 +39,32 @@ jobs:
       - name: Build
         run: npm run build
 
+      - name: Prepare SPA route entry points
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          cp dist/index.html dist/404.html
+
+          routes=(
+            "login"
+            "unauthorized"
+            "dashboard"
+            "bank"
+            "reports"
+            "disbursement"
+            "master/kitchen"
+            "master/vehicle"
+            "master/supplier"
+          )
+
+          for route in "${routes[@]}"; do
+            mkdir -p "dist/${route}"
+            cp dist/index.html "dist/${route}/index.html"
+          done
+
+          touch dist/.nojekyll
+
       - name: Setup Pages
         uses: actions/configure-pages@v5
 
