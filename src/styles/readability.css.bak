@@ -42,6 +42,7 @@ body {
 .app-content {
   min-width: 0;
   overflow-x: clip;
+  transform: translateZ(0);
 }
 
 .app-brand-copy,
@@ -479,6 +480,7 @@ body {
   background-image:
     radial-gradient(circle at 86% 18%, rgb(255 255 255 / 0.6), transparent 34%),
     linear-gradient(145deg, rgb(255 255 255 / 0.04), transparent);
+  transform: translateZ(0);
   transition:
     transform 240ms var(--motion-smooth),
     box-shadow 240ms ease,
@@ -799,205 +801,6 @@ body {
   .reports-table-wrapper,
   .reports-empty,
   .reports-error {
-    width: calc(100vw - 20px);
-  }
-}
-
-/* =========================================================
-   FINAL UI CALIBRATION — REPORTS / BANK / READABILITY
-   ========================================================= */
-
-/* ---------------------------------------------------------
-   Global readable neutrals
-   --------------------------------------------------------- */
-
-:root {
-  --read-text: #172033;
-  --read-text-muted: #55657a;
-  --read-text-soft: #708095;
-}
-
-/* ---------------------------------------------------------
-   Reports: every major surface shares one compact rail
-   --------------------------------------------------------- */
-
-.reports-tabs,
-.reports-filter-panel,
-.reports-summary-grid,
-.reports-table-wrapper,
-.reports-empty,
-.reports-error {
-  width: min(1180px, calc(100vw - 48px));
-  max-width: 1180px;
-  margin-inline: auto;
-  box-sizing: border-box;
-}
-
-.reports-tabs {
-  justify-content: center;
-  gap: 6px;
-}
-
-.reports-tabs button {
-  min-width: 132px;
-  text-align: center;
-}
-
-.reports-filter-panel {
-  padding: 14px;
-}
-
-.reports-summary-card {
-  min-height: 122px;
-  padding: 18px;
-}
-
-.reports-summary-card > strong {
-  font-size: clamp(21px, 2.15vw, 28px);
-}
-
-.reports-empty {
-  min-height: 92px;
-  padding: 16px 20px;
-  border-radius: 14px;
-  font-size: 11px;
-}
-
-.reports-error {
-  padding: 11px 14px;
-  border-radius: 12px;
-}
-
-/* ---------------------------------------------------------
-   Bank summary cards: clearer hierarchy
-   --------------------------------------------------------- */
-
-.bank-summary-grid {
-  width: min(1220px, calc(100vw - 48px));
-  max-width: 1220px;
-  margin-inline: auto;
-}
-
-.bank-summary-card.balance strong {
-  font-size: 21px !important;
-}
-
-.bank-summary-card.balance span {
-  font-size: 9px !important;
-}
-
-/* ---------------------------------------------------------
-   Bank account cards: shorter + semantically colored stats
-   --------------------------------------------------------- */
-
-.bank-account-card {
-  min-height: 0 !important;
-}
-
-.bank-account-card-header {
-  padding: 10px 12px !important;
-}
-
-.bank-account-card-header p {
-  color: #6c7b8f !important;
-}
-
-.bank-account-balance {
-  gap: 3px !important;
-  padding: 8px 11px !important;
-}
-
-.bank-account-balance span {
-  color: #637289 !important;
-}
-
-.bank-account-balance strong {
-  font-size: 13px !important;
-}
-
-.bank-account-stats > div {
-  min-height: 46px;
-  padding: 7px 8px;
-}
-
-.bank-account-stats span {
-  color: #68788e;
-  font-size: 7.5px;
-}
-
-.bank-account-stats > div:nth-child(1) strong,
-.bank-account-stats > div:nth-child(2) strong {
-  color: #16a34a !important;
-}
-
-.bank-account-stats > div:nth-child(3) strong {
-  color: #dc2626 !important;
-}
-
-/* ---------------------------------------------------------
-   Darker descriptive text without touching disabled controls
-   --------------------------------------------------------- */
-
-.dashboard-hero p:not(.dashboard-eyebrow),
-.reports-header p,
-.bank-hero p,
-.kitchen-header p,
-.vehicle-header p,
-.supplier-header p,
-.disbursement-header p:not(.disbursement-eyebrow),
-.dashboard-panel-header p,
-.bank-panel-header p,
-.bank-account-section-header span,
-.bank-summary-card small,
-.reports-summary-card > small,
-.reports-empty,
-.supplier-modal-subtitle {
-  color: #66768b !important;
-}
-
-@media (max-width: 900px) {
-  .reports-tabs,
-  .reports-filter-panel,
-  .reports-summary-grid,
-  .reports-table-wrapper,
-  .reports-empty,
-  .reports-error,
-  .bank-summary-grid {
-    width: min(100%, calc(100vw - 32px));
-    max-width: none;
-  }
-
-  .reports-tabs button {
-    min-width: 118px;
-  }
-}
-
-@media (max-width: 640px) {
-  .reports-tabs {
-    justify-content: flex-start;
-  }
-
-  .reports-tabs button {
-    min-width: 112px;
-    flex: 0 0 auto;
-  }
-
-  .reports-summary-card {
-    min-height: 112px;
-    padding: 15px;
-  }
-
-  .reports-summary-card > strong {
-    font-size: 21px;
-  }
-
-  .reports-tabs,
-  .reports-filter-panel,
-  .reports-summary-grid,
-  .reports-table-wrapper,
-  .reports-empty,
-  .reports-error,
-  .bank-summary-grid {
     width: calc(100vw - 20px);
   }
 }
