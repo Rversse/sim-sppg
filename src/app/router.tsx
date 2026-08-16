@@ -42,95 +42,100 @@ function pageElement(Component: ComponentType): ReactElement {
   )
 }
 
-export const router = createBrowserRouter([
+export const router = createBrowserRouter(
+  [
+    {
+      path: '/login',
+      element: pageElement(LoginPage)
+    },
+    {
+      path: '/unauthorized',
+      element: pageElement(UnauthorizedPage)
+    },
+    {
+      element: <ProtectedRoute />,
+      children: [
+        {
+          path: '/',
+          element: <AppLayout />,
+          children: [
+            {
+              index: true,
+              element: pageElement(DefaultRoute)
+            },
+            {
+              element: <RoleRoute permission="dashboard.view" />,
+              children: [
+                {
+                  path: 'dashboard',
+                  element: pageElement(DashboardPage)
+                }
+              ]
+            },
+            {
+              element: <RoleRoute permission="kitchen.view" />,
+              children: [
+                {
+                  path: 'master/kitchen',
+                  element: pageElement(KitchenPage)
+                }
+              ]
+            },
+            {
+              element: <RoleRoute permission="vehicle.view" />,
+              children: [
+                {
+                  path: 'master/vehicle',
+                  element: pageElement(VehiclePage)
+                }
+              ]
+            },
+            {
+              element: <RoleRoute permission="supplier.view" />,
+              children: [
+                {
+                  path: 'master/supplier',
+                  element: pageElement(SupplierPage)
+                }
+              ]
+            },
+            {
+              element: <RoleRoute permission="bank.view" />,
+              children: [
+                {
+                  path: 'bank',
+                  element: pageElement(BankPage)
+                }
+              ]
+            },
+            {
+              element: <RoleRoute permission="reports.view" />,
+              children: [
+                {
+                  path: 'reports',
+                  element: pageElement(ReportsPage)
+                }
+              ]
+            },
+            {
+              element: <RoleRoute permission="disbursement.view" />,
+              children: [
+                {
+                  path: 'disbursement',
+                  element: pageElement(DisbursementPage)
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      path: '*',
+      element: <Navigate to="/" replace />
+    }
+  ],
   {
-    path: '/login',
-    element: pageElement(LoginPage)
-  },
-  {
-    path: '/unauthorized',
-    element: pageElement(UnauthorizedPage)
-  },
-  {
-    element: <ProtectedRoute />,
-    children: [
-      {
-        path: '/',
-        element: <AppLayout />,
-        children: [
-          {
-            index: true,
-            element: pageElement(DefaultRoute)
-          },
-          {
-            element: <RoleRoute permission="dashboard.view" />,
-            children: [
-              {
-                path: 'dashboard',
-                element: pageElement(DashboardPage)
-              }
-            ]
-          },
-          {
-            element: <RoleRoute permission="kitchen.view" />,
-            children: [
-              {
-                path: 'master/kitchen',
-                element: pageElement(KitchenPage)
-              }
-            ]
-          },
-          {
-            element: <RoleRoute permission="vehicle.view" />,
-            children: [
-              {
-                path: 'master/vehicle',
-                element: pageElement(VehiclePage)
-              }
-            ]
-          },
-          {
-            element: <RoleRoute permission="supplier.view" />,
-            children: [
-              {
-                path: 'master/supplier',
-                element: pageElement(SupplierPage)
-              }
-            ]
-          },
-          {
-            element: <RoleRoute permission="bank.view" />,
-            children: [
-              {
-                path: 'bank',
-                element: pageElement(BankPage)
-              }
-            ]
-          },
-          {
-            element: <RoleRoute permission="reports.view" />,
-            children: [
-              {
-                path: 'reports',
-                element: pageElement(ReportsPage)
-              }
-            ]
-          },
-          {
-            element: <RoleRoute permission="disbursement.view" />,
-            children: [
-              {
-                path: 'disbursement',
-                element: pageElement(DisbursementPage)
-              }
-            ]
-          }
-        ]
-      }
-    ]
-  },
-  {
-    path: '*',
-    element: <Navigate to="/" replace />
+    basename: '/sim-sppg/'
   }
-])
+)
