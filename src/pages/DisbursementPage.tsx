@@ -209,17 +209,6 @@ export function DisbursementPage() {
                 Selesai
               </strong>
               <span>Progress: {summary.overallProgress}%</span>
-
-              <div
-                className="disbursement-progress-track"
-                role="progressbar"
-                aria-valuemin={0}
-                aria-valuemax={100}
-                aria-valuenow={summary.overallProgress}
-                aria-label="Progress pencairan keseluruhan"
-              >
-                <span style={{ width: `${summary.overallProgress}%` }} />
-              </div>
             </div>
 
             <div className="disbursement-status-summary">
@@ -235,6 +224,17 @@ export function DisbursementPage() {
                 <b>{summary.completedKitchens}</b>
                 Selesai
               </span>
+            </div>
+
+            <div
+              className="disbursement-progress-track"
+              role="progressbar"
+              aria-valuemin={0}
+              aria-valuemax={100}
+              aria-valuenow={summary.overallProgress}
+              aria-label="Progress pencairan keseluruhan"
+            >
+              <span style={{ width: `${summary.overallProgress}%` }} />
             </div>
 
             {locked ? (

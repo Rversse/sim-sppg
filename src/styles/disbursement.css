@@ -569,8 +569,8 @@
 
 .disbursement-summary-card {
   grid-template-columns: minmax(0, 1.55fr) minmax(330px, 0.75fr) !important;
-  min-height: 128px !important;
-  padding: 16px 16px 38px !important;
+  min-height: 0 !important;
+  padding: 16px 16px 16px !important;
 }
 
 .disbursement-status-summary {
@@ -583,9 +583,6 @@
 }
 
 .disbursement-progress-track {
-  right: 16px !important;
-  bottom: 15px !important;
-  left: 16px !important;
   height: 7px !important;
 }
 
@@ -611,5 +608,48 @@
 @media (max-width: 600px) {
   .disbursement-status-summary {
     grid-template-columns: 1fr !important;
+  }
+}
+
+/* =========================================================
+   PROGRESS BAR — MOVED BELOW, FULL WIDTH, NO OVERLAY HACK
+   Was position:absolute (got contained by .disbursement-summary-main,
+   so it visually stopped before the 3 status cards). Now it's a
+   normal grid row spanning the full card width underneath everything.
+   ========================================================= */
+
+.disbursement-summary-main {
+  position: static !important;
+}
+
+.disbursement-summary-main > span {
+  font-size: 12px !important;
+  font-weight: 700 !important;
+}
+
+.disbursement-summary-card {
+  grid-template-rows: auto !important;
+  align-items: start !important;
+  row-gap: 14px !important;
+}
+
+.disbursement-progress-track {
+  position: static !important;
+  grid-column: 1 / -1 !important;
+  inset: auto !important;
+  width: 100% !important;
+  margin: 0 !important;
+  z-index: auto !important;
+}
+
+.disbursement-summary-card:has(.disbursement-lock)
+  .disbursement-progress-track {
+  bottom: auto !important;
+}
+
+@media (max-width: 760px) {
+  .disbursement-summary-card {
+    padding: 15px !important;
+    row-gap: 12px !important;
   }
 }

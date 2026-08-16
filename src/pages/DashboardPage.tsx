@@ -31,6 +31,7 @@ import {
   getSuppliersForKitchen,
   type TransactionOption
 } from '@/features/transactions/transaction-options-service'
+import { DateRangePicker } from '@/components/ui/date-range-picker'
 
 const FLOW_OPTIONS: { value: DashboardFlow | ''; label: string }[] = [
   { value: '', label: 'Semua transaksi' },
@@ -334,12 +335,18 @@ export function DashboardPage() {
     setFilters((current) => ({ ...current, [key]: value }))
   }
 
-  function handleStartDate(value: string) {
+  function handleDateRangeChange({
+    startDate,
+    endDate
+  }: {
+    startDate: string
+    endDate: string
+  }) {
     setTransactionPage(1)
     setFilters((current) => ({
       ...current,
-      startDate: value,
-      endDate: value,
+      startDate,
+      endDate,
       supplierFilter: ''
     }))
   }
@@ -843,31 +850,14 @@ export function DashboardPage() {
         </div>
 
         <div className="dashboard-filter-grid">
-          <label>
-            <span>Mulai</span>
-            <input
-              type="date"
-              value={filters.startDate}
-              onChange={(event) => handleStartDate(event.target.value)}
-            />
-          </label>
-
-          <label>
-            <span>Sampai</span>
-            <input
-              type="date"
-              min={filters.startDate}
-              value={filters.endDate}
-              onChange={(event) =>
-                updateFilter(
-                  'endDate',
-                  event.target.value < filters.startDate
-                    ? filters.startDate
-                    : event.target.value
-                )
-              }
-            />
-          </label>
+          <DateRangePicker
+            className="dashboard-date-range-field"
+            value={{
+              startDate: filters.startDate,
+              endDate: filters.endDate
+            }}
+            onChange={handleDateRangeChange}
+          />
 
           <label>
             <span>Dapur</span>

@@ -586,3 +586,72 @@
     border-color: var(--app-border-mid);
   }
 }
+
+/* =========================================================
+   BATCH 4 — REPORTS DATE RANGE
+   ========================================================= */
+
+.reports-filter-panel {
+  grid-template-columns:
+    minmax(250px, 1.8fr)
+    minmax(180px, 1fr)
+    auto
+    auto;
+}
+
+.reports-filter-panel > .reports-date-range-field {
+  grid-column: 1 !important;
+}
+
+.reports-filter-panel > label {
+  grid-column: 2 !important;
+}
+
+.reports-filter-panel > button:nth-of-type(1) {
+  grid-column: 3 !important;
+}
+
+.reports-filter-panel > button:nth-of-type(2) {
+  grid-column: 4 !important;
+}
+
+.reports-date-range-field {
+  min-width: 0;
+}
+
+@media (max-width: 1100px) {
+  .reports-filter-panel {
+    grid-template-columns: minmax(230px, 1.5fr) minmax(180px, 1fr) auto !important;
+  }
+
+  .reports-filter-panel > .reports-date-range-field {
+    grid-column: 1 !important;
+  }
+
+  .reports-filter-panel > label {
+    grid-column: 2 !important;
+  }
+
+  .reports-filter-panel > button:nth-of-type(1) {
+    grid-column: 3 !important;
+  }
+
+  .reports-filter-panel > button:nth-of-type(2) {
+    grid-column: 3 !important;
+    grid-row: 2 !important;
+  }
+}
+
+@media (max-width: 760px) {
+  .reports-filter-panel {
+    grid-template-columns: 1fr !important;
+  }
+
+  .reports-filter-panel > .reports-date-range-field,
+  .reports-filter-panel > label,
+  .reports-filter-panel > button:nth-of-type(1),
+  .reports-filter-panel > button:nth-of-type(2) {
+    grid-column: auto !important;
+    grid-row: auto !important;
+  }
+}

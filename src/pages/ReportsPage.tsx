@@ -17,6 +17,10 @@ import {
   exportSupplierReport
 } from '@/features/report/report-export'
 import { printReport } from '@/features/report/report-print'
+import {
+  DateRangePicker,
+  type DateRangeValue
+} from '@/components/ui/date-range-picker'
 
 type ReportTab = 'overall' | 'income' | 'supplier'
 
@@ -46,55 +50,15 @@ function formatDate(value: string) {
 function DateFilter({
   startDate,
   endDate,
-  onStartDateChange,
-  onEndDateChange,
-  onApply
+  onChange
 }: {
   startDate: string
   endDate: string
-  onStartDateChange: (value: string) => void
-  onEndDateChange: (value: string) => void
-  onApply: () => void
+  onChange: (value: DateRangeValue) => void
 }) {
   return (
-    <div className="reports-filter">
-      <label>
-        <span>Tanggal Mulai</span>
-
-        <input
-          type="date"
-          value={startDate}
-          onChange={(event) => {
-            const value = event.target.value
-
-            onStartDateChange(value)
-            onEndDateChange(value)
-          }}
-        />
-      </label>
-
-      <label>
-        <span>Tanggal Akhir</span>
-
-        <input
-          type="date"
-          min={startDate}
-          value={endDate}
-          onChange={(event) => {
-            const value = event.target.value
-
-            if (value < startDate) {
-              return
-            }
-
-            onEndDateChange(value)
-          }}
-        />
-      </label>
-
-      <button type="button" onClick={onApply}>
-        Terapkan
-      </button>
+    <div className="reports-date-range-field">
+      <DateRangePicker value={{ startDate, endDate }} onChange={onChange} />
     </div>
   )
 }
@@ -185,32 +149,12 @@ function OverallReportView({
     (kitchen) => kitchen.id === selectedKitchen
   )?.name
 
-  async function loadReport() {
-    setLoading(true)
-    setError(null)
-
-    try {
-      const result = await getOverallReport({
-        startDate,
-        endDate,
-        kitchenId: selectedKitchen
-      })
-
-      setReport(result)
-    } catch (error) {
-      console.error(error)
-      setError('Gagal memuat laporan keseluruhan')
-    } finally {
-      setLoading(false)
-    }
-  }
-
   useEffect(() => {
     let cancelled = false
 
     void getOverallReport({
-      startDate: today,
-      endDate: today,
+      startDate,
+      endDate,
       kitchenId: selectedKitchen
     })
       .then((result) => {
@@ -236,7 +180,7 @@ function OverallReportView({
     return () => {
       cancelled = true
     }
-  }, [selectedKitchen, today])
+  }, [selectedKitchen, startDate, endDate])
 
   return (
     <section className="reports-section">
@@ -244,9 +188,10 @@ function OverallReportView({
         <DateFilter
           startDate={startDate}
           endDate={endDate}
-          onStartDateChange={setStartDate}
-          onEndDateChange={setEndDate}
-          onApply={() => void loadReport()}
+          onChange={({ startDate: nextStartDate, endDate: nextEndDate }) => {
+            setStartDate(nextStartDate)
+            setEndDate(nextEndDate)
+          }}
         />
 
         <KitchenFilter
@@ -427,26 +372,6 @@ function IncomeReportView() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  async function loadReport() {
-    setLoading(true)
-    setError(null)
-
-    try {
-      const result = await getIncomeReport({
-        startDate,
-        endDate
-      })
-
-      setReport(result)
-    } catch (error) {
-      console.error(error)
-
-      setError('Gagal memuat rekap pemasukan')
-    } finally {
-      setLoading(false)
-    }
-  }
-
   useEffect(() => {
     let cancelled = false
 
@@ -483,9 +408,10 @@ function IncomeReportView() {
         <DateFilter
           startDate={startDate}
           endDate={endDate}
-          onStartDateChange={setStartDate}
-          onEndDateChange={setEndDate}
-          onApply={() => void loadReport()}
+          onChange={({ startDate: nextStartDate, endDate: nextEndDate }) => {
+            setStartDate(nextStartDate)
+            setEndDate(nextEndDate)
+          }}
         />
 
         <button
@@ -648,33 +574,12 @@ function SupplierReportView({
     (kitchen) => kitchen.id === selectedKitchen
   )?.name
 
-  async function loadReport() {
-    setLoading(true)
-    setError(null)
-
-    try {
-      const result = await getSupplierReport({
-        startDate,
-        endDate,
-        kitchenId: selectedKitchen
-      })
-
-      setReport(result)
-    } catch (error) {
-      console.error(error)
-
-      setError('Gagal memuat rekap pengeluaran')
-    } finally {
-      setLoading(false)
-    }
-  }
-
   useEffect(() => {
     let cancelled = false
 
     void getSupplierReport({
-      startDate: initialDates.startDate,
-      endDate: initialDates.endDate,
+      startDate,
+      endDate,
       kitchenId: selectedKitchen
     })
       .then((result) => {
@@ -698,7 +603,7 @@ function SupplierReportView({
     return () => {
       cancelled = true
     }
-  }, [selectedKitchen, initialDates])
+  }, [selectedKitchen, startDate, endDate])
 
   return (
     <section className="reports-section">
@@ -706,9 +611,10 @@ function SupplierReportView({
         <DateFilter
           startDate={startDate}
           endDate={endDate}
-          onStartDateChange={setStartDate}
-          onEndDateChange={setEndDate}
-          onApply={() => void loadReport()}
+          onChange={({ startDate: nextStartDate, endDate: nextEndDate }) => {
+            setStartDate(nextStartDate)
+            setEndDate(nextEndDate)
+          }}
         />
 
         <KitchenFilter

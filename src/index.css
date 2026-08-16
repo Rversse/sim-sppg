@@ -20,6 +20,7 @@
 @import './styles/system.css';
 @import './styles/responsive.css';
 @import './styles/page-shared.css';
+@import './styles/date-range-picker.css';
 
 @import './styles/dashboard.css';
 @import './styles/reports.css';

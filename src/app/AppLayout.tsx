@@ -16,7 +16,7 @@ import { supabase } from '@/lib/supabase'
 import { canAccess, type Permission } from '@/features/auth/role-policy'
 import { useAuth } from '@/features/auth/use-auth'
 import { useToast } from '@/features/ui/toast-context'
-import { VehicleExpiryNotification } from '@/components/VehicleExpiryNotification'
+import { VehicleExpiryNotification } from '@/components/ui/VehicleExpiryNotification'
 
 type NavigationItem = {
   label: string
