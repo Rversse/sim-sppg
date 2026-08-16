@@ -1426,7 +1426,7 @@ export function BankPage() {
                         ) : null}
 
                         <p className="bank-history-balance">
-                          Saldo: {formatRupiah(item.runningBalance)}
+                          Saldo akhir: {formatRupiah(item.runningBalance)}
                         </p>
 
                         {canCreateTransaction ? (
