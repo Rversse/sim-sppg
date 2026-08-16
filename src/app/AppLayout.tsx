@@ -7,12 +7,14 @@ import {
   ChefHat,
   FileText,
   LayoutDashboard,
+  LogOut,
   Menu,
   Wallet,
   type LucideIcon
 } from 'lucide-react'
 
 import logo from '@/assets/logo.png'
+import { VehicleExpiryNotification } from '@/components/ui/VehicleExpiryNotification'
 import { supabase } from '@/lib/supabase'
 import { canAccess, type Permission } from '@/features/auth/role-policy'
 import { useAuth } from '@/features/auth/use-auth'
@@ -109,6 +111,21 @@ function getPageTitle(pathname: string) {
   return pageTitles.find(({ match }) => pathname === match)?.title ?? 'SIM SPPG'
 }
 
+function getRoleLabel(role: string | undefined) {
+  switch (role) {
+    case 'admin':
+      return 'Admin'
+    case 'operator':
+      return 'Operator'
+    case 'viewer':
+      return 'Viewer'
+    default:
+      return 'User'
+  }
+}
+
+const SIDEBAR_STORAGE_KEY = 'sim-sppg.sidebar-collapsed'
+
 export function AppLayout() {
   const { user } = useAuth()
   const { success, error } = useToast()
@@ -116,7 +133,7 @@ export function AppLayout() {
 
   const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
     try {
-      return window.localStorage.getItem('sim-sppg.sidebar-collapsed') === '1'
+      return window.localStorage.getItem(SIDEBAR_STORAGE_KEY) === '1'
     } catch {
       return false
     }
@@ -125,7 +142,7 @@ export function AppLayout() {
   useEffect(() => {
     try {
       window.localStorage.setItem(
-        'sim-sppg.sidebar-collapsed',
+        SIDEBAR_STORAGE_KEY,
         sidebarCollapsed ? '1' : '0'
       )
     } catch {
@@ -143,8 +160,8 @@ export function AppLayout() {
     .filter((section) => section.items.length > 0)
 
   const visibleNavigation = visibleSections.flatMap((section) => section.items)
-
   const pageTitle = getPageTitle(pathname)
+  const roleLabel = getRoleLabel(user?.role)
 
   async function handleLogout() {
     const { error: signOutError } = await supabase.auth.signOut()
@@ -221,11 +238,7 @@ export function AppLayout() {
                 sidebarCollapsed ? 'Tampilkan sidebar' : 'Sembunyikan sidebar'
               }
             >
-              {sidebarCollapsed ? (
-                <Menu aria-hidden="true" />
-              ) : (
-                <Menu aria-hidden="true" />
-              )}
+              <Menu aria-hidden="true" />
             </button>
 
             <div className="app-page-heading">
@@ -235,18 +248,18 @@ export function AppLayout() {
           </div>
 
           <div className="app-user">
-            <span className="app-user-role">{user?.role ?? 'user'}</span>
+            <VehicleExpiryNotification />
 
-            <span className="app-user-avatar">
-              {(user?.email?.[0] ?? 'U').toUpperCase()}
-            </span>
+            <span className="app-user-role">{roleLabel}</span>
 
             <button
               type="button"
               className="app-logout-button"
               onClick={() => void handleLogout()}
+              aria-label="Keluar"
+              title="Keluar"
             >
-              Keluar
+              <LogOut aria-hidden="true" />
             </button>
           </div>
         </header>

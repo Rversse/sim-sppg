@@ -221,3 +221,64 @@
     padding: 11px 13px;
   }
 }
+
+/* Premium notification motion */
+.vehicle-notification-button {
+  transition:
+    transform var(--app-motion-fast) var(--app-ease),
+    border-color var(--app-motion-fast) ease,
+    background-color var(--app-motion-fast) ease,
+    box-shadow var(--app-motion-fast) ease;
+}
+
+.vehicle-notification-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 20px rgb(15 23 42 / 0.06);
+}
+
+.vehicle-notification-badge {
+  animation: vehicle-notification-pulse 2.6s ease-in-out infinite;
+}
+
+.vehicle-notification-popover {
+  transform-origin: top right;
+  animation: vehicle-notification-in 180ms var(--app-ease) both;
+}
+
+.vehicle-notification-item {
+  transition:
+    background-color var(--app-motion-fast) ease,
+    padding-left var(--app-motion-fast) var(--app-ease);
+}
+
+.vehicle-notification-item:hover {
+  padding-left: 18px;
+}
+
+@keyframes vehicle-notification-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes vehicle-notification-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.06);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vehicle-notification-badge,
+  .vehicle-notification-popover {
+    animation: none;
+  }
+}

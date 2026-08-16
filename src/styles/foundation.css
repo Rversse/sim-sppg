@@ -44,6 +44,8 @@
   --app-bg-soft: #f8fafc;
   --app-focus-ring: 0 0 0 3px rgb(57 255 136 / 0.12);
   --app-shadow-card: 0 8px 30px rgb(15 23 42 / 0.035);
+  --app-shadow-premium:
+    0 12px 32px rgb(15 23 42 / 0.055), 0 2px 8px rgb(15 23 42 / 0.035);
 
   --app-radius-sm: 8px;
   --app-radius-md: 12px;
@@ -72,6 +74,10 @@
 
 * {
   box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 body {
@@ -114,7 +120,9 @@ textarea {
   flex: 0 0 var(--sidebar-width);
   flex-direction: column;
   overflow: hidden;
-  background: var(--app-primary);
+  background:
+    radial-gradient(circle at 14% 8%, rgb(57 255 136 / 0.06), transparent 26%),
+    var(--app-primary);
   color: #fff;
   transition:
     width var(--app-motion) var(--app-ease),
@@ -140,7 +148,20 @@ textarea {
   overflow: hidden;
   border: 1px solid rgb(57 255 136 / 0.22);
   border-radius: 12px;
-  background: rgb(57 255 136 / 0.1);
+  background: rgb(57 255 136 / 0.08);
+  box-shadow:
+    0 10px 25px rgb(0 0 0 / 0.14),
+    inset 0 0 0 1px rgb(255 255 255 / 0.04);
+  transition:
+    transform var(--app-motion) var(--app-ease),
+    box-shadow var(--app-motion) ease;
+}
+
+.app-brand-mark:hover {
+  transform: translateY(-1px) scale(1.02);
+  box-shadow:
+    0 14px 30px rgb(0 0 0 / 0.18),
+    0 0 0 4px rgb(57 255 136 / 0.05);
 }
 
 .app-brand-mark img {
@@ -321,8 +342,10 @@ textarea {
   gap: 16px;
   padding: 0 28px;
   border-bottom: 1px solid var(--app-border);
-  background: rgb(248 250 252 / 0.9);
-  box-shadow: 0 1px 0 rgb(255 255 255 / 0.7);
+  background: rgb(248 250 252 / 0.86);
+  box-shadow:
+    0 1px 0 rgb(255 255 255 / 0.7),
+    0 10px 28px rgb(15 23 42 / 0.025);
   backdrop-filter: blur(14px);
 }
 
@@ -345,11 +368,23 @@ textarea {
   background: var(--app-white);
   color: var(--app-primary);
   cursor: pointer;
+  box-shadow: 0 3px 12px rgb(15 23 42 / 0.03);
+  transition:
+    transform var(--app-motion-fast) var(--app-ease),
+    border-color var(--app-motion-fast) ease,
+    background-color var(--app-motion-fast) ease,
+    box-shadow var(--app-motion-fast) ease;
 }
 
 .app-sidebar-toggle:hover {
-  border-color: var(--app-border-mid);
-  background: var(--app-bg-soft);
+  border-color: var(--app-accent);
+  background: #fbfffd;
+  transform: translateY(-1px);
+  box-shadow: 0 8px 22px rgb(57 255 136 / 0.11);
+}
+
+.app-sidebar-toggle:active {
+  transform: translateY(0) scale(0.98);
 }
 
 .app-sidebar-toggle svg {
@@ -384,7 +419,7 @@ textarea {
 .app-user {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 7px;
   flex: 0 0 auto;
 }
 
@@ -392,54 +427,67 @@ textarea {
   display: inline-flex;
   min-height: 34px;
   align-items: center;
-  gap: 6px;
-  padding: 0 9px;
+  justify-content: center;
+  padding: 0 11px;
   border: 1px solid var(--app-border-strong);
-  border-radius: 9px;
-  background: var(--app-white);
-  color: #64748b;
+  border-radius: 10px;
+  background: rgb(255 255 255 / 0.92);
+  color: var(--app-primary);
   font-size: 10px;
-  font-weight: 800;
-  text-transform: capitalize;
+  font-weight: 900;
+  box-shadow: 0 4px 14px rgb(15 23 42 / 0.025);
+  transition:
+    border-color var(--app-motion-fast) ease,
+    box-shadow var(--app-motion-fast) ease,
+    transform var(--app-motion-fast) var(--app-ease);
 }
 
-.app-user-role svg {
-  width: 14px;
-  height: 14px;
-  color: var(--app-primary);
-  stroke-width: 2.2;
+.app-user-role:hover {
+  border-color: rgb(57 255 136 / 0.4);
+  transform: translateY(-1px);
+  box-shadow: 0 8px 18px rgb(57 255 136 / 0.08);
 }
 
 .app-logout-button {
-  display: inline-flex;
-  min-height: 34px;
-  align-items: center;
-  gap: 6px;
-  padding: 0 9px;
+  display: grid;
+  width: 34px;
+  height: 34px;
+  place-items: center;
+  padding: 0;
   border: 1px solid transparent;
   border-radius: 9px;
   background: transparent;
   color: var(--app-text-dark);
   cursor: pointer;
-  font-size: 10px;
-  font-weight: 800;
+  transition:
+    transform var(--app-motion-fast) var(--app-ease),
+    border-color var(--app-motion-fast) ease,
+    background-color var(--app-motion-fast) ease,
+    color var(--app-motion-fast) ease;
 }
 
 .app-logout-button svg {
-  width: 15px;
-  height: 15px;
+  width: 16px;
+  height: 16px;
   stroke-width: 2;
 }
 
 .app-logout-button:hover {
   border-color: var(--app-border-strong);
   background: var(--app-white);
+  color: var(--app-danger);
+  transform: translateY(-1px);
+}
+
+.app-logout-button:active {
+  transform: translateY(0) scale(0.98);
 }
 
 .app-main {
   width: min(1500px, 100%);
   margin: 0 auto;
   padding: 2px;
+  animation: app-page-in 300ms var(--app-ease) both;
 }
 
 .app-mobile-nav {
@@ -477,6 +525,18 @@ textarea {
   padding-inline: 10px;
 }
 
+@keyframes app-page-in {
+  from {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 @media (max-width: 760px) {
   .app-sidebar-toggle {
     display: none;
@@ -493,5 +553,20 @@ textarea {
 
   .app-page-title {
     font-size: 15px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }

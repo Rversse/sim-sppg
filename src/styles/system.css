@@ -1,8 +1,7 @@
 /* =========================================================
    SHARED SYSTEM
    Single owner for generic typography, controls, tables, and
-   shared page-level tokens. Page CSS may override these only
-   when the page intentionally has a different visual density.
+   shared page-level tokens.
    ========================================================= */
 
 :root {
@@ -187,12 +186,7 @@ textarea:focus-visible {
   }
 }
 
-/* =========================================================
-   CANONICAL PAGE TITLE
-   AppLayout owns the visible page title. Page-local legacy h1s
-   are intentionally suppressed to avoid duplicate titles.
-   ========================================================= */
-
+/* Canonical page title */
 .dashboard-hero h1,
 .reports-header h1,
 .bank-hero h1,
@@ -209,7 +203,6 @@ textarea:focus-visible {
   display: none;
 }
 
-/* Shared page descriptions retain their spacing after the title move. */
 .dashboard-hero p:not(.dashboard-eyebrow),
 .reports-header p,
 .bank-hero > div > p:not(.bank-eyebrow),
@@ -220,7 +213,7 @@ textarea:focus-visible {
   line-height: var(--app-line-normal);
 }
 
-/* Shared content hover behavior. */
+/* Existing global hover behavior */
 .dashboard-history-row,
 .kitchen-table tbody tr,
 .vehicle-table tbody tr,
@@ -233,4 +226,152 @@ textarea:focus-visible {
 .vehicle-table tbody tr:hover,
 .supplier-table tbody tr:hover {
   background: #fbfdff;
+}
+
+/* =========================================================
+   PREMIUM SHARED INTERACTION LAYER
+   ========================================================= */
+
+[data-slot='button'] {
+  transition:
+    transform var(--app-motion-fast) var(--app-ease),
+    box-shadow var(--app-motion-fast) ease,
+    background-color var(--app-motion-fast) ease,
+    border-color var(--app-motion-fast) ease,
+    color var(--app-motion-fast) ease;
+}
+
+[data-slot='button']:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 22px rgb(15 23 42 / 0.07);
+}
+
+[data-slot='button']:active:not(:disabled) {
+  transform: translateY(0) scale(0.985);
+}
+
+.dashboard-filter-grid input,
+.dashboard-filter-grid select,
+.reports-filter-panel input,
+.reports-filter-panel select,
+.kitchen-input,
+.vehicle-input,
+.vehicle-select,
+.supplier-input {
+  transition:
+    border-color var(--app-motion-fast) ease,
+    box-shadow var(--app-motion-fast) ease,
+    background-color var(--app-motion-fast) ease,
+    transform var(--app-motion-fast) var(--app-ease);
+}
+
+.kitchen-input:hover,
+.vehicle-input:hover,
+.vehicle-select:hover,
+.supplier-input:hover {
+  transform: translateY(-1px);
+}
+
+.dashboard-filter-grid input:hover,
+.dashboard-filter-grid select:hover,
+.reports-filter-panel input:hover,
+.reports-filter-panel select:hover,
+.kitchen-input:hover,
+.vehicle-input:hover,
+.vehicle-select:hover,
+.supplier-input:hover {
+  border-color: var(--app-border-mid);
+  background: #fff;
+  box-shadow: 0 6px 18px rgb(15 23 42 / 0.035);
+}
+
+.dashboard-filter-grid input:focus,
+.dashboard-filter-grid select:focus,
+.reports-filter-panel input:focus,
+.reports-filter-panel select:focus,
+.kitchen-input:focus,
+.vehicle-input:focus,
+.vehicle-select:focus,
+.supplier-input:focus {
+  border-color: var(--app-accent);
+  background: #fff;
+  box-shadow:
+    var(--app-focus-ring),
+    0 8px 24px rgb(15 23 42 / 0.045);
+  outline: none;
+}
+
+.kitchen-panel,
+.vehicle-panel,
+.supplier-panel {
+  transition:
+    border-color var(--app-motion) ease,
+    box-shadow var(--app-motion) ease;
+}
+
+.kitchen-panel:hover,
+.vehicle-panel:hover,
+.supplier-panel:hover {
+  border-color: var(--app-border-mid);
+  box-shadow:
+    0 18px 48px rgb(15 23 42 / 0.06),
+    0 2px 10px rgb(15 23 42 / 0.035);
+}
+
+.kitchen-table tbody tr,
+.vehicle-table tbody tr,
+.supplier-table tbody tr {
+  transition:
+    background-color var(--app-motion-fast) ease,
+    box-shadow var(--app-motion-fast) ease;
+}
+
+.kitchen-table tbody tr:hover,
+.vehicle-table tbody tr:hover,
+.supplier-table tbody tr:hover {
+  background: linear-gradient(
+    90deg,
+    rgb(57 255 136 / 0.035),
+    rgba(255, 255, 255, 0) 55%
+  );
+  box-shadow: inset 3px 0 0 rgb(57 255 136 / 0.55);
+}
+
+.kitchen-table tbody tr:hover td:first-child,
+.vehicle-table tbody tr:hover td:first-child,
+.supplier-table tbody tr:hover td:first-child {
+  color: var(--app-primary);
+  font-weight: 800;
+}
+
+.kitchen-action-cell > button,
+.kitchen-action-cell > a,
+.vehicle-action-cell > button,
+.vehicle-action-cell > a,
+.supplier-action-cell > button,
+.supplier-action-cell > a {
+  transition:
+    transform var(--app-motion-fast) var(--app-ease),
+    box-shadow var(--app-motion-fast) ease,
+    border-color var(--app-motion-fast) ease;
+}
+
+.kitchen-action-cell > button:hover,
+.kitchen-action-cell > a:hover,
+.vehicle-action-cell > button:hover,
+.vehicle-action-cell > a:hover,
+.supplier-action-cell > button:hover,
+.supplier-action-cell > a:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgb(15 23 42 / 0.08);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
