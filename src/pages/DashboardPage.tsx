@@ -78,15 +78,21 @@ function flowClass(flow: DashboardFlow) {
 }
 
 function formatHistoryTimestamp(value: string) {
-  return new Intl.DateTimeFormat('id-ID', {
+  const parts = new Intl.DateTimeFormat('id-ID', {
     day: '2-digit',
     month: 'short',
     year: 'numeric',
     hour: '2-digit',
     minute: '2-digit',
     second: '2-digit',
-    hour12: false
-  }).format(new Date(value))
+    hourCycle: 'h23'
+  }).formatToParts(new Date(value))
+
+  const values = Object.fromEntries(
+    parts.map((part) => [part.type, part.value])
+  )
+
+  return `${values.day} ${values.month} ${values.year}, ${values.hour}:${values.minute}:${values.second}`
 }
 
 function formatHistoryInputTimestamp(value: string) {

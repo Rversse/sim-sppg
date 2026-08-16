@@ -65,6 +65,23 @@ function printReport() {
   const kitchen =
     kitchenName && kitchenName !== 'Semua Dapur' ? `Dapur: ${kitchenName}` : ''
 
+  const printedAtParts = new Intl.DateTimeFormat('id-ID', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    hourCycle: 'h23'
+  }).formatToParts(new Date())
+
+  const printedAt = Object.fromEntries(
+    printedAtParts.map((part) => [part.type, part.value])
+  )
+
+  const printedAtText =
+    `${printedAt.day}/${printedAt.month}/${printedAt.year} ` +
+    `${printedAt.hour}:${printedAt.minute}`
+
   const html = `
 <!DOCTYPE html>
 <html lang="id">
@@ -303,13 +320,7 @@ function printReport() {
 
     <div class="print-footer">
       Dicetak:
-      ${new Date().toLocaleString('id-ID', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
-      })}
+      ${printedAtText}
     </div>
   </div>
 </body>

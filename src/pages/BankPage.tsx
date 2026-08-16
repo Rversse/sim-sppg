@@ -95,13 +95,20 @@ function parseIntegerInput(value: string) {
 }
 
 function formatDateTime(value: string) {
-  return new Intl.DateTimeFormat('id-ID', {
+  const parts = new Intl.DateTimeFormat('id-ID', {
     day: '2-digit',
     month: 'short',
     year: 'numeric',
     hour: '2-digit',
-    minute: '2-digit'
-  }).format(new Date(value))
+    minute: '2-digit',
+    hourCycle: 'h23'
+  }).formatToParts(new Date(value))
+
+  const values = Object.fromEntries(
+    parts.map((part) => [part.type, part.value])
+  )
+
+  return `${values.day} ${values.month} ${values.year}, ${values.hour}:${values.minute}`
 }
 
 function getPaginationPages(currentPage: number, totalPages: number) {
