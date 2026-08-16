@@ -1,5 +1,10 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { CalendarDays, ChevronLeft, ChevronRight } from 'lucide-react'
+import {
+  CalendarDays,
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight
+} from 'lucide-react'
 
 export type DateRangeValue = {
   startDate: string
@@ -16,6 +21,12 @@ type DateRangePickerProps = {
 
 const WEEK_DAYS = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab']
 
+const MONTH_NAMES = Array.from({ length: 12 }, (_, index) =>
+  new Intl.DateTimeFormat('id-ID', { month: 'long' }).format(
+    new Date(Date.UTC(2020, index, 1))
+  )
+)
+
 const MONTH_FORMATTER = new Intl.DateTimeFormat('id-ID', {
   month: 'long',
   year: 'numeric'
@@ -26,6 +37,8 @@ const DISPLAY_DATE_FORMATTER = new Intl.DateTimeFormat('id-ID', {
   month: 'short',
   year: 'numeric'
 })
+
+const CURRENT_YEAR = new Date().getFullYear()
 
 function getTodayKey() {
   const now = new Date()
@@ -39,6 +52,7 @@ function getTodayKey() {
 
 function parseDateKey(value: string) {
   const [year, month, day] = value.split('-').map(Number)
+
   return new Date(Date.UTC(year, month - 1, day))
 }
 
@@ -207,6 +221,30 @@ export function DateRangePicker({
   const [viewMonth, setViewMonth] = useState(initialMonth)
   const [pendingStart, setPendingStart] = useState('')
   const [hoverDate, setHoverDate] = useState('')
+  const [showMonthYearPicker, setShowMonthYearPicker] = useState(false)
+
+  const selectedYear = viewMonth.getUTCFullYear()
+  const selectedMonth = viewMonth.getUTCMonth()
+
+  const yearOptions = useMemo(() => {
+    const years = new Set<number>()
+
+    for (let year = CURRENT_YEAR - 10; year <= CURRENT_YEAR + 10; year += 1) {
+      years.add(year)
+    }
+
+    if (value.startDate) {
+      years.add(parseDateKey(value.startDate).getUTCFullYear())
+    }
+
+    if (value.endDate) {
+      years.add(parseDateKey(value.endDate).getUTCFullYear())
+    }
+
+    years.add(selectedYear)
+
+    return [...years].sort((a, b) => a - b)
+  }, [selectedYear, value.endDate, value.startDate])
 
   useEffect(() => {
     if (!open) {
@@ -222,6 +260,7 @@ export function DateRangePicker({
         setOpen(false)
         setPendingStart('')
         setHoverDate('')
+        setShowMonthYearPicker(false)
       }
     }
 
@@ -233,6 +272,7 @@ export function DateRangePicker({
       setOpen(false)
       setPendingStart('')
       setHoverDate('')
+      setShowMonthYearPicker(false)
     }
 
     document.addEventListener('mousedown', handlePointerDown)
@@ -253,19 +293,38 @@ export function DateRangePicker({
       setOpen(false)
       setPendingStart('')
       setHoverDate('')
+      setShowMonthYearPicker(false)
+
       return
     }
 
     setViewMonth(initialMonth)
     setPendingStart('')
     setHoverDate('')
+    setShowMonthYearPicker(false)
     setOpen(true)
+  }
+
+  function handlePreviousMonth() {
+    setShowMonthYearPicker(false)
+    setViewMonth((current) => addMonths(current, -1))
+  }
+
+  function handleNextMonth() {
+    setShowMonthYearPicker(false)
+    setViewMonth((current) => addMonths(current, 1))
+  }
+
+  function setViewMonthYear(monthIndex: number, year: number) {
+    setViewMonth(new Date(Date.UTC(year, monthIndex, 1)))
+    setShowMonthYearPicker(false)
   }
 
   function selectDate(dateKey: string) {
     if (!pendingStart) {
       setPendingStart(dateKey)
       setHoverDate(dateKey)
+
       return
     }
 
@@ -281,9 +340,8 @@ export function DateRangePicker({
     setOpen(false)
     setPendingStart('')
     setHoverDate('')
+    setShowMonthYearPicker(false)
   }
-
-  const nextMonth = addMonths(viewMonth, 1)
 
   return (
     <div ref={rootRef} className={`date-range-picker ${className}`.trim()}>
@@ -316,42 +374,79 @@ export function DateRangePicker({
             <button
               type="button"
               className="date-range-nav"
-              onClick={() => setViewMonth((current) => addMonths(current, -1))}
+              onClick={handlePreviousMonth}
               aria-label="Bulan sebelumnya"
             >
               <ChevronLeft aria-hidden="true" />
             </button>
 
-            <div>
-              <strong>{MONTH_FORMATTER.format(viewMonth)}</strong>
-              <span>
-                {pendingStart ? 'Pilih tanggal akhir' : 'Pilih tanggal mulai'}
-              </span>
-            </div>
+            <button
+              type="button"
+              className="date-range-month-year-trigger"
+              aria-expanded={showMonthYearPicker}
+              aria-haspopup="true"
+              onClick={() => setShowMonthYearPicker((current) => !current)}
+            >
+              <span>{MONTH_FORMATTER.format(viewMonth)}</span>
+              <ChevronDown aria-hidden="true" />
+            </button>
 
             <button
               type="button"
               className="date-range-nav"
-              onClick={() => setViewMonth((current) => addMonths(current, 1))}
+              onClick={handleNextMonth}
               aria-label="Bulan berikutnya"
             >
               <ChevronRight aria-hidden="true" />
             </button>
           </div>
 
+          {showMonthYearPicker ? (
+            <div className="date-range-month-year-picker">
+              <div className="date-range-month-year-fields">
+                <label>
+                  <span>Bulan</span>
+
+                  <select
+                    value={selectedMonth}
+                    onChange={(event) =>
+                      setViewMonthYear(Number(event.target.value), selectedYear)
+                    }
+                  >
+                    {MONTH_NAMES.map((monthName, index) => (
+                      <option value={index} key={monthName}>
+                        {monthName}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+
+                <label>
+                  <span>Tahun</span>
+
+                  <select
+                    value={selectedYear}
+                    onChange={(event) =>
+                      setViewMonthYear(
+                        selectedMonth,
+                        Number(event.target.value)
+                      )
+                    }
+                  >
+                    {yearOptions.map((year) => (
+                      <option value={year} key={year}>
+                        {year}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              </div>
+            </div>
+          ) : null}
+
           <div className="date-range-calendars">
             <CalendarMonth
               month={viewMonth}
-              startDate={value.startDate}
-              endDate={value.endDate}
-              pendingStart={pendingStart}
-              hoverDate={hoverDate}
-              onHoverDate={setHoverDate}
-              onSelectDate={selectDate}
-            />
-
-            <CalendarMonth
-              month={nextMonth}
               startDate={value.startDate}
               endDate={value.endDate}
               pendingStart={pendingStart}
