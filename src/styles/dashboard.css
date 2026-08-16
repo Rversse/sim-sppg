@@ -113,7 +113,7 @@
   grid-template-columns: minmax(0, 1.35fr) repeat(3, minmax(0, 1fr));
   align-items: end;
   gap: 12px;
-  margin-top: 16px;
+  margin-top: 10px;
 }
 
 .dashboard-date-range-field {
@@ -123,15 +123,11 @@
 
 .dashboard-filter-grid label {
   display: grid;
-  gap: 6px;
   min-width: 0;
 }
 
 .dashboard-filter-grid label > span {
-  color: #64748b;
-  font-size: 10px;
-  font-weight: 800;
-  letter-spacing: 0.02em;
+  display: none;
 }
 
 .dashboard-filter-grid input,
@@ -294,6 +290,79 @@
 
 .dashboard-kpi-primary > strong {
   color: #39ff88;
+}
+
+/* =========================================================
+   DASHBOARD KPI COLOR OWNERSHIP
+   ========================================================= */
+
+.dashboard-kpi-grid > .dashboard-kpi:nth-child(1) {
+  border-color: #bbf7d0;
+  background: #f0fdf4;
+}
+
+.dashboard-kpi-grid > .dashboard-kpi:nth-child(1) > span,
+.dashboard-kpi-grid > .dashboard-kpi:nth-child(1) > strong {
+  color: #15803d;
+}
+
+.dashboard-kpi-grid > .dashboard-kpi:nth-child(1) > small {
+  color: #4d7c5c;
+}
+
+.dashboard-kpi-grid > .dashboard-kpi:nth-child(2) {
+  border-color: #bfdbfe;
+  background: #eff6ff;
+}
+
+.dashboard-kpi-grid > .dashboard-kpi:nth-child(2) > span,
+.dashboard-kpi-grid > .dashboard-kpi:nth-child(2) > strong {
+  color: #1d4ed8;
+}
+
+.dashboard-kpi-grid > .dashboard-kpi:nth-child(2) > small {
+  color: #526d94;
+}
+
+.dashboard-kpi-grid > .dashboard-kpi:nth-child(3) {
+  border-color: #fed7aa;
+  background: #fff7ed;
+}
+
+.dashboard-kpi-grid > .dashboard-kpi:nth-child(3) > span,
+.dashboard-kpi-grid > .dashboard-kpi:nth-child(3) > strong {
+  color: #c2410c;
+}
+
+.dashboard-kpi-grid > .dashboard-kpi:nth-child(3) > small {
+  color: #8a5b36;
+}
+
+/*
+ * Card ke-4 tetap memakai dashboard-kpi-primary:
+ * hitam + angka hijau.
+ */
+.dashboard-kpi-grid > .dashboard-kpi:nth-child(4) {
+  border-color: #0b132b;
+  background: #0b132b;
+}
+
+.dashboard-kpi-grid > .dashboard-kpi:nth-child(4) > span {
+  color: #c2cad8;
+}
+
+.dashboard-kpi-grid > .dashboard-kpi:nth-child(4) > strong {
+  color: #39ff88;
+}
+
+.dashboard-kpi-grid > .dashboard-kpi:nth-child(4) > small {
+  color: #8f9caf;
+}
+
+/* Subtle selection state tanpa mengubah warna dasar card. */
+.dashboard-kpi-grid > .dashboard-kpi.is-selected {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 34px rgb(15 23 42 / 0.12);
 }
 
 .dashboard-main-grid {
@@ -676,21 +745,21 @@
 }
 
 .dashboard-flow-income {
-  border-color: color-mix(in srgb, var(--app-primary) 18%, white);
-  background: #e9edff;
-  color: var(--app-primary);
+  border-color: #bbf7d0;
+  background: #ecfdf3;
+  color: #15803d;
 }
 
 .dashboard-flow-expense {
-  border-color: color-mix(in srgb, var(--app-success) 30%, white);
-  background: var(--app-success-bg);
-  color: var(--app-success);
+  border-color: #bfdbfe;
+  background: #eff6ff;
+  color: #1d4ed8;
 }
 
 .dashboard-flow-neutral {
-  border-color: var(--app-border);
-  background: var(--app-border-soft);
-  color: #475569;
+  border-color: #fed7aa;
+  background: #fff7ed;
+  color: #c2410c;
 }
 
 .dashboard-history-amount {
