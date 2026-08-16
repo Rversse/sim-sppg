@@ -4,15 +4,16 @@ import tailwindcss from '@tailwindcss/vite'
 import path from 'node:path'
 
 export default defineConfig({
+  base: '/sim-sppg/',
   plugins: [react(), tailwindcss()],
   resolve: {
     alias: {
       '@': path.resolve(import.meta.dirname, './src')
     }
   },
-  logLevel: 'warn', // suppress the per-file build listing, keep warnings/errors
+  logLevel: 'warn',
   build: {
-    chunkSizeWarningLimit: 1000, // kB — quiet false-alarm on vendor-y chunks
+    chunkSizeWarningLimit: 1000,
     rollupOptions: {
       output: {
         manualChunks(id) {
