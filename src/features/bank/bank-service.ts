@@ -568,10 +568,29 @@ export async function getBankHistoryPage(
 function normalizePaymentPurpose(value: string | null | undefined) {
   if (!value) return ''
 
-  return value
-    .trim()
-    .replace(/\s+/g, ' ')
-    .replace(/\bTgl\.?\s*(\d{1,4}[/.-]\d{1,2}[/.-]\d{1,4})/gi, 'Tgl')
+  const normalized = value.trim().replace(/\s+/g, ' ')
+  const monthName =
+    '(?:Jan(?:uari)?|Feb(?:ruari)?|Mar(?:et)?|Apr(?:il)?|Mei|Jun(?:i)?|Jul(?:i)?|Agt(?:ustus)?|Agustus|Sep(?:tember)?|Okt(?:ober)?|Nov(?:ember)?|Des(?:ember)?)'
+
+  return normalized
+    .replace(
+      new RegExp(`\\bTgl\\.?\\s+\\d{4}[\\/.-]\\d{1,2}[\\/.-]\\d{1,2}\\b`, 'gi'),
+      'Tgl'
+    )
+    .replace(
+      new RegExp(
+        `\\bTgl\\.?\\s+\\d{1,2}[\\/.-]\\d{1,2}(?:[\\/.-]\\d{2,4})?\\b`,
+        'gi'
+      ),
+      'Tgl'
+    )
+    .replace(
+      new RegExp(
+        `\\bTgl\\.?\\s+\\d{1,2}\\s+${monthName}(?:\\s+\\d{2,4})?\\b`,
+        'gi'
+      ),
+      'Tgl'
+    )
     .replace(/\s+/g, ' ')
     .trim()
 }

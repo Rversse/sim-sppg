@@ -65,7 +65,7 @@ function createEmptyTransferForm(): TransferFormState {
     recipientAccountId: '',
     recipientName: '',
     transferAmount: '',
-    adminFee: '0',
+    adminFee: '',
     paymentFor: ''
   }
 }
@@ -76,6 +76,22 @@ function formatRupiah(value: number) {
     currency: 'IDR',
     maximumFractionDigits: 0
   }).format(value)
+}
+
+function formatIntegerInput(value: string) {
+  const digits = value.replace(/\\D/g, '')
+
+  if (!digits) return ''
+
+  return new Intl.NumberFormat('id-ID', {
+    maximumFractionDigits: 0
+  }).format(Number(digits))
+}
+
+function parseIntegerInput(value: string) {
+  const digits = value.replace(/\\D/g, '')
+
+  return digits ? Number(digits) : 0
 }
 
 function formatDate(value: string) {
@@ -365,21 +381,58 @@ export function BankPage() {
   const historyPages = getPaginationPages(historyPage, historyTotalPages)
 
   const senderAccounts = useMemo(() => {
-    if (!overview) return { holding: [], supplier: [] }
+    if (!overview) {
+      return {
+        holding: [] as BankAccount[],
+        priority: [] as BankAccount[],
+        others: [] as BankAccount[]
+      }
+    }
 
-    const holding = overview.accounts
-      .filter((account) => account.is_holding_destination)
-      .sort((a, b) =>
-        getAccountDisplayName(a).localeCompare(getAccountDisplayName(b), 'id')
+    const holding: BankAccount[] = []
+    const priority: BankAccount[] = []
+    const others: BankAccount[] = []
+
+    for (const account of overview.accounts) {
+      if (account.is_holding_destination) {
+        holding.push(account)
+        continue
+      }
+
+      if (isPriorityAccount(account, PRIORITY_OWNERS)) {
+        priority.push(account)
+        continue
+      }
+
+      others.push(account)
+    }
+
+    const sortByName = (a: BankAccount, b: BankAccount) =>
+      getAccountDisplayName(a).localeCompare(getAccountDisplayName(b), 'id', {
+        sensitivity: 'base'
+      })
+
+    holding.sort(sortByName)
+    others.sort(sortByName)
+
+    priority.sort((a, b) => {
+      const aIndex = PRIORITY_OWNERS.indexOf(
+        getAccountDisplayName(a)
+          .trim()
+          .toUpperCase() as (typeof PRIORITY_OWNERS)[number]
+      )
+      const bIndex = PRIORITY_OWNERS.indexOf(
+        getAccountDisplayName(b)
+          .trim()
+          .toUpperCase() as (typeof PRIORITY_OWNERS)[number]
       )
 
-    const supplier = overview.accounts
-      .filter((account) => !account.is_holding_destination)
-      .sort((a, b) =>
-        getAccountDisplayName(a).localeCompare(getAccountDisplayName(b), 'id')
-      )
+      if (aIndex !== bIndex) return aIndex - bIndex
 
-    return { holding, supplier }
+      return sortByName(a, b)
+    })
+
+    return { holding, priority, others }
   }, [overview])
 
   const registeredRecipientAccounts = useMemo(() => {
@@ -549,8 +602,8 @@ export function BankPage() {
       destinationMode: editMode,
       recipientAccountId: transaction.recipient_account_id ?? '',
       recipientName: transaction.recipient_name ?? '',
-      transferAmount: String(transaction.transfer_amount),
-      adminFee: String(transaction.admin_fee),
+      transferAmount: formatIntegerInput(String(transaction.transfer_amount)),
+      adminFee: formatIntegerInput(String(transaction.admin_fee)),
       paymentFor: transaction.payment_for ?? ''
     })
     setRecipientQuery(transaction.recipient_name ?? '')
@@ -579,7 +632,7 @@ export function BankPage() {
       recipientAccountId: '',
       recipientName: '',
       transferAmount: '',
-      adminFee: '0',
+      adminFee: '',
       paymentFor: ''
     }))
 
@@ -659,8 +712,8 @@ export function BankPage() {
       return
     }
 
-    const transferAmount = Number(transferForm.transferAmount)
-    const adminFee = Number(transferForm.adminFee)
+    const transferAmount = parseIntegerInput(transferForm.transferAmount)
+    const adminFee = parseIntegerInput(transferForm.adminFee)
 
     if (!Number.isFinite(transferAmount) || transferAmount <= 0) {
       setCreateError('Nominal transfer harus lebih dari 0.')
@@ -951,9 +1004,19 @@ export function BankPage() {
                       </optgroup>
                     ) : null}
 
-                    {senderAccounts.supplier.length ? (
-                      <optgroup label="Rekening Supplier">
-                        {senderAccounts.supplier.map((account) => (
+                    {senderAccounts.priority.length ? (
+                      <optgroup label="Rekening Prioritas">
+                        {senderAccounts.priority.map((account) => (
+                          <option key={account.id} value={account.id}>
+                            {getAccountLabel(account)}
+                          </option>
+                        ))}
+                      </optgroup>
+                    ) : null}
+
+                    {senderAccounts.others.length ? (
+                      <optgroup label="Rekening Lainnya">
+                        {senderAccounts.others.map((account) => (
                           <option key={account.id} value={account.id}>
                             {getAccountLabel(account)}
                           </option>
@@ -1002,190 +1065,144 @@ export function BankPage() {
                   />
                 </label>
 
-                {isRegisteredMode ? (
-                  <>
-                    <label>
-                      <span>
-                        {transferForm.destinationMode === 'holding'
-                          ? 'Rekening Penampung'
-                          : 'Rekening Prioritas'}
-                      </span>
+                <label className="bank-transfer-destination-field">
+                  <span>
+                    {transferForm.destinationMode === 'priority'
+                      ? 'Rekening Prioritas'
+                      : 'Rekening Penampung'}
+                  </span>
+                  <select
+                    value={transferForm.recipientAccountId}
+                    disabled={
+                      isSavingTransaction ||
+                      Boolean(editingTransactionId) ||
+                      !transferForm.accountId ||
+                      !isRegisteredMode
+                    }
+                    onChange={(event) =>
+                      handleRegisteredRecipientChange(event.target.value)
+                    }
+                  >
+                    <option value="">
+                      {!transferForm.destinationMode
+                        ? 'Pilih Tujuan Transfer terlebih dahulu'
+                        : transferForm.destinationMode === 'priority'
+                          ? 'Pilih rekening prioritas'
+                          : 'Pilih rekening penampung'}
+                    </option>
 
-                      <select
-                        value={transferForm.recipientAccountId}
-                        disabled={
-                          isSavingTransaction ||
-                          Boolean(editingTransactionId) ||
-                          !transferForm.accountId
-                        }
-                        onChange={(event) =>
-                          handleRegisteredRecipientChange(event.target.value)
-                        }
-                      >
-                        <option value="">
-                          {transferForm.destinationMode === 'holding'
-                            ? 'Pilih rekening penampung'
-                            : 'Pilih rekening prioritas'}
-                        </option>
+                    {registeredRecipientAccounts.map((account) => (
+                      <option key={account.id} value={account.id}>
+                        {getAccountLabel(account)}
+                      </option>
+                    ))}
+                  </select>
+                </label>
 
-                        {registeredRecipientAccounts.map((account) => (
-                          <option key={account.id} value={account.id}>
-                            {getAccountLabel(account)}
-                          </option>
-                        ))}
-                      </select>
-                    </label>
+                <label className="bank-autocomplete">
+                  <span>Nama Penerima</span>
+                  <input
+                    type="text"
+                    value={transferForm.recipientName}
+                    readOnly={isRegisteredMode}
+                    disabled={
+                      isSavingTransaction ||
+                      (Boolean(editingTransactionId) && isRegisteredMode) ||
+                      !transferForm.accountId ||
+                      (!isRegisteredMode &&
+                        transferForm.destinationMode !== 'free')
+                    }
+                    placeholder={
+                      isRegisteredMode
+                        ? 'Nama penerima otomatis'
+                        : 'Ketik nama penerima...'
+                    }
+                    onChange={(event) => {
+                      if (isRegisteredMode) return
+                      handleFreeRecipientChange(event.target.value)
+                    }}
+                    onFocus={() => {
+                      if (transferForm.destinationMode === 'free') {
+                        setRecipientAutocompleteOpen(true)
+                      }
+                    }}
+                    onBlur={() =>
+                      window.setTimeout(
+                        () => setRecipientAutocompleteOpen(false),
+                        120
+                      )
+                    }
+                    className={isRegisteredMode ? 'bank-recipient-locked' : ''}
+                  />
 
-                    <label>
-                      <span>Nama Penerima</span>
-                      <input
-                        type="text"
-                        value={transferForm.recipientName}
-                        readOnly
-                        disabled
-                        placeholder="Nama penerima otomatis"
-                      />
-                    </label>
+                  {transferForm.destinationMode === 'free' &&
+                  recipientAutocompleteOpen &&
+                  recipientSuggestions.length ? (
+                    <div className="bank-autocomplete-menu">
+                      {recipientSuggestions.map((item) => (
+                        <button
+                          key={`${item.value}-${item.label}`}
+                          type="button"
+                          className="bank-autocomplete-item"
+                          onMouseDown={(event) => {
+                            event.preventDefault()
+                            selectRecipientSuggestion(item)
+                          }}
+                        >
+                          {item.label}
+                        </button>
+                      ))}
+                    </div>
+                  ) : null}
+                </label>
 
-                    <label className="bank-autocomplete">
-                      <span>Keperluan</span>
-                      <input
-                        type="text"
-                        value={transferForm.paymentFor}
-                        disabled={!hasDestination || isSavingTransaction}
-                        placeholder="Contoh: transfer dana supplier"
-                        onChange={(event) => {
-                          setTransferForm((current) => ({
-                            ...current,
-                            paymentFor: event.target.value
-                          }))
-                          setPaymentQuery(event.target.value)
-                          setPaymentAutocompleteOpen(true)
-                        }}
-                        onFocus={() => setPaymentAutocompleteOpen(true)}
-                        onBlur={() =>
-                          window.setTimeout(
-                            () => setPaymentAutocompleteOpen(false),
-                            120
-                          )
-                        }
-                      />
+                <label className="bank-autocomplete">
+                  <span>Keperluan</span>
+                  <input
+                    type="text"
+                    value={transferForm.paymentFor}
+                    disabled={!hasDestination || isSavingTransaction}
+                    placeholder="Contoh: transfer dana supplier"
+                    onChange={(event) => {
+                      setTransferForm((current) => ({
+                        ...current,
+                        paymentFor: event.target.value
+                      }))
+                      setPaymentQuery(event.target.value)
+                      setPaymentAutocompleteOpen(true)
+                    }}
+                    onFocus={() => setPaymentAutocompleteOpen(true)}
+                    onBlur={() =>
+                      window.setTimeout(
+                        () => setPaymentAutocompleteOpen(false),
+                        120
+                      )
+                    }
+                  />
 
-                      {paymentAutocompleteOpen && paymentSuggestions.length ? (
-                        <div className="bank-autocomplete-menu">
-                          {paymentSuggestions.map((item) => (
-                            <button
-                              key={item}
-                              type="button"
-                              className="bank-autocomplete-item"
-                              onMouseDown={(event) => {
-                                event.preventDefault()
-                                selectPaymentSuggestion(item)
-                              }}
-                            >
-                              {item}
-                            </button>
-                          ))}
-                        </div>
-                      ) : null}
-                    </label>
-
-                    <div />
-                  </>
-                ) : (
-                  <>
-                    <label className="bank-autocomplete">
-                      <span>Nama Penerima</span>
-                      <input
-                        type="text"
-                        value={transferForm.recipientName}
-                        disabled={
-                          isSavingTransaction || !transferForm.accountId
-                        }
-                        placeholder="Ketik nama penerima..."
-                        onChange={(event) =>
-                          handleFreeRecipientChange(event.target.value)
-                        }
-                        onFocus={() => setRecipientAutocompleteOpen(true)}
-                        onBlur={() =>
-                          window.setTimeout(
-                            () => setRecipientAutocompleteOpen(false),
-                            120
-                          )
-                        }
-                      />
-
-                      {recipientAutocompleteOpen &&
-                      recipientSuggestions.length ? (
-                        <div className="bank-autocomplete-menu">
-                          {recipientSuggestions.map((item) => (
-                            <button
-                              key={`${item.value}-${item.label}`}
-                              type="button"
-                              className="bank-autocomplete-item"
-                              onMouseDown={(event) => {
-                                event.preventDefault()
-                                selectRecipientSuggestion(item)
-                              }}
-                            >
-                              {item.label}
-                            </button>
-                          ))}
-                        </div>
-                      ) : null}
-                    </label>
-
-                    <label className="bank-autocomplete">
-                      <span>Keperluan</span>
-                      <input
-                        type="text"
-                        value={transferForm.paymentFor}
-                        disabled={!hasDestination || isSavingTransaction}
-                        placeholder="Contoh: transfer dana supplier"
-                        onChange={(event) => {
-                          setTransferForm((current) => ({
-                            ...current,
-                            paymentFor: event.target.value
-                          }))
-                          setPaymentQuery(event.target.value)
-                          setPaymentAutocompleteOpen(true)
-                        }}
-                        onFocus={() => setPaymentAutocompleteOpen(true)}
-                        onBlur={() =>
-                          window.setTimeout(
-                            () => setPaymentAutocompleteOpen(false),
-                            120
-                          )
-                        }
-                      />
-
-                      {paymentAutocompleteOpen && paymentSuggestions.length ? (
-                        <div className="bank-autocomplete-menu">
-                          {paymentSuggestions.map((item) => (
-                            <button
-                              key={item}
-                              type="button"
-                              className="bank-autocomplete-item"
-                              onMouseDown={(event) => {
-                                event.preventDefault()
-                                selectPaymentSuggestion(item)
-                              }}
-                            >
-                              {item}
-                            </button>
-                          ))}
-                        </div>
-                      ) : null}
-                    </label>
-                  </>
-                )}
+                  {paymentAutocompleteOpen && paymentSuggestions.length ? (
+                    <div className="bank-autocomplete-menu">
+                      {paymentSuggestions.map((item) => (
+                        <button
+                          key={item}
+                          type="button"
+                          className="bank-autocomplete-item"
+                          onMouseDown={(event) => {
+                            event.preventDefault()
+                            selectPaymentSuggestion(item)
+                          }}
+                        >
+                          {item}
+                        </button>
+                      ))}
+                    </div>
+                  ) : null}
+                </label>
 
                 <label>
                   <span>Nominal Transfer</span>
                   <input
-                    type="number"
-                    min="1"
-                    step="1"
+                    type="text"
                     inputMode="numeric"
                     value={transferForm.transferAmount}
                     disabled={!hasDestination || isSavingTransaction}
@@ -1193,18 +1210,16 @@ export function BankPage() {
                     onChange={(event) =>
                       setTransferForm((current) => ({
                         ...current,
-                        transferAmount: event.target.value
+                        transferAmount: formatIntegerInput(event.target.value)
                       }))
                     }
                   />
                 </label>
 
-                <label>
+                <label className="bank-admin-row-field">
                   <span>Biaya Admin</span>
                   <input
-                    type="number"
-                    min="0"
-                    step="1"
+                    type="text"
                     inputMode="numeric"
                     value={transferForm.adminFee}
                     disabled={!hasDestination || isSavingTransaction}
@@ -1212,47 +1227,46 @@ export function BankPage() {
                     onChange={(event) =>
                       setTransferForm((current) => ({
                         ...current,
-                        adminFee: event.target.value
+                        adminFee: formatIntegerInput(event.target.value)
                       }))
                     }
                   />
                 </label>
-              </div>
 
+                <div className="bank-form-actions">
+                  <button
+                    type="button"
+                    className="bank-secondary-button"
+                    disabled={isSavingTransaction}
+                    onClick={closeCreateModal}
+                  >
+                    Batal
+                  </button>
+
+                  <button
+                    type="button"
+                    className="bank-primary-button"
+                    disabled={
+                      isSavingTransaction ||
+                      !transferForm.accountId ||
+                      !hasDestination ||
+                      !transferForm.transferAmount
+                    }
+                    onClick={() => void handleSaveTransaction()}
+                  >
+                    {isSavingTransaction
+                      ? 'Menyimpan...'
+                      : editingTransactionId
+                        ? 'Simpan Perubahan'
+                        : 'Simpan Transaksi'}
+                  </button>
+                </div>
+              </div>
               {createError ? (
                 <div className="bank-form-error" role="alert">
                   {createError}
                 </div>
               ) : null}
-
-              <div className="bank-form-actions">
-                <button
-                  type="button"
-                  className="bank-secondary-button"
-                  disabled={isSavingTransaction}
-                  onClick={closeCreateModal}
-                >
-                  Batal
-                </button>
-
-                <button
-                  type="button"
-                  className="bank-primary-button"
-                  disabled={
-                    isSavingTransaction ||
-                    !transferForm.accountId ||
-                    !hasDestination ||
-                    !transferForm.transferAmount
-                  }
-                  onClick={() => void handleSaveTransaction()}
-                >
-                  {isSavingTransaction
-                    ? 'Menyimpan...'
-                    : editingTransactionId
-                      ? 'Simpan Perubahan'
-                      : 'Simpan Transaksi'}
-                </button>
-              </div>
             </div>
           </section>
         </div>
@@ -1302,32 +1316,44 @@ export function BankPage() {
                 <strong>{formatRupiah(historySummary.balance)}</strong>
               </div>
 
-              <div className="bank-history-stat">
-                <span>Saldo Awal</span>
-                <strong>
-                  {formatRupiah(Number(historySummary.account.opening_balance))}
-                </strong>
-              </div>
+              <div className="bank-history-stats">
+                {Number(historySummary.account.opening_balance) !== 0 ? (
+                  <div className="bank-history-stat">
+                    <span>Saldo Awal</span>
+                    <strong>
+                      {formatRupiah(
+                        Number(historySummary.account.opening_balance)
+                      )}
+                    </strong>
+                  </div>
+                ) : null}
 
-              <div className="bank-history-stat">
-                <span>Pencairan Masuk</span>
-                <strong className="bank-income">
-                  {formatRupiah(historySummary.disbursementIncome)}
-                </strong>
-              </div>
+                {historySummary.disbursementIncome !== 0 ? (
+                  <div className="bank-history-stat">
+                    <span>Pencairan Masuk</span>
+                    <strong className="bank-income">
+                      {formatRupiah(historySummary.disbursementIncome)}
+                    </strong>
+                  </div>
+                ) : null}
 
-              <div className="bank-history-stat">
-                <span>Transfer Masuk</span>
-                <strong className="bank-income">
-                  {formatRupiah(historySummary.transferIncome)}
-                </strong>
-              </div>
+                {historySummary.transferIncome !== 0 ? (
+                  <div className="bank-history-stat">
+                    <span>Transfer Masuk</span>
+                    <strong className="bank-income">
+                      {formatRupiah(historySummary.transferIncome)}
+                    </strong>
+                  </div>
+                ) : null}
 
-              <div className="bank-history-stat">
-                <span>Transfer Keluar</span>
-                <strong className="bank-expense">
-                  {formatRupiah(historySummary.transferExpense)}
-                </strong>
+                {historySummary.transferExpense !== 0 ? (
+                  <div className="bank-history-stat">
+                    <span>Transfer Keluar</span>
+                    <strong className="bank-expense">
+                      {formatRupiah(historySummary.transferExpense)}
+                    </strong>
+                  </div>
+                ) : null}
               </div>
             </div>
 
