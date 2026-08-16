@@ -341,7 +341,6 @@ textarea:focus-visible {
 .vehicle-table tbody tr:hover td:first-child,
 .supplier-table tbody tr:hover td:first-child {
   color: var(--app-primary);
-  font-weight: 800;
 }
 
 .kitchen-action-cell > button,

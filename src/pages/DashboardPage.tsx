@@ -89,6 +89,10 @@ function formatHistoryTimestamp(value: string) {
   }).format(new Date(value))
 }
 
+function formatHistoryInputTimestamp(value: string) {
+  return `Input: ${formatHistoryTimestamp(value)}`
+}
+
 function getFormAccountLabel(
   option: TransactionOption,
   flowType: DashboardFlow | ''
@@ -159,8 +163,7 @@ type HistoryAccountRow = {
 
 type HistorySupplierRow = {
   id: string
-  business_name: string | null
-  owner_name: string | null
+  name: string | null
 }
 
 export function DashboardPage() {
@@ -501,10 +504,7 @@ export function DashboardPage() {
             .in('id', accountIds)
         : Promise.resolve({ data: [], error: null }),
       supplierIds.length
-        ? supabase
-            .from('suppliers')
-            .select('id,business_name,owner_name')
-            .in('id', supplierIds)
+        ? supabase.from('suppliers').select('id,name').in('id', supplierIds)
         : Promise.resolve({ data: [], error: null })
     ])
 
@@ -547,14 +547,16 @@ export function DashboardPage() {
 
       const businessName =
         transaction.flow_type === 'expense'
-          ? supplier?.business_name?.trim() || supplier?.id || 'Transaksi'
+          ? supplier?.name?.trim() || 'Supplier tidak diketahui'
           : accountSupplier?.business_name?.trim() ||
             account?.name?.trim() ||
             'Transaksi'
 
+      // `transactions` does not store an owner for expense rows.
+      // Keep this empty instead of guessing from unrelated master data.
       const ownerName =
         transaction.flow_type === 'expense'
-          ? supplier?.owner_name?.trim() || ''
+          ? ''
           : accountSupplier?.owner_name?.trim() || ''
 
       const bankAccount = account
@@ -1375,7 +1377,7 @@ export function DashboardPage() {
                       className="dashboard-history-timestamp"
                       dateTime={transaction.created_at}
                     >
-                      {formatHistoryTimestamp(transaction.created_at)}
+                      {formatHistoryInputTimestamp(transaction.created_at)}
                     </time>
 
                     <div className="dashboard-history-divider" />
@@ -1425,60 +1427,68 @@ export function DashboardPage() {
             className="dashboard-pagination"
             aria-label="Pagination riwayat transaksi"
           >
-            <button
-              type="button"
-              className="dashboard-pagination-button"
-              disabled={transactionPage === 1 || loading}
-              onClick={() =>
-                setTransactionPage((current) => Math.max(1, current - 1))
-              }
-            >
-              Sebelumnya
-            </button>
-
-            <div className="dashboard-pagination-pages">
-              {transactionPaginationPages.map((page, index) =>
-                page === 'ellipsis' ? (
-                  <span
-                    className="dashboard-pagination-ellipsis"
-                    key={`ellipsis-${index}`}
-                    aria-hidden="true"
-                  >
-                    …
-                  </span>
-                ) : (
-                  <button
-                    key={page}
-                    type="button"
-                    className={`dashboard-pagination-page ${
-                      page === transactionPage ? 'is-active' : ''
-                    }`}
-                    aria-current={page === transactionPage ? 'page' : undefined}
-                    disabled={loading}
-                    onClick={() => setTransactionPage(page)}
-                  >
-                    {page}
-                  </button>
-                )
-              )}
-            </div>
-
             <span className="dashboard-pagination-summary">
-              {totalTransactions} transaksi
+              Menampilkan {(transactionPage - 1) * 10 + 1}–
+              {Math.min(transactionPage * 10, totalTransactions)} dari{' '}
+              {totalTransactions}
             </span>
 
-            <button
-              type="button"
-              className="dashboard-pagination-button"
-              disabled={transactionPage >= totalTransactionPages || loading}
-              onClick={() =>
-                setTransactionPage((current) =>
-                  Math.min(totalTransactionPages, current + 1)
-                )
-              }
-            >
-              Berikutnya
-            </button>
+            <div className="dashboard-pagination-controls">
+              <button
+                type="button"
+                className="dashboard-pagination-button dashboard-pagination-nav"
+                disabled={transactionPage === 1 || loading}
+                onClick={() =>
+                  setTransactionPage((current) => Math.max(1, current - 1))
+                }
+                aria-label="Halaman sebelumnya"
+              >
+                ‹
+              </button>
+
+              <div className="dashboard-pagination-pages">
+                {transactionPaginationPages.map((page, index) =>
+                  page === 'ellipsis' ? (
+                    <span
+                      className="dashboard-pagination-ellipsis"
+                      key={`ellipsis-${index}`}
+                      aria-hidden="true"
+                    >
+                      …
+                    </span>
+                  ) : (
+                    <button
+                      key={page}
+                      type="button"
+                      className={`dashboard-pagination-page ${
+                        page === transactionPage ? 'is-active' : ''
+                      }`}
+                      aria-current={
+                        page === transactionPage ? 'page' : undefined
+                      }
+                      disabled={loading}
+                      onClick={() => setTransactionPage(page)}
+                    >
+                      {page}
+                    </button>
+                  )
+                )}
+              </div>
+
+              <button
+                type="button"
+                className="dashboard-pagination-button dashboard-pagination-nav"
+                disabled={transactionPage >= totalTransactionPages || loading}
+                onClick={() =>
+                  setTransactionPage((current) =>
+                    Math.min(totalTransactionPages, current + 1)
+                  )
+                }
+                aria-label="Halaman berikutnya"
+              >
+                ›
+              </button>
+            </div>
           </nav>
         ) : null}
       </section>
