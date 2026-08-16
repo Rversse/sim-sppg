@@ -75,6 +75,19 @@ function flowClass(flow: DashboardFlow) {
   return 'dashboard-flow dashboard-flow-neutral'
 }
 
+function getFormAccountLabel(
+  option: TransactionOption,
+  flowType: DashboardFlow | ''
+) {
+  if (flowType !== 'income') {
+    return option.label
+  }
+
+  // RAB only needs business/owner identity in the picker. The account
+  // number and bank are intentionally omitted from the UI label.
+  return option.label.replace(/\s*\([^)]*\)\s*$/, '')
+}
+
 function getDashboardPaginationPages(
   currentPage: number,
   totalPages: number
@@ -570,7 +583,9 @@ export function DashboardPage() {
     setFormSuppliers([])
     setFormError(null)
 
-    if (!formKitchenId || !value) return
+    if (!formKitchenId || !value) {
+      return
+    }
 
     try {
       await loadFormOptions(formKitchenId, value)
@@ -1365,37 +1380,52 @@ export function DashboardPage() {
                 </select>
               </label>
 
-              {formFlowType === 'expense' ? (
-                <label>
-                  <span>Supplier</span>
+              <label>
+                <span>
+                  {!formFlowType
+                    ? 'Supplier / Rekening'
+                    : formFlowType === 'expense'
+                      ? 'Supplier'
+                      : formFlowType === 'neutral'
+                        ? 'Rekening Operasional'
+                        : 'Rekening'}
+                </span>
+
+                {formFlowType === 'expense' ? (
                   <select
                     value={formSupplierId}
-                    disabled={modalMode === 'edit' || !isSukarajaFormKitchen}
+                    disabled={
+                      !formKitchenId ||
+                      !formFlowType ||
+                      modalMode === 'edit' ||
+                      !isSukarajaFormKitchen
+                    }
                     onChange={(event) => {
                       const value = event.target.value
                       setFormSupplierId(value)
                       setFormEntryUnlocked(Boolean(value))
                     }}
                   >
-                    <option value="">Pilih supplier</option>
+                    <option value="">
+                      {!formKitchenId
+                        ? 'Pilih dapur terlebih dahulu'
+                        : 'Pilih supplier'}
+                    </option>
+
                     {formSuppliers.map((supplier) => (
                       <option key={supplier.value} value={supplier.value}>
                         {supplier.label}
                       </option>
                     ))}
                   </select>
-                </label>
-              ) : formFlowType ? (
-                <label>
-                  <span>
-                    {formFlowType === 'neutral'
-                      ? 'Rekening Operasional'
-                      : 'Rekening'}
-                  </span>
+                ) : (
                   <select
                     value={formAccountId}
                     disabled={
-                      formFlowType === 'neutral' || modalMode === 'edit'
+                      !formKitchenId ||
+                      !formFlowType ||
+                      modalMode === 'edit' ||
+                      formFlowType === 'neutral'
                     }
                     onChange={(event) => {
                       const value = event.target.value
@@ -1403,15 +1433,24 @@ export function DashboardPage() {
                       setFormEntryUnlocked(Boolean(value))
                     }}
                   >
-                    <option value="">Pilih rekening</option>
+                    <option value="">
+                      {!formKitchenId
+                        ? 'Pilih dapur terlebih dahulu'
+                        : !formFlowType
+                          ? 'Pilih jenis transaksi terlebih dahulu'
+                          : formFlowType === 'neutral'
+                            ? 'Rekening operasional dipilih otomatis'
+                            : 'Pilih rekening'}
+                    </option>
+
                     {formAccounts.map((account) => (
                       <option key={account.value} value={account.value}>
-                        {account.label}
+                        {getFormAccountLabel(account, formFlowType)}
                       </option>
                     ))}
                   </select>
-                </label>
-              ) : null}
+                )}
+              </label>
 
               <label>
                 <span>Nominal</span>

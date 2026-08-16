@@ -109,7 +109,7 @@
   min-width: 160px !important;
   min-height: 38px !important;
   align-items: center !important;
-  gap: 5px !important;
+  gap: 4px !important;
   padding: 0 11px !important;
 }
 
@@ -121,7 +121,7 @@
 
 .dashboard-date-chip span {
   color: #64748b !important;
-  font-size: 9px !important;
+  font-size: 8.5px !important;
   font-weight: 800 !important;
   letter-spacing: 0 !important;
   text-transform: none !important;
@@ -225,15 +225,15 @@
    ========================================================= */
 
 .dashboard-transaction-modal {
-  width: min(680px, calc(100vw - 32px)) !important;
-  max-width: 680px !important;
+  width: min(620px, calc(100vw - 24px)) !important;
+  max-width: 620px !important;
   border-radius: 16px !important;
 }
 
 .dashboard-transaction-modal-header {
   align-items: center !important;
   gap: 12px !important;
-  padding: 14px 16px !important;
+  padding: 12px 14px !important;
 }
 
 .dashboard-transaction-modal-header > div {
@@ -247,7 +247,7 @@
 .dashboard-transaction-modal-header h2 {
   margin: 0 !important;
   color: var(--app-primary) !important;
-  font-size: 17px !important;
+  font-size: 16px !important;
   font-weight: 800 !important;
   letter-spacing: -0.03em !important;
   line-height: 1.15 !important;
@@ -260,53 +260,74 @@
 }
 
 .dashboard-transaction-form-error {
-  margin: 10px 16px 0 !important;
-  padding: 8px 10px !important;
-  font-size: 9px !important;
+  margin: 9px 14px 0 !important;
+  padding: 7px 9px !important;
+  font-size: 8.5px !important;
 }
 
 .dashboard-transaction-form-grid {
-  gap: 10px !important;
-  padding: 14px 16px 16px !important;
+  gap: 8px !important;
+  padding: 12px 14px 14px !important;
+}
+
+/* Compact 3-row transaction layout:
+   row 1 = tanggal + dapur
+   row 2 = jenis + supplier/rekening
+   row 3 = nominal + catatan
+*/
+.dashboard-transaction-form-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
 }
 
 .dashboard-transaction-form-grid label {
-  gap: 5px !important;
+  gap: 4px !important;
 }
 
 .dashboard-transaction-form-grid label > span {
-  font-size: 9px !important;
+  font-size: 8.5px !important;
 }
 
 .dashboard-transaction-form-grid input,
 .dashboard-transaction-form-grid select {
-  height: 36px !important;
-  padding: 0 9px !important;
+  height: 34px !important;
+  padding: 0 8px !important;
   font-size: 10px !important;
 }
 
 .dashboard-transaction-form-grid textarea {
-  min-height: 68px !important;
-  padding: 8px 9px !important;
+  height: 36px !important;
+  min-height: 36px !important;
+  max-height: 36px !important;
+  padding: 0 9px !important;
   font-size: 10px !important;
-  line-height: 1.4 !important;
+  line-height: 1.2 !important;
+  resize: none !important;
+  overflow: hidden !important;
+  box-sizing: border-box !important;
 }
 
 .dashboard-transaction-modal-actions {
-  gap: 7px !important;
-  padding: 11px 16px !important;
+  gap: 6px !important;
+  padding: 9px 14px !important;
 }
 
 .dashboard-transaction-modal-actions > button:first-child {
   min-height: 34px !important;
   padding: 0 12px !important;
-  font-size: 9px !important;
+  font-size: 8.5px !important;
 }
 
 .dashboard-transaction-modal-actions > .dashboard-transaction-action {
   min-height: 34px !important;
   padding: 0 13px !important;
-  font-size: 9px !important;
+  font-size: 8.5px !important;
+}
+
+/* Transaction row 3 stays two-column on desktop even though dashboard.css
+   contains the legacy full-width selector. */
+.dashboard-transaction-form-note {
+  grid-column: auto !important;
+  min-width: 0 !important;
 }
 
 /* Other modal headers already use one title; keep their geometry compact. */

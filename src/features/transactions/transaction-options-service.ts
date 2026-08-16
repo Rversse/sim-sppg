@@ -145,12 +145,25 @@ export async function getTransactionAccounts(
   )
 }
 
-export function getAccountLabel(account: TransactionAccount): string {
+function getIncomeAccountLabel(account: TransactionAccount): string {
   const supplier = Array.isArray(account.income_suppliers)
     ? account.income_suppliers[0]
     : account.income_suppliers
 
-  const owner = supplier?.owner_name ? ` / ${supplier.owner_name}` : ''
+  const businessName = supplier?.business_name?.trim() || account.name
+  const ownerName = supplier?.owner_name?.trim()
+
+  return ownerName ? `${businessName} / ${ownerName}` : businessName
+}
+
+function getOperationalAccountLabel(account: TransactionAccount): string {
+  const owner = (() => {
+    const supplier = Array.isArray(account.income_suppliers)
+      ? account.income_suppliers[0]
+      : account.income_suppliers
+
+    return supplier?.owner_name ? ` / ${supplier.owner_name}` : ''
+  })()
 
   return `${account.name}${owner} (${account.bank} - ${account.account_number})`
 }
@@ -204,7 +217,10 @@ export async function getAccountsForFlow(
 
   return accounts.map((account) => ({
     value: account.id,
-    label: getAccountLabel(account)
+    label:
+      flowType === 'income'
+        ? getIncomeAccountLabel(account)
+        : getOperationalAccountLabel(account)
   }))
 }
 
