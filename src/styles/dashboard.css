@@ -4,6 +4,9 @@
 */
 
 .dashboard-page {
+  width: min(1180px, 100%);
+  max-width: 1180px;
+  margin-inline: auto;
   display: grid;
   gap: 18px;
 }
