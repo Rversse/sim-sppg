@@ -6,6 +6,7 @@ import { AuthContext } from './auth-context'
 import type { CurrentUser, UserRole } from './auth-types'
 
 const AUTH_REQUEST_TIMEOUT_MS = 10_000
+const SESSION_MAX_AGE_MS = 8 * 60 * 60 * 1000
 
 async function withTimeout<T>(
   promise: PromiseLike<T>,
@@ -13,21 +14,24 @@ async function withTimeout<T>(
   message: string
 ): Promise<T> {
   let timeoutId: ReturnType<typeof setTimeout> | undefined
-
   try {
     return await Promise.race([
       Promise.resolve(promise),
       new Promise<T>((_, reject) => {
-        timeoutId = setTimeout(() => {
-          reject(new Error(message))
-        }, timeoutMs)
+        timeoutId = setTimeout(() => reject(new Error(message)), timeoutMs)
       })
     ])
   } finally {
-    if (timeoutId !== undefined) {
-      clearTimeout(timeoutId)
-    }
+    if (timeoutId !== undefined) clearTimeout(timeoutId)
   }
+}
+
+function getSessionStartedAt(session: Session): number {
+  if (session.user.last_sign_in_at) {
+    const parsed = Date.parse(session.user.last_sign_in_at)
+    if (Number.isFinite(parsed)) return parsed
+  }
+  return Date.now()
 }
 
 async function loadCurrentUser(session: Session): Promise<CurrentUser | null> {
@@ -49,17 +53,13 @@ async function loadCurrentUser(session: Session): Promise<CurrentUser | null> {
     }
 
     const role = profile.role
-
     if (role !== 'admin' && role !== 'operator' && role !== 'viewer') {
       console.error('Invalid user role returned by profiles:', role)
       void supabase.auth.signOut()
       return null
     }
 
-    return {
-      ...session.user,
-      role: role as UserRole
-    }
+    return { ...session.user, role: role as UserRole }
   } catch (error) {
     console.error('Failed to load current user profile:', error)
     void supabase.auth.signOut()
@@ -71,9 +71,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null)
   const [user, setUser] = useState<CurrentUser | null>(null)
   const [isLoading, setIsLoading] = useState(true)
-
   const authInitializedRef = useRef(false)
   const authRequestIdRef = useRef(0)
+  const sessionStartedAtRef = useRef<number | null>(null)
+  const sessionUserIdRef = useRef<string | null>(null)
 
   useEffect(() => {
     let isMounted = true
@@ -82,23 +83,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const requestId = ++authRequestIdRef.current
 
       if (!nextSession) {
-        if (!isMounted || requestId !== authRequestIdRef.current) {
-          return
-        }
-
+        if (!isMounted || requestId !== authRequestIdRef.current) return
+        sessionStartedAtRef.current = null
+        sessionUserIdRef.current = null
         setSession(null)
         setUser(null)
         setIsLoading(false)
         return
       }
 
-      setIsLoading(true)
+      if (sessionUserIdRef.current !== nextSession.user.id) {
+        sessionUserIdRef.current = nextSession.user.id
+        sessionStartedAtRef.current = getSessionStartedAt(nextSession)
+      }
 
+      setIsLoading(true)
       const currentUser = await loadCurrentUser(nextSession)
 
-      if (!isMounted || requestId !== authRequestIdRef.current) {
-        return
-      }
+      if (!isMounted || requestId !== authRequestIdRef.current) return
 
       setSession(nextSession)
       setUser(currentUser)
@@ -116,10 +118,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           'Supabase session initialization timed out.'
         )
 
-        if (!isMounted) {
-          return
-        }
-
+        if (!isMounted) return
         authInitializedRef.current = true
 
         if (error) {
@@ -132,13 +131,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
         await applySession(initialSession)
       } catch (error) {
-        if (!isMounted) {
-          return
-        }
-
+        if (!isMounted) return
         console.error('Failed to initialize authentication:', error)
-
         authInitializedRef.current = true
+        sessionStartedAtRef.current = null
+        sessionUserIdRef.current = null
         setSession(null)
         setUser(null)
         setIsLoading(false)
@@ -150,17 +147,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const {
       data: { subscription }
     } = supabase.auth.onAuthStateChange((event, nextSession) => {
-      if (!isMounted) {
-        return
-      }
-
-      if (!authInitializedRef.current) {
-        return
-      }
+      if (!isMounted || !authInitializedRef.current) return
 
       if (event === 'SIGNED_OUT' || !nextSession) {
         ++authRequestIdRef.current
-
+        sessionStartedAtRef.current = null
+        sessionUserIdRef.current = null
         setSession(null)
         setUser(null)
         setIsLoading(false)
@@ -176,14 +168,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, [])
 
+  useEffect(() => {
+    if (!session || sessionStartedAtRef.current === null) return
+
+    const remainingMs =
+      SESSION_MAX_AGE_MS - Math.max(0, Date.now() - sessionStartedAtRef.current)
+
+    if (remainingMs <= 0) {
+      void supabase.auth.signOut()
+      return
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      void supabase.auth.signOut()
+    }, remainingMs)
+
+    return () => window.clearTimeout(timeoutId)
+  }, [session])
+
   return (
-    <AuthContext.Provider
-      value={{
-        session,
-        user,
-        isLoading
-      }}
-    >
+    <AuthContext.Provider value={{ session, user, isLoading }}>
       {children}
     </AuthContext.Provider>
   )
