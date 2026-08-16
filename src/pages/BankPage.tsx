@@ -94,14 +94,6 @@ function parseIntegerInput(value: string) {
   return digits ? Number(digits) : 0
 }
 
-function formatDate(value: string) {
-  return new Intl.DateTimeFormat('id-ID', {
-    day: '2-digit',
-    month: 'short',
-    year: 'numeric'
-  }).format(new Date(`${value}T00:00:00`))
-}
-
 function formatDateTime(value: string) {
   return new Intl.DateTimeFormat('id-ID', {
     day: '2-digit',
@@ -1400,8 +1392,6 @@ export function BankPage() {
                         </div>
 
                         <div className="bank-history-meta">
-                          {formatDate(transaction.transaction_date)}
-                          {' • '}
                           {formatDateTime(transaction.created_at)}
                         </div>
 
