@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Pencil, Trash2, X } from 'lucide-react'
+import { History, Pencil, Trash2, X } from 'lucide-react'
 
 import {
   createBankTransaction,
@@ -243,8 +243,11 @@ function AccountCard({
           type="button"
           className="bank-history-button"
           onClick={onOpenHistory}
+          aria-label={`Lihat riwayat ${account.name}`}
+          title={`Lihat riwayat ${account.name}`}
         >
-          Riwayat
+          <History aria-hidden="true" />
+          <span>Riwayat</span>
         </button>
       </div>
 
