@@ -1,7 +1,6 @@
 /* =========================================================
    FOUNDATION + APP SHELL
    Single owner for app-shell geometry and header structure.
-   No page-specific control sizing or polish belongs here.
    ========================================================= */
 
 @theme {
@@ -99,6 +98,7 @@ textarea {
 }
 
 .app-shell {
+  --sidebar-width: 252px;
   min-height: 100vh;
   display: flex;
   background: var(--app-background);
@@ -107,13 +107,18 @@ textarea {
 .app-sidebar {
   position: sticky;
   top: 0;
+  z-index: 30;
   display: flex;
-  width: 252px;
+  width: var(--sidebar-width);
   height: 100vh;
-  flex: 0 0 252px;
+  flex: 0 0 var(--sidebar-width);
   flex-direction: column;
+  overflow: hidden;
   background: var(--app-primary);
   color: #fff;
+  transition:
+    width var(--app-motion) var(--app-ease),
+    flex-basis var(--app-motion) var(--app-ease);
 }
 
 .app-brand {
@@ -123,6 +128,7 @@ textarea {
   min-height: 76px;
   padding: 18px 20px;
   border-bottom: 1px solid rgb(255 255 255 / 0.08);
+  overflow: hidden;
 }
 
 .app-brand-mark {
@@ -131,13 +137,21 @@ textarea {
   height: 38px;
   flex: 0 0 38px;
   place-items: center;
+  overflow: hidden;
   border: 1px solid rgb(57 255 136 / 0.22);
   border-radius: 12px;
   background: rgb(57 255 136 / 0.1);
-  color: var(--app-accent);
-  font-size: 14px;
-  font-weight: 900;
-  line-height: 1;
+}
+
+.app-brand-mark img {
+  display: block;
+  width: 30px;
+  height: 30px;
+  object-fit: contain;
+}
+
+.app-brand-copy {
+  min-width: 0;
 }
 
 .app-brand strong,
@@ -299,16 +313,48 @@ textarea {
 .app-header {
   position: sticky;
   top: 0;
-  z-index: 10;
+  z-index: 20;
   display: flex;
   height: 68px;
   align-items: center;
   justify-content: space-between;
+  gap: 16px;
   padding: 0 28px;
   border-bottom: 1px solid var(--app-border);
   background: rgb(248 250 252 / 0.9);
   box-shadow: 0 1px 0 rgb(255 255 255 / 0.7);
   backdrop-filter: blur(14px);
+}
+
+.app-header-left {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 10px;
+}
+
+.app-sidebar-toggle {
+  display: grid;
+  width: 34px;
+  height: 34px;
+  flex: 0 0 34px;
+  place-items: center;
+  padding: 0;
+  border: 1px solid var(--app-border-strong);
+  border-radius: 9px;
+  background: var(--app-white);
+  color: var(--app-primary);
+  cursor: pointer;
+}
+
+.app-sidebar-toggle:hover {
+  border-color: var(--app-border-mid);
+  background: var(--app-bg-soft);
+}
+
+.app-sidebar-toggle svg {
+  width: 17px;
+  height: 17px;
 }
 
 .app-page-heading {
@@ -398,4 +444,54 @@ textarea {
 
 .app-mobile-nav {
   display: none;
+}
+
+/* Desktop collapsed state. */
+.app-shell.sidebar-collapsed {
+  --sidebar-width: 78px;
+}
+
+.app-shell.sidebar-collapsed .app-brand {
+  justify-content: center;
+  padding-inline: 10px;
+}
+
+.app-shell.sidebar-collapsed .app-brand-copy,
+.app-shell.sidebar-collapsed .app-nav-label,
+.app-shell.sidebar-collapsed .app-nav-section-label,
+.app-shell.sidebar-collapsed .app-sidebar-footer span:last-child {
+  display: none;
+}
+
+.app-shell.sidebar-collapsed .app-nav-link {
+  justify-content: center;
+  padding-inline: 0;
+}
+
+.app-shell.sidebar-collapsed .app-nav-link::before {
+  display: none;
+}
+
+.app-shell.sidebar-collapsed .app-sidebar-footer {
+  justify-content: center;
+  padding-inline: 10px;
+}
+
+@media (max-width: 760px) {
+  .app-sidebar-toggle {
+    display: none;
+  }
+
+  .app-sidebar {
+    display: none;
+  }
+
+  .app-header {
+    height: 60px;
+    padding-inline: 14px;
+  }
+
+  .app-page-title {
+    font-size: 15px;
+  }
 }

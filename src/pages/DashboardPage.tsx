@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 
+import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/features/auth/use-auth'
 import {
   getActiveKitchens,
@@ -76,6 +77,18 @@ function flowClass(flow: DashboardFlow) {
   return 'dashboard-flow dashboard-flow-neutral'
 }
 
+function formatHistoryTimestamp(value: string) {
+  return new Intl.DateTimeFormat('id-ID', {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false
+  }).format(new Date(value))
+}
+
 function getFormAccountLabel(
   option: TransactionOption,
   flowType: DashboardFlow | ''
@@ -120,6 +133,35 @@ function getDashboardPaginationPages(
 }
 
 type StatusData = Awaited<ReturnType<typeof getDailyStatus>>
+
+type DashboardHistoryMeta = {
+  businessName: string
+  ownerName: string
+  bankAccount: string
+}
+
+type HistoryAccountRow = {
+  id: string
+  name: string
+  bank: string
+  account_number: string
+  income_suppliers:
+    | {
+        business_name: string | null
+        owner_name: string | null
+      }
+    | {
+        business_name: string | null
+        owner_name: string | null
+      }[]
+    | null
+}
+
+type HistorySupplierRow = {
+  id: string
+  business_name: string | null
+  owner_name: string | null
+}
 
 export function DashboardPage() {
   const { user } = useAuth()
@@ -173,6 +215,9 @@ export function DashboardPage() {
   const [formAccounts, setFormAccounts] = useState<TransactionOption[]>([])
   const [formSuppliers, setFormSuppliers] = useState<TransactionOption[]>([])
   const [formEntryUnlocked, setFormEntryUnlocked] = useState(false)
+  const [historyMeta, setHistoryMeta] = useState<
+    Record<string, DashboardHistoryMeta>
+  >({})
 
   const loadDashboardData = useCallback(async () => {
     const [
@@ -415,6 +460,137 @@ export function DashboardPage() {
       }
     }
   }
+
+  const loadHistoryMeta = useCallback(async () => {
+    if (!transactions.length) {
+      return {} as Record<string, DashboardHistoryMeta>
+    }
+
+    const accountIds = [
+      ...new Set(
+        transactions
+          .map((transaction) => transaction.account_id)
+          .filter((value): value is string => Boolean(value))
+      )
+    ]
+
+    const supplierIds = [
+      ...new Set(
+        transactions
+          .map((transaction) => transaction.supplier_id)
+          .filter((value): value is string => Boolean(value))
+      )
+    ]
+
+    const [accountsResult, suppliersResult] = await Promise.all([
+      accountIds.length
+        ? supabase
+            .from('accounts')
+            .select(
+              `
+              id,
+              name,
+              bank,
+              account_number,
+              income_suppliers(
+                business_name,
+                owner_name
+              )
+              `
+            )
+            .in('id', accountIds)
+        : Promise.resolve({ data: [], error: null }),
+      supplierIds.length
+        ? supabase
+            .from('suppliers')
+            .select('id,business_name,owner_name')
+            .in('id', supplierIds)
+        : Promise.resolve({ data: [], error: null })
+    ])
+
+    if (accountsResult.error) {
+      throw accountsResult.error
+    }
+
+    if (suppliersResult.error) {
+      throw suppliersResult.error
+    }
+
+    const accountMap = new Map(
+      ((accountsResult.data ?? []) as unknown as HistoryAccountRow[]).map(
+        (account) => [account.id, account]
+      )
+    )
+
+    const supplierMap = new Map(
+      ((suppliersResult.data ?? []) as unknown as HistorySupplierRow[]).map(
+        (supplier) => [supplier.id, supplier]
+      )
+    )
+
+    const next: Record<string, DashboardHistoryMeta> = {}
+
+    for (const transaction of transactions) {
+      const account = transaction.account_id
+        ? accountMap.get(transaction.account_id)
+        : undefined
+
+      const supplier = transaction.supplier_id
+        ? supplierMap.get(transaction.supplier_id)
+        : undefined
+
+      const accountSupplier = account
+        ? Array.isArray(account.income_suppliers)
+          ? account.income_suppliers[0]
+          : account.income_suppliers
+        : null
+
+      const businessName =
+        transaction.flow_type === 'expense'
+          ? supplier?.business_name?.trim() || supplier?.id || 'Transaksi'
+          : accountSupplier?.business_name?.trim() ||
+            account?.name?.trim() ||
+            'Transaksi'
+
+      const ownerName =
+        transaction.flow_type === 'expense'
+          ? supplier?.owner_name?.trim() || ''
+          : accountSupplier?.owner_name?.trim() || ''
+
+      const bankAccount = account
+        ? `${account.bank} - ${account.account_number}`
+        : ''
+
+      next[transaction.id] = {
+        businessName,
+        ownerName,
+        bankAccount
+      }
+    }
+
+    return next
+  }, [transactions])
+
+  useEffect(() => {
+    let cancelled = false
+
+    void loadHistoryMeta()
+      .then((next) => {
+        if (!cancelled) {
+          setHistoryMeta(next)
+        }
+      })
+      .catch((loadError) => {
+        if (!cancelled) {
+          console.error('Gagal memuat metadata riwayat transaksi:', loadError)
+          setHistoryMeta({})
+        }
+      })
+
+    return () => {
+      cancelled = true
+    }
+  }, [loadHistoryMeta])
 
   function resetTransactionForm() {
     setFormDate(today)
@@ -1159,24 +1335,55 @@ export function DashboardPage() {
               const kitchen = kitchens.find(
                 (item) => item.id === transaction.kitchen_id
               )
+              const meta = historyMeta[transaction.id]
 
               return (
                 <div className="dashboard-history-row" key={transaction.id}>
-                  <div className="dashboard-history-date">
-                    <strong>{formatDate(transaction.transaction_date)}</strong>
-                    <span>{kitchen?.name ?? 'Dapur tidak diketahui'}</span>
-                  </div>
+                  <div className="dashboard-history-main">
+                    <div className="dashboard-history-heading">
+                      <strong>
+                        {kitchen?.name ?? 'Dapur tidak diketahui'}
+                      </strong>
+                      <span className={flowClass(transaction.flow_type)}>
+                        {flowLabel(transaction.flow_type)}
+                      </span>
+                    </div>
 
-                  <div className="dashboard-history-detail">
-                    <span className={flowClass(transaction.flow_type)}>
-                      {flowLabel(transaction.flow_type)}
-                    </span>
-                    <strong>{transaction.category || 'Transaksi'}</strong>
-                    {transaction.note ? (
-                      <small>{transaction.note}</small>
-                    ) : null}
-                  </div>
+                    <div className="dashboard-history-party">
+                      <strong>
+                        {meta?.businessName ??
+                          transaction.category ??
+                          'Transaksi'}
+                      </strong>
 
+                      {meta?.ownerName ? (
+                        <>
+                          <i aria-hidden="true">•</i>
+                          <span>{meta.ownerName}</span>
+                        </>
+                      ) : null}
+
+                      {meta?.bankAccount ? (
+                        <>
+                          <i aria-hidden="true">•</i>
+                          <span>{meta.bankAccount}</span>
+                        </>
+                      ) : null}
+                    </div>
+
+                    <time
+                      className="dashboard-history-timestamp"
+                      dateTime={transaction.created_at}
+                    >
+                      {formatHistoryTimestamp(transaction.created_at)}
+                    </time>
+
+                    <div className="dashboard-history-divider" />
+
+                    <p className="dashboard-history-note">
+                      <span>Catatan:</span> {transaction.note?.trim() || '-'}
+                    </p>
+                  </div>
                   <div className="dashboard-history-side">
                     <strong className="dashboard-history-amount">
                       {formatRupiah(Number(transaction.amount))}
