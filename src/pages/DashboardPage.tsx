@@ -1278,8 +1278,7 @@ export function DashboardPage() {
         <article className="dashboard-panel dashboard-status-panel">
           <div className="dashboard-panel-header">
             <div>
-              <h2>Status Dapur</h2>
-              <p>Status operasional untuk {formatDate(filters.startDate)}.</p>
+              <h2>Status Pencairan untuk {formatDate(filters.startDate)}</h2>
             </div>
           </div>
 
