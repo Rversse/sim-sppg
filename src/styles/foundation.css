@@ -1,7 +1,8 @@
-/* FOUNDATION + APP SHELL
-   Extracted from the legacy src/index.css during CSS-only refactor.
-   Cascade order is preserved by src/index.css imports.
-*/
+/* =========================================================
+   FOUNDATION + APP SHELL
+   Single owner for app-shell geometry and header structure.
+   No page-specific control sizing or polish belongs here.
+   ========================================================= */
 
 @theme {
   --color-background: #f8fafc;
@@ -12,7 +13,6 @@
   --color-muted: #eef2f7;
   --color-muted-foreground: #64748b;
   --color-border: #e2e8f0;
-
   --color-success: #16a34a;
   --color-warning: #f59e0b;
   --color-danger: #dc2626;
@@ -30,6 +30,9 @@
   --app-text-subtle: #94a3b8;
   --app-border: #e2e8f0;
   --app-border-soft: #eef2f7;
+  --app-border-strong: #dbe3ed;
+  --app-border-mid: #cbd5e1;
+  --app-text-dark: #334155;
 
   --app-success: #16a34a;
   --app-success-bg: #ecfdf3;
@@ -38,18 +41,20 @@
   --app-danger: #dc2626;
   --app-danger-bg: #fef2f2;
 
-  /* Shared design tokens */
   --app-white: #ffffff;
   --app-bg-soft: #f8fafc;
-  --app-border-strong: #dbe3ed;
-  --app-border-mid: #cbd5e1;
-  --app-text-dark: #334155;
   --app-focus-ring: 0 0 0 3px rgb(57 255 136 / 0.12);
   --app-shadow-card: 0 8px 30px rgb(15 23 42 / 0.035);
+
   --app-radius-sm: 8px;
   --app-radius-md: 12px;
   --app-radius-lg: 16px;
   --app-radius-xl: 18px;
+
+  --app-motion-fast: 140ms;
+  --app-motion: 220ms;
+  --app-motion-slow: 320ms;
+  --app-ease: cubic-bezier(0.22, 1, 0.36, 1);
 
   font-family:
     Inter,
@@ -74,19 +79,29 @@ body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
-  background: #f8fafc;
+  overflow-x: hidden;
+  background: var(--app-background);
 }
 
 button,
 input,
-select {
+select,
+textarea {
   font: inherit;
+}
+
+button,
+a,
+input,
+select,
+textarea {
+  -webkit-tap-highlight-color: transparent;
 }
 
 .app-shell {
   min-height: 100vh;
   display: flex;
-  background: #f8fafc;
+  background: var(--app-background);
 }
 
 .app-sidebar {
@@ -97,7 +112,7 @@ select {
   height: 100vh;
   flex: 0 0 252px;
   flex-direction: column;
-  background: #0b132b;
+  background: var(--app-primary);
   color: #fff;
 }
 
@@ -131,6 +146,7 @@ select {
 }
 
 .app-brand strong {
+  color: #fff;
   font-size: 15px;
   letter-spacing: 0.02em;
 }
@@ -157,7 +173,7 @@ select {
   display: block;
   padding: 0 11px;
   color: #7f8ca2;
-  font-size: 8px;
+  font-size: 10px;
   font-weight: 900;
   letter-spacing: 0.12em;
   text-transform: uppercase;
@@ -168,58 +184,86 @@ select {
   gap: 4px;
 }
 
-.app-sidebar-footer span:last-child {
-  color: #94a3b8;
-  font-size: 9px;
-  font-weight: 700;
-}
-
 .app-nav-link {
+  position: relative;
   display: flex;
   align-items: center;
   gap: 11px;
   min-height: 44px;
   padding: 9px 11px;
+  overflow: hidden;
   border-radius: 10px;
   color: #aeb9cb;
   font-size: 13px;
   font-weight: 600;
   text-decoration: none;
-  transition: 160ms ease;
+  transition:
+    transform var(--app-motion-fast) var(--app-ease),
+    background-color var(--app-motion-fast) ease,
+    color var(--app-motion-fast) ease,
+    box-shadow var(--app-motion-fast) ease;
+}
+
+.app-nav-link::before {
+  position: absolute;
+  top: 7px;
+  bottom: 7px;
+  left: 0;
+  width: 3px;
+  border-radius: 0 3px 3px 0;
+  background: var(--app-accent);
+  content: '';
+  opacity: 0;
+  transform: scaleY(0.5);
+  transition:
+    opacity var(--app-motion-fast) ease,
+    transform var(--app-motion-fast) var(--app-ease);
 }
 
 .app-nav-link:hover {
   background: rgb(255 255 255 / 0.06);
   color: #fff;
+  transform: translateX(2px);
 }
 
 .app-nav-link.is-active {
-  background: #39ff88;
-  color: #0b132b;
+  background: var(--app-accent);
+  color: var(--app-primary);
   box-shadow:
     0 8px 22px rgb(57 255 136 / 0.12),
     inset 0 0 0 1px rgb(255 255 255 / 0.12);
 }
 
+.app-nav-link.is-active::before {
+  opacity: 1;
+  transform: scaleY(1);
+}
+
 .app-nav-link.is-active:hover {
-  background: #39ff88;
-  color: #0b132b;
+  background: var(--app-accent);
+  color: var(--app-primary);
 }
 
 .app-nav-link.is-active .app-nav-icon {
   background: rgb(11 19 43 / 0.12);
-  color: #0b132b;
+  color: var(--app-primary);
 }
 
 .app-nav-icon {
   display: grid;
   width: 27px;
   height: 27px;
+  flex: 0 0 27px;
   place-items: center;
   border-radius: 8px;
   background: rgb(255 255 255 / 0.06);
-  font-size: 9px;
-  font-weight: 900;
+  color: inherit;
+}
+
+.app-nav-icon svg {
+  width: 16px;
+  height: 16px;
+  stroke-width: 2;
 }
 
 .app-sidebar-footer {
@@ -232,11 +276,18 @@ select {
   font-size: 11px;
 }
 
+.app-sidebar-footer span:last-child {
+  color: #94a3b8;
+  font-size: 10px;
+  font-weight: 700;
+}
+
 .app-online-dot {
   width: 7px;
   height: 7px;
+  flex: 0 0 7px;
   border-radius: 999px;
-  background: #39ff88;
+  background: var(--app-accent);
   box-shadow: 0 0 0 4px rgb(57 255 136 / 0.08);
 }
 
@@ -254,52 +305,89 @@ select {
   align-items: center;
   justify-content: space-between;
   padding: 0 28px;
-  border-bottom: 1px solid #e2e8f0;
+  border-bottom: 1px solid var(--app-border);
   background: rgb(248 250 252 / 0.9);
   box-shadow: 0 1px 0 rgb(255 255 255 / 0.7);
   backdrop-filter: blur(14px);
 }
 
+.app-page-heading {
+  min-width: 0;
+}
+
 .app-header-kicker {
   display: block;
-  margin-bottom: 1px;
+  margin-bottom: 2px;
   color: #64748b;
   font-size: 8px;
   font-weight: 800;
   letter-spacing: 0.16em;
+  line-height: 1;
+  text-transform: uppercase;
 }
 
-.app-header strong {
-  color: #0b132b;
-  font-size: 15px;
+.app-page-title {
+  margin: 0;
+  color: var(--app-primary);
+  font-size: 17px;
+  font-weight: 800;
+  line-height: 1.15;
+  letter-spacing: -0.025em;
 }
 
 .app-user {
   display: flex;
   align-items: center;
-  gap: 9px;
+  gap: 6px;
+  flex: 0 0 auto;
 }
 
 .app-user-role {
-  padding: 5px 8px;
-  border: 1px solid #e2e8f0;
-  border-radius: 7px;
-  background: #fff;
+  display: inline-flex;
+  min-height: 34px;
+  align-items: center;
+  gap: 6px;
+  padding: 0 9px;
+  border: 1px solid var(--app-border-strong);
+  border-radius: 9px;
+  background: var(--app-white);
   color: #64748b;
-  font-size: 9px;
+  font-size: 10px;
   font-weight: 800;
   text-transform: capitalize;
 }
 
-.app-user-avatar {
-  display: block;
-  width: 34px;
-  height: 34px;
-  flex: 0 0 34px;
-  border: 1px solid rgb(57 255 136 / 0.3);
-  border-radius: 50%;
-  background: #0b132b;
-  object-fit: cover;
+.app-user-role svg {
+  width: 14px;
+  height: 14px;
+  color: var(--app-primary);
+  stroke-width: 2.2;
+}
+
+.app-logout-button {
+  display: inline-flex;
+  min-height: 34px;
+  align-items: center;
+  gap: 6px;
+  padding: 0 9px;
+  border: 1px solid transparent;
+  border-radius: 9px;
+  background: transparent;
+  color: var(--app-text-dark);
+  cursor: pointer;
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.app-logout-button svg {
+  width: 15px;
+  height: 15px;
+  stroke-width: 2;
+}
+
+.app-logout-button:hover {
+  border-color: var(--app-border-strong);
+  background: var(--app-white);
 }
 
 .app-main {

@@ -1,4 +1,14 @@
 import { useEffect, useMemo, useState } from 'react'
+import {
+  Building2,
+  Link2,
+  Pencil,
+  Plus,
+  Save,
+  Trash2,
+  WalletCards,
+  X
+} from 'lucide-react'
 
 import { canAccess } from '@/features/auth/role-policy'
 import { useAuth } from '@/features/auth/use-auth'
@@ -27,6 +37,7 @@ const EMPTY_SUPPLIER: SupplierInput = {
   phone: '',
   address: ''
 }
+
 const EMPTY_ACCOUNT: AccountInput = {
   bank: 'BNI',
   account_number: '',
@@ -38,6 +49,7 @@ export function SupplierPage() {
   const canView = canAccess(user?.role, 'supplier.view')
   const canManage = canAccess(user?.role, 'supplier.manage')
   const { success, error: showError } = useToast()
+
   const [suppliers, setSuppliers] = useState<Supplier[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -72,10 +84,7 @@ export function SupplierPage() {
   }
 
   useEffect(() => {
-    if (!canView) {
-      return
-    }
-
+    if (!canView) return
     let cancelled = false
 
     void getSuppliers()
@@ -99,19 +108,25 @@ export function SupplierPage() {
 
   const filtered = useMemo(() => {
     const keyword = search.trim().toLowerCase()
-    if (!keyword) return suppliers
-    return suppliers.filter((supplier) =>
-      [supplier.business_name, supplier.owner_name, supplier.product_type]
-        .filter(Boolean)
-        .some((value) => String(value).toLowerCase().includes(keyword))
+    const result = keyword
+      ? suppliers.filter((supplier) =>
+          [supplier.business_name, supplier.owner_name, supplier.product_type]
+            .filter(Boolean)
+            .some((value) => String(value).toLowerCase().includes(keyword))
+        )
+      : suppliers
+
+    return [...result].sort((a, b) =>
+      a.business_name.localeCompare(b.business_name, 'id', {
+        sensitivity: 'base'
+      })
     )
   }, [search, suppliers])
 
-  if (!canView) return <div style={{ padding: 24 }}>Akses ditolak.</div>
+  if (!canView) return <div className="app-access-denied">Akses ditolak.</div>
 
   function openAddSupplier() {
     if (!canManage) return
-
     setEditingSupplierId(null)
     setSupplierForm(structuredClone(EMPTY_SUPPLIER))
     setSupplierModal(true)
@@ -119,7 +134,6 @@ export function SupplierPage() {
 
   function openEditSupplier(supplier: Supplier) {
     if (!canManage) return
-
     setEditingSupplierId(supplier.id)
     setSupplierForm({
       business_name: supplier.business_name,
@@ -136,10 +150,11 @@ export function SupplierPage() {
     setBusy(true)
     try {
       const isEditing = Boolean(editingSupplierId)
-
-      if (isEditing) await updateSupplier(editingSupplierId!, supplierForm)
-      else await createSupplier(supplierForm)
-
+      if (isEditing) {
+        await updateSupplier(editingSupplierId!, supplierForm)
+      } else {
+        await createSupplier(supplierForm)
+      }
       setSupplierModal(false)
       await load()
       success(
@@ -161,13 +176,13 @@ export function SupplierPage() {
 
   async function removeSupplier(supplier: Supplier) {
     if (!canManage) return
-
     if (
       !window.confirm(
         `Yakin ingin menghapus supplier "${supplier.business_name}"?`
       )
-    )
+    ) {
       return
+    }
     try {
       await deleteSupplier(supplier.id)
       await load()
@@ -183,13 +198,13 @@ export function SupplierPage() {
 
   function openAccountManager(supplierId: string) {
     if (!canManage) return
-
     setAccountSupplierId(supplierId)
     setEditingAccountId(null)
     setAccountForm(structuredClone(EMPTY_ACCOUNT))
   }
 
   function closeAccountManager() {
+    if (busy) return
     setAccountSupplierId(null)
     setEditingAccountId(null)
   }
@@ -199,7 +214,6 @@ export function SupplierPage() {
 
   function openEditAccount(account: Supplier['accounts'][number]) {
     if (!canManage) return
-
     setEditingAccountId(account.id)
     setAccountForm({
       bank: account.bank,
@@ -213,7 +227,6 @@ export function SupplierPage() {
     setBusy(true)
     try {
       const isEditing = Boolean(editingAccountId)
-
       await saveSupplierAccount(
         accountSupplierId,
         editingAccountId,
@@ -222,7 +235,6 @@ export function SupplierPage() {
       setEditingAccountId(null)
       setAccountForm(structuredClone(EMPTY_ACCOUNT))
       await load()
-
       success(
         isEditing ? 'Rekening diperbarui' : 'Rekening ditambahkan',
         isEditing
@@ -263,7 +275,6 @@ export function SupplierPage() {
 
   async function openMapping(accountId: string) {
     if (!canManage) return
-
     setMappingAccountId(accountId)
     try {
       setSelectedKitchens(await getAccountKitchenIds(accountId))
@@ -299,18 +310,13 @@ export function SupplierPage() {
     }
   }
 
-  const mappedSupplier = accountSupplier
   const mappedAccount =
-    mappedSupplier?.accounts.find(
+    accountSupplier?.accounts.find(
       (account) => account.id === mappingAccountId
     ) ?? null
 
   return (
     <div className="supplier-page">
-      <style>{`
-        .supplier-page{display:grid;gap:14px}.supplier-header{display:flex;justify-content:space-between;align-items:flex-end;gap:12px}.supplier-header h1{margin:0;color:#0b132b;font-size:28px}.supplier-header p{margin:5px 0 0;color:#94a3b8;font-size:11px}.supplier-toolbar{display:flex;gap:8px;align-items:center}.supplier-input{min-height:38px;border:1px solid #dbe3ed;border-radius:9px;padding:0 11px;background:#fff}.supplier-panel{overflow:auto;border:1px solid #dbe3ed;border-radius:14px;background:#fff}.supplier-table{width:100%;min-width:1150px;border-collapse:collapse}.supplier-table th,.supplier-table td{padding:10px 12px;border-bottom:1px solid #eef2f7;text-align:left;font-size:10px;vertical-align:top}.supplier-table th{background:#f8fafc;color:#64748b;font-size:8px;text-transform:uppercase}.action-row{display:flex;gap:5px;flex-wrap:wrap}.btn{min-height:32px;padding:0 10px;border:1px solid #0b132b;border-radius:8px;background:#0b132b;color:#fff;font-size:9px;font-weight:800;cursor:pointer}.btn.secondary{border-color:#dbe3ed;background:#fff;color:#334155}.btn.danger{border-color:#fecaca;background:#fff;color:#dc2626}.account-count{cursor:pointer;color:#0f5fbd;font-weight:800}.modal-backdrop{position:fixed;inset:0;z-index:1000;display:grid;place-items:center;padding:20px;background:rgb(15 23 42 / .52);backdrop-filter:blur(4px)}.modal{width:min(720px,100%);max-height:calc(100vh - 40px);overflow:auto;border-radius:16px;background:#fff;border:1px solid #dbe3ed}.modal-head{display:flex;justify-content:space-between;padding:16px 18px;border-bottom:1px solid #eef2f7}.modal-head h2{margin:0;font-size:16px;color:#0b132b}.modal-body{padding:18px;display:grid;gap:12px}.form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.field{display:grid;gap:6px}.field.full{grid-column:1/-1}.field label{font-size:9px;color:#64748b;font-weight:800}.field input,.field select{min-height:40px;border:1px solid #dbe3ed;border-radius:9px;padding:0 11px}.account-card{padding:12px;border:1px solid #e5eaf0;border-radius:10px}.account-card+.account-card{margin-top:8px}.account-top{display:flex;justify-content:space-between;gap:10px}.mapping-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.mapping-item{padding:9px;border:1px solid #e5eaf0;border-radius:9px;font-size:10px}.modal-actions{display:flex;justify-content:flex-end;gap:8px}.empty{padding:28px;color:#94a3b8;text-align:center;font-size:11px}@media(max-width:700px){.supplier-header{align-items:stretch;flex-direction:column}.form-grid,.mapping-list{grid-template-columns:1fr}.field.full{grid-column:auto}}
-      `}</style>
-
       <div className="supplier-header">
         <div>
           <h1>Data Supplier</h1>
@@ -319,33 +325,36 @@ export function SupplierPage() {
             dapur.
           </p>
         </div>
-        {canManage && (
-          <button className="btn" onClick={openAddSupplier}>
-            + Tambah Supplier
+
+        {canManage ? (
+          <button
+            type="button"
+            className="app-action-button"
+            onClick={openAddSupplier}
+          >
+            <Plus aria-hidden="true" />
+            <span>Tambah Supplier</span>
           </button>
-        )}
+        ) : null}
       </div>
+
       <div className="supplier-toolbar">
         <input
-          className="supplier-input"
-          style={{ flex: 1 }}
+          className="supplier-input supplier-control-grow"
           placeholder="Cari supplier..."
           value={search}
-          onChange={(e) => setSearch(e.target.value)}
+          onChange={(event) => setSearch(event.target.value)}
         />
-        <span style={{ color: '#64748b', fontSize: 10 }}>
-          {filtered.length} supplier
-        </span>
+        <span className="supplier-count">{filtered.length} supplier</span>
       </div>
+
       <div className="supplier-panel">
         {loading ? (
-          <div className="empty">Memuat data supplier...</div>
+          <div className="supplier-empty">Memuat data supplier...</div>
         ) : error ? (
-          <div className="empty" style={{ color: '#dc2626' }}>
-            {error}
-          </div>
+          <div className="supplier-empty supplier-state-error">{error}</div>
         ) : !filtered.length ? (
-          <div className="empty">Belum ada data supplier.</div>
+          <div className="supplier-empty">Belum ada data supplier.</div>
         ) : (
           <table className="supplier-table">
             <thead>
@@ -356,7 +365,9 @@ export function SupplierPage() {
                 <th>No. HP</th>
                 <th>Alamat</th>
                 <th>Rekening</th>
-                {canManage && <th>Aksi</th>}
+                {canManage ? (
+                  <th className="supplier-action-column">Aksi</th>
+                ) : null}
               </tr>
             </thead>
             <tbody>
@@ -370,37 +381,48 @@ export function SupplierPage() {
                   <td>{supplier.phone || '-'}</td>
                   <td>{supplier.address || '-'}</td>
                   <td>
-                    <span
-                      className="account-count"
+                    <button
+                      type="button"
+                      className="supplier-account-count-button"
                       onClick={() => openAccountManager(supplier.id)}
                     >
-                      {supplier.accounts.length} Rek
-                    </span>
+                      <WalletCards aria-hidden="true" />
+                      <span>{supplier.accounts.length} Rek</span>
+                    </button>
                   </td>
-                  {canManage && (
-                    <td>
-                      <div className="action-row">
+                  {canManage ? (
+                    <td className="supplier-action-cell">
+                      <div className="app-action-row">
                         <button
-                          className="btn secondary"
+                          type="button"
+                          className="app-action-button app-action-button--icon app-action-button--secondary"
                           onClick={() => openEditSupplier(supplier)}
+                          aria-label={`Edit ${supplier.business_name}`}
+                          title={`Edit ${supplier.business_name}`}
                         >
-                          Edit
+                          <Pencil aria-hidden="true" />
                         </button>
                         <button
-                          className="btn secondary"
+                          type="button"
+                          className="app-action-button app-action-button--icon app-action-button--secondary"
                           onClick={() => openAccountManager(supplier.id)}
+                          aria-label={`Kelola rekening ${supplier.business_name}`}
+                          title={`Kelola rekening ${supplier.business_name}`}
                         >
-                          Rekening
+                          <WalletCards aria-hidden="true" />
                         </button>
                         <button
-                          className="btn danger"
-                          onClick={() => removeSupplier(supplier)}
+                          type="button"
+                          className="app-action-button app-action-button--icon app-action-button--danger"
+                          onClick={() => void removeSupplier(supplier)}
+                          aria-label={`Hapus ${supplier.business_name}`}
+                          title={`Hapus ${supplier.business_name}`}
                         >
-                          Hapus
+                          <Trash2 aria-hidden="true" />
                         </button>
                       </div>
                     </td>
-                  )}
+                  ) : null}
                 </tr>
               ))}
             </tbody>
@@ -408,169 +430,242 @@ export function SupplierPage() {
         )}
       </div>
 
-      {supplierModal && (
-        <div className="modal-backdrop">
-          <div className="modal">
-            <div className="modal-head">
-              <h2>{editingSupplierId ? 'Edit Supplier' : 'Tambah Supplier'}</h2>
+      {supplierModal ? (
+        <div
+          className="modal-backdrop"
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget && !busy) {
+              setSupplierModal(false)
+            }
+          }}
+        >
+          <section
+            className="modal supplier-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="supplier-modal-title"
+          >
+            <div className="supplier-modal-head">
+              <h2 id="supplier-modal-title">
+                {editingSupplierId ? 'Edit Supplier' : 'Tambah Supplier'}
+              </h2>
               <button
-                className="btn secondary"
+                type="button"
+                className="app-action-button app-action-button--icon app-action-button--secondary"
                 onClick={() => setSupplierModal(false)}
+                disabled={busy}
+                aria-label="Tutup"
+                title="Tutup"
               >
-                Tutup
+                <X aria-hidden="true" />
               </button>
             </div>
-            <div className="modal-body">
-              <div className="form-grid">
-                <div className="field full">
-                  <label>Nama Supplier</label>
+
+            <div className="supplier-modal-body modal-body">
+              <div className="supplier-form-grid">
+                <div className="supplier-field supplier-full">
+                  <label htmlFor="supplier-business">Nama Supplier</label>
                   <input
+                    id="supplier-business"
                     value={supplierForm.business_name}
-                    onChange={(e) =>
-                      setSupplierForm((f) => ({
-                        ...f,
-                        business_name: e.target.value
+                    onChange={(event) =>
+                      setSupplierForm((current) => ({
+                        ...current,
+                        business_name: event.target.value
                       }))
                     }
                   />
                 </div>
-                <div className="field">
-                  <label>Pemilik</label>
+                <div className="supplier-field">
+                  <label htmlFor="supplier-owner">Pemilik</label>
                   <input
+                    id="supplier-owner"
                     value={supplierForm.owner_name}
-                    onChange={(e) =>
-                      setSupplierForm((f) => ({
-                        ...f,
-                        owner_name: e.target.value
+                    onChange={(event) =>
+                      setSupplierForm((current) => ({
+                        ...current,
+                        owner_name: event.target.value
                       }))
                     }
                   />
                 </div>
-                <div className="field">
-                  <label>Jenis Produk</label>
+                <div className="supplier-field">
+                  <label htmlFor="supplier-product">Jenis Produk</label>
                   <input
+                    id="supplier-product"
                     value={supplierForm.product_type}
-                    onChange={(e) =>
-                      setSupplierForm((f) => ({
-                        ...f,
-                        product_type: e.target.value
+                    onChange={(event) =>
+                      setSupplierForm((current) => ({
+                        ...current,
+                        product_type: event.target.value
                       }))
                     }
                   />
                 </div>
-                <div className="field">
-                  <label>No. HP</label>
+                <div className="supplier-field">
+                  <label htmlFor="supplier-phone">No. HP</label>
                   <input
+                    id="supplier-phone"
                     value={supplierForm.phone}
-                    onChange={(e) =>
-                      setSupplierForm((f) => ({ ...f, phone: e.target.value }))
+                    onChange={(event) =>
+                      setSupplierForm((current) => ({
+                        ...current,
+                        phone: event.target.value
+                      }))
                     }
                   />
                 </div>
-                <div className="field full">
-                  <label>Alamat</label>
+                <div className="supplier-field supplier-full">
+                  <label htmlFor="supplier-address">Alamat</label>
                   <input
+                    id="supplier-address"
                     value={supplierForm.address}
-                    onChange={(e) =>
-                      setSupplierForm((f) => ({
-                        ...f,
-                        address: e.target.value
+                    onChange={(event) =>
+                      setSupplierForm((current) => ({
+                        ...current,
+                        address: event.target.value
                       }))
                     }
                   />
                 </div>
               </div>
-              <div className="modal-actions">
+
+              <div className="supplier-modal-actions">
                 <button
-                  className="btn secondary"
+                  type="button"
+                  className="app-action-button app-action-button--secondary"
                   onClick={() => setSupplierModal(false)}
                   disabled={busy}
                 >
-                  Batal
+                  <X aria-hidden="true" />
+                  <span>Batal</span>
                 </button>
-                <button className="btn" onClick={saveSupplier} disabled={busy}>
-                  {busy ? 'Menyimpan...' : 'Simpan'}
+                <button
+                  type="button"
+                  className="app-action-button"
+                  onClick={() => void saveSupplier()}
+                  disabled={busy}
+                >
+                  <Save aria-hidden="true" />
+                  <span>{busy ? 'Menyimpan...' : 'Simpan'}</span>
                 </button>
               </div>
             </div>
-          </div>
+          </section>
         </div>
-      )}
+      ) : null}
 
-      {accountSupplierId && (
-        <div className="modal-backdrop">
-          <div className="modal">
-            <div className="modal-head">
-              <h2>Rekening - {accountSupplier?.business_name}</h2>
-              <button className="btn secondary" onClick={closeAccountManager}>
-                Tutup
+      {accountSupplierId ? (
+        <div
+          className="modal-backdrop"
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget && !busy) {
+              closeAccountManager()
+            }
+          }}
+        >
+          <section
+            className="modal supplier-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="supplier-account-title"
+          >
+            <div className="supplier-modal-head">
+              <div>
+                <h2 id="supplier-account-title">
+                  Rekening - {accountSupplier?.business_name}
+                </h2>
+                <span className="supplier-modal-subtitle">
+                  Kelola rekening dan mapping dapur.
+                </span>
+              </div>
+              <button
+                type="button"
+                className="app-action-button app-action-button--icon app-action-button--secondary"
+                onClick={closeAccountManager}
+                disabled={busy}
+                aria-label="Tutup"
+                title="Tutup"
+              >
+                <X aria-hidden="true" />
               </button>
             </div>
-            <div className="modal-body">
+
+            <div className="supplier-modal-body modal-body">
               {accountSupplier?.accounts.length ? (
-                accountSupplier.accounts.map((account) => (
-                  <div className="account-card" key={account.id}>
-                    <div className="account-top">
-                      <div>
-                        <strong>{account.bank}</strong>
-                        <div
-                          style={{
-                            fontSize: 10,
-                            color: '#64748b',
-                            marginTop: 4
-                          }}
-                        >
-                          {account.account_number || '-'}
+                <div className="supplier-account-list">
+                  {accountSupplier.accounts.map((account) => (
+                    <article className="supplier-account-card" key={account.id}>
+                      <div className="supplier-account-top">
+                        <div>
+                          <strong className="supplier-account-bank">
+                            <Building2 aria-hidden="true" />
+                            {account.bank}
+                          </strong>
+                          <div className="supplier-account-number">
+                            {account.account_number || '-'}
+                          </div>
+                          <span className="supplier-account-mapping">
+                            {account.kitchen_account_rules.length
+                              ? account.kitchen_account_rules
+                                  .map((rule) => rule.kitchens?.name)
+                                  .filter(Boolean)
+                                  .join(', ')
+                              : 'Belum dipetakan'}
+                          </span>
                         </div>
-                        <div
-                          style={{
-                            fontSize: 9,
-                            color: '#94a3b8',
-                            marginTop: 4
-                          }}
-                        >
-                          {account.kitchen_account_rules.length
-                            ? account.kitchen_account_rules
-                                .map((r) => r.kitchens?.name)
-                                .filter(Boolean)
-                                .join(', ')
-                            : 'Belum dipetakan'}
+
+                        <div className="supplier-account-actions">
+                          <button
+                            type="button"
+                            className="app-action-button app-action-button--icon app-action-button--secondary"
+                            onClick={() => openEditAccount(account)}
+                            aria-label={`Edit rekening ${account.bank}`}
+                            title={`Edit rekening ${account.bank}`}
+                          >
+                            <Pencil aria-hidden="true" />
+                          </button>
+                          <button
+                            type="button"
+                            className="app-action-button app-action-button--icon app-action-button--secondary"
+                            onClick={() => void openMapping(account.id)}
+                            aria-label="Mapping dapur"
+                            title="Mapping dapur"
+                          >
+                            <Link2 aria-hidden="true" />
+                          </button>
+                          <button
+                            type="button"
+                            className="app-action-button app-action-button--icon app-action-button--danger"
+                            onClick={() => void removeAccount(account.id)}
+                            aria-label={`Hapus rekening ${account.bank}`}
+                            title={`Hapus rekening ${account.bank}`}
+                          >
+                            <Trash2 aria-hidden="true" />
+                          </button>
                         </div>
                       </div>
-                      <div className="action-row">
-                        <button
-                          className="btn secondary"
-                          onClick={() => openEditAccount(account)}
-                        >
-                          Edit
-                        </button>
-                        <button
-                          className="btn secondary"
-                          onClick={() => openMapping(account.id)}
-                        >
-                          Mapping
-                        </button>
-                        <button
-                          className="btn danger"
-                          onClick={() => removeAccount(account.id)}
-                        >
-                          Hapus
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                ))
+                    </article>
+                  ))}
+                </div>
               ) : (
-                <div className="empty">Supplier belum memiliki rekening.</div>
+                <div className="supplier-empty">
+                  Supplier belum memiliki rekening.
+                </div>
               )}
-              <div style={{ borderTop: '1px solid #eef2f7', paddingTop: 12 }}>
-                <div className="form-grid">
-                  <div className="field">
-                    <label>Bank</label>
+
+              <div className="supplier-account-editor">
+                <div className="supplier-form-grid">
+                  <div className="supplier-field">
+                    <label htmlFor="supplier-account-bank">Bank</label>
                     <select
+                      id="supplier-account-bank"
                       value={accountForm.bank}
-                      onChange={(e) =>
-                        setAccountForm((f) => ({ ...f, bank: e.target.value }))
+                      onChange={(event) =>
+                        setAccountForm((current) => ({
+                          ...current,
+                          bank: event.target.value
+                        }))
                       }
                     >
                       <option>BNI</option>
@@ -580,106 +675,151 @@ export function SupplierPage() {
                       <option>BSI</option>
                     </select>
                   </div>
-                  <div className="field">
-                    <label>Nomor Rekening</label>
+                  <div className="supplier-field">
+                    <label htmlFor="supplier-account-number">
+                      Nomor Rekening
+                    </label>
                     <input
+                      id="supplier-account-number"
                       value={accountForm.account_number}
-                      onChange={(e) =>
-                        setAccountForm((f) => ({
-                          ...f,
-                          account_number: e.target.value
+                      onChange={(event) =>
+                        setAccountForm((current) => ({
+                          ...current,
+                          account_number: event.target.value
                         }))
                       }
                     />
                   </div>
-                  <div className="field">
-                    <label>Saldo Awal</label>
+                  <div className="supplier-field">
+                    <label htmlFor="supplier-opening-balance">Saldo Awal</label>
                     <input
+                      id="supplier-opening-balance"
                       type="number"
                       min="0"
                       value={accountForm.opening_balance}
-                      onChange={(e) =>
-                        setAccountForm((f) => ({
-                          ...f,
-                          opening_balance: Number(e.target.value) || 0
+                      onChange={(event) =>
+                        setAccountForm((current) => ({
+                          ...current,
+                          opening_balance: Number(event.target.value) || 0
                         }))
                       }
                     />
                   </div>
                 </div>
-                <div className="modal-actions" style={{ marginTop: 12 }}>
+
+                <div className="supplier-modal-actions">
                   <button
-                    className="btn secondary"
+                    type="button"
+                    className="app-action-button app-action-button--secondary"
                     onClick={() => {
                       setEditingAccountId(null)
                       setAccountForm(structuredClone(EMPTY_ACCOUNT))
                     }}
+                    disabled={busy}
                   >
-                    Reset
+                    <X aria-hidden="true" />
+                    <span>Reset</span>
                   </button>
-                  <button className="btn" onClick={saveAccount} disabled={busy}>
-                    {busy
-                      ? 'Menyimpan...'
-                      : editingAccountId
-                        ? 'Perbarui Rekening'
-                        : 'Tambah Rekening'}
+                  <button
+                    type="button"
+                    className="app-action-button"
+                    onClick={() => void saveAccount()}
+                    disabled={busy}
+                  >
+                    <Save aria-hidden="true" />
+                    <span>
+                      {busy
+                        ? 'Menyimpan...'
+                        : editingAccountId
+                          ? 'Perbarui Rekening'
+                          : 'Tambah Rekening'}
+                    </span>
                   </button>
                 </div>
               </div>
             </div>
-          </div>
+          </section>
         </div>
-      )}
+      ) : null}
 
-      {mappingAccountId && (
-        <div className="modal-backdrop">
-          <div className="modal">
-            <div className="modal-head">
-              <h2>Mapping Dapur</h2>
+      {mappingAccountId ? (
+        <div
+          className="modal-backdrop"
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget && !busy) {
+              setMappingAccountId(null)
+            }
+          }}
+        >
+          <section
+            className="modal supplier-modal supplier-mapping-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="supplier-mapping-title"
+          >
+            <div className="supplier-modal-head">
+              <div>
+                <h2 id="supplier-mapping-title">Mapping Dapur</h2>
+                <span className="supplier-modal-subtitle">
+                  {mappedAccount?.bank} • {mappedAccount?.account_number || '-'}
+                </span>
+              </div>
               <button
-                className="btn secondary"
+                type="button"
+                className="app-action-button app-action-button--icon app-action-button--secondary"
                 onClick={() => setMappingAccountId(null)}
+                disabled={busy}
+                aria-label="Tutup"
+                title="Tutup"
               >
-                Tutup
+                <X aria-hidden="true" />
               </button>
             </div>
-            <div className="modal-body">
-              <div style={{ fontSize: 11, color: '#475569' }}>
-                {mappedAccount?.bank} • {mappedAccount?.account_number || '-'}
-              </div>
-              <div className="mapping-list">
+
+            <div className="supplier-modal-body modal-body">
+              <div className="supplier-mapping-list">
                 {kitchens.map((kitchen) => (
-                  <label className="mapping-item" key={kitchen.id}>
+                  <label className="supplier-mapping-item" key={kitchen.id}>
                     <input
                       type="checkbox"
                       checked={selectedKitchens.includes(kitchen.id)}
-                      onChange={(e) =>
+                      onChange={(event) =>
                         setSelectedKitchens((current) =>
-                          e.target.checked
+                          event.target.checked
                             ? [...current, kitchen.id]
                             : current.filter((id) => id !== kitchen.id)
                         )
                       }
-                    />{' '}
-                    {kitchen.name}
+                    />
+                    <span>{kitchen.name}</span>
                   </label>
                 ))}
               </div>
-              <div className="modal-actions">
+
+              <div className="supplier-modal-actions">
                 <button
-                  className="btn secondary"
+                  type="button"
+                  className="app-action-button app-action-button--secondary"
                   onClick={() => setMappingAccountId(null)}
+                  disabled={busy}
                 >
-                  Batal
+                  <X aria-hidden="true" />
+                  <span>Batal</span>
                 </button>
-                <button className="btn" onClick={saveMapping} disabled={busy}>
-                  {busy ? 'Menyimpan...' : 'Simpan Mapping'}
+                <button
+                  type="button"
+                  className="app-action-button"
+                  onClick={() => void saveMapping()}
+                  disabled={busy}
+                >
+                  <Save aria-hidden="true" />
+                  <span>{busy ? 'Menyimpan...' : 'Simpan Mapping'}</span>
                 </button>
               </div>
             </div>
-          </div>
+          </section>
         </div>
-      )}
+      ) : null}
     </div>
   )
 }

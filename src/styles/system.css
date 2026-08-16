@@ -1,9 +1,8 @@
 /* =========================================================
-   SHARED SYSTEM STYLES
-   Consolidated from typography.css, ui-hierarchy.css,
-   controls-table.css, and spacing-surfaces.css.
-   Keep this layer after page-specific styles so the cascade
-   remains equivalent to the previous import order.
+   SHARED SYSTEM
+   Single owner for generic typography, controls, tables, and
+   shared page-level tokens. Page CSS may override these only
+   when the page intentionally has a different visual density.
    ========================================================= */
 
 :root {
@@ -22,6 +21,7 @@
 
   --app-control-height: 42px;
   --app-control-radius: 10px;
+
   --app-table-cell-y: 11px;
   --app-table-cell-x: 14px;
 
@@ -32,39 +32,13 @@
   --app-space-5: 20px;
   --app-space-6: 24px;
   --app-space-7: 32px;
+
   --app-surface-radius: 16px;
   --app-panel-padding: 20px;
   --app-section-gap: 20px;
 }
 
-/* =========================================================
-   TYPOGRAPHY
-   ========================================================= */
-
-.app-nav-link {
-  font-size: var(--app-font-md);
-}
-
-.app-nav-section-label {
-  font-size: var(--app-font-xs);
-}
-
-.app-sidebar-footer {
-  font-size: var(--app-font-sm);
-}
-
-.app-sidebar-footer span:last-child {
-  font-size: var(--app-font-xs);
-}
-
-.app-header-kicker {
-  font-size: var(--app-font-xs);
-}
-
-.app-user-role {
-  font-size: var(--app-font-xs);
-}
-
+/* Typography */
 .dashboard-filter-grid label > span,
 .reports-filter-panel label > span,
 .dashboard-transaction-form-grid label > span,
@@ -73,110 +47,6 @@
 .vehicle-form-grid label > span,
 .supplier-form-grid label > span {
   font-size: var(--app-font-xs);
-}
-
-.dashboard-filter-grid input,
-.dashboard-filter-grid select,
-.reports-filter-panel input,
-.reports-filter-panel select,
-.dashboard-transaction-form-grid input,
-.dashboard-transaction-form-grid select,
-.dashboard-transaction-form-grid textarea,
-.bank-form-grid input,
-.bank-form-grid select,
-.supplier-form-grid input,
-.supplier-form-grid select,
-.vehicle-form-grid input,
-.vehicle-form-grid select,
-.kitchen-form-grid input,
-.kitchen-form-grid select {
-  font-size: var(--app-font-md);
-}
-
-.reports-table,
-.kitchen-table,
-.vehicle-table,
-.supplier-table {
-  font-size: var(--app-font-sm);
-}
-
-.reports-table thead th,
-.kitchen-table thead th,
-.vehicle-table thead th,
-.supplier-table thead th {
-  font-size: var(--app-font-xs);
-}
-
-.bank-history-row,
-.bank-history-main,
-.bank-history-values {
-  line-height: var(--app-line-normal);
-}
-
-.bank-history-meta,
-.bank-history-purpose,
-.bank-history-balance,
-.bank-history-values p {
-  font-size: var(--app-font-xs);
-}
-
-.bank-history-top strong,
-.bank-history-values > strong {
-  font-size: var(--app-font-md);
-}
-
-.bank-history-badge,
-.bank-history-action,
-.bank-history-page,
-.bank-history-pagination-info {
-  font-size: var(--app-font-xs);
-}
-
-.dashboard-history-date span,
-.dashboard-history-detail small,
-.dashboard-status-row > div:first-child span {
-  font-size: var(--app-font-xs);
-}
-
-.dashboard-flow,
-.dashboard-history-actions button,
-.dashboard-pagination-button {
-  font-size: var(--app-font-xs);
-}
-
-/* =========================================================
-   UI HIERARCHY
-   ========================================================= */
-
-.dashboard-hero h1,
-.reports-header h1,
-.bank-hero h1,
-.kitchen-header h1,
-.vehicle-header h1,
-.supplier-header h1,
-.disbursement-header h1 {
-  font-size: clamp(2rem, 3vw, 2.5rem);
-  line-height: 1.1;
-  letter-spacing: -0.03em;
-}
-
-.dashboard-panel-header h2,
-.dashboard-filter-heading strong,
-.reports-detail > summary,
-.bank-panel-header h2,
-.kitchen-panel-header h2,
-.vehicle-panel-header h2,
-.supplier-panel-header h2,
-.disbursement-panel-header h2 {
-  font-size: var(--app-font-section-title);
-}
-
-.dashboard-kpi > strong,
-.reports-summary-card > strong,
-.bank-summary-card > strong,
-.bank-account-balance strong {
-  font-size: var(--app-font-card-value);
-  line-height: 1.15;
 }
 
 .reports-table,
@@ -195,21 +65,13 @@
   font-size: var(--app-font-xs);
 }
 
-.dashboard-hero p:not(.dashboard-eyebrow),
-.reports-header p,
-.bank-hero > div > p:not(.bank-eyebrow),
-.kitchen-header p,
-.vehicle-header p,
-.supplier-header p,
-.disbursement-header p {
-  font-size: var(--app-font-md);
+.bank-history-row,
+.bank-history-main,
+.bank-history-values {
   line-height: var(--app-line-normal);
 }
 
-/* =========================================================
-   CONTROLS & TABLE DENSITY
-   ========================================================= */
-
+/* Generic controls: one source for baseline height/radius. */
 .dashboard-filter-grid input,
 .dashboard-filter-grid select,
 .reports-filter-panel input,
@@ -228,6 +90,7 @@
 .supplier-form-grid select {
   min-height: var(--app-control-height);
   border-radius: var(--app-control-radius);
+  box-sizing: border-box;
 }
 
 .dashboard-filter-grid input,
@@ -249,62 +112,16 @@
   padding-inline: 12px;
 }
 
-.dashboard-filter-grid input:focus-visible,
-.dashboard-filter-grid select:focus-visible,
-.reports-filter-panel input:focus-visible,
-.reports-filter-panel select:focus-visible,
-.dashboard-transaction-form-grid input:focus-visible,
-.dashboard-transaction-form-grid select:focus-visible,
-.dashboard-transaction-form-grid textarea:focus-visible,
-.bank-form-grid input:focus-visible,
-.bank-form-grid select:focus-visible,
-.bank-form-grid textarea:focus-visible,
-.kitchen-form-grid input:focus-visible,
-.kitchen-form-grid select:focus-visible,
-.vehicle-form-grid input:focus-visible,
-.vehicle-form-grid select:focus-visible,
-.supplier-form-grid input:focus-visible,
-.supplier-form-grid select:focus-visible {
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
   outline: 2px solid color-mix(in srgb, var(--app-accent) 62%, white);
   outline-offset: 1px;
 }
 
-.reports-table th,
-.reports-table td,
-.kitchen-table th,
-.kitchen-table td,
-.vehicle-table th,
-.vehicle-table td,
-.supplier-table th,
-.supplier-table td,
-.disbursement-table th,
-.disbursement-table td {
-  padding-block: var(--app-table-cell-y);
-  padding-inline: var(--app-table-cell-x);
-}
-
-.reports-table tbody td,
-.kitchen-table tbody td,
-.vehicle-table tbody td,
-.supplier-table tbody td,
-.disbursement-table tbody td {
-  line-height: 1.45;
-}
-
-/* =========================================================
-   SPACING & SURFACES
-   ========================================================= */
-
-.dashboard-page,
-.reports-page,
-.bank-page,
-.kitchen-page,
-.vehicle-page,
-.supplier-page,
-.disbursement-page {
-  gap: var(--app-section-gap);
-}
-
+/* Shared surfaces */
 .dashboard-filter-card,
 .dashboard-panel,
 .reports-filter-panel,
@@ -360,10 +177,6 @@
   border-radius: 18px;
 }
 
-/* =========================================================
-   RESPONSIVE TOKENS
-   ========================================================= */
-
 @media (max-width: 760px) {
   :root {
     --app-control-height: 40px;
@@ -372,29 +185,52 @@
     --app-panel-padding: 16px;
     --app-section-gap: 16px;
   }
+}
 
-  .dashboard-hero h1,
-  .reports-header h1,
-  .bank-hero h1,
-  .kitchen-header h1,
-  .vehicle-header h1,
-  .supplier-header h1,
-  .disbursement-header h1 {
-    font-size: 1.75rem;
-  }
+/* =========================================================
+   CANONICAL PAGE TITLE
+   AppLayout owns the visible page title. Page-local legacy h1s
+   are intentionally suppressed to avoid duplicate titles.
+   ========================================================= */
 
-  .dashboard-kpi > strong,
-  .reports-summary-card > strong,
-  .bank-summary-card > strong,
-  .bank-account-balance strong {
-    font-size: 1.375rem;
-  }
+.dashboard-hero h1,
+.reports-header h1,
+.bank-hero h1,
+.kitchen-header h1,
+.vehicle-header h1,
+.supplier-header h1,
+.disbursement-header h1 {
+  display: none;
+}
 
-  .app-mobile-link span {
-    font-size: 0.625rem;
-  }
+.dashboard-eyebrow,
+.bank-eyebrow,
+.disbursement-eyebrow {
+  display: none;
+}
 
-  .app-mobile-link small {
-    font-size: 0.5625rem;
-  }
+/* Shared page descriptions retain their spacing after the title move. */
+.dashboard-hero p:not(.dashboard-eyebrow),
+.reports-header p,
+.bank-hero > div > p:not(.bank-eyebrow),
+.kitchen-header p,
+.vehicle-header p,
+.supplier-header p,
+.disbursement-header p:not(.disbursement-eyebrow) {
+  line-height: var(--app-line-normal);
+}
+
+/* Shared content hover behavior. */
+.dashboard-history-row,
+.kitchen-table tbody tr,
+.vehicle-table tbody tr,
+.supplier-table tbody tr {
+  transition: background-color var(--app-motion-fast) ease;
+}
+
+.dashboard-history-row:hover,
+.kitchen-table tbody tr:hover,
+.vehicle-table tbody tr:hover,
+.supplier-table tbody tr:hover {
+  background: #fbfdff;
 }

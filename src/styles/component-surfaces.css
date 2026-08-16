@@ -1,6 +1,8 @@
 /* =========================================================
-   COMPONENT SURFACES — 5C.8
-   Shared interaction, modal, and surface normalization.
+   SHARED COMPONENT SURFACES
+   Single owner for shared button states and the modal system.
+   Page files own the contents of their modals; this file owns
+   the common container/backdrop behavior.
    ========================================================= */
 
 :where(
@@ -96,89 +98,7 @@
   opacity: 0.52;
 }
 
-/* =========================================================
-   DASHBOARD HEADER CLEANUP
-   ========================================================= */
-
-.dashboard-eyebrow {
-  display: none !important;
-}
-
-.dashboard-date-chip {
-  display: inline-flex !important;
-  min-width: 160px !important;
-  min-height: 38px !important;
-  align-items: center !important;
-  gap: 4px !important;
-  padding: 0 11px !important;
-}
-
-.dashboard-date-chip span,
-.dashboard-date-chip strong {
-  display: inline !important;
-  margin: 0 !important;
-}
-
-.dashboard-date-chip span {
-  color: #64748b !important;
-  font-size: 8.5px !important;
-  font-weight: 800 !important;
-  letter-spacing: 0 !important;
-  text-transform: none !important;
-}
-
-.dashboard-date-chip span::after {
-  content: ':';
-  margin-left: 1px;
-}
-
-.dashboard-date-chip strong {
-  color: var(--app-primary) !important;
-  font-size: 10px !important;
-  font-weight: 800 !important;
-}
-
-/* =========================================================
-   COMPACT HEADER USER AREA
-   ========================================================= */
-
-.app-user {
-  gap: 6px !important;
-}
-
-.app-user-role {
-  min-height: 34px !important;
-  padding: 0 9px !important;
-}
-
-.app-user-role svg {
-  width: 14px !important;
-  height: 14px !important;
-}
-
-.app-logout-button {
-  min-height: 34px !important;
-  padding: 0 9px !important;
-}
-
-/* =========================================================
-   MODAL SYSTEM
-   ========================================================= */
-
-.app-main {
-  animation: app-page-fade-in var(--app-motion-slow) ease both !important;
-}
-
-@keyframes app-page-fade-in {
-  from {
-    opacity: 0;
-  }
-
-  to {
-    opacity: 1;
-  }
-}
-
+/* Shared modal shell. No page-specific fields/sizing here. */
 :where(
   .bank-modal-backdrop,
   .bank-history-modal-backdrop,
@@ -197,7 +117,29 @@
   padding: 16px !important;
   overflow: auto !important;
   background: transparent !important;
-  backdrop-filter: blur(5px) !important;
+  backdrop-filter: none !important;
+}
+
+:where(
+  .bank-modal-backdrop,
+  .bank-history-modal-backdrop,
+  .dashboard-transaction-modal-backdrop,
+  .kitchen-modal-backdrop,
+  .supplier-modal-backdrop,
+  .vehicle-modal-backdrop,
+  .disbursement-modal-backdrop,
+  .modal-backdrop
+)::before {
+  position: fixed;
+  top: 68px;
+  right: 0;
+  bottom: 0;
+  left: 252px;
+  z-index: 0;
+  background: rgb(255 255 255 / 0.1);
+  backdrop-filter: blur(7px);
+  content: '';
+  pointer-events: none;
 }
 
 :where(
@@ -212,7 +154,7 @@
   .modal
 ) {
   position: relative !important;
-  z-index: 1 !important;
+  z-index: 2 !important;
   margin: auto !important;
   max-height: calc(100dvh - 32px) !important;
   overflow: hidden !important;
@@ -220,142 +162,6 @@
   box-shadow: 0 28px 80px rgb(15 23 42 / 0.18) !important;
 }
 
-/* =========================================================
-   TRANSACTION MODAL — COMPACT
-   ========================================================= */
-
-.dashboard-transaction-modal {
-  width: min(620px, calc(100vw - 24px)) !important;
-  max-width: 620px !important;
-  border-radius: 16px !important;
-}
-
-.dashboard-transaction-modal-header {
-  align-items: center !important;
-  gap: 12px !important;
-  padding: 12px 14px !important;
-}
-
-.dashboard-transaction-modal-header > div {
-  min-width: 0 !important;
-}
-
-.dashboard-transaction-modal-header > div > span {
-  display: none !important;
-}
-
-.dashboard-transaction-modal-header h2 {
-  margin: 0 !important;
-  color: var(--app-primary) !important;
-  font-size: 16px !important;
-  font-weight: 800 !important;
-  letter-spacing: -0.03em !important;
-  line-height: 1.15 !important;
-}
-
-.dashboard-transaction-modal-header > button {
-  width: 30px !important;
-  height: 30px !important;
-  flex: 0 0 30px !important;
-}
-
-.dashboard-transaction-form-error {
-  margin: 9px 14px 0 !important;
-  padding: 7px 9px !important;
-  font-size: 8.5px !important;
-}
-
-.dashboard-transaction-form-grid {
-  gap: 8px !important;
-  padding: 12px 14px 14px !important;
-}
-
-/* Compact 3-row transaction layout:
-   row 1 = tanggal + dapur
-   row 2 = jenis + supplier/rekening
-   row 3 = nominal + catatan
-*/
-.dashboard-transaction-form-grid {
-  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-}
-
-.dashboard-transaction-form-grid label {
-  gap: 4px !important;
-}
-
-.dashboard-transaction-form-grid label > span {
-  font-size: 8.5px !important;
-}
-
-.dashboard-transaction-form-grid input,
-.dashboard-transaction-form-grid select {
-  height: 38px !important;
-  min-height: 38px !important;
-  max-height: 38px !important;
-  padding: 0 10px !important;
-  font-size: 10px !important;
-  box-sizing: border-box !important;
-}
-
-.dashboard-transaction-form-grid textarea {
-  height: 38px !important;
-  min-height: 38px !important;
-  max-height: 38px !important;
-  padding: 0 10px !important;
-  font-size: 10px !important;
-  line-height: 1.2 !important;
-  resize: none !important;
-  overflow: hidden !important;
-  box-sizing: border-box !important;
-}
-
-.dashboard-transaction-modal-actions {
-  gap: 6px !important;
-  padding: 9px 14px !important;
-}
-
-.dashboard-transaction-modal-actions > button:first-child {
-  min-height: 34px !important;
-  padding: 0 12px !important;
-  font-size: 8.5px !important;
-}
-
-.dashboard-transaction-modal-actions > .dashboard-transaction-action {
-  min-height: 34px !important;
-  padding: 0 13px !important;
-  font-size: 8.5px !important;
-}
-
-/* Transaction row 3 stays two-column on desktop even though dashboard.css
-   contains the legacy full-width selector. */
-.dashboard-transaction-form-note {
-  grid-column: auto !important;
-  min-width: 0 !important;
-}
-
-/* Other modal headers already use one title; keep their geometry compact. */
-:where(
-  .kitchen-modal-head,
-  .supplier-modal-head,
-  .vehicle-modal-head,
-  .bank-modal-header
-) {
-  min-height: 0 !important;
-  gap: 10px !important;
-  padding: 13px 16px !important;
-}
-
-:where(
-  .kitchen-modal-head h2,
-  .supplier-modal-head h2,
-  .vehicle-modal-head h2,
-  .bank-modal-header h2
-) {
-  margin: 0 !important;
-  font-size: 16px !important;
-}
-
-/* Long forms scroll in their body, not in the page. */
 :where(
   .modal,
   .bank-form-modal,
@@ -423,11 +229,6 @@
   background: var(--app-border-mid);
 }
 
-.supplier-page .modal {
-  width: min(720px, calc(100vw - 32px)) !important;
-  max-width: 720px !important;
-}
-
 @media (max-width: 760px) {
   :where(
     .bank-modal,
@@ -444,6 +245,315 @@
     max-width: none !important;
     max-height: calc(100dvh - 20px) !important;
   }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :where(
+    .bank-primary-button,
+    .bank-secondary-button,
+    .bank-history-button,
+    .bank-history-action,
+    .dashboard-transaction-action,
+    .dashboard-pagination-button,
+    .kitchen-button,
+    .vehicle-button,
+    .supplier-action-button,
+    .supplier-account-action,
+    .reports-tabs button,
+    .reports-filter-panel button,
+    .disbursement-button,
+    .app-logout-button,
+    .vehicle-notification-button
+  ) {
+    transition: none;
+  }
+}
+
+/* Shared motion keyframes. One owner for application-wide animations. */
+@keyframes app-page-enter {
+  from {
+    opacity: 0;
+    transform: translateY(7px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes app-fade-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes app-modal-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.985);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes app-shimmer {
+  to {
+    transform: translateX(100%);
+  }
+}
+
+/* =========================================================
+   VISUAL POLISH RESTORED UNDER PROPER OWNERSHIP
+   ========================================================= */
+
+/* Page transition: opacity only. Never transform .app-main because
+   transformed ancestors can alter fixed modal containing blocks. */
+.app-main {
+  animation: app-page-fade-in var(--app-motion-slow) ease both;
+}
+
+@keyframes app-page-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Dashboard period chip shares the transaction action height. */
+.dashboard-hero-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.dashboard-date-chip {
+  display: inline-flex !important;
+  min-width: 160px !important;
+  min-height: 38px !important;
+  align-items: center !important;
+  gap: 4px !important;
+  padding: 0 11px !important;
+}
+
+.dashboard-date-chip span,
+.dashboard-date-chip strong {
+  display: inline !important;
+  margin: 0 !important;
+}
+
+.dashboard-date-chip span {
+  color: #64748b !important;
+  font-size: 8.5px !important;
+  font-weight: 800 !important;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+}
+
+.dashboard-date-chip span::after {
+  content: ':';
+  margin-left: 1px;
+}
+
+.dashboard-date-chip strong {
+  color: var(--app-primary) !important;
+  font-size: 10px !important;
+  font-weight: 800 !important;
+}
+
+/* Shared surfaces keep the last approved hover treatment. */
+.dashboard-filter-card,
+.dashboard-panel,
+.dashboard-kpi,
+.bank-summary-card,
+.bank-accounts-panel,
+.reports-summary-card,
+.reports-filter-panel,
+.vehicle-panel,
+.kitchen-panel,
+.supplier-panel,
+.disbursement-panel {
+  transition:
+    border-color var(--app-motion-fast) ease,
+    box-shadow var(--app-motion) ease,
+    transform var(--app-motion) var(--app-ease);
+}
+
+.dashboard-panel:hover,
+.bank-accounts-panel:hover,
+.reports-filter-panel:hover,
+.vehicle-panel:hover,
+.kitchen-panel:hover,
+.supplier-panel:hover {
+  border-color: color-mix(in srgb, var(--app-border) 72%, var(--app-primary));
+}
+
+/* Shared button interaction remains centralized. */
+button {
+  -webkit-tap-highlight-color: transparent;
+}
+
+button:not(:disabled):active {
+  transform: translateY(1px);
+}
+
+/* Modal entrance: shared keyframe, no page-specific override file needed. */
+.dashboard-transaction-modal-backdrop,
+.kitchen-modal-backdrop,
+.supplier-modal-backdrop,
+.vehicle-modal-backdrop,
+.bank-modal-backdrop,
+.bank-history-modal-backdrop,
+.disbursement-modal-backdrop {
+  animation: app-fade-in var(--app-motion-fast) ease both;
+}
+
+.dashboard-transaction-modal,
+.kitchen-modal,
+.supplier-modal,
+.vehicle-modal,
+.bank-modal,
+.bank-history-modal,
+.disbursement-modal {
+  animation: app-modal-in var(--app-motion) var(--app-ease) both;
+}
+
+@keyframes app-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes app-modal-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .app-main {
+    animation: none;
+  }
+}
+
+/* =========================================================
+   DASHBOARD TRANSACTION FORM
+   One owner for the compact 3-row layout.
+   ========================================================= */
+
+.dashboard-transaction-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 8px !important;
+}
+
+.dashboard-transaction-form-grid > label {
+  min-width: 0;
+  display: grid;
+  gap: 4px;
+}
+
+.dashboard-transaction-form-grid > label > span {
+  display: block;
+  color: #64748b;
+  font-size: 8.5px;
+  font-weight: 800;
+}
+
+.dashboard-transaction-form-grid input,
+.dashboard-transaction-form-grid select,
+.dashboard-transaction-form-grid textarea {
+  width: 100% !important;
+  height: 38px !important;
+  min-height: 38px !important;
+  max-height: 38px !important;
+  box-sizing: border-box !important;
+  margin: 0 !important;
+  border-radius: var(--app-control-radius) !important;
+}
+
+.dashboard-transaction-form-grid input,
+.dashboard-transaction-form-grid select {
+  padding: 0 10px !important;
+  font-size: 10px !important;
+}
+
+.dashboard-transaction-form-grid textarea {
+  padding: 0 10px !important;
+  font-size: 10px !important;
+  line-height: 1.2 !important;
+  resize: none !important;
+  overflow: hidden !important;
+}
+
+.dashboard-transaction-form-note {
+  grid-column: auto !important;
+  min-width: 0 !important;
+}
+
+.dashboard-transaction-modal {
+  width: min(620px, calc(100vw - 24px)) !important;
+  max-width: 620px !important;
+  border-radius: 16px !important;
+}
+
+.dashboard-transaction-modal-header {
+  align-items: center !important;
+  gap: 12px !important;
+  padding: 12px 14px !important;
+}
+
+.dashboard-transaction-modal-header > div > span {
+  display: none !important;
+}
+
+.dashboard-transaction-modal-header h2 {
+  margin: 0 !important;
+  color: var(--app-primary) !important;
+  font-size: 16px !important;
+  font-weight: 800 !important;
+}
+
+.dashboard-transaction-form-grid {
+  padding: 12px 14px 14px !important;
+}
+
+.dashboard-transaction-modal-actions {
+  gap: 6px !important;
+  padding: 9px 14px !important;
+}
+
+@media (max-width: 760px) {
+  :where(
+    .bank-modal-backdrop,
+    .bank-history-modal-backdrop,
+    .dashboard-transaction-modal-backdrop,
+    .kitchen-modal-backdrop,
+    .supplier-modal-backdrop,
+    .vehicle-modal-backdrop,
+    .disbursement-modal-backdrop,
+    .modal-backdrop
+  )::before {
+    top: 60px;
+    left: 0;
+  }
 
   .dashboard-transaction-form-grid {
     grid-template-columns: 1fr !important;
@@ -453,17 +563,101 @@
     grid-column: auto !important;
   }
 
-  .dashboard-transaction-modal-actions {
-    padding: 10px 12px !important;
-  }
-
-  .dashboard-transaction-modal-actions > button {
-    flex: 1 1 0 !important;
+  .dashboard-transaction-modal {
+    width: min(100%, calc(100vw - 20px)) !important;
+    max-width: none !important;
   }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .app-main {
-    animation: none !important;
-  }
+/* =========================================================
+   MASTER DATA ACTION BUTTONS
+   Shared owner for Kitchen / Vehicle / Supplier actions.
+   ========================================================= */
+
+.app-action-button {
+  display: inline-flex;
+  min-height: 38px;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 0 13px;
+  border: 1px solid var(--app-primary);
+  border-radius: 9px;
+  background: var(--app-primary);
+  color: var(--app-white);
+  cursor: pointer;
+  font-size: 10px;
+  font-weight: 800;
+  line-height: 1;
+  text-decoration: none;
+  transition:
+    transform 150ms ease,
+    box-shadow 150ms ease,
+    border-color 150ms ease,
+    background-color 150ms ease,
+    color 150ms ease,
+    opacity 150ms ease;
+}
+
+.app-action-button svg {
+  width: 15px;
+  height: 15px;
+  flex: 0 0 15px;
+  stroke-width: 2;
+}
+
+.app-action-button:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 7px 18px rgb(11 19 43 / 0.12);
+}
+
+.app-action-button--secondary {
+  border-color: var(--app-border-strong);
+  background: var(--app-white);
+  color: var(--app-text-dark);
+}
+
+.app-action-button--secondary:hover:not(:disabled) {
+  border-color: var(--app-border-mid);
+  background: var(--app-bg-soft);
+  box-shadow: none;
+}
+
+.app-action-button--danger {
+  border-color: #fecaca;
+  background: var(--app-white);
+  color: var(--app-danger);
+}
+
+.app-action-button--danger:hover:not(:disabled) {
+  border-color: #fca5a5;
+  background: var(--app-danger-bg);
+  box-shadow: none;
+}
+
+.app-action-button--icon {
+  width: 32px;
+  min-width: 32px;
+  height: 32px;
+  min-height: 32px;
+  padding: 0;
+  border-radius: 8px;
+}
+
+.app-action-button--icon svg {
+  width: 14px;
+  height: 14px;
+}
+
+.app-action-row {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 5px;
+  flex-wrap: nowrap;
+}
+
+.app-action-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.52;
 }

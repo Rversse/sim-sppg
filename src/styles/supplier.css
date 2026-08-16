@@ -1,9 +1,4 @@
-/* SUPPLIER
-   Extracted from the legacy src/index.css during CSS-only refactor.
-   Cascade order is preserved by src/index.css imports.
-*/
-
-/* SUPPLIER */
+/* SUPPLIER PAGE */
 .supplier-page {
   display: grid;
   gap: 16px;
@@ -36,6 +31,14 @@
   padding: 0 11px;
   background: var(--app-white);
 }
+.supplier-control-grow {
+  flex: 1;
+}
+.supplier-count {
+  color: var(--app-text-muted);
+  font-size: 10px;
+  white-space: nowrap;
+}
 .supplier-panel {
   overflow: auto;
   border: 1px solid var(--app-border-strong);
@@ -61,85 +64,67 @@
   font-size: 8px;
   text-transform: uppercase;
 }
-.supplier-action-row {
-  display: flex;
-  gap: 5px;
-  flex-wrap: wrap;
+.supplier-action-column,
+.supplier-action-cell {
+  width: 118px;
+  white-space: nowrap;
 }
-.supplier-btn {
-  min-height: 32px;
-  padding: 0 10px;
-  border: 1px solid #0b132b;
-  border-radius: 8px;
-  background: #0b132b;
-  color: var(--app-white);
+.supplier-account-count-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 7px;
+  border: 0;
+  border-radius: 7px;
+  background: #eff6ff;
+  color: #0f5fbd;
+  cursor: pointer;
   font-size: 9px;
   font-weight: 800;
-  cursor: pointer;
 }
-.supplier-btn.supplier-secondary {
-  border-color: var(--app-border-strong);
-  background: var(--app-white);
-  color: var(--app-text-dark);
+.supplier-account-count-button:hover {
+  background: #dbeafe;
 }
-.supplier-btn.supplier-danger {
-  border-color: #fecaca;
-  background: var(--app-white);
-  color: #dc2626;
+.supplier-account-count-button svg {
+  width: 13px;
+  height: 13px;
 }
-.supplier-badge {
-  display: inline-flex;
-  padding: 4px 7px;
-  border-radius: 999px;
-  font-size: 8px;
-  font-weight: 800;
+.supplier-state-error {
+  color: var(--app-danger);
 }
-.supplier-active {
-  background: #ecfdf3;
-  color: #15803d;
-}
-.supplier-inactive {
-  background: #fff1f2;
-  color: #be123c;
-}
-.supplier-account-count {
-  cursor: pointer;
-  color: #0f5fbd;
-  font-weight: 800;
-}
-.supplier-modal-backdrop {
-  position: fixed;
-  inset: 0;
-  z-index: 1000;
-  display: grid;
-  place-items: center;
-  padding: 20px;
-  background: rgb(15 23 42 / 0.52);
-  backdrop-filter: blur(4px);
+.supplier-empty {
+  padding: 28px;
+  color: #94a3b8;
+  text-align: center;
+  font-size: 11px;
 }
 .supplier-modal {
-  width: min(720px, 100%);
-  max-height: calc(100vh - 40px);
-  overflow: auto;
-  border-radius: 16px;
-  background: var(--app-white);
-  border: 1px solid var(--app-border-strong);
+  width: min(720px, calc(100vw - 32px)) !important;
+  max-width: 720px !important;
 }
 .supplier-modal-head {
   display: flex;
+  align-items: center;
   justify-content: space-between;
-  padding: 16px 18px;
+  gap: 12px;
+  padding: 13px 16px;
   border-bottom: 1px solid #eef2f7;
 }
 .supplier-modal-head h2 {
   margin: 0;
-  font-size: 16px;
   color: #0b132b;
+  font-size: 16px;
+}
+.supplier-modal-subtitle {
+  display: block;
+  margin-top: 3px;
+  color: #94a3b8;
+  font-size: 9px;
 }
 .supplier-modal-body {
-  padding: 18px;
   display: grid;
-  gap: 12px;
+  gap: 14px;
+  padding: 18px;
 }
 .supplier-form-grid {
   display: grid;
@@ -151,11 +136,11 @@
   gap: 6px;
 }
 .supplier-field.supplier-full {
-  grid-column: 1/-1;
+  grid-column: 1 / -1;
 }
 .supplier-field label {
-  font-size: 9px;
   color: #64748b;
+  font-size: 9px;
   font-weight: 800;
 }
 .supplier-field input,
@@ -165,13 +150,20 @@
   border-radius: 9px;
   padding: 0 11px;
 }
+.supplier-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+.supplier-account-list {
+  display: grid;
+  gap: 8px;
+}
 .supplier-account-card {
   padding: 12px;
   border: 1px solid #e5eaf0;
   border-radius: 10px;
-}
-.supplier-account-card + .supplier-account-card {
-  margin-top: 8px;
+  background: var(--app-white);
 }
 .supplier-account-top {
   display: grid;
@@ -179,8 +171,17 @@
   align-items: start;
   gap: 12px;
 }
-.supplier-account-top > div:first-child {
-  min-width: 0;
+.supplier-account-bank {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #0b132b;
+  font-size: 12px;
+}
+.supplier-account-bank svg {
+  width: 14px;
+  height: 14px;
+  color: #64748b;
 }
 .supplier-account-number {
   margin-top: 4px;
@@ -199,10 +200,13 @@
 }
 .supplier-account-actions {
   display: flex;
-  flex: 0 0 auto;
   align-items: flex-start;
   gap: 5px;
   flex-wrap: nowrap;
+}
+.supplier-account-editor {
+  padding-top: 12px;
+  border-top: 1px solid #eef2f7;
 }
 .supplier-mapping-list {
   display: grid;
@@ -210,21 +214,30 @@
   gap: 8px;
 }
 .supplier-mapping-item {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 8px;
   padding: 9px;
   border: 1px solid #e5eaf0;
   border-radius: 9px;
+  color: #334155;
   font-size: 10px;
+  cursor: pointer;
 }
-.supplier-modal-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 8px;
+.supplier-mapping-item input {
+  margin: 0;
+  flex: 0 0 auto;
 }
-.supplier-empty {
-  padding: 28px;
-  color: #94a3b8;
-  text-align: center;
-  font-size: 11px;
+.supplier-mapping-item span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.supplier-mapping-modal {
+  width: min(640px, calc(100vw - 32px)) !important;
+  max-width: 640px !important;
 }
 @media (max-width: 700px) {
   .supplier-header {

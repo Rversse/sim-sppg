@@ -1,9 +1,4 @@
-/* KITCHEN
-   Extracted from the legacy src/index.css during CSS-only refactor.
-   Cascade order is preserved by src/index.css imports.
-*/
-
-/* KITCHEN */
+/* KITCHEN PAGE */
 .kitchen-page {
   display: grid;
   gap: 16px;
@@ -38,25 +33,12 @@
   background: var(--app-white);
   color: #0b132b;
 }
-.kitchen-button {
-  min-height: 38px;
-  padding: 0 13px;
-  border: 1px solid #0b132b;
-  border-radius: 9px;
-  background: #0b132b;
-  color: var(--app-white);
-  font-weight: 800;
-  cursor: pointer;
+.kitchen-control-grow {
+  flex: 1;
 }
-.kitchen-secondary {
-  background: var(--app-white);
-  color: var(--app-text-dark);
-  border-color: var(--app-border-strong);
-}
-.kitchen-danger {
-  background: var(--app-white);
-  color: #dc2626;
-  border-color: #fecaca;
+.kitchen-count {
+  color: var(--app-text-muted);
+  font-size: 10px;
 }
 .kitchen-panel {
   overflow: auto;
@@ -66,8 +48,8 @@
 }
 .kitchen-table {
   width: 100%;
-  border-collapse: collapse;
   min-width: 900px;
+  border-collapse: collapse;
 }
 .kitchen-table th,
 .kitchen-table td {
@@ -82,6 +64,11 @@
   color: #64748b;
   font-size: 8px;
   text-transform: uppercase;
+}
+.kitchen-action-column,
+.kitchen-action-cell {
+  width: 96px;
+  white-space: nowrap;
 }
 .kitchen-badge {
   display: inline-flex;
@@ -104,40 +91,29 @@
   text-align: center;
   font-size: 11px;
 }
-.kitchen-modal-backdrop {
-  position: fixed;
-  inset: 0;
-  z-index: 1000;
-  display: grid;
-  place-items: center;
-  padding: 20px;
-  background: rgb(15 23 42 / 0.52);
-  backdrop-filter: blur(4px);
+.kitchen-state-error {
+  color: var(--app-danger);
 }
 .kitchen-modal {
-  width: min(620px, 100%);
-  max-height: calc(100vh - 40px);
-  overflow: auto;
-  border: 1px solid var(--app-border-strong);
-  border-radius: 16px;
-  background: var(--app-white);
-  box-shadow: 0 24px 70px rgb(15 23 42 / 0.24);
+  width: min(620px, calc(100vw - 32px));
 }
 .kitchen-modal-head {
   display: flex;
+  align-items: center;
   justify-content: space-between;
-  padding: 16px 18px;
+  gap: 12px;
+  padding: 13px 16px;
   border-bottom: 1px solid #eef2f7;
 }
 .kitchen-modal-head h2 {
   margin: 0;
-  font-size: 16px;
   color: #0b132b;
+  font-size: 16px;
 }
 .kitchen-modal-body {
-  padding: 18px;
   display: grid;
   gap: 14px;
+  padding: 18px;
 }
 .kitchen-form-grid {
   display: grid;
@@ -149,12 +125,12 @@
   gap: 6px;
 }
 .kitchen-field.kitchen-full {
-  grid-column: 1/-1;
+  grid-column: 1 / -1;
 }
 .kitchen-field label {
+  color: #64748b;
   font-size: 9px;
   font-weight: 800;
-  color: #64748b;
 }
 .kitchen-field input,
 .kitchen-field select {
@@ -170,8 +146,8 @@
 }
 @media (max-width: 700px) {
   .kitchen-header {
-    flex-direction: column;
     align-items: stretch;
+    flex-direction: column;
   }
   .kitchen-form-grid {
     grid-template-columns: 1fr;

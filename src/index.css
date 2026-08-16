@@ -2,15 +2,25 @@
 
 /*
  * SIM SPPG stylesheet entrypoint.
- * Baseline system styles load before page-specific styles so page modules
- * remain authoritative for their own visual details.
+ *
+ * Ownership order:
+ * 1. foundation.css      -> shell, design tokens, header structure
+ * 2. system.css         -> generic typography, controls, shared surfaces
+ * 3. responsive.css     -> global breakpoints
+ * 4. page-shared.css    -> tiny shared utilities/accessibility
+ * 5. page styles        -> page-specific layout/content
+ * 6. auth-notifications -> notification-specific component
+ * 7. component-surfaces -> shared modal/button behavior only
+ *
+ * global-polish.css and bank-ui-polish.css were removed because they
+ * previously acted as late-cascade override layers for selectors that
+ * already have an owning stylesheet.
  */
 
 @import './styles/foundation.css';
 @import './styles/system.css';
 @import './styles/responsive.css';
 @import './styles/page-shared.css';
-@import './styles/global-polish.css';
 
 @import './styles/dashboard.css';
 @import './styles/reports.css';
@@ -22,6 +32,4 @@
 @import './styles/bank-history.css';
 @import './styles/auth-notifications.css';
 
-/* Shared component states remain late-cascade interaction polish. */
 @import './styles/component-surfaces.css';
-@import './styles/bank-ui-polish.css';

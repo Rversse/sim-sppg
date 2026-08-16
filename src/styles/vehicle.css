@@ -1,9 +1,4 @@
-/* VEHICLE
-   Extracted from the legacy src/index.css during CSS-only refactor.
-   Cascade order is preserved by src/index.css imports.
-*/
-
-/* VEHICLE */
+/* VEHICLE PAGE */
 .vehicle-page {
   display: grid;
   gap: 16px;
@@ -27,6 +22,7 @@
 .vehicle-toolbar {
   display: flex;
   gap: 8px;
+  align-items: center;
 }
 .vehicle-input,
 .vehicle-select {
@@ -36,25 +32,13 @@
   padding: 0 11px;
   background: var(--app-white);
 }
-.vehicle-button {
-  min-height: 38px;
-  padding: 0 13px;
-  border: 1px solid #0b132b;
-  border-radius: 9px;
-  background: #0b132b;
-  color: var(--app-white);
-  font-weight: 800;
-  cursor: pointer;
+.vehicle-control-grow {
+  flex: 1;
 }
-.vehicle-secondary {
-  background: var(--app-white);
-  color: var(--app-text-dark);
-  border-color: var(--app-border-strong);
-}
-.vehicle-danger {
-  background: var(--app-white);
-  color: #dc2626;
-  border-color: #fecaca;
+.vehicle-count {
+  color: var(--app-text-muted);
+  font-size: 10px;
+  white-space: nowrap;
 }
 .vehicle-panel {
   overflow: auto;
@@ -64,8 +48,8 @@
 }
 .vehicle-table {
   width: 100%;
-  border-collapse: collapse;
   min-width: 1100px;
+  border-collapse: collapse;
 }
 .vehicle-table th,
 .vehicle-table td {
@@ -81,6 +65,11 @@
   font-size: 8px;
   text-transform: uppercase;
 }
+.vehicle-action-column,
+.vehicle-action-cell {
+  width: 96px;
+  white-space: nowrap;
+}
 .vehicle-expiry {
   display: grid;
   gap: 3px;
@@ -88,58 +77,64 @@
 .vehicle-expiry span {
   font-size: 8px;
 }
-.vehicle-expiry-ok {
+.vehicle-expiry .expiry-ok {
   color: #15803d;
 }
-.vehicle-expiry-warning {
+.vehicle-expiry .expiry-warning {
   color: #c2410c;
 }
-.vehicle-expiry-danger {
+.vehicle-expiry .expiry-danger {
   color: #dc2626;
   font-weight: 800;
 }
-.vehicle-expiry-neutral {
+.vehicle-expiry .expiry-neutral {
   color: #94a3b8;
 }
 .vehicle-reminder {
+  display: flex;
+  align-items: center;
+  gap: 7px;
   padding: 10px 12px;
   border: 1px solid #fed7aa;
+  border-radius: 10px;
   background: #fff7ed;
   color: #9a3412;
-  border-radius: 10px;
   font-size: 10px;
 }
-.vehicle-modal-backdrop {
-  position: fixed;
-  inset: 0;
-  z-index: 1000;
-  display: grid;
-  place-items: center;
-  padding: 20px;
-  background: rgb(15 23 42 / 0.52);
-  backdrop-filter: blur(4px);
+.vehicle-reminder svg {
+  width: 14px;
+  height: 14px;
+  flex: 0 0 14px;
+}
+.vehicle-state {
+  padding: 26px;
+  color: #94a3b8;
+  text-align: center;
+  font-size: 11px;
+}
+.vehicle-state-error {
+  color: var(--app-danger);
 }
 .vehicle-modal {
-  width: min(650px, 100%);
-  max-height: calc(100vh - 40px);
-  overflow: auto;
-  border-radius: 16px;
-  background: var(--app-white);
+  width: min(650px, calc(100vw - 32px));
 }
 .vehicle-modal-head {
   display: flex;
+  align-items: center;
   justify-content: space-between;
-  padding: 16px 18px;
+  gap: 12px;
+  padding: 13px 16px;
   border-bottom: 1px solid #eef2f7;
 }
 .vehicle-modal-head h2 {
   margin: 0;
+  color: #0b132b;
   font-size: 16px;
 }
 .vehicle-modal-body {
-  padding: 18px;
   display: grid;
   gap: 14px;
+  padding: 18px;
 }
 .vehicle-grid {
   display: grid;
@@ -151,12 +146,12 @@
   gap: 6px;
 }
 .vehicle-field.vehicle-full {
-  grid-column: 1/-1;
+  grid-column: 1 / -1;
 }
 .vehicle-field label {
+  color: #64748b;
   font-size: 9px;
   font-weight: 800;
-  color: #64748b;
 }
 .vehicle-field input,
 .vehicle-field select {
@@ -172,11 +167,12 @@
 }
 @media (max-width: 700px) {
   .vehicle-header {
-    flex-direction: column;
     align-items: stretch;
+    flex-direction: column;
   }
   .vehicle-toolbar {
     flex-direction: column;
+    align-items: stretch;
   }
   .vehicle-grid {
     grid-template-columns: 1fr;
