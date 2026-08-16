@@ -30,6 +30,7 @@
 @import './styles/vehicle.css';
 @import './styles/bank.css';
 @import './styles/disbursement.css';
+@import './styles/login.css';
 @import './styles/auth-notifications.css';
 
 @import './styles/component-surfaces.css';
