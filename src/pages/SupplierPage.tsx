@@ -60,11 +60,14 @@ export function SupplierPage() {
   )
   const [supplierForm, setSupplierForm] =
     useState<SupplierInput>(EMPTY_SUPPLIER)
+
   const [accountSupplierId, setAccountSupplierId] = useState<string | null>(
     null
   )
+  const [accountReadOnly, setAccountReadOnly] = useState(false)
   const [accountForm, setAccountForm] = useState<AccountInput>(EMPTY_ACCOUNT)
   const [editingAccountId, setEditingAccountId] = useState<string | null>(null)
+
   const [mappingAccountId, setMappingAccountId] = useState<string | null>(null)
   const [selectedKitchens, setSelectedKitchens] = useState<string[]>([])
   const [kitchens, setKitchens] = useState<{ id: string; name: string }[]>([])
@@ -85,6 +88,7 @@ export function SupplierPage() {
 
   useEffect(() => {
     if (!canView) return
+
     let cancelled = false
 
     void getSuppliers()
@@ -108,6 +112,7 @@ export function SupplierPage() {
 
   const filtered = useMemo(() => {
     const keyword = search.trim().toLowerCase()
+
     const result = keyword
       ? suppliers.filter((supplier) =>
           [supplier.business_name, supplier.owner_name, supplier.product_type]
@@ -127,6 +132,7 @@ export function SupplierPage() {
 
   function openAddSupplier() {
     if (!canManage) return
+
     setEditingSupplierId(null)
     setSupplierForm(structuredClone(EMPTY_SUPPLIER))
     setSupplierModal(true)
@@ -134,6 +140,7 @@ export function SupplierPage() {
 
   function openEditSupplier(supplier: Supplier) {
     if (!canManage) return
+
     setEditingSupplierId(supplier.id)
     setSupplierForm({
       business_name: supplier.business_name,
@@ -147,16 +154,21 @@ export function SupplierPage() {
 
   async function saveSupplier() {
     if (!canManage || busy) return
+
     setBusy(true)
+
     try {
       const isEditing = Boolean(editingSupplierId)
+
       if (isEditing) {
         await updateSupplier(editingSupplierId!, supplierForm)
       } else {
         await createSupplier(supplierForm)
       }
+
       setSupplierModal(false)
       await load()
+
       success(
         isEditing ? 'Supplier diperbarui' : 'Supplier ditambahkan',
         isEditing
@@ -176,6 +188,7 @@ export function SupplierPage() {
 
   async function removeSupplier(supplier: Supplier) {
     if (!canManage) return
+
     if (
       !window.confirm(
         `Yakin ingin menghapus supplier "${supplier.business_name}"?`
@@ -183,6 +196,7 @@ export function SupplierPage() {
     ) {
       return
     }
+
     try {
       await deleteSupplier(supplier.id)
       await load()
@@ -197,16 +211,21 @@ export function SupplierPage() {
   }
 
   function openAccountManager(supplierId: string) {
-    if (!canManage) return
+    if (!canView) return
+
     setAccountSupplierId(supplierId)
+    setAccountReadOnly(!canManage)
     setEditingAccountId(null)
     setAccountForm(structuredClone(EMPTY_ACCOUNT))
   }
 
   function closeAccountManager() {
     if (busy) return
+
     setAccountSupplierId(null)
+    setAccountReadOnly(false)
     setEditingAccountId(null)
+    setAccountForm(structuredClone(EMPTY_ACCOUNT))
   }
 
   const accountSupplier =
@@ -214,6 +233,7 @@ export function SupplierPage() {
 
   function openEditAccount(account: Supplier['accounts'][number]) {
     if (!canManage) return
+
     setEditingAccountId(account.id)
     setAccountForm({
       bank: account.bank,
@@ -224,17 +244,22 @@ export function SupplierPage() {
 
   async function saveAccount() {
     if (!canManage || !accountSupplierId || busy) return
+
     setBusy(true)
+
     try {
       const isEditing = Boolean(editingAccountId)
+
       await saveSupplierAccount(
         accountSupplierId,
         editingAccountId,
         accountForm
       )
+
       setEditingAccountId(null)
       setAccountForm(structuredClone(EMPTY_ACCOUNT))
       await load()
+
       success(
         isEditing ? 'Rekening diperbarui' : 'Rekening ditambahkan',
         isEditing
@@ -260,6 +285,7 @@ export function SupplierPage() {
     ) {
       return
     }
+
     try {
       await deleteSupplierAccount(accountSupplierId, accountId)
       await load()
@@ -275,7 +301,9 @@ export function SupplierPage() {
 
   async function openMapping(accountId: string) {
     if (!canManage) return
+
     setMappingAccountId(accountId)
+
     try {
       setSelectedKitchens(await getAccountKitchenIds(accountId))
       setKitchens(await getActiveKitchens())
@@ -290,11 +318,14 @@ export function SupplierPage() {
 
   async function saveMapping() {
     if (!canManage || !mappingAccountId || busy) return
+
     setBusy(true)
+
     try {
       await saveAccountKitchenMapping(mappingAccountId, selectedKitchens)
       setMappingAccountId(null)
       await load()
+
       success(
         'Mapping disimpan',
         'Mapping rekening ke dapur berhasil disimpan.'
@@ -390,6 +421,7 @@ export function SupplierPage() {
                       <span>{supplier.accounts.length} Rek</span>
                     </button>
                   </td>
+
                   {canManage ? (
                     <td className="supplier-action-cell">
                       <div className="app-action-row">
@@ -402,6 +434,7 @@ export function SupplierPage() {
                         >
                           <Pencil aria-hidden="true" />
                         </button>
+
                         <button
                           type="button"
                           className="app-action-button app-action-button--icon app-action-button--secondary"
@@ -411,6 +444,7 @@ export function SupplierPage() {
                         >
                           <WalletCards aria-hidden="true" />
                         </button>
+
                         <button
                           type="button"
                           className="app-action-button app-action-button--icon app-action-button--danger"
@@ -449,6 +483,7 @@ export function SupplierPage() {
               <h2 id="supplier-modal-title">
                 {editingSupplierId ? 'Edit Supplier' : 'Tambah Supplier'}
               </h2>
+
               <button
                 type="button"
                 className="app-action-button app-action-button--icon app-action-button--secondary"
@@ -476,6 +511,7 @@ export function SupplierPage() {
                     }
                   />
                 </div>
+
                 <div className="supplier-field">
                   <label htmlFor="supplier-owner">Pemilik</label>
                   <input
@@ -489,6 +525,7 @@ export function SupplierPage() {
                     }
                   />
                 </div>
+
                 <div className="supplier-field">
                   <label htmlFor="supplier-product">Jenis Produk</label>
                   <input
@@ -502,6 +539,7 @@ export function SupplierPage() {
                     }
                   />
                 </div>
+
                 <div className="supplier-field">
                   <label htmlFor="supplier-phone">No. HP</label>
                   <input
@@ -515,6 +553,7 @@ export function SupplierPage() {
                     }
                   />
                 </div>
+
                 <div className="supplier-field supplier-full">
                   <label htmlFor="supplier-address">Alamat</label>
                   <input
@@ -540,6 +579,7 @@ export function SupplierPage() {
                   <X aria-hidden="true" />
                   <span>Batal</span>
                 </button>
+
                 <button
                   type="button"
                   className="app-action-button"
@@ -565,7 +605,9 @@ export function SupplierPage() {
           }}
         >
           <section
-            className="modal supplier-modal"
+            className={`modal supplier-modal supplier-account-modal${
+              accountReadOnly ? ' is-readonly' : ''
+            }`}
             role="dialog"
             aria-modal="true"
             aria-labelledby="supplier-account-title"
@@ -576,9 +618,12 @@ export function SupplierPage() {
                   Rekening - {accountSupplier?.business_name}
                 </h2>
                 <span className="supplier-modal-subtitle">
-                  Kelola rekening dan mapping dapur.
+                  {accountReadOnly
+                    ? 'Informasi rekening dan mapping dapur.'
+                    : 'Kelola rekening dan mapping dapur.'}
                 </span>
               </div>
+
               <button
                 type="button"
                 className="app-action-button app-action-button--icon app-action-button--secondary"
@@ -602,9 +647,11 @@ export function SupplierPage() {
                             <Building2 aria-hidden="true" />
                             {account.bank}
                           </strong>
+
                           <div className="supplier-account-number">
                             {account.account_number || '-'}
                           </div>
+
                           <span className="supplier-account-mapping">
                             {account.kitchen_account_rules.length
                               ? account.kitchen_account_rules
@@ -615,36 +662,62 @@ export function SupplierPage() {
                           </span>
                         </div>
 
-                        <div className="supplier-account-actions">
-                          <button
-                            type="button"
-                            className="app-action-button app-action-button--icon app-action-button--secondary"
-                            onClick={() => openEditAccount(account)}
-                            aria-label={`Edit rekening ${account.bank}`}
-                            title={`Edit rekening ${account.bank}`}
-                          >
-                            <Pencil aria-hidden="true" />
-                          </button>
-                          <button
-                            type="button"
-                            className="app-action-button app-action-button--icon app-action-button--secondary"
-                            onClick={() => void openMapping(account.id)}
-                            aria-label="Mapping dapur"
-                            title="Mapping dapur"
-                          >
-                            <Link2 aria-hidden="true" />
-                          </button>
-                          <button
-                            type="button"
-                            className="app-action-button app-action-button--icon app-action-button--danger"
-                            onClick={() => void removeAccount(account.id)}
-                            aria-label={`Hapus rekening ${account.bank}`}
-                            title={`Hapus rekening ${account.bank}`}
-                          >
-                            <Trash2 aria-hidden="true" />
-                          </button>
-                        </div>
+                        {!accountReadOnly ? (
+                          <div className="supplier-account-actions">
+                            <button
+                              type="button"
+                              className="app-action-button app-action-button--icon app-action-button--secondary"
+                              onClick={() => openEditAccount(account)}
+                              aria-label={`Edit rekening ${account.bank}`}
+                              title={`Edit rekening ${account.bank}`}
+                            >
+                              <Pencil aria-hidden="true" />
+                            </button>
+
+                            <button
+                              type="button"
+                              className="app-action-button app-action-button--icon app-action-button--secondary"
+                              onClick={() => void openMapping(account.id)}
+                              aria-label="Mapping dapur"
+                              title="Mapping dapur"
+                            >
+                              <Link2 aria-hidden="true" />
+                            </button>
+
+                            <button
+                              type="button"
+                              className="app-action-button app-action-button--icon app-action-button--danger"
+                              onClick={() => void removeAccount(account.id)}
+                              aria-label={`Hapus rekening ${account.bank}`}
+                              title={`Hapus rekening ${account.bank}`}
+                            >
+                              <Trash2 aria-hidden="true" />
+                            </button>
+                          </div>
+                        ) : null}
                       </div>
+
+                      {accountReadOnly ? (
+                        <div className="supplier-account-readonly-meta">
+                          <span>
+                            Saldo Awal:{' '}
+                            <strong>
+                              Rp{' '}
+                              {new Intl.NumberFormat('id-ID').format(
+                                Number(account.opening_balance) || 0
+                              )}
+                            </strong>
+                          </span>
+                          <span>
+                            Mapping:{' '}
+                            <strong>
+                              {account.kitchen_account_rules.length
+                                ? `${account.kitchen_account_rules.length} dapur`
+                                : 'Belum dipetakan'}
+                            </strong>
+                          </span>
+                        </div>
+                      ) : null}
                     </article>
                   ))}
                 </div>
@@ -654,89 +727,96 @@ export function SupplierPage() {
                 </div>
               )}
 
-              <div className="supplier-account-editor">
-                <div className="supplier-form-grid">
-                  <div className="supplier-field">
-                    <label htmlFor="supplier-account-bank">Bank</label>
-                    <select
-                      id="supplier-account-bank"
-                      value={accountForm.bank}
-                      onChange={(event) =>
-                        setAccountForm((current) => ({
-                          ...current,
-                          bank: event.target.value
-                        }))
-                      }
-                    >
-                      <option>BNI</option>
-                      <option>BRI</option>
-                      <option>Mandiri</option>
-                      <option>BCA</option>
-                      <option>BSI</option>
-                    </select>
-                  </div>
-                  <div className="supplier-field">
-                    <label htmlFor="supplier-account-number">
-                      Nomor Rekening
-                    </label>
-                    <input
-                      id="supplier-account-number"
-                      value={accountForm.account_number}
-                      onChange={(event) =>
-                        setAccountForm((current) => ({
-                          ...current,
-                          account_number: event.target.value
-                        }))
-                      }
-                    />
-                  </div>
-                  <div className="supplier-field">
-                    <label htmlFor="supplier-opening-balance">Saldo Awal</label>
-                    <input
-                      id="supplier-opening-balance"
-                      type="number"
-                      min="0"
-                      value={accountForm.opening_balance}
-                      onChange={(event) =>
-                        setAccountForm((current) => ({
-                          ...current,
-                          opening_balance: Number(event.target.value) || 0
-                        }))
-                      }
-                    />
-                  </div>
-                </div>
+              {!accountReadOnly ? (
+                <div className="supplier-account-editor">
+                  <div className="supplier-form-grid">
+                    <div className="supplier-field">
+                      <label htmlFor="supplier-account-bank">Bank</label>
+                      <select
+                        id="supplier-account-bank"
+                        value={accountForm.bank}
+                        onChange={(event) =>
+                          setAccountForm((current) => ({
+                            ...current,
+                            bank: event.target.value
+                          }))
+                        }
+                      >
+                        <option>BNI</option>
+                        <option>BRI</option>
+                        <option>Mandiri</option>
+                        <option>BCA</option>
+                        <option>BSI</option>
+                      </select>
+                    </div>
 
-                <div className="supplier-modal-actions">
-                  <button
-                    type="button"
-                    className="app-action-button app-action-button--secondary"
-                    onClick={() => {
-                      setEditingAccountId(null)
-                      setAccountForm(structuredClone(EMPTY_ACCOUNT))
-                    }}
-                    disabled={busy}
-                  >
-                    <X aria-hidden="true" />
-                    <span>Reset</span>
-                  </button>
-                  <button
-                    type="button"
-                    className="app-action-button"
-                    onClick={() => void saveAccount()}
-                    disabled={busy}
-                  >
-                    <Save aria-hidden="true" />
-                    <span>
-                      {busy
-                        ? 'Menyimpan...'
-                        : editingAccountId
-                          ? 'Perbarui Rekening'
-                          : 'Tambah Rekening'}
-                    </span>
-                  </button>
+                    <div className="supplier-field">
+                      <label htmlFor="supplier-account-number">
+                        Nomor Rekening
+                      </label>
+                      <input
+                        id="supplier-account-number"
+                        value={accountForm.account_number}
+                        onChange={(event) =>
+                          setAccountForm((current) => ({
+                            ...current,
+                            account_number: event.target.value
+                          }))
+                        }
+                      />
+                    </div>
+
+                    <div className="supplier-field">
+                      <label htmlFor="supplier-opening-balance">
+                        Saldo Awal
+                      </label>
+                      <input
+                        id="supplier-opening-balance"
+                        type="number"
+                        min="0"
+                        value={accountForm.opening_balance}
+                        onChange={(event) =>
+                          setAccountForm((current) => ({
+                            ...current,
+                            opening_balance: Number(event.target.value) || 0
+                          }))
+                        }
+                      />
+                    </div>
+                  </div>
+
+                  <div className="supplier-modal-actions">
+                    <button
+                      type="button"
+                      className="app-action-button app-action-button--secondary"
+                      onClick={() => {
+                        setEditingAccountId(null)
+                        setAccountForm(structuredClone(EMPTY_ACCOUNT))
+                      }}
+                      disabled={busy}
+                    >
+                      <X aria-hidden="true" />
+                      <span>Reset</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      className="app-action-button"
+                      onClick={() => void saveAccount()}
+                      disabled={busy}
+                    >
+                      <Save aria-hidden="true" />
+                      <span>
+                        {busy
+                          ? 'Menyimpan...'
+                          : editingAccountId
+                            ? 'Perbarui Rekening'
+                            : 'Tambah Rekening'}
+                      </span>
+                    </button>
+                  </div>
                 </div>
-              </div>
+              ) : null}
             </div>
           </section>
         </div>
@@ -764,6 +844,7 @@ export function SupplierPage() {
                   {mappedAccount?.bank} • {mappedAccount?.account_number || '-'}
                 </span>
               </div>
+
               <button
                 type="button"
                 className="app-action-button app-action-button--icon app-action-button--secondary"
@@ -806,6 +887,7 @@ export function SupplierPage() {
                   <X aria-hidden="true" />
                   <span>Batal</span>
                 </button>
+
                 <button
                   type="button"
                   className="app-action-button"
