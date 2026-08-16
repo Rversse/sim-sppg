@@ -1,50 +1,56 @@
-/* Supplier mapping styles are canonical in 06-supplier.css. */
+/* =========================================================
+   AUTH + SHARED UTILITIES + VEHICLE NOTIFICATIONS
+   ========================================================= */
 
-/* AUTH + SHARED UTILITIES + VEHICLE NOTIFICATIONS
-   Extracted from the legacy src/index.css during CSS-only refactor.
-   Cascade order is preserved by src/index.css imports.
-*/
-
-/* extracted static inline styles */
 .kitchen-control-grow,
 .supplier-control-grow,
 .vehicle-control-grow {
   flex: 1;
 }
+
 .kitchen-count,
 .supplier-count,
 .vehicle-count {
   color: var(--app-text-muted);
   font-size: 10px;
 }
+
 .kitchen-state-error,
 .supplier-state-error,
 .vehicle-state-error {
   color: var(--app-danger);
 }
+
 .kitchen-action-row,
 .vehicle-action-row {
   display: flex;
   gap: 5px;
 }
+
 .supplier-account-editor {
   border-top: 1px solid var(--app-border-soft);
   padding-top: 12px;
 }
+
 .supplier-modal-actions-spaced {
   margin-top: 12px;
 }
+
 .supplier-mapping-summary {
   color: #475569;
   font-size: 11px;
 }
+
 .vehicle-state {
   padding: 26px;
   text-align: center;
   color: var(--app-text-subtle);
 }
 
-/* AUTHENTICATION / ACCESS */
+/* =========================================================
+   AUTHENTICATION / ACCESS
+   ========================================================= */
+
 .login-page {
   display: flex;
   min-height: 100vh;
@@ -52,6 +58,7 @@
   justify-content: center;
   padding: 24px;
 }
+
 .login-card {
   width: min(100%, 28rem);
   padding: 24px;
@@ -60,35 +67,42 @@
   background: var(--app-white);
   box-shadow: var(--app-shadow-card);
 }
+
 .login-header {
   margin-bottom: 24px;
   text-align: center;
 }
+
 .login-header h1 {
   margin: 0;
   color: var(--app-primary);
   font-size: 24px;
   font-weight: 700;
 }
+
 .login-header p {
   margin: 8px 0 0;
   color: var(--app-text-muted);
   font-size: 14px;
 }
+
 .login-account-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 8px;
 }
+
 .login-pin-field {
   margin-top: 24px;
 }
+
 .login-pin-field label {
   display: block;
   margin-bottom: 8px;
   font-size: 14px;
   font-weight: 600;
 }
+
 .login-pin-input {
   width: 100%;
   height: 46px;
@@ -101,18 +115,22 @@
   letter-spacing: 0.45em;
   outline: none;
 }
+
 .login-pin-input:focus {
   box-shadow: 0 0 0 2px var(--app-accent);
 }
+
 .login-error {
   margin: 16px 0 0;
   color: var(--app-danger);
   font-size: 14px;
 }
+
 .login-submit {
   width: 100%;
   margin-top: 24px;
 }
+
 .unauthorized-page {
   display: flex;
   min-height: 100vh;
@@ -122,20 +140,24 @@
   gap: 16px;
   padding: 24px;
 }
+
 .unauthorized-card {
   text-align: center;
 }
+
 .unauthorized-card h1 {
   margin: 0;
   color: var(--app-primary);
   font-size: 24px;
   font-weight: 600;
 }
+
 .unauthorized-card p {
   margin: 8px 0 0;
   color: var(--app-text-muted);
   font-size: 14px;
 }
+
 .unauthorized-link {
   display: inline-flex;
   min-height: 38px;
@@ -151,11 +173,11 @@
   font-weight: 800;
   box-shadow: 0 4px 12px rgb(15 23 42 / 0.08);
 }
+
 .unauthorized-link:hover {
   opacity: 0.9;
 }
 
-/* Dashboard bars remain data-driven at runtime; TSX supplies the height. */
 .dashboard-bar {
   height: var(--dashboard-bar-height, 4%);
 }
@@ -164,92 +186,173 @@
   color: var(--app-text-subtle);
 }
 
-/* VEHICLE EXPIRY NOTIFICATION */
+/* =========================================================
+   VEHICLE EXPIRY NOTIFICATION
+   ========================================================= */
+
 .vehicle-notification {
   position: relative;
+  display: flex;
+  align-items: center;
 }
+
 .vehicle-notification-button {
   position: relative;
+  display: grid;
   width: 36px;
   height: 36px;
-  border: 0;
-  border-radius: 50%;
+  place-items: center;
+  border: 1px solid transparent;
+  border-radius: 10px;
   background: transparent;
+  color: #475569;
   cursor: pointer;
-  font-size: 18px;
 }
+
+.vehicle-notification-button:hover {
+  border-color: var(--app-border-strong);
+  background: var(--app-white);
+  color: var(--app-primary);
+}
+
+.vehicle-notification-button svg {
+  width: 18px;
+  height: 18px;
+  stroke-width: 2.1;
+}
+
 .vehicle-notification-badge {
   position: absolute;
-  top: 1px;
-  right: 0;
+  top: 0;
+  right: -2px;
+  display: grid;
   min-width: 16px;
   height: 16px;
+  place-items: center;
   padding: 0 4px;
+  border: 2px solid var(--app-white);
   border-radius: 999px;
   background: #dc2626;
   color: var(--app-white);
-  font-size: 9px;
-  font-weight: 800;
-  display: grid;
-  place-items: center;
+  font-size: 8px;
+  font-weight: 900;
+  line-height: 1;
 }
+
 .vehicle-notification-popover {
   position: absolute;
-  top: 44px;
+  top: calc(100% + 10px);
   right: 0;
-  width: min(380px, calc(100vw - 30px));
-  z-index: 1100;
-  border: 1px solid var(--app-border-strong);
-  border-radius: 14px;
-  background: var(--app-white);
-  box-shadow: 0 18px 50px rgb(15 23 42 / 0.18);
+  width: min(390px, calc(100vw - 28px));
   overflow: hidden;
+  border: 1px solid var(--app-border-strong);
+  border-radius: 16px;
+  background: var(--app-white);
+  box-shadow: 0 22px 60px rgb(15 23 42 / 0.15);
 }
+
 .vehicle-notification-head {
   display: flex;
+  align-items: center;
   justify-content: space-between;
-  padding: 13px 15px;
-  border-bottom: 1px solid #eef2f7;
+  gap: 12px;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--app-border-soft);
 }
+
 .vehicle-notification-head strong {
-  font-size: 12px;
+  color: var(--app-primary);
+  font-size: 11px;
+  font-weight: 900;
 }
+
+.vehicle-notification-close {
+  display: grid;
+  width: 30px;
+  height: 30px;
+  place-items: center;
+  border: 1px solid var(--app-border-strong);
+  border-radius: 8px;
+  background: var(--app-white);
+  color: var(--app-text-muted);
+  cursor: pointer;
+}
+
+.vehicle-notification-close svg {
+  width: 15px;
+  height: 15px;
+}
+
 .vehicle-notification-list {
-  max-height: 420px;
+  max-height: min(430px, calc(100vh - 170px));
   overflow: auto;
 }
+
 .vehicle-notification-item {
-  padding: 12px 15px;
+  padding: 9px 14px;
   border-bottom: 1px solid #f1f5f9;
 }
+
 .vehicle-notification-item:last-child {
   border-bottom: 0;
 }
-.vehicle-notification-item strong {
-  font-size: 10px;
+
+.vehicle-notification-item-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
 }
-.vehicle-notification-item div {
+
+.vehicle-notification-item-top strong {
   font-size: 9px;
-  color: #64748b;
-  margin-top: 3px;
+  font-weight: 900;
+  letter-spacing: 0.04em;
 }
+
+.vehicle-notification-item-top span {
+  color: #64748b;
+  font-size: 8px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.vehicle-notification-name {
+  margin-top: 4px;
+  color: #0b132b;
+  font-size: 9px;
+  font-weight: 800;
+}
+
+.vehicle-notification-item
+  > div:not(.vehicle-notification-item-top):not(.vehicle-notification-name) {
+  margin-top: 2px;
+  color: #64748b;
+  font-size: 8px;
+  line-height: 1.35;
+}
+
 .vehicle-notification-danger {
   color: #dc2626;
 }
+
 .vehicle-notification-warning {
   color: #c2410c;
 }
+
 .vehicle-notification-empty {
-  padding: 22px 15px;
-  text-align: center;
+  padding: 22px 14px;
   color: #94a3b8;
-  font-size: 10px;
+  font-size: 9px;
+  line-height: 1.5;
+  text-align: center;
 }
-.vehicle-notification-close {
-  border: 0;
-  background: transparent;
-  cursor: pointer;
-  color: var(--app-text-muted);
-  font-size: 16px;
-  line-height: 1;
+
+@media (max-width: 760px) {
+  .vehicle-notification-popover {
+    position: fixed;
+    top: 68px;
+    right: 12px;
+    width: min(390px, calc(100vw - 24px));
+  }
 }

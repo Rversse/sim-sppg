@@ -6,6 +6,8 @@ import {
   ChefHat,
   FileText,
   LayoutDashboard,
+  LogOut,
+  ShieldCheck,
   Wallet,
   type LucideIcon
 } from 'lucide-react'
@@ -14,6 +16,7 @@ import { supabase } from '@/lib/supabase'
 import { canAccess, type Permission } from '@/features/auth/role-policy'
 import { useAuth } from '@/features/auth/use-auth'
 import { useToast } from '@/features/ui/toast-context'
+import { VehicleExpiryNotification } from '@/components/VehicleExpiryNotification'
 
 type NavigationItem = {
   label: string
@@ -121,8 +124,8 @@ export function AppLayout() {
     .filter((section) => section.items.length > 0)
 
   const visibleNavigation = visibleSections.flatMap((section) => section.items)
-
   const pageTitle = getPageTitle(pathname)
+  const canSeeVehicleNotifications = canAccess(user?.role, 'vehicle.view')
 
   async function handleLogout() {
     const { error: signOutError } = await supabase.auth.signOut()
@@ -193,18 +196,22 @@ export function AppLayout() {
           </div>
 
           <div className="app-user">
-            <span className="app-user-role">{user?.role ?? 'user'}</span>
+            {canSeeVehicleNotifications ? <VehicleExpiryNotification /> : null}
 
-            <span className="app-user-avatar">
-              {(user?.email?.[0] ?? 'U').toUpperCase()}
+            <span className="app-user-role">
+              <ShieldCheck aria-hidden="true" />
+              {user?.role ?? 'user'}
             </span>
 
             <button
               type="button"
               className="app-logout-button"
               onClick={() => void handleLogout()}
+              aria-label="Keluar"
+              title="Keluar"
             >
-              Keluar
+              <LogOut aria-hidden="true" />
+              <span>Keluar</span>
             </button>
           </div>
         </header>

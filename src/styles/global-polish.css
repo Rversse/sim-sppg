@@ -9,9 +9,7 @@
    - page CSS owns page-specific geometry.
    - component-surfaces.css owns shared component states.
 
-   This file intentionally does NOT redefine:
-   .app-shell, .app-sidebar geometry, .app-content, .app-main
-   width/height/position/flex-basis/overflow.
+   This file intentionally does NOT redefine shell geometry.
    ========================================================= */
 
 :root {
@@ -76,23 +74,76 @@ textarea:focus-visible {
 
 .app-user {
   flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.app-user-role {
+  display: inline-flex;
+  min-height: 32px;
+  align-items: center;
+  gap: 6px;
+  padding: 0 9px;
+  border: 1px solid var(--app-border-strong);
+  border-radius: 9px;
+  background: var(--app-white);
+  color: #64748b;
+  font-size: 9px;
+  font-weight: 800;
+  text-transform: capitalize;
+}
+
+.app-user-role svg {
+  width: 14px;
+  height: 14px;
+  color: var(--app-primary);
+  stroke-width: 2.2;
 }
 
 .app-user-avatar {
   display: grid;
   place-items: center;
   overflow: hidden;
+  width: 34px;
+  height: 34px;
+  flex: 0 0 34px;
+  border: 1px solid rgb(57 255 136 / 0.4);
+  border-radius: 50%;
+  background: var(--app-primary);
   color: var(--app-accent);
   font-size: 12px;
   font-weight: 900;
+  line-height: 1;
 }
 
-/* =========================================================
-   PAGE-LEVEL TITLES
-   The canonical page title now lives in AppLayout.
-   Keep page descriptions/actions, but remove duplicate h1s.
-   ========================================================= */
+.app-logout-button {
+  display: inline-flex;
+  min-height: 34px;
+  align-items: center;
+  gap: 6px;
+  padding: 0 9px;
+  border: 1px solid transparent;
+  border-radius: 9px;
+  background: transparent;
+  color: var(--app-text-dark);
+  cursor: pointer;
+  font-size: 10px;
+  font-weight: 800;
+}
 
+.app-logout-button svg {
+  width: 15px;
+  height: 15px;
+  stroke-width: 2;
+}
+
+.app-logout-button:hover {
+  border-color: var(--app-border-strong);
+  background: var(--app-white);
+}
+
+/* The canonical page title now lives in AppLayout. */
 .dashboard-hero h1,
 .reports-header h1,
 .bank-hero h1,
@@ -103,9 +154,53 @@ textarea:focus-visible {
   display: none;
 }
 
+/* Remove obsolete page identity/role eyebrows. */
+.dashboard-eyebrow,
+.bank-eyebrow,
+.disbursement-eyebrow {
+  display: none;
+}
+
+/* Dashboard hero controls share one visual height. */
+.dashboard-hero-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.dashboard-date-chip {
+  display: grid;
+  min-width: 160px;
+  min-height: 38px;
+  align-content: center;
+  padding: 7px 11px;
+  border: 1px solid var(--app-border-strong);
+  border-radius: 10px;
+  background: var(--app-white);
+  box-shadow: 0 5px 20px rgb(15 23 42 / 0.04);
+}
+
+.dashboard-date-chip span {
+  margin-bottom: 2px;
+  color: #94a3b8;
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.dashboard-date-chip strong {
+  color: var(--app-primary);
+  font-size: 10px;
+}
+
+.dashboard-transaction-action {
+  min-height: 38px;
+  padding: 0 13px;
+}
+
 /* =========================================================
    SIDEBAR / NAVIGATION INTERACTION
-   Geometry remains exclusively in foundation.css.
    ========================================================= */
 
 .app-brand,
@@ -188,17 +283,6 @@ textarea:focus-visible {
 .app-user-avatar:hover {
   transform: translateY(-1px);
   box-shadow: 0 6px 18px rgb(11 19 43 / 0.16);
-}
-
-.app-logout-button {
-  transition:
-    transform var(--app-motion-fast) var(--app-ease),
-    border-color var(--app-motion-fast) ease,
-    background-color var(--app-motion-fast) ease;
-}
-
-.app-logout-button:hover {
-  transform: translateY(-1px);
 }
 
 .app-main {
@@ -299,6 +383,7 @@ textarea:not(:disabled) {
 
 /* =========================================================
    MODAL ENTRANCE
+   Geometry/backdrop is owned by component-surfaces.css.
    ========================================================= */
 
 .dashboard-transaction-modal-backdrop,
@@ -328,6 +413,36 @@ textarea:not(:disabled) {
 
   .app-header-kicker {
     font-size: 7px;
+  }
+
+  .app-user {
+    gap: 5px;
+  }
+
+  .app-user-role {
+    display: none;
+  }
+
+  .app-logout-button {
+    min-height: 32px;
+    padding: 0 7px;
+  }
+
+  .app-logout-button span {
+    display: none;
+  }
+
+  .app-logout-button svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .dashboard-hero-actions {
+    width: 100%;
+  }
+
+  .dashboard-date-chip {
+    flex: 1 1 auto;
   }
 }
 

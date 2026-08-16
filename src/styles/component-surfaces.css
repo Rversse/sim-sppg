@@ -1,7 +1,6 @@
 /* =========================================================
-   COMPONENT SURFACES — 5C.5
-   Shared interaction and surface polish.
-   This layer normalizes states without changing component structure.
+   COMPONENT SURFACES — 5C.7
+   Shared interaction, modal, and surface normalization.
    ========================================================= */
 
 :where(
@@ -97,58 +96,236 @@
   opacity: 0.52;
 }
 
-:where(
-  .bank-history-badge,
-  .kitchen-badge,
-  .supplier-badge,
-  .vehicle-notification-badge,
-  .disbursement-progress-badge,
-  .dashboard-panel-badge,
-  .dashboard-flow
-) {
-  border-radius: var(--app-radius-sm);
-  font-weight: 800;
-  line-height: 1.2;
+/* =========================================================
+   DASHBOARD HEADER CLEANUP
+   ========================================================= */
+
+.dashboard-eyebrow {
+  display: none !important;
 }
 
-:where(
-  .bank-empty,
-  .dashboard-empty,
-  .reports-empty,
-  .kitchen-empty,
-  .supplier-empty,
-  .disbursement-empty,
-  .vehicle-notification-empty
-) {
-  border-radius: var(--app-radius-lg);
-  line-height: 1.5;
+.dashboard-date-chip {
+  display: inline-flex !important;
+  min-width: 160px !important;
+  min-height: 38px !important;
+  align-items: center !important;
+  gap: 5px !important;
+  padding: 0 11px !important;
+}
+
+.dashboard-date-chip span,
+.dashboard-date-chip strong {
+  display: inline !important;
+  margin: 0 !important;
+}
+
+.dashboard-date-chip span {
+  color: #64748b !important;
+  font-size: 9px !important;
+  font-weight: 800 !important;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+}
+
+.dashboard-date-chip span::after {
+  content: ':';
+  margin-left: 1px;
+}
+
+.dashboard-date-chip strong {
+  color: var(--app-primary) !important;
+  font-size: 10px !important;
+  font-weight: 800 !important;
+}
+
+/* =========================================================
+   HEADER COMPACT USER AREA
+   ========================================================= */
+
+.app-user {
+  gap: 6px !important;
+}
+
+.app-user-role {
+  min-height: 34px !important;
+  padding: 0 9px !important;
+}
+
+.app-user-role svg {
+  width: 14px !important;
+  height: 14px !important;
+}
+
+.app-logout-button {
+  min-height: 34px !important;
+  padding: 0 9px !important;
+}
+
+/* =========================================================
+   MODAL SYSTEM
+   =========================================================
+   Important: .app-main must never create a transformed containing
+   block for fixed-position overlays.
+   ========================================================= */
+
+.app-main {
+  animation: app-page-fade-in var(--app-motion-slow) ease both !important;
+}
+
+@keyframes app-page-fade-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 :where(
   .bank-modal-backdrop,
+  .bank-history-modal-backdrop,
+  .dashboard-transaction-modal-backdrop,
+  .kitchen-modal-backdrop,
+  .supplier-modal-backdrop,
+  .vehicle-modal-backdrop,
+  .disbursement-modal-backdrop,
+  .modal-backdrop
+) {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 2000 !important;
+  display: grid !important;
+  place-items: center !important;
+  padding: 20px !important;
+  overflow: auto !important;
+  background: transparent !important;
+  backdrop-filter: blur(5px) !important;
+}
+
+:where(
   .bank-modal,
   .bank-form-modal,
   .bank-history-modal,
-  .dashboard-transaction-modal-backdrop,
   .dashboard-transaction-modal,
-  .kitchen-modal-backdrop,
   .kitchen-modal,
-  .supplier-modal-backdrop,
   .supplier-modal,
-  .vehicle-modal-backdrop,
   .vehicle-modal,
-  .disbursement-modal-backdrop,
+  .disbursement-modal,
+  .modal
+) {
+  position: relative !important;
+  z-index: 1 !important;
+  width: min(760px, calc(100vw - 40px)) !important;
+  max-width: 760px !important;
+  max-height: calc(100dvh - 40px) !important;
+  margin: auto !important;
+  overflow: hidden !important;
+  border-radius: var(--app-radius-xl) !important;
+  background: var(--app-white) !important;
+  box-shadow: 0 28px 80px rgb(15 23 42 / 0.18) !important;
+}
+
+/* Long form/account modals keep a fixed header while the body scrolls. */
+:where(
+  .modal,
+  .bank-form-modal,
+  .kitchen-modal,
+  .supplier-modal,
+  .vehicle-modal,
   .disbursement-modal
 ) {
-  scrollbar-width: thin;
+  display: flex !important;
+  flex-direction: column !important;
+  min-height: 0 !important;
 }
 
-:where(.bank-modal-close, .app-logout-button):focus-visible {
-  border-color: var(--app-accent) !important;
-  color: var(--app-primary) !important;
+:where(
+  .modal > .modal-body,
+  .bank-form-content,
+  .kitchen-modal-body,
+  .supplier-modal-body,
+  .vehicle-modal-body,
+  .disbursement-modal-body
+) {
+  min-height: 0 !important;
+  flex: 1 1 auto !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  scrollbar-width: thin;
+  scrollbar-color: var(--app-border-mid) transparent;
 }
+
+:where(.modal > .modal-body) {
+  padding-bottom: 20px;
+}
+
+:where(.modal > .modal-body)::-webkit-scrollbar,
+:where(
+  .bank-form-content,
+  .kitchen-modal-body,
+  .supplier-modal-body,
+  .vehicle-modal-body,
+  .disbursement-modal-body
+)::-webkit-scrollbar {
+  width: 7px;
+}
+
+:where(.modal > .modal-body)::-webkit-scrollbar-track,
+:where(
+  .bank-form-content,
+  .kitchen-modal-body,
+  .supplier-modal-body,
+  .vehicle-modal-body,
+  .disbursement-modal-body
+)::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+:where(.modal > .modal-body)::-webkit-scrollbar-thumb,
+:where(
+  .bank-form-content,
+  .kitchen-modal-body,
+  .supplier-modal-body,
+  .vehicle-modal-body,
+  .disbursement-modal-body
+)::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: var(--app-border-mid);
+}
+
+/* Supplier's long account modal gets a slightly taller usable body. */
+.supplier-page .modal {
+  width: min(760px, calc(100vw - 40px)) !important;
+}
+
+/* Prevent the centered modal from becoming wider than the viewport. */
+@media (max-width: 760px) {
+  :where(
+    .bank-modal,
+    .bank-form-modal,
+    .bank-history-modal,
+    .dashboard-transaction-modal,
+    .kitchen-modal,
+    .supplier-modal,
+    .vehicle-modal,
+    .disbursement-modal,
+    .modal
+  ) {
+    width: min(100%, calc(100vw - 24px)) !important;
+    max-height: calc(100dvh - 24px) !important;
+  }
+}
+
+/* =========================================================
+   REDUCED MOTION
+   ========================================================= */
 
 @media (prefers-reduced-motion: reduce) {
+  .app-main {
+    animation: none !important;
+  }
+
   :where(
     .bank-primary-button,
     .bank-secondary-button,
