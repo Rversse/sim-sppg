@@ -1,11 +1,9 @@
 import { useEffect, useState } from 'react'
 
 import {
-  getActiveKitchens,
   getOverallReport,
   getIncomeReport,
   getSupplierReport,
-  type ReportKitchen,
   type OverallReport,
   type IncomeReport,
   type SupplierReport
@@ -39,14 +37,6 @@ function formatRupiah(value: number) {
   }).format(value)
 }
 
-function formatDate(value: string) {
-  return new Intl.DateTimeFormat('id-ID', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric'
-  }).format(new Date(`${value}T00:00:00`))
-}
-
 function DateFilter({
   startDate,
   endDate,
@@ -60,32 +50,6 @@ function DateFilter({
     <div className="reports-date-range-field">
       <DateRangePicker value={{ startDate, endDate }} onChange={onChange} />
     </div>
-  )
-}
-
-function KitchenFilter({
-  kitchens,
-  value,
-  onChange
-}: {
-  kitchens: ReportKitchen[]
-  value: string
-  onChange: (value: string) => void
-}) {
-  return (
-    <label>
-      <span>Dapur</span>
-
-      <select value={value} onChange={(event) => onChange(event.target.value)}>
-        <option value="">Semua Dapur</option>
-
-        {kitchens.map((kitchen) => (
-          <option key={kitchen.id} value={kitchen.id}>
-            {kitchen.name}
-          </option>
-        ))}
-      </select>
-    </label>
   )
 }
 
@@ -127,15 +91,7 @@ function EmptyState() {
   )
 }
 
-function OverallReportView({
-  kitchens,
-  selectedKitchen,
-  onKitchenChange
-}: {
-  kitchens: ReportKitchen[]
-  selectedKitchen: string
-  onKitchenChange: (value: string) => void
-}) {
+function OverallReportView() {
   const today = getTodayLocal()
 
   const [startDate, setStartDate] = useState(today)
@@ -145,17 +101,13 @@ function OverallReportView({
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  const selectedKitchenName = kitchens.find(
-    (kitchen) => kitchen.id === selectedKitchen
-  )?.name
-
   useEffect(() => {
     let cancelled = false
 
     void getOverallReport({
       startDate,
       endDate,
-      kitchenId: selectedKitchen
+      kitchenId: ''
     })
       .then((result) => {
         if (cancelled) {
@@ -180,7 +132,7 @@ function OverallReportView({
     return () => {
       cancelled = true
     }
-  }, [selectedKitchen, startDate, endDate])
+  }, [startDate, endDate])
 
   return (
     <section className="reports-section">
@@ -194,26 +146,17 @@ function OverallReportView({
           }}
         />
 
-        <KitchenFilter
-          kitchens={kitchens}
-          value={selectedKitchen}
-          onChange={onKitchenChange}
-        />
-
         <button
           type="button"
           onClick={() => {
             if (!report) return
 
-            void exportOverallReport(
-              report,
-              startDate,
-              endDate,
-              selectedKitchenName
-            ).catch((error) => {
-              console.error(error)
-              setError('Gagal mengekspor laporan keseluruhan')
-            })
+            void exportOverallReport(report, startDate, endDate).catch(
+              (error) => {
+                console.error(error)
+                setError('Gagal mengekspor laporan keseluruhan')
+              }
+            )
           }}
           disabled={!report || loading}
         >
@@ -305,57 +248,6 @@ function OverallReportView({
               </tbody>
             </table>
           </div>
-
-          {report.kitchens
-            .filter(
-              (item) =>
-                item.income > 0 || item.expense > 0 || item.operational > 0
-            )
-            .map((kitchen) => (
-              <details key={kitchen.kitchenId} className="reports-detail">
-                <summary>
-                  <span>{kitchen.kitchenName}</span>
-
-                  <strong
-                    className={kitchen.remaining < 0 ? 'negative' : 'positive'}
-                  >
-                    {formatRupiah(kitchen.remaining)}
-                  </strong>
-                </summary>
-
-                <div className="reports-detail-body">
-                  <table className="reports-table">
-                    <thead>
-                      <tr>
-                        <th>TANGGAL</th>
-                        <th>RAB</th>
-                        <th>SUPPLIER</th>
-                        <th>OPS</th>
-                        <th>TOTAL</th>
-                      </tr>
-                    </thead>
-
-                    <tbody>
-                      {report.daily.map((item) => (
-                        <tr key={item.date}>
-                          <td>{formatDate(item.date)}</td>
-                          <td>{formatRupiah(item.income)}</td>
-                          <td>{formatRupiah(item.expense)}</td>
-                          <td>{formatRupiah(item.operational)}</td>
-                          <td
-                            className={
-                              item.remaining < 0 ? 'negative' : 'positive'
-                            }
-                          >
-                            {formatRupiah(item.remaining)}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </details>
-            ))}
         </>
       )}
     </section>
@@ -457,87 +349,36 @@ function IncomeReportView() {
           {report.rows.length === 0 ? (
             <EmptyState />
           ) : (
-            <>
-              <div className="reports-table-wrapper">
-                <table className="reports-table">
-                  <thead>
-                    <tr>
-                      <th>NAMA SUPPLIER</th>
-                      <th>NAMA PEMILIK</th>
-                      <th>REKENING BANK</th>
-                      <th>TOTAL</th>
-                    </tr>
-                  </thead>
+            <div className="reports-table-wrapper">
+              <table className="reports-table">
+                <thead>
+                  <tr>
+                    <th>NAMA SUPPLIER</th>
+                    <th>NAMA PEMILIK</th>
+                    <th>REKENING BANK</th>
+                    <th>TOTAL</th>
+                  </tr>
+                </thead>
 
-                  <tbody>
-                    {report.rows.map((row) => (
-                      <tr
-                        key={`${row.supplierName}-${row.ownerName}-${row.bank}`}
-                      >
-                        <td>{row.supplierName}</td>
-                        <td>{row.ownerName}</td>
-                        <td>{row.bank}</td>
-                        <td>{formatRupiah(row.total)}</td>
-                      </tr>
-                    ))}
-
-                    <tr className="reports-total-row">
-                      <td colSpan={3}>GRAND TOTAL</td>
-                      <td>{formatRupiah(report.grandTotal)}</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-
-              {startDate !== endDate && (
-                <div className="reports-detail-list">
+                <tbody>
                   {report.rows.map((row) => (
-                    <details
+                    <tr
                       key={`${row.supplierName}-${row.ownerName}-${row.bank}`}
-                      className="reports-detail"
                     >
-                      <summary>
-                        <span>
-                          <strong>{row.supplierName}</strong>
-
-                          {' • '}
-
-                          {row.ownerName}
-
-                          {' • '}
-
-                          {row.bank}
-                        </span>
-
-                        <strong>{formatRupiah(row.total)}</strong>
-                      </summary>
-
-                      <div className="reports-detail-body">
-                        <table className="reports-table">
-                          <thead>
-                            <tr>
-                              <th>TANGGAL</th>
-                              <th>TOTAL</th>
-                            </tr>
-                          </thead>
-
-                          <tbody>
-                            {Object.entries(row.dates)
-                              .sort(([a], [b]) => b.localeCompare(a))
-                              .map(([date, amount]) => (
-                                <tr key={date}>
-                                  <td>{formatDate(date)}</td>
-                                  <td>{formatRupiah(amount)}</td>
-                                </tr>
-                              ))}
-                          </tbody>
-                        </table>
-                      </div>
-                    </details>
+                      <td>{row.supplierName}</td>
+                      <td>{row.ownerName}</td>
+                      <td>{row.bank}</td>
+                      <td>{formatRupiah(row.total)}</td>
+                    </tr>
                   ))}
-                </div>
-              )}
-            </>
+
+                  <tr className="reports-total-row">
+                    <td colSpan={3}>GRAND TOTAL</td>
+                    <td>{formatRupiah(report.grandTotal)}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
           )}
         </>
       )}
@@ -545,34 +386,15 @@ function IncomeReportView() {
   )
 }
 
-function SupplierReportView({
-  kitchens,
-  selectedKitchen,
-  onKitchenChange
-}: {
-  kitchens: ReportKitchen[]
-  selectedKitchen: string
-  onKitchenChange: (value: string) => void
-}) {
-  const initialDates = useState(() => {
-    const today = getTodayLocal()
+function SupplierReportView() {
+  const today = getTodayLocal()
 
-    return {
-      startDate: today,
-      endDate: today
-    }
-  })[0]
-
-  const [startDate, setStartDate] = useState(initialDates.startDate)
-  const [endDate, setEndDate] = useState(initialDates.endDate)
+  const [startDate, setStartDate] = useState(today)
+  const [endDate, setEndDate] = useState(today)
 
   const [report, setReport] = useState<SupplierReport | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-
-  const selectedKitchenName = kitchens.find(
-    (kitchen) => kitchen.id === selectedKitchen
-  )?.name
 
   useEffect(() => {
     let cancelled = false
@@ -580,7 +402,7 @@ function SupplierReportView({
     void getSupplierReport({
       startDate,
       endDate,
-      kitchenId: selectedKitchen
+      kitchenId: ''
     })
       .then((result) => {
         if (!cancelled) {
@@ -603,7 +425,7 @@ function SupplierReportView({
     return () => {
       cancelled = true
     }
-  }, [selectedKitchen, startDate, endDate])
+  }, [startDate, endDate])
 
   return (
     <section className="reports-section">
@@ -617,26 +439,17 @@ function SupplierReportView({
           }}
         />
 
-        <KitchenFilter
-          kitchens={kitchens}
-          value={selectedKitchen}
-          onChange={onKitchenChange}
-        />
-
         <button
           type="button"
           onClick={() => {
             if (!report) return
 
-            void exportSupplierReport(
-              report,
-              startDate,
-              endDate,
-              selectedKitchenName
-            ).catch((error) => {
-              console.error(error)
-              setError('Gagal mengekspor rekap pengeluaran')
-            })
+            void exportSupplierReport(report, startDate, endDate).catch(
+              (error) => {
+                console.error(error)
+                setError('Gagal mengekspor rekap pengeluaran')
+              }
+            )
           }}
           disabled={!report || loading}
         >
@@ -701,47 +514,6 @@ function SupplierReportView({
               </table>
             </div>
           )}
-
-          {startDate !== endDate &&
-            report.dailyRows.map((day) => (
-              <details key={day.date} className="reports-detail">
-                <summary>
-                  <span>Detail Pengeluaran • {formatDate(day.date)}</span>
-
-                  <span>▶</span>
-                </summary>
-
-                <div className="reports-detail-body">
-                  <table className="reports-table">
-                    <thead>
-                      <tr>
-                        <th>DAPUR</th>
-                        <th>ARUTALA</th>
-                        <th>SUKALARANG</th>
-                        <th>ARIS</th>
-                        <th>BABINSA</th>
-                        <th>OPS</th>
-                        <th>TOTAL</th>
-                      </tr>
-                    </thead>
-
-                    <tbody>
-                      {day.kitchens.map((row) => (
-                        <tr key={row.kitchenName}>
-                          <td>{row.kitchenName}</td>
-                          <td>{formatRupiah(row.Arutala)}</td>
-                          <td>{formatRupiah(row.Sukalarang)}</td>
-                          <td>{formatRupiah(row.Aris)}</td>
-                          <td>{formatRupiah(row.Babinsa)}</td>
-                          <td>{formatRupiah(row.Operational)}</td>
-                          <td>{formatRupiah(row.Total)}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </details>
-            ))}
         </>
       )}
     </section>
@@ -750,27 +522,6 @@ function SupplierReportView({
 
 export function ReportsPage() {
   const [tab, setTab] = useState<ReportTab>('overall')
-
-  const [kitchens, setKitchens] = useState<ReportKitchen[]>([])
-  const [selectedKitchen, setSelectedKitchen] = useState('')
-
-  useEffect(() => {
-    let active = true
-
-    getActiveKitchens()
-      .then((data) => {
-        if (!active) return
-
-        setKitchens(data)
-      })
-      .catch((error) => {
-        console.error(error)
-      })
-
-    return () => {
-      active = false
-    }
-  }, [])
 
   return (
     <main className="reports-page">
@@ -808,23 +559,11 @@ export function ReportsPage() {
         </button>
       </nav>
 
-      {tab === 'overall' && (
-        <OverallReportView
-          kitchens={kitchens}
-          selectedKitchen={selectedKitchen}
-          onKitchenChange={setSelectedKitchen}
-        />
-      )}
+      {tab === 'overall' && <OverallReportView />}
 
       {tab === 'income' && <IncomeReportView />}
 
-      {tab === 'supplier' && (
-        <SupplierReportView
-          kitchens={kitchens}
-          selectedKitchen={selectedKitchen}
-          onKitchenChange={setSelectedKitchen}
-        />
-      )}
+      {tab === 'supplier' && <SupplierReportView />}
     </main>
   )
 }
