@@ -374,3 +374,54 @@ textarea:focus-visible {
     scroll-behavior: auto !important;
   }
 }
+
+/* READABILITY REFACTOR: SYSTEM START */
+:root {
+  --read-text: #172033;
+  --read-text-muted: #5f6f85;
+  --read-text-soft: #8391a5;
+  --read-border: #dce5ef;
+
+  --motion-fast: 150ms;
+  --motion: 220ms;
+  --motion-smooth: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+html {
+  font-size: 16px;
+}
+
+body {
+  color: var(--read-text);
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+@media (max-width: 640px) {
+  body {
+    font-size: 13px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+:root {
+  --read-text: #172033;
+  --read-text-muted: #55657a;
+  --read-text-soft: #708095;
+}
+/* READABILITY REFACTOR: SYSTEM END */

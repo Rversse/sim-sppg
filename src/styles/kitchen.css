@@ -251,3 +251,70 @@
 .kitchen-table tbody tr:last-child td {
   border-bottom: 0;
 }
+
+/* READABILITY REFACTOR: KITCHEN START */
+.kitchen-header p {
+  font-size: 12px;
+  color: var(--read-text-muted);
+}
+
+.kitchen-panel-header h2 {
+  font-size: 14px;
+}
+
+.kitchen-header p {
+  font-size: 11px;
+}
+
+.kitchen-field label {
+  font-size: 11px;
+  color: #607086;
+}
+
+.kitchen-input {
+  min-height: 42px;
+  font-size: 13px;
+  color: var(--read-text);
+}
+
+.kitchen-table {
+  font-size: 12px;
+}
+
+.kitchen-table th {
+  font-size: 10px;
+  letter-spacing: 0.055em;
+}
+
+.kitchen-table td {
+  padding: 13px 12px;
+}
+
+.kitchen-table tbody strong {
+  font-size: 12px;
+}
+
+.kitchen-count {
+  font-size: 10px;
+}
+
+.kitchen-panel {
+  transition:
+    border-color 220ms ease,
+    box-shadow 220ms ease,
+    transform 220ms var(--motion-smooth);
+}
+
+.kitchen-panel:hover {
+  transform: translateY(-1px);
+}
+
+.kitchen-table tbody tr:hover td:first-child {
+  font-weight: inherit;
+  color: inherit;
+}
+
+.kitchen-header p {
+  color: #66768b !important;
+}
+/* READABILITY REFACTOR: KITCHEN END */

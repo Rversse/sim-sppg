@@ -570,3 +570,135 @@ textarea {
     scroll-behavior: auto !important;
   }
 }
+
+/* READABILITY REFACTOR: FOUNDATION START */
+.app-sidebar {
+  will-change: width, flex-basis;
+  transition:
+    width 320ms var(--motion-smooth),
+    flex-basis 320ms var(--motion-smooth),
+    box-shadow 220ms ease;
+}
+
+.app-content {
+  min-width: 0;
+  overflow-x: clip;
+}
+
+.app-brand-copy,
+.app-nav-label,
+.app-nav-section-label,
+.app-sidebar-footer span:last-child {
+  transition:
+    opacity 220ms ease,
+    transform 320ms var(--motion-smooth),
+    max-width 320ms var(--motion-smooth),
+    margin 320ms var(--motion-smooth);
+}
+
+.app-shell.sidebar-collapsed .app-brand-copy {
+  display: block;
+  max-width: 0;
+  margin: 0;
+  overflow: hidden;
+  opacity: 0;
+  transform: translateX(-8px);
+  pointer-events: none;
+}
+
+.app-shell.sidebar-collapsed .app-nav-label {
+  display: block;
+  max-width: 0;
+  overflow: hidden;
+  opacity: 0;
+  transform: translateX(-7px);
+  pointer-events: none;
+}
+
+.app-shell.sidebar-collapsed .app-nav-section-label {
+  display: block;
+  max-height: 0;
+  overflow: hidden;
+  margin-block: -3px;
+  opacity: 0;
+  transform: translateX(-6px);
+  pointer-events: none;
+}
+
+.app-shell.sidebar-collapsed .app-sidebar-footer span:last-child {
+  display: block;
+  max-width: 0;
+  overflow: hidden;
+  opacity: 0;
+  transform: translateX(-6px);
+  pointer-events: none;
+}
+
+.app-shell.sidebar-collapsed .app-nav-link {
+  justify-content: center;
+  transition:
+    background-color 170ms ease,
+    color 170ms ease,
+    transform 170ms var(--motion-smooth);
+}
+
+.app-shell.sidebar-collapsed .app-nav-icon {
+  transition:
+    transform 220ms var(--motion-smooth),
+    background-color 170ms ease;
+}
+
+.app-shell.sidebar-collapsed .app-nav-link:hover .app-nav-icon {
+  transform: scale(1.05);
+}
+
+.app-sidebar-toggle svg {
+  transition: transform 260ms var(--motion-smooth);
+}
+
+.app-shell.sidebar-collapsed .app-sidebar-toggle svg {
+  transform: rotate(180deg);
+}
+
+.app-action-button {
+  min-height: 34px;
+  padding-inline: 10px;
+  border-radius: 8px;
+  font-size: 11px;
+  gap: 5px;
+}
+
+.app-action-button svg {
+  width: 14px;
+  height: 14px;
+}
+
+.app-action-row {
+  gap: 5px;
+}
+
+.app-action-button--icon {
+  width: 31px;
+  min-width: 31px;
+  min-height: 31px;
+  padding: 0;
+}
+
+.app-action-button:not(.app-action-button--secondary):not(
+    .app-action-button--danger
+  ) {
+  box-shadow: 0 6px 16px rgb(57 255 136 / 0.1);
+}
+
+.app-action-button:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.app-page-title {
+  font-size: 18px;
+}
+
+.app-header-kicker {
+  font-size: 9px;
+}
+/* READABILITY REFACTOR: FOUNDATION END */

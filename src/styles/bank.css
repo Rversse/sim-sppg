@@ -1467,3 +1467,204 @@ section.bank-history-modal {
 .bank-history-values > strong {
   font-variant-numeric: tabular-nums !important;
 }
+
+/* READABILITY REFACTOR: BANK START */
+.bank-primary-button,
+.bank-secondary-button {
+  min-height: 34px;
+  padding-inline: 10px;
+  border-radius: 8px;
+  font-size: 11px;
+  gap: 5px;
+}
+
+.bank-primary-button svg,
+.bank-secondary-button svg {
+  width: 14px;
+  height: 14px;
+}
+
+.bank-primary-button {
+  box-shadow: 0 6px 16px rgb(57 255 136 / 0.1);
+}
+
+.bank-primary-button:hover:not(:disabled),
+.bank-secondary-button:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.bank-hero p {
+  font-size: 12px;
+  color: var(--read-text-muted);
+}
+
+.bank-panel-header h2 {
+  font-size: 14px;
+}
+
+.bank-panel-header p {
+  font-size: 11px;
+}
+
+.bank-summary-grid {
+  max-width: 1220px;
+  margin-inline: auto;
+}
+
+.bank-summary-card {
+  min-height: 96px;
+  border-width: 1px;
+  background-image:
+    radial-gradient(circle at 86% 18%, rgb(255 255 255 / 0.6), transparent 34%),
+    linear-gradient(145deg, rgb(255 255 255 / 0.04), transparent);
+  transition:
+    transform 240ms var(--motion-smooth),
+    box-shadow 240ms ease,
+    border-color 200ms ease,
+    filter 240ms ease;
+}
+
+.bank-summary-card::before,
+.bank-summary-card::after {
+  transition: transform 420ms var(--motion-smooth);
+}
+
+.bank-summary-card:hover {
+  transform: translateY(-3px);
+  filter: saturate(1.02);
+}
+
+.bank-summary-card:hover::before {
+  transform: translateX(8px) translateY(-4px);
+}
+
+.bank-account-grid {
+  gap: 10px;
+}
+
+.bank-account-card {
+  position: relative;
+  background:
+    radial-gradient(circle at 88% 0%, rgb(57 255 136 / 0.055), transparent 32%),
+    linear-gradient(180deg, #fff, #fbfdff);
+  transition:
+    transform 220ms var(--motion-smooth),
+    box-shadow 220ms ease,
+    border-color 200ms ease;
+}
+
+.bank-account-card:hover {
+  transform: translateY(-3px);
+  border-color: #ccd8e5;
+  box-shadow:
+    0 16px 36px rgb(15 23 42 / 0.075),
+    0 2px 8px rgb(15 23 42 / 0.03);
+}
+
+.bank-account-card-header,
+.bank-account-balance,
+.bank-account-stats {
+  transition: background-color 180ms ease;
+}
+
+.bank-form-modal {
+  animation: premium-modal-in 220ms var(--motion-smooth) both;
+}
+
+.bank-accounts-panel {
+  transition:
+    border-color 220ms ease,
+    box-shadow 220ms ease,
+    transform 220ms var(--motion-smooth);
+}
+
+@media (max-width: 900px) {
+  .bank-account-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+}
+
+@media (max-width: 640px) {
+  .bank-account-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+.bank-summary-grid {
+  width: min(1220px, calc(100vw - 48px));
+  max-width: 1220px;
+  margin-inline: auto;
+}
+
+.bank-summary-card.balance strong {
+  font-size: 21px !important;
+}
+
+.bank-summary-card.balance span {
+  font-size: 9px !important;
+}
+
+.bank-account-card {
+  min-height: 0 !important;
+}
+
+.bank-account-card-header {
+  padding: 10px 12px !important;
+}
+
+.bank-account-card-header p {
+  color: #6c7b8f !important;
+}
+
+.bank-account-balance {
+  gap: 3px !important;
+  padding: 8px 11px !important;
+}
+
+.bank-account-balance span {
+  color: #637289 !important;
+}
+
+.bank-account-balance strong {
+  font-size: 13px !important;
+}
+
+.bank-account-stats > div {
+  min-height: 46px;
+  padding: 7px 8px;
+}
+
+.bank-account-stats span {
+  color: #68788e;
+  font-size: 7.5px;
+}
+
+.bank-account-stats > div:nth-child(1) strong,
+.bank-account-stats > div:nth-child(2) strong {
+  color: #16a34a !important;
+}
+
+.bank-account-stats > div:nth-child(3) strong {
+  color: #dc2626 !important;
+}
+
+.bank-hero p,
+.bank-panel-header p,
+.bank-account-section-header span,
+.bank-summary-card small {
+  color: #66768b !important;
+}
+
+@media (max-width: 900px) {
+  .bank-summary-grid {
+    width: min(100%, calc(100vw - 32px));
+    max-width: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .bank-summary-grid {
+    width: calc(100vw - 20px);
+  }
+}
+/* READABILITY REFACTOR: BANK END */

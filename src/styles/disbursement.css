@@ -653,3 +653,21 @@
     row-gap: 12px !important;
   }
 }
+
+/* READABILITY REFACTOR: DISBURSEMENT START */
+.disbursement-header p:not(.disbursement-eyebrow) {
+  font-size: 12px;
+  color: var(--read-text-muted);
+}
+
+.disbursement-panel {
+  transition:
+    border-color 220ms ease,
+    box-shadow 220ms ease,
+    transform 220ms var(--motion-smooth);
+}
+
+.disbursement-header p:not(.disbursement-eyebrow) {
+  color: #66768b !important;
+}
+/* READABILITY REFACTOR: DISBURSEMENT END */

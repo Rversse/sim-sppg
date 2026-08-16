@@ -11,7 +11,6 @@
  * 5. page styles        -> page-specific layout/content
  * 6. auth-notifications -> notification-specific component
  * 7. component-surfaces -> shared modal/button behavior only
- * 8. readability.css    -> intentional final readability/motion refinement
  *
  * Bank history is owned by bank.css and is intentionally not split into
  * a second page stylesheet.
@@ -34,4 +33,3 @@
 @import './styles/auth-notifications.css';
 
 @import './styles/component-surfaces.css';
-@import './styles/readability.css';
