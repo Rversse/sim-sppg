@@ -289,16 +289,19 @@
 
 .dashboard-transaction-form-grid input,
 .dashboard-transaction-form-grid select {
-  height: 34px !important;
-  padding: 0 8px !important;
+  height: 38px !important;
+  min-height: 38px !important;
+  max-height: 38px !important;
+  padding: 0 10px !important;
   font-size: 10px !important;
+  box-sizing: border-box !important;
 }
 
 .dashboard-transaction-form-grid textarea {
-  height: 36px !important;
-  min-height: 36px !important;
-  max-height: 36px !important;
-  padding: 0 9px !important;
+  height: 38px !important;
+  min-height: 38px !important;
+  max-height: 38px !important;
+  padding: 0 10px !important;
   font-size: 10px !important;
   line-height: 1.2 !important;
   resize: none !important;
