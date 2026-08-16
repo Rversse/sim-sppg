@@ -82,17 +82,9 @@
 /*
  * Filter layout
  *
- * The ReportsPage has a nested .reports-filter wrapper containing:
- *   1. Tanggal Mulai
- *   2. Tanggal Akhir
- *   3. Terapkan
- *
- * and the parent contains:
- *   4. Dapur
- *   5. Export Excel
- *
- * `display: contents` makes those controls participate directly in the
- * five-column parent grid, so all controls stay on one row on desktop.
+ * The Reports page now uses one shared DateRangePicker plus the optional
+ * kitchen selector and export/print actions. The shared date picker owns its
+ * calendar visuals; this file only controls its placement inside Reports.
  */
 
 .reports-filter-panel {
@@ -589,20 +581,135 @@
 
 /* =========================================================
    BATCH 4 — REPORTS DATE RANGE
+   Canonical Reports date-picker/filter/table ownership.
    ========================================================= */
 
 .reports-filter-panel {
   grid-template-columns:
-    minmax(250px, 1.8fr)
+    minmax(260px, 1.8fr)
     minmax(180px, 1fr)
     auto
     auto;
+  align-items: end;
 }
 
 .reports-filter-panel > .reports-date-range-field {
   grid-column: 1 !important;
+  min-width: 0;
 }
 
+/*
+ * IMPORTANT:
+ * The generic `.reports-filter-panel button` rule above is intended for
+ * action buttons. The shared DateRangePicker contains buttons internally,
+ * so these selectors restore the Dashboard-compatible neutral date-picker
+ * styling and prevent the Reports green button rule from overriding it.
+ */
+.reports-filter-panel > .reports-date-range-field .date-range-trigger {
+  display: flex !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  height: 40px !important;
+  min-height: 40px !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: 8px !important;
+  padding: 0 11px !important;
+  border: 1px solid var(--app-border-strong) !important;
+  border-radius: 10px !important;
+  background: var(--app-white) !important;
+  color: var(--app-text) !important;
+  box-shadow: none !important;
+  transform: none !important;
+  font-family: inherit !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  text-align: left !important;
+}
+
+.reports-filter-panel
+  > .reports-date-range-field
+  .date-range-trigger:hover:not(:disabled) {
+  border-color: var(--app-border-mid) !important;
+  background: var(--app-white) !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+
+.reports-filter-panel
+  > .reports-date-range-field
+  .date-range-trigger:focus-visible {
+  border-color: var(--app-accent) !important;
+  box-shadow: var(--app-focus-ring) !important;
+}
+
+.reports-filter-panel > .reports-date-range-field .date-range-trigger > svg {
+  width: 15px !important;
+  height: 15px !important;
+  flex: 0 0 15px !important;
+  color: var(--app-text-muted) !important;
+}
+
+.reports-filter-panel > .reports-date-range-field .date-range-trigger-text {
+  min-width: 0 !important;
+  overflow: hidden !important;
+  flex: 1 1 auto !important;
+  color: var(--app-text) !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+
+.reports-filter-panel > .reports-date-range-field .date-range-trigger-caret {
+  flex: 0 0 auto !important;
+  color: var(--app-text-subtle) !important;
+}
+
+/*
+ * The calendar popup itself is shared with Dashboard. These rules only
+ * protect it from the generic Reports button selector.
+ */
+.reports-filter-panel > .reports-date-range-field .date-range-nav {
+  width: 32px !important;
+  height: 32px !important;
+  min-height: 32px !important;
+  padding: 0 !important;
+  border: 1px solid var(--app-border) !important;
+  border-radius: 8px !important;
+  background: var(--app-surface) !important;
+  color: var(--app-text-muted) !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+
+.reports-filter-panel > .reports-date-range-field .date-range-nav:hover {
+  border-color: var(--app-border-mid) !important;
+  background: var(--app-bg-soft) !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+
+.reports-filter-panel > .reports-date-range-field .date-range-reset-pending {
+  min-height: 26px !important;
+  padding: 0 8px !important;
+  border: 1px solid var(--app-border) !important;
+  border-radius: 7px !important;
+  background: var(--app-white) !important;
+  color: var(--app-text-muted) !important;
+  box-shadow: none !important;
+  transform: none !important;
+  font-size: 8px !important;
+}
+
+.reports-filter-panel
+  > .reports-date-range-field
+  .date-range-reset-pending:hover {
+  border-color: var(--app-border-mid) !important;
+  background: var(--app-surface) !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+
+/* Kitchen and action controls */
 .reports-filter-panel > label {
   grid-column: 2 !important;
 }
@@ -615,13 +722,60 @@
   grid-column: 4 !important;
 }
 
-.reports-date-range-field {
-  min-width: 0;
+/* Desktop: keep the report tables readable instead of stretching them
+   across very wide monitors. */
+.reports-table-wrapper {
+  width: min(1180px, 100%) !important;
+  max-width: 1180px !important;
+  margin-inline: auto !important;
+}
+
+.reports-table {
+  width: 100% !important;
+  min-width: 0 !important;
+  table-layout: auto !important;
+  font-size: 11px !important;
+}
+
+.reports-table th,
+.reports-table td {
+  padding: 12px 14px !important;
+}
+
+.reports-table thead th {
+  font-size: 9px !important;
+}
+
+.reports-table tbody td {
+  font-size: 11px !important;
+  line-height: 1.35 !important;
+}
+
+.reports-table th:first-child,
+.reports-table td:first-child {
+  min-width: 180px;
+}
+
+.reports-table th:not(:first-child),
+.reports-table td:not(:first-child) {
+  width: 1%;
+}
+
+/* Detail tables use the same readable type but remain scrollable on
+   smaller screens. */
+.reports-detail-body .reports-table {
+  min-width: 620px !important;
+  width: 100% !important;
+  max-width: none !important;
+  table-layout: auto !important;
 }
 
 @media (max-width: 1100px) {
   .reports-filter-panel {
-    grid-template-columns: minmax(230px, 1.5fr) minmax(180px, 1fr) auto !important;
+    grid-template-columns:
+      minmax(220px, 1.5fr)
+      minmax(170px, 1fr)
+      auto !important;
   }
 
   .reports-filter-panel > .reports-date-range-field {
@@ -640,6 +794,10 @@
     grid-column: 3 !important;
     grid-row: 2 !important;
   }
+
+  .reports-table {
+    font-size: 10.5px !important;
+  }
 }
 
 @media (max-width: 760px) {
@@ -653,5 +811,20 @@
   .reports-filter-panel > button:nth-of-type(2) {
     grid-column: auto !important;
     grid-row: auto !important;
+  }
+
+  .reports-table-wrapper {
+    width: 100% !important;
+    max-width: none !important;
+  }
+
+  .reports-table {
+    min-width: 620px !important;
+    font-size: 10.5px !important;
+  }
+
+  .reports-table th,
+  .reports-table td {
+    padding: 10px 12px !important;
   }
 }
