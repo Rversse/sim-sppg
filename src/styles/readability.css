@@ -698,70 +698,74 @@ body {
 }
 
 /* =========================================================
-   DASHBOARD — UNIFIED CONTENT WIDTH
-   One shared max-width for all major bordered surfaces.
+   MASTER DATA — MATCH DASHBOARD WIDTH
+   Kitchen + Vehicle use the same compact content rail as Dashboard.
    ========================================================= */
 
 :root {
-  --dashboard-content-width: 1180px;
+  --master-content-width: 1180px;
 }
 
-.dashboard-hero,
-.dashboard-filter-card,
-.dashboard-kpi-grid,
-.dashboard-main-grid,
-.dashboard-history-panel {
-  width: min(var(--dashboard-content-width), calc(100vw - 48px)) !important;
-  max-width: var(--dashboard-content-width) !important;
-  margin-inline: auto !important;
+.kitchen-header,
+.kitchen-toolbar,
+.kitchen-panel,
+.vehicle-header,
+.vehicle-toolbar,
+.vehicle-reminder,
+.vehicle-panel {
+  width: min(var(--master-content-width), calc(100vw - 48px));
+  max-width: var(--master-content-width);
+  margin-inline: auto;
 }
 
-.dashboard-hero {
-  padding-inline: 0 !important;
+.kitchen-header,
+.vehicle-header {
+  padding-inline: 0;
 }
 
-.dashboard-filter-card,
-.dashboard-history-panel {
+.kitchen-toolbar,
+.vehicle-toolbar {
+  padding-inline: 0;
+}
+
+.kitchen-count {
+  display: inline-flex;
+  min-height: 28px;
+  align-items: center;
+  padding: 0 8px;
+  border: 1px solid var(--app-border);
+  border-radius: 999px;
+  background: rgb(255 255 255 / 0.78);
+  box-shadow: 0 3px 10px rgb(15 23 42 / 0.025);
+  white-space: nowrap;
+}
+
+.kitchen-panel,
+.vehicle-panel {
   box-sizing: border-box;
 }
 
-.dashboard-kpi-grid {
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-}
-
-.dashboard-main-grid {
-  grid-template-columns: minmax(0, 1.55fr) minmax(340px, 0.82fr);
-}
-
 @media (max-width: 900px) {
-  .dashboard-hero,
-  .dashboard-filter-card,
-  .dashboard-kpi-grid,
-  .dashboard-main-grid,
-  .dashboard-history-panel {
-    width: min(100%, calc(100vw - 32px)) !important;
-    max-width: none !important;
-  }
-
-  .dashboard-kpi-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .dashboard-main-grid {
-    grid-template-columns: 1fr;
+  .kitchen-header,
+  .kitchen-toolbar,
+  .kitchen-panel,
+  .vehicle-header,
+  .vehicle-toolbar,
+  .vehicle-reminder,
+  .vehicle-panel {
+    width: min(100%, calc(100vw - 32px));
+    max-width: none;
   }
 }
 
 @media (max-width: 640px) {
-  .dashboard-hero,
-  .dashboard-filter-card,
-  .dashboard-kpi-grid,
-  .dashboard-main-grid,
-  .dashboard-history-panel {
-    width: calc(100vw - 20px) !important;
-  }
-
-  .dashboard-kpi-grid {
-    grid-template-columns: 1fr;
+  .kitchen-header,
+  .kitchen-toolbar,
+  .kitchen-panel,
+  .vehicle-header,
+  .vehicle-toolbar,
+  .vehicle-reminder,
+  .vehicle-panel {
+    width: calc(100vw - 20px);
   }
 }
