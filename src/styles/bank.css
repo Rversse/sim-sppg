@@ -747,20 +747,92 @@ section.bank-form-modal {
 }
 
 /* =========================================================
-   BANK TRANSFER — FINAL FORM / HISTORY REFINEMENT
+   BANK TRANSFER — CANONICAL FORM + HISTORY
+   This section is the single page-level owner for Bank-specific
+   modal content. bank-history.css is intentionally removed.
    ========================================================= */
 
-.bank-form-grid {
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
-  grid-auto-flow: row !important;
-  row-gap: 9px !important;
-  column-gap: 12px !important;
+/* Transfer modal */
+section.bank-form-modal {
+  display: flex !important;
+  flex-direction: column !important;
+  width: min(760px, calc(100vw - 28px)) !important;
+  max-width: 760px !important;
+  min-width: 0 !important;
+  max-height: calc(100dvh - 32px) !important;
+  margin: auto !important;
+  overflow: hidden !important;
+  border: 1px solid #dbe3ed !important;
+  border-radius: 18px !important;
+  background: #fff !important;
+  box-shadow: 0 28px 80px rgb(15 23 42 / 0.18) !important;
 }
 
-.bank-form-grid > .bank-transfer-destination-field,
-.bank-form-grid > .bank-autocomplete,
-.bank-form-grid > label {
+.bank-form-grid {
+  display: grid !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+  grid-auto-flow: row !important;
+  align-items: start !important;
+  gap: 9px 12px !important;
+}
+
+.bank-form-grid > label,
+.bank-form-grid > .bank-autocomplete {
+  display: grid !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  grid-column: auto !important;
+  gap: 5px !important;
   align-self: start !important;
+}
+
+.bank-form-grid > label > span,
+.bank-form-grid > .bank-autocomplete > span {
+  display: block !important;
+  margin: 0 !important;
+  color: #334155 !important;
+  font-size: 9px !important;
+  font-weight: 800 !important;
+  line-height: 1.2 !important;
+}
+
+.bank-form-grid > label > input,
+.bank-form-grid > label > select,
+.bank-form-grid > .bank-autocomplete > input {
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+  height: 40px !important;
+  min-height: 40px !important;
+  max-height: 40px !important;
+  box-sizing: border-box !important;
+  margin: 0 !important;
+  padding: 0 11px !important;
+  border: 1px solid #cfd9e6 !important;
+  border-radius: 9px !important;
+  background: #fff !important;
+  color: #0b132b !important;
+  outline: none !important;
+  box-shadow: none !important;
+  font-family: inherit !important;
+  font-size: 11px !important;
+}
+
+.bank-form-grid > label > input:focus,
+.bank-form-grid > label > select:focus,
+.bank-form-grid > .bank-autocomplete > input:focus {
+  border-color: #39ff88 !important;
+  box-shadow: 0 0 0 3px rgb(57 255 136 / 0.14) !important;
+}
+
+.bank-form-grid > label > input:disabled,
+.bank-form-grid > label > select:disabled,
+.bank-form-grid > .bank-autocomplete > input:disabled {
+  background: #f8fafc !important;
+  color: #94a3b8 !important;
+  opacity: 1 !important;
 }
 
 .bank-transfer-destination-field select:disabled,
@@ -772,48 +844,38 @@ section.bank-form-modal {
   cursor: not-allowed !important;
 }
 
-.bank-admin-row-field {
+.bank-form-grid .bank-admin-row-field {
+  grid-column: 1 !important;
   align-self: start !important;
 }
 
-.bank-form-footer-cell {
-  min-width: 0;
-}
-
-.bank-form-actions {
-  display: flex !important;
+.bank-form-grid .bank-form-actions {
   grid-column: 2 !important;
   align-self: end !important;
-  justify-content: flex-end !important;
-  align-items: center !important;
-  gap: 8px !important;
+  display: flex !important;
   width: 100% !important;
+  min-height: 40px !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  gap: 8px !important;
   margin: 0 !important;
-  padding: 0 !important;
+  padding: 15px 0 0 !important;
   border: 0 !important;
 }
 
-.bank-form-actions::before {
+.bank-form-grid .bank-form-footer-cell {
   display: none !important;
 }
 
 .bank-form-actions > .bank-secondary-button,
 .bank-form-actions > .bank-primary-button {
-  min-height: 38px !important;
+  flex: 0 0 auto !important;
 }
 
-.bank-form-content > .bank-form-error {
-  margin-top: 9px !important;
-}
-
-.bank-form-content > .bank-form-error + .bank-form-actions {
-  grid-column: 2;
-}
-
-/* Admin/number fields remain normal controls without native spinner UI. */
 .bank-form-grid input[inputmode='numeric'] {
   appearance: textfield;
   -moz-appearance: textfield;
+  font-variant-numeric: tabular-nums;
 }
 
 .bank-form-grid input[inputmode='numeric']::-webkit-outer-spin-button,
@@ -822,14 +884,50 @@ section.bank-form-modal {
   margin: 0;
 }
 
-/* =========================================================
-   V1-LIKE ACCOUNT HISTORY MODAL
-   ========================================================= */
+.bank-autocomplete {
+  position: relative !important;
+}
 
+.bank-autocomplete-menu {
+  position: absolute !important;
+  top: calc(100% + 5px) !important;
+  right: 0 !important;
+  left: 0 !important;
+  z-index: 50 !important;
+  max-height: 220px !important;
+  overflow: auto !important;
+  padding: 4px !important;
+  border: 1px solid #dbe3ed !important;
+  border-radius: 10px !important;
+  background: #fff !important;
+  box-shadow: 0 14px 36px rgb(15 23 42 / 0.14) !important;
+}
+
+.bank-autocomplete-item {
+  display: block !important;
+  width: 100% !important;
+  padding: 8px 9px !important;
+  border: 0 !important;
+  border-radius: 7px !important;
+  background: transparent !important;
+  color: #334155 !important;
+  cursor: pointer !important;
+  font-size: 10px !important;
+  line-height: 1.3 !important;
+  text-align: left !important;
+}
+
+.bank-autocomplete-item:hover {
+  background: #f1f5f9 !important;
+  color: #0b132b !important;
+}
+
+/* History modal */
 .bank-history-modal {
   display: flex !important;
   width: min(860px, calc(100vw - 28px)) !important;
   max-width: 860px !important;
+  height: min(760px, calc(100dvh - 28px)) !important;
   max-height: calc(100dvh - 28px) !important;
   flex-direction: column !important;
   margin: auto !important;
@@ -840,9 +938,40 @@ section.bank-form-modal {
   box-shadow: 0 28px 80px rgb(15 23 42 / 0.2) !important;
 }
 
+.bank-history-modal-header {
+  display: flex !important;
+  min-width: 0 !important;
+  align-items: flex-start !important;
+  justify-content: space-between !important;
+  gap: 12px !important;
+  padding: 14px 16px !important;
+  border-bottom: 1px solid #e5ebf2 !important;
+  background: #fff !important;
+}
+
+.bank-history-modal-header > div:first-child {
+  min-width: 0 !important;
+}
+
+.bank-history-modal-header h2 {
+  margin: 0 !important;
+  color: #0b132b !important;
+  font-size: 16px !important;
+  font-weight: 900 !important;
+  line-height: 1.2 !important;
+}
+
+.bank-history-modal-header p {
+  margin: 5px 0 0 !important;
+  color: #94a3b8 !important;
+  font-size: 9px !important;
+  line-height: 1.35 !important;
+}
+
 .bank-history-summary {
   display: grid !important;
-  gap: 11px !important;
+  grid-template-columns: minmax(190px, 0.78fr) minmax(0, 1.85fr) !important;
+  gap: 10px !important;
   margin: 12px 14px 8px !important;
   padding: 14px !important;
   border-radius: 17px !important;
@@ -853,10 +982,11 @@ section.bank-form-modal {
 
 .bank-history-current {
   display: grid !important;
-  min-height: 86px !important;
+  min-width: 0 !important;
+  min-height: 126px !important;
   align-content: center !important;
   gap: 5px !important;
-  padding: 4px 12px 1px !important;
+  padding: 6px 12px !important;
   border: 0 !important;
   background: transparent !important;
 }
@@ -871,7 +1001,7 @@ section.bank-form-modal {
 
 .bank-history-current strong {
   color: #fff !important;
-  font-size: 30px !important;
+  font-size: 29px !important;
   font-weight: 900 !important;
   letter-spacing: -0.03em !important;
   line-height: 1 !important;
@@ -879,20 +1009,22 @@ section.bank-form-modal {
 
 .bank-history-stats {
   display: grid !important;
-  grid-template-columns: repeat(auto-fit, minmax(155px, 1fr)) !important;
+  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
   gap: 9px !important;
+  min-width: 0 !important;
+  align-items: stretch !important;
 }
 
 .bank-history-stat {
   display: grid !important;
   min-width: 0 !important;
-  min-height: 70px !important;
+  min-height: 82px !important;
   align-content: center !important;
   gap: 5px !important;
   padding: 10px 11px !important;
-  border: 1px solid rgb(255 255 255 / 0.15) !important;
+  border: 1px solid rgb(255 255 255 / 0.18) !important;
   border-radius: 11px !important;
-  background: rgb(255 255 255 / 0.045) !important;
+  background: rgb(255 255 255 / 0.05) !important;
 }
 
 .bank-history-stat span {
@@ -1061,10 +1193,6 @@ section.bank-form-modal {
   color: #dc2626 !important;
 }
 
-.bank-history-action:hover:not(:disabled) {
-  background: #f8fafc !important;
-}
-
 .bank-history-pagination {
   display: flex !important;
   min-height: 50px !important;
@@ -1113,32 +1241,47 @@ section.bank-form-modal {
   opacity: 0.45 !important;
 }
 
-/* =========================================================
-   FORM FINAL ROW
-   ========================================================= */
+@media (max-width: 900px) {
+  .bank-history-modal {
+    width: min(100%, calc(100vw - 20px)) !important;
+  }
 
-.bank-form-grid .bank-form-actions {
-  grid-column: 2 !important;
-  grid-row: auto !important;
-  align-self: end !important;
-  justify-content: flex-end !important;
-  margin: 0 !important;
-  padding: 0 !important;
-  border-top: 0 !important;
-  min-height: 40px !important;
-}
+  .bank-history-summary {
+    grid-template-columns: 1fr !important;
+  }
 
-.bank-form-grid .bank-form-footer-cell {
-  display: none !important;
-}
+  .bank-history-current {
+    min-height: 76px !important;
+  }
 
-.bank-admin-row-field {
-  grid-column: 1 !important;
+  .bank-history-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
 }
 
 @media (max-width: 760px) {
+  .bank-form-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .bank-form-grid .bank-admin-row-field,
+  .bank-form-grid .bank-form-actions {
+    grid-column: 1 !important;
+  }
+
+  .bank-form-grid .bank-form-actions {
+    justify-content: flex-end !important;
+    padding-top: 0 !important;
+  }
+
   .bank-history-modal {
     width: min(100%, calc(100vw - 16px)) !important;
+    height: calc(100dvh - 16px) !important;
+    max-height: calc(100dvh - 16px) !important;
+  }
+
+  .bank-history-stats {
+    grid-template-columns: 1fr !important;
   }
 
   .bank-history-row {
@@ -1153,9 +1296,380 @@ section.bank-form-modal {
   .bank-history-actions {
     justify-content: flex-end !important;
   }
+}
 
-  .bank-form-grid .bank-form-actions {
-    grid-column: 1 !important;
+/* =========================================================
+   HISTORY — FINAL SPACING / DENSITY TUNING
+   Visual structure is unchanged; only spacing, heights and gaps
+   are refined for a more balanced desktop presentation.
+   ========================================================= */
+
+.bank-history-modal {
+  width: min(860px, calc(100vw - 28px)) !important;
+  height: min(730px, calc(100dvh - 28px)) !important;
+  max-height: calc(100dvh - 28px) !important;
+  border-radius: 18px !important;
+}
+
+.bank-history-modal-header {
+  gap: 10px !important;
+  padding: 13px 16px !important;
+}
+
+.bank-history-modal-header p {
+  margin-top: 4px !important;
+}
+
+.bank-history-summary {
+  gap: 9px !important;
+  margin: 10px 14px 7px !important;
+  padding: 12px !important;
+  border-radius: 16px !important;
+}
+
+.bank-history-current {
+  min-height: 108px !important;
+  gap: 4px !important;
+  padding: 5px 11px !important;
+}
+
+.bank-history-current strong {
+  font-size: 28px !important;
+}
+
+.bank-history-stats {
+  gap: 8px !important;
+}
+
+.bank-history-stat {
+  min-height: 72px !important;
+  gap: 4px !important;
+  padding: 9px 10px !important;
+  border-radius: 10px !important;
+}
+
+.bank-history-content {
+  gap: 7px !important;
+  padding: 3px 14px 9px !important;
+}
+
+.bank-history-row {
+  min-height: 0 !important;
+  gap: 9px !important;
+  padding: 9px 10px !important;
+  border-radius: 11px !important;
+}
+
+.bank-history-row + .bank-history-row {
+  margin-top: 0 !important;
+}
+
+.bank-history-top {
+  gap: 6px !important;
+}
+
+.bank-history-top > strong {
+  font-size: 10.5px !important;
+}
+
+.bank-history-badge {
+  min-height: 19px !important;
+  padding-inline: 7px !important;
+}
+
+.bank-history-meta {
+  margin-top: 2px !important;
+}
+
+.bank-history-purpose {
+  margin-top: 4px !important;
+}
+
+.bank-history-values {
+  min-width: 138px !important;
+  gap: 2px !important;
+}
+
+.bank-history-values > strong {
+  font-size: 12.5px !important;
+}
+
+.bank-history-actions {
+  gap: 4px !important;
+  margin-top: 2px !important;
+}
+
+.bank-history-action {
+  width: 28px !important;
+  min-width: 28px !important;
+  height: 28px !important;
+  min-height: 28px !important;
+  border-radius: 7px !important;
+}
+
+.bank-history-action svg {
+  width: 13px !important;
+  height: 13px !important;
+}
+
+.bank-history-pagination {
+  min-height: 46px !important;
+  gap: 8px !important;
+  padding: 8px 14px !important;
+}
+
+.bank-history-pagination-buttons {
+  gap: 3px !important;
+}
+
+.bank-history-page {
+  width: 29px !important;
+  height: 29px !important;
+}
+
+/* Transfer modal footer stays aligned to the admin row, with less dead space. */
+.bank-form-grid {
+  row-gap: 8px !important;
+}
+
+.bank-form-grid .bank-form-actions {
+  min-height: 40px !important;
+  padding-top: 12px !important;
+  gap: 7px !important;
+}
+
+@media (max-width: 900px) {
+  .bank-history-stats {
+    gap: 7px !important;
+  }
+
+  .bank-history-stat {
+    min-height: 68px !important;
+  }
+}
+
+@media (max-width: 760px) {
+  .bank-history-modal {
+    height: calc(100dvh - 16px) !important;
+    max-height: calc(100dvh - 16px) !important;
+  }
+
+  .bank-history-summary {
+    margin-inline: 10px !important;
+  }
+
+  .bank-history-content {
+    padding-inline: 10px !important;
+  }
+
+  .bank-history-pagination {
+    padding-inline: 10px !important;
+  }
+}
+
+/* =========================================================
+   HISTORY — BALANCED PREMIUM DENSITY
+   Final visual tuning only.
+   ========================================================= */
+
+/* Keep the modal comfortably tall enough for readable rows. */
+.bank-history-modal {
+  height: min(790px, calc(100dvh - 28px)) !important;
+  max-height: calc(100dvh - 28px) !important;
+}
+
+/* Compact dark hero: one balanced block, no dead vertical space. */
+.bank-history-summary {
+  grid-template-columns: 235px minmax(0, 1fr) !important;
+  align-items: stretch !important;
+  gap: 10px !important;
+  margin: 11px 14px 9px !important;
+  padding: 10px !important;
+  min-height: 118px !important;
+  border-radius: 16px !important;
+}
+
+.bank-history-current {
+  min-height: 98px !important;
+  padding: 8px 12px !important;
+  border-radius: 11px !important;
+  background: transparent !important;
+  align-content: center !important;
+}
+
+.bank-history-current span {
+  font-size: 8px !important;
+}
+
+.bank-history-current strong {
+  font-size: 27px !important;
+}
+
+/* Right-side metrics match the vertical scale of Saldo Saat Ini. */
+.bank-history-stats {
+  grid-template-columns: repeat(auto-fit, minmax(145px, 1fr)) !important;
+  align-items: stretch !important;
+  gap: 8px !important;
+}
+
+.bank-history-stat {
+  min-height: 98px !important;
+  padding: 10px 11px !important;
+  border-radius: 10px !important;
+  align-content: center !important;
+}
+
+.bank-history-stat span {
+  font-size: 7.5px !important;
+}
+
+.bank-history-stat strong {
+  font-size: 12.5px !important;
+}
+
+/* History list gets real vertical breathing room. */
+.bank-history-content {
+  gap: 8px !important;
+  padding: 4px 14px 12px !important;
+}
+
+.bank-history-row {
+  grid-template-columns: minmax(0, 1fr) minmax(175px, auto) !important;
+  gap: 16px !important;
+  min-height: 64px !important;
+  padding: 11px 12px !important;
+  border-radius: 11px !important;
+}
+
+/* Left side is intentionally stacked with a clear hierarchy. */
+.bank-history-main {
+  display: grid !important;
+  align-content: center !important;
+  gap: 3px !important;
+}
+
+.bank-history-top {
+  gap: 7px !important;
+}
+
+.bank-history-top > strong {
+  font-size: 11.5px !important;
+  line-height: 1.2 !important;
+}
+
+.bank-history-badge {
+  min-height: 20px !important;
+  padding: 0 7px !important;
+  font-size: 7px !important;
+}
+
+.bank-history-meta {
+  margin-top: 1px !important;
+  font-size: 8.5px !important;
+  line-height: 1.35 !important;
+}
+
+.bank-history-purpose {
+  margin-top: 1px !important;
+  font-size: 8.5px !important;
+  line-height: 1.35 !important;
+}
+
+/* Right side keeps amount, balance and actions clearly separated. */
+.bank-history-values {
+  min-width: 175px !important;
+  gap: 4px !important;
+  justify-items: end !important;
+}
+
+.bank-history-values > strong {
+  font-size: 13px !important;
+  line-height: 1.2 !important;
+}
+
+.bank-history-values > p {
+  font-size: 8.5px !important;
+  line-height: 1.25 !important;
+}
+
+.bank-history-values .bank-history-balance {
+  font-size: 8.5px !important;
+}
+
+.bank-history-actions {
+  gap: 6px !important;
+  margin-top: 2px !important;
+}
+
+.bank-history-action {
+  width: 29px !important;
+  min-width: 29px !important;
+  height: 29px !important;
+  min-height: 29px !important;
+  border-radius: 7px !important;
+}
+
+.bank-history-action svg {
+  width: 13px !important;
+  height: 13px !important;
+}
+
+/* Footer is visually separated without being oversized. */
+.bank-history-pagination {
+  min-height: 46px !important;
+  padding: 8px 14px !important;
+}
+
+@media (max-width: 900px) {
+  .bank-history-summary {
+    grid-template-columns: 1fr !important;
+  }
+
+  .bank-history-current {
+    min-height: 74px !important;
+  }
+
+  .bank-history-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  .bank-history-row {
+    grid-template-columns: minmax(0, 1fr) minmax(150px, auto) !important;
+    gap: 12px !important;
+  }
+
+  .bank-history-values {
+    min-width: 150px !important;
+  }
+}
+
+@media (max-width: 760px) {
+  .bank-history-modal {
+    height: calc(100dvh - 16px) !important;
+    max-height: calc(100dvh - 16px) !important;
+  }
+
+  .bank-history-summary {
+    margin-inline: 10px !important;
+  }
+
+  .bank-history-content {
+    padding-inline: 10px !important;
+  }
+
+  .bank-history-row {
+    grid-template-columns: 1fr !important;
+    gap: 8px !important;
+    min-height: 0 !important;
+  }
+
+  .bank-history-values {
+    min-width: 0 !important;
+    justify-items: stretch !important;
+  }
+
+  .bank-history-actions {
+    justify-content: flex-end !important;
   }
 
   .bank-history-stats {

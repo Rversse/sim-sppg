@@ -602,8 +602,8 @@ export function BankPage() {
       destinationMode: editMode,
       recipientAccountId: transaction.recipient_account_id ?? '',
       recipientName: transaction.recipient_name ?? '',
-      transferAmount: formatIntegerInput(String(transaction.transfer_amount)),
-      adminFee: formatIntegerInput(String(transaction.admin_fee)),
+      transferAmount: String(transaction.transfer_amount),
+      adminFee: String(transaction.admin_fee),
       paymentFor: transaction.payment_for ?? ''
     })
     setRecipientQuery(transaction.recipient_name ?? '')
