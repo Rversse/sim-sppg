@@ -1328,7 +1328,7 @@ export function DashboardPage() {
               transaksi sesuai filter.
             </p>
           </div>
-          <span className="dashboard-panel-badge">Live dari Supabase</span>
+          <span className="dashboard-panel-badge">Live dari Database</span>
         </div>
 
         <div className="dashboard-history">
