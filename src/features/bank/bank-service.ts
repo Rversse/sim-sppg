@@ -418,24 +418,7 @@ export async function getBankHistoryPage(
     String(now.getDate()).padStart(2, '0')
   ].join('-')
 
-  const accountFilter = `account_id.eq.${accountId},recipient_account_id.eq.${accountId}`
-
-  const { count, error: countError } = await client
-    .from('bank_transactions')
-    .select('id', { count: 'exact', head: true })
-    .or(accountFilter)
-    .gte('transaction_date', startDate)
-    .lte('transaction_date', endDate)
-
-  if (countError) {
-    throw countError
-  }
-
-  const total = count ?? 0
-  const offset = (page - 1) * pageSize
-  const end = offset + pageSize - 1
-
-  const { data, error } = await client
+  const { data: bankRows, error: bankError } = await client
     .from('bank_transactions')
     .select(
       `
@@ -478,20 +461,62 @@ export async function getBankHistoryPage(
         )
       `
     )
-    .or(accountFilter)
+    .or(`account_id.eq.${accountId},recipient_account_id.eq.${accountId}`)
     .gte('transaction_date', startDate)
     .lte('transaction_date', endDate)
-    .order('transaction_date', { ascending: false })
-    .order('created_at', { ascending: false })
-    .range(offset, end)
 
-  if (error) {
-    throw error
+  if (bankError) {
+    throw bankError
   }
 
-  const transactions = (data ?? []) as unknown as BankTransaction[]
+  const allBankTransactions = (bankRows ?? []) as unknown as BankTransaction[]
 
-  if (!transactions.length) {
+  const compareLedgerEvents = (
+    a: {
+      transactionDate: string
+      createdAt: string
+      id: string
+    },
+    b: {
+      transactionDate: string
+      createdAt: string
+      id: string
+    }
+  ) => {
+    if (a.transactionDate !== b.transactionDate) {
+      return b.transactionDate.localeCompare(a.transactionDate)
+    }
+
+    const aCreatedAt = new Date(a.createdAt).getTime()
+    const bCreatedAt = new Date(b.createdAt).getTime()
+
+    if (aCreatedAt !== bCreatedAt) {
+      return bCreatedAt - aCreatedAt
+    }
+
+    return b.id.localeCompare(a.id)
+  }
+
+  allBankTransactions.sort((a, b) =>
+    compareLedgerEvents(
+      {
+        transactionDate: a.transaction_date,
+        createdAt: a.created_at,
+        id: a.id
+      },
+      {
+        transactionDate: b.transaction_date,
+        createdAt: b.created_at,
+        id: b.id
+      }
+    )
+  )
+
+  const total = allBankTransactions.length
+  const offset = (page - 1) * pageSize
+  const pageTransactions = allBankTransactions.slice(offset, offset + pageSize)
+
+  if (!pageTransactions.length) {
     return {
       transactions: [],
       total,
@@ -500,65 +525,119 @@ export async function getBankHistoryPage(
     }
   }
 
-  let runningBalance = Number(balance) || 0
-
-  if (page > 1) {
-    const boundary = transactions[0]
-
-    const { data: newerRows, error: newerRowsError } = await client
-      .from('bank_transactions')
-      .select('account_id,recipient_account_id,transfer_amount,admin_fee')
-      .or(accountFilter)
-      .gte('transaction_date', startDate)
-      .lte('transaction_date', endDate)
-      .or(
-        `transaction_date.gt.${boundary.transaction_date},and(transaction_date.eq.${boundary.transaction_date},created_at.gt.${boundary.created_at})`
-      )
-
-    if (newerRowsError) {
-      throw newerRowsError
-    }
-
-    for (const row of newerRows ?? []) {
-      const amount = Number(row.transfer_amount) || 0
-      const adminFee = Number(row.admin_fee) || 0
-
-      if (row.recipient_account_id === accountId) {
-        runningBalance -= amount
-      } else if (row.account_id === accountId) {
-        runningBalance += amount + adminFee
+  type HistoryLedgerEvent =
+    | {
+        kind: 'bank'
+        id: string
+        transactionDate: string
+        createdAt: string
+        transaction: BankTransaction
       }
-    }
+    | {
+        kind: 'income'
+        id: string
+        transactionDate: string
+        createdAt: string
+        amount: number
+      }
+
+  const { data: incomeRows, error: incomeError } = await client
+    .from('transactions')
+    .select('id,transaction_date,created_at,amount')
+    .eq('account_id', accountId)
+    .in('flow_type', ['income', 'neutral'])
+    .gte('transaction_date', startDate)
+    .lte('transaction_date', endDate)
+
+  if (incomeError) {
+    throw incomeError
   }
 
-  const history = transactions.map((transaction) => {
-    const incoming = transaction.recipient_account_id === accountId
-    const outgoing = transaction.account_id === accountId
+  const ledgerEvents: HistoryLedgerEvent[] = allBankTransactions.map(
+    (transaction) => ({
+      kind: 'bank',
+      id: transaction.id,
+      transactionDate: transaction.transaction_date,
+      createdAt: transaction.created_at,
+      transaction
+    })
+  )
 
-    if (!incoming && !outgoing) {
-      throw new Error('Transaksi history tidak sesuai dengan rekening.')
+  for (const row of incomeRows ?? []) {
+    ledgerEvents.push({
+      kind: 'income',
+      id: row.id,
+      transactionDate: row.transaction_date,
+      createdAt: row.created_at,
+      amount: Number(row.amount) || 0
+    })
+  }
+
+  ledgerEvents.sort((a, b) =>
+    compareLedgerEvents(
+      {
+        transactionDate: a.transactionDate,
+        createdAt: a.createdAt,
+        id: a.id
+      },
+      {
+        transactionDate: b.transactionDate,
+        createdAt: b.createdAt,
+        id: b.id
+      }
+    )
+  )
+
+  const pageTransactionIds = new Set(
+    pageTransactions.map((transaction) => transaction.id)
+  )
+
+  const historyByTransactionId = new Map<string, BankHistoryItem>()
+  let runningBalance = Number(balance) || 0
+
+  for (const event of ledgerEvents) {
+    if (event.kind === 'bank') {
+      const transaction = event.transaction
+      const incoming = transaction.recipient_account_id === accountId
+      const outgoing = transaction.account_id === accountId
+
+      if (!incoming && !outgoing) {
+        continue
+      }
+
+      if (pageTransactionIds.has(transaction.id)) {
+        historyByTransactionId.set(transaction.id, {
+          transaction,
+          direction: incoming ? 'in' : 'out',
+          runningBalance
+        })
+      }
+
+      const amount = Number(transaction.transfer_amount) || 0
+      const adminFee = Number(transaction.admin_fee) || 0
+
+      if (incoming) {
+        runningBalance -= amount
+      } else {
+        runningBalance += amount + adminFee
+      }
+
+      continue
     }
 
-    const row = {
-      transaction,
-      direction: incoming ? ('in' as const) : ('out' as const),
-      runningBalance
-    }
-
-    const amount = Number(transaction.transfer_amount) || 0
-    const adminFee = Number(transaction.admin_fee) || 0
-
-    if (incoming) {
-      runningBalance -= amount
-    } else {
-      runningBalance += amount + adminFee
-    }
-
-    return row
-  })
+    runningBalance -= event.amount
+  }
 
   return {
-    transactions: history,
+    transactions: pageTransactions.map((transaction) => {
+      const history = historyByTransactionId.get(transaction.id)
+
+      if (!history) {
+        throw new Error('Saldo history transaksi tidak dapat dihitung.')
+      }
+
+      return history
+    }),
     total,
     page,
     pageSize
