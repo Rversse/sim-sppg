@@ -33,6 +33,11 @@ import {
   type TransactionOption
 } from '@/features/transactions/transaction-options-service'
 import { DateRangePicker } from '@/components/ui/date-range-picker'
+import {
+  formatCurrency,
+  formatDate,
+  formatDateTimeWithSeconds
+} from '@/lib/formatters'
 
 const FLOW_OPTIONS: { value: DashboardFlow | ''; label: string }[] = [
   { value: '', label: 'Semua transaksi' },
@@ -49,22 +54,6 @@ function getTodayLocal() {
   return `${year}-${month}-${day}`
 }
 
-function formatRupiah(value: number) {
-  return new Intl.NumberFormat('id-ID', {
-    style: 'currency',
-    currency: 'IDR',
-    maximumFractionDigits: 0
-  }).format(value)
-}
-
-function formatDate(value: string) {
-  return new Intl.DateTimeFormat('id-ID', {
-    day: '2-digit',
-    month: 'short',
-    year: 'numeric'
-  }).format(new Date(`${value}T00:00:00`))
-}
-
 function flowLabel(flow: DashboardFlow) {
   if (flow === 'income') return 'RAB'
   if (flow === 'expense') return 'Supplier'
@@ -77,26 +66,8 @@ function flowClass(flow: DashboardFlow) {
   return 'dashboard-flow dashboard-flow-neutral'
 }
 
-function formatHistoryTimestamp(value: string) {
-  const parts = new Intl.DateTimeFormat('id-ID', {
-    day: '2-digit',
-    month: 'short',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit',
-    hourCycle: 'h23'
-  }).formatToParts(new Date(value))
-
-  const values = Object.fromEntries(
-    parts.map((part) => [part.type, part.value])
-  )
-
-  return `${values.day} ${values.month} ${values.year}, ${values.hour}:${values.minute}:${values.second}`
-}
-
 function formatHistoryInputTimestamp(value: string) {
-  return `Input: ${formatHistoryTimestamp(value)}`
+  return `Input: ${formatDateTimeWithSeconds(value)}`
 }
 
 function getFormAccountLabel(
@@ -939,7 +910,7 @@ export function DashboardPage() {
     if (user?.role !== 'admin') return
 
     const confirmed = window.confirm(
-      `Hapus transaksi ${formatDate(transaction.transaction_date)} sebesar ${formatRupiah(
+      `Hapus transaksi ${formatDate(transaction.transaction_date)} sebesar ${formatCurrency(
         Number(transaction.amount) || 0
       )}?`
     )
@@ -1117,7 +1088,9 @@ export function DashboardPage() {
           }`}
         >
           <span>Pencairan / RAB</span>
-          <strong>{loading ? 'Memuat…' : formatRupiah(summary.income)}</strong>
+          <strong>
+            {loading ? 'Memuat…' : formatCurrency(summary.income)}
+          </strong>
           <small>Total RAB pada periode terpilih</small>
         </article>
 
@@ -1127,7 +1100,9 @@ export function DashboardPage() {
           }`}
         >
           <span>Pembayaran Supplier</span>
-          <strong>{loading ? 'Memuat…' : formatRupiah(summary.expense)}</strong>
+          <strong>
+            {loading ? 'Memuat…' : formatCurrency(summary.expense)}
+          </strong>
           <small>Total pembayaran ke supplier pada periode terpilih</small>
         </article>
 
@@ -1138,7 +1113,7 @@ export function DashboardPage() {
         >
           <span>Operasional</span>
           <strong>
-            {loading ? 'Memuat…' : formatRupiah(summary.operational)}
+            {loading ? 'Memuat…' : formatCurrency(summary.operational)}
           </strong>
           <small>Total transaksi operasional pada periode terpilih</small>
         </article>
@@ -1152,7 +1127,7 @@ export function DashboardPage() {
           <strong>
             {loading
               ? 'Memuat…'
-              : formatRupiah(filters.flowType === '' ? net : 0)}
+              : formatCurrency(filters.flowType === '' ? net : 0)}
           </strong>
           <small>
             Sisa dana setelah dilakukan pembayaran ke supplier dari RAB pada
@@ -1205,7 +1180,7 @@ export function DashboardPage() {
                             (values.income / maxChartValue) * 100
                           )}%`
                         }}
-                        title={`RAB ${formatRupiah(values.income)}`}
+                        title={`RAB ${formatCurrency(values.income)}`}
                       />
                     )}
 
@@ -1219,7 +1194,7 @@ export function DashboardPage() {
                             (values.expense / maxChartValue) * 100
                           )}%`
                         }}
-                        title={`Supplier ${formatRupiah(values.expense)}`}
+                        title={`Supplier ${formatCurrency(values.expense)}`}
                       />
                     )}
 
@@ -1233,7 +1208,7 @@ export function DashboardPage() {
                             (values.operational / maxChartValue) * 100
                           )}%`
                         }}
-                        title={`Operasional ${formatRupiah(values.operational)}`}
+                        title={`Operasional ${formatCurrency(values.operational)}`}
                       />
                     )}
                   </div>
@@ -1393,7 +1368,7 @@ export function DashboardPage() {
                   </div>
                   <div className="dashboard-history-side">
                     <strong className="dashboard-history-amount">
-                      {formatRupiah(Number(transaction.amount))}
+                      {formatCurrency(Number(transaction.amount))}
                     </strong>
 
                     {user?.role === 'admin' ? (
