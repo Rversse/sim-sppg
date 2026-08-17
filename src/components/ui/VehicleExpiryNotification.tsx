@@ -4,6 +4,8 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { getVehicles } from '@/features/vehicle/vehicle-service'
 import type { Vehicle } from '@/features/vehicle/vehicle-types'
 
+import { formatDate } from '@/lib/formatters'
+
 function daysUntil(value: string | null) {
   if (!value) return null
 
@@ -14,12 +16,10 @@ function daysUntil(value: string | null) {
   return Math.ceil((target.getTime() - today.getTime()) / 86400000)
 }
 
-function formatDate(value: string | null) {
+function formatVehicleDate(value: string | null) {
   if (!value) return 'Belum diisi'
 
-  return new Intl.DateTimeFormat('id-ID', {
-    dateStyle: 'medium'
-  }).format(new Date(`${value}T00:00:00`))
+  return formatDate(value)
 }
 
 export function VehicleExpiryNotification() {
@@ -178,7 +178,7 @@ export function VehicleExpiryNotification() {
                       {item.vehicle.kitchen?.name || 'Dapur tidak diketahui'}
                     </div>
 
-                    <div>{formatDate(item.date)}</div>
+                    <div>{formatVehicleDate(item.date)}</div>
                   </div>
                 )
               })
