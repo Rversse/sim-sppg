@@ -16,15 +16,9 @@ import {
   type DisbursementRow
 } from '@/features/disbursement/disbursement-service'
 
-const DISBURSEMENT_DATE_KEY = 'disbursement_selected_date'
+import { formatDateLong } from '@/lib/formatters'
 
-function formatDate(value: string) {
-  return new Intl.DateTimeFormat('id-ID', {
-    day: '2-digit',
-    month: 'long',
-    year: 'numeric'
-  }).format(new Date(`${value}T00:00:00`))
-}
+const DISBURSEMENT_DATE_KEY = 'disbursement_selected_date'
 
 export function DisbursementPage() {
   const { user } = useAuth()
@@ -178,7 +172,7 @@ export function DisbursementPage() {
               onChange={(event) => handleDateChange(event.target.value)}
             />
           </label>
-          <strong>{formatDate(selectedDate)}</strong>
+          <strong>{formatDateLong(selectedDate)}</strong>
         </div>
       </section>
 
