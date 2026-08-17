@@ -17,7 +17,7 @@ function daysUntil(value: string | null) {
 }
 
 function formatVehicleDate(value: string | null) {
-  if (!value) return 'Belum diisi'
+  if (!value) return '-'
 
   return formatDate(value)
 }
