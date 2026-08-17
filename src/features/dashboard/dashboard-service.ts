@@ -48,7 +48,7 @@ export type DashboardActivity = {
   operational: number
 }
 
-const supplierNames = [
+const SUPPLIER_NAMES = [
   'Koperasi Arutala',
   'Sukalarang',
   'Aris',
@@ -96,6 +96,36 @@ export async function getActiveKitchens(
   return (data ?? []) as DashboardKitchen[]
 }
 
+async function getSupplierIdByName(
+  supplierName: string,
+  client: SupabaseClient
+): Promise<string | null> {
+  const { data, error } = await client
+    .from('suppliers')
+    .select('id')
+    .eq('name', supplierName)
+    .maybeSingle()
+
+  if (error) throw error
+
+  return data?.id ?? null
+}
+
+async function getSelectedKitchenName(
+  kitchenId: string,
+  client: SupabaseClient
+): Promise<string | null> {
+  const { data, error } = await client
+    .from('kitchens')
+    .select('name')
+    .eq('id', kitchenId)
+    .maybeSingle()
+
+  if (error) throw error
+
+  return data?.name ?? null
+}
+
 export async function getSupplierOptions(
   filters: Pick<
     DashboardFilters,
@@ -132,19 +162,13 @@ export async function getSupplierOptions(
   }
 
   if (filters.flowType === 'expense') {
-    const kitchen = filters.kitchenId
-      ? await client
-          .from('kitchens')
-          .select('name')
-          .eq('id', filters.kitchenId)
-          .maybeSingle()
-      : { data: null, error: null }
+    const kitchenName = filters.kitchenId
+      ? await getSelectedKitchenName(filters.kitchenId, client)
+      : null
 
-    if (kitchen.error) throw kitchen.error
-
-    const isSukaraja = kitchen.data?.name?.includes('Sukaraja') ?? false
+    const isSukaraja = kitchenName?.includes('Sukaraja') ?? false
     const names =
-      isSukaraja || !filters.kitchenId ? supplierNames : ['Koperasi Arutala']
+      isSukaraja || !filters.kitchenId ? SUPPLIER_NAMES : ['Koperasi Arutala']
 
     return names.map((name) => ({ value: name, label: name }))
   }
@@ -237,29 +261,20 @@ export async function getDashboardTransactionPage(
 
   if (filters.supplierFilter) {
     if (filters.flowType === 'expense') {
-      const { data: supplier, error: supplierError } = await client
-        .from('suppliers')
-        .select('id')
-        .eq('name', filters.supplierFilter)
-        .maybeSingle()
+      const supplierId = await getSupplierIdByName(
+        filters.supplierFilter,
+        client
+      )
 
-      if (supplierError) {
-        throw supplierError
-      }
-
-      if (!supplier) {
+      if (!supplierId) {
         return { data: [], total: 0 }
       }
 
-      query = query.eq('flow_type', 'expense').eq('supplier_id', supplier.id)
+      query = query.eq('supplier_id', supplierId)
     } else if (filters.flowType === 'income') {
-      query = query
-        .eq('flow_type', 'income')
-        .eq('account_id', filters.supplierFilter)
+      query = query.eq('account_id', filters.supplierFilter)
     } else if (filters.flowType === 'neutral') {
-      query = query
-        .eq('flow_type', 'neutral')
-        .eq('account_id', filters.supplierFilter)
+      query = query.eq('account_id', filters.supplierFilter)
     } else {
       query = query
         .in('flow_type', ['income', 'neutral'])
@@ -269,9 +284,7 @@ export async function getDashboardTransactionPage(
 
   const { data, error, count } = await query
 
-  if (error) {
-    throw error
-  }
+  if (error) throw error
 
   return {
     data: (data ?? []) as DashboardTransaction[],
@@ -300,29 +313,20 @@ export async function getDashboardActivity(
 
   if (filters.supplierFilter) {
     if (filters.flowType === 'expense') {
-      const { data: supplier, error: supplierError } = await client
-        .from('suppliers')
-        .select('id')
-        .eq('name', filters.supplierFilter)
-        .maybeSingle()
+      const supplierId = await getSupplierIdByName(
+        filters.supplierFilter,
+        client
+      )
 
-      if (supplierError) {
-        throw supplierError
-      }
-
-      if (!supplier) {
+      if (!supplierId) {
         return []
       }
 
-      query = query.eq('flow_type', 'expense').eq('supplier_id', supplier.id)
+      query = query.eq('supplier_id', supplierId)
     } else if (filters.flowType === 'income') {
-      query = query
-        .eq('flow_type', 'income')
-        .eq('account_id', filters.supplierFilter)
+      query = query.eq('account_id', filters.supplierFilter)
     } else if (filters.flowType === 'neutral') {
-      query = query
-        .eq('flow_type', 'neutral')
-        .eq('account_id', filters.supplierFilter)
+      query = query.eq('account_id', filters.supplierFilter)
     } else {
       query = query
         .in('flow_type', ['income', 'neutral'])
@@ -332,9 +336,7 @@ export async function getDashboardActivity(
 
   const { data, error } = await query
 
-  if (error) {
-    throw error
-  }
+  if (error) throw error
 
   const buckets = new Map<string, DashboardActivity>()
 

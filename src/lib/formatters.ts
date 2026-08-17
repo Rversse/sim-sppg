@@ -1,3 +1,44 @@
+const DATE_SHORT_FORMATTER = new Intl.DateTimeFormat('id-ID', {
+  day: '2-digit',
+  month: 'short',
+  year: 'numeric'
+})
+
+const DATE_LONG_FORMATTER = new Intl.DateTimeFormat('id-ID', {
+  day: '2-digit',
+  month: 'long',
+  year: 'numeric'
+})
+
+const DATE_TIME_FORMATTER = new Intl.DateTimeFormat('id-ID', {
+  day: '2-digit',
+  month: 'short',
+  year: 'numeric',
+  hour: '2-digit',
+  minute: '2-digit',
+  hourCycle: 'h23'
+})
+
+const DATE_TIME_SECONDS_FORMATTER = new Intl.DateTimeFormat('id-ID', {
+  day: '2-digit',
+  month: 'short',
+  year: 'numeric',
+  hour: '2-digit',
+  minute: '2-digit',
+  second: '2-digit',
+  hourCycle: 'h23'
+})
+
+const CURRENCY_FORMATTER = new Intl.NumberFormat('id-ID', {
+  style: 'currency',
+  currency: 'IDR',
+  maximumFractionDigits: 0
+})
+
+const NUMBER_FORMATTER = new Intl.NumberFormat('id-ID', {
+  maximumFractionDigits: 0
+})
+
 function parseDateValue(value: string | Date) {
   if (value instanceof Date) {
     return value
@@ -22,66 +63,37 @@ export function getTodayLocal() {
 }
 
 export function formatDate(value: string | Date) {
-  return new Intl.DateTimeFormat('id-ID', {
-    day: '2-digit',
-    month: 'short',
-    year: 'numeric'
-  }).format(parseDateValue(value))
+  return DATE_SHORT_FORMATTER.format(parseDateValue(value))
 }
 
 export function formatDateLong(value: string | Date) {
-  return new Intl.DateTimeFormat('id-ID', {
-    day: '2-digit',
-    month: 'long',
-    year: 'numeric'
-  }).format(parseDateValue(value))
+  return DATE_LONG_FORMATTER.format(parseDateValue(value))
+}
+
+function formatDateTimeParts(
+  formatter: Intl.DateTimeFormat,
+  value: string | Date
+) {
+  const parts = formatter.formatToParts(parseDateValue(value))
+  return Object.fromEntries(parts.map((part) => [part.type, part.value]))
 }
 
 export function formatDateTime(value: string | Date) {
-  const parts = new Intl.DateTimeFormat('id-ID', {
-    day: '2-digit',
-    month: 'short',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-    hourCycle: 'h23'
-  }).formatToParts(parseDateValue(value))
-
-  const values = Object.fromEntries(
-    parts.map((part) => [part.type, part.value])
-  )
+  const values = formatDateTimeParts(DATE_TIME_FORMATTER, value)
 
   return `${values.day} ${values.month} ${values.year}, ${values.hour}:${values.minute}`
 }
 
 export function formatDateTimeWithSeconds(value: string | Date) {
-  const parts = new Intl.DateTimeFormat('id-ID', {
-    day: '2-digit',
-    month: 'short',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit',
-    hourCycle: 'h23'
-  }).formatToParts(parseDateValue(value))
-
-  const values = Object.fromEntries(
-    parts.map((part) => [part.type, part.value])
-  )
+  const values = formatDateTimeParts(DATE_TIME_SECONDS_FORMATTER, value)
 
   return `${values.day} ${values.month} ${values.year}, ${values.hour}:${values.minute}:${values.second}`
 }
 
 export function formatCurrency(value: number) {
-  return new Intl.NumberFormat('id-ID', {
-    style: 'currency',
-    currency: 'IDR',
-    maximumFractionDigits: 0
-  }).format(value)
+  return CURRENCY_FORMATTER.format(value)
 }
 
 export function formatNumber(value: number) {
-  return new Intl.NumberFormat('id-ID', {
-    maximumFractionDigits: 0
-  }).format(value)
+  return NUMBER_FORMATTER.format(value)
 }
