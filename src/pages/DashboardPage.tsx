@@ -33,10 +33,12 @@ import {
   type TransactionOption
 } from '@/features/transactions/transaction-options-service'
 import { DateRangePicker } from '@/components/ui/date-range-picker'
+
 import {
   formatCurrency,
   formatDate,
-  formatDateTimeWithSeconds
+  formatDateTimeWithSeconds,
+  getTodayLocal
 } from '@/lib/formatters'
 
 const FLOW_OPTIONS: { value: DashboardFlow | ''; label: string }[] = [
@@ -45,14 +47,6 @@ const FLOW_OPTIONS: { value: DashboardFlow | ''; label: string }[] = [
   { value: 'expense', label: 'Pembayaran Supplier' },
   { value: 'neutral', label: 'Operasional' }
 ]
-
-function getTodayLocal() {
-  const now = new Date()
-  const year = now.getFullYear()
-  const month = String(now.getMonth() + 1).padStart(2, '0')
-  const day = String(now.getDate()).padStart(2, '0')
-  return `${year}-${month}-${day}`
-}
 
 function flowLabel(flow: DashboardFlow) {
   if (flow === 'income') return 'RAB'

@@ -19,23 +19,9 @@ import {
   DateRangePicker,
   type DateRangeValue
 } from '@/components/ui/date-range-picker'
+import { formatCurrency, getTodayLocal } from '@/lib/formatters'
 
 type ReportTab = 'overall' | 'income' | 'supplier'
-
-function getTodayLocal() {
-  const now = new Date()
-  const offset = now.getTimezoneOffset()
-
-  return new Date(now.getTime() - offset * 60_000).toISOString().slice(0, 10)
-}
-
-function formatRupiah(value: number) {
-  return new Intl.NumberFormat('id-ID', {
-    style: 'currency',
-    currency: 'IDR',
-    maximumFractionDigits: 0
-  }).format(value)
-}
 
 function DateFilter({
   startDate,
@@ -67,11 +53,9 @@ function SummaryCard({
   return (
     <div className="reports-summary-card">
       <span>{label}</span>
-
       <strong className={negative ? 'negative' : ''}>
-        {formatRupiah(value)}
+        {formatCurrency(value)}
       </strong>
-
       <small>{note}</small>
     </div>
   )
@@ -93,10 +77,8 @@ function EmptyState() {
 
 function OverallReportView() {
   const today = getTodayLocal()
-
   const [startDate, setStartDate] = useState(today)
   const [endDate, setEndDate] = useState(today)
-
   const [report, setReport] = useState<OverallReport | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -104,29 +86,18 @@ function OverallReportView() {
   useEffect(() => {
     let cancelled = false
 
-    void getOverallReport({
-      startDate,
-      endDate,
-      kitchenId: ''
-    })
+    void getOverallReport({ startDate, endDate, kitchenId: '' })
       .then((result) => {
-        if (cancelled) {
-          return
-        }
-
+        if (cancelled) return
         setReport(result)
+        setError(null)
       })
       .catch((error) => {
         console.error(error)
-
-        if (!cancelled) {
-          setError('Gagal memuat laporan keseluruhan')
-        }
+        if (!cancelled) setError('Gagal memuat laporan keseluruhan')
       })
       .finally(() => {
-        if (!cancelled) {
-          setLoading(false)
-        }
+        if (!cancelled) setLoading(false)
       })
 
     return () => {
@@ -145,12 +116,10 @@ function OverallReportView() {
             setEndDate(nextEndDate)
           }}
         />
-
         <button
           type="button"
           onClick={() => {
             if (!report) return
-
             void exportOverallReport(report, startDate, endDate).catch(
               (error) => {
                 console.error(error)
@@ -162,7 +131,6 @@ function OverallReportView() {
         >
           Export Excel
         </button>
-
         <button
           type="button"
           onClick={() => printReport()}
@@ -173,7 +141,6 @@ function OverallReportView() {
       </div>
 
       {loading && <LoadingState />}
-
       {error && <ErrorState message={error} />}
 
       {!loading && !error && report && (
@@ -184,19 +151,16 @@ function OverallReportView() {
               value={report.totals.income}
               note="Total RAB pada periode terpilih"
             />
-
             <SummaryCard
               label="Total Supplier"
               value={report.totals.expense}
               note="Total pembayaran ke supplier pada periode terpilih"
             />
-
             <SummaryCard
               label="Total Operasional"
               value={report.totals.operational}
               note="Total transaksi operasional pada periode terpilih"
             />
-
             <SummaryCard
               label="Total"
               value={report.totals.remaining}
@@ -216,33 +180,31 @@ function OverallReportView() {
                   <th>TOTAL</th>
                 </tr>
               </thead>
-
               <tbody>
                 {report.kitchens.map((item) => (
                   <tr key={item.kitchenId}>
                     <td>{item.kitchenName}</td>
-                    <td>{formatRupiah(item.income)}</td>
-                    <td>{formatRupiah(item.expense)}</td>
-                    <td>{formatRupiah(item.operational)}</td>
+                    <td>{formatCurrency(item.income)}</td>
+                    <td>{formatCurrency(item.expense)}</td>
+                    <td>{formatCurrency(item.operational)}</td>
                     <td
                       className={item.remaining < 0 ? 'negative' : 'positive'}
                     >
-                      {formatRupiah(item.remaining)}
+                      {formatCurrency(item.remaining)}
                     </td>
                   </tr>
                 ))}
-
                 <tr className="reports-total-row">
                   <td>GRAND TOTAL</td>
-                  <td>{formatRupiah(report.totals.income)}</td>
-                  <td>{formatRupiah(report.totals.expense)}</td>
-                  <td>{formatRupiah(report.totals.operational)}</td>
+                  <td>{formatCurrency(report.totals.income)}</td>
+                  <td>{formatCurrency(report.totals.expense)}</td>
+                  <td>{formatCurrency(report.totals.operational)}</td>
                   <td
                     className={
                       report.totals.remaining < 0 ? 'negative' : 'positive'
                     }
                   >
-                    {formatRupiah(report.totals.remaining)}
+                    {formatCurrency(report.totals.remaining)}
                   </td>
                 </tr>
               </tbody>
@@ -256,10 +218,8 @@ function OverallReportView() {
 
 function IncomeReportView() {
   const today = getTodayLocal()
-
   const [startDate, setStartDate] = useState(today)
   const [endDate, setEndDate] = useState(today)
-
   const [report, setReport] = useState<IncomeReport | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -267,26 +227,19 @@ function IncomeReportView() {
   useEffect(() => {
     let cancelled = false
 
-    void getIncomeReport({
-      startDate,
-      endDate
-    })
+    void getIncomeReport({ startDate, endDate })
       .then((result) => {
         if (!cancelled) {
           setReport(result)
+          setError(null)
         }
       })
       .catch((error) => {
         console.error(error)
-
-        if (!cancelled) {
-          setError('Gagal memuat rekap pemasukan')
-        }
+        if (!cancelled) setError('Gagal memuat rekap pemasukan')
       })
       .finally(() => {
-        if (!cancelled) {
-          setLoading(false)
-        }
+        if (!cancelled) setLoading(false)
       })
 
     return () => {
@@ -305,12 +258,10 @@ function IncomeReportView() {
             setEndDate(nextEndDate)
           }}
         />
-
         <button
           type="button"
           onClick={() => {
             if (!report) return
-
             void exportIncomeReport(report, startDate, endDate).catch(
               (error) => {
                 console.error(error)
@@ -322,7 +273,6 @@ function IncomeReportView() {
         >
           Export Excel
         </button>
-
         <button
           type="button"
           onClick={() => printReport()}
@@ -333,7 +283,6 @@ function IncomeReportView() {
       </div>
 
       {loading && <LoadingState />}
-
       {error && <ErrorState message={error} />}
 
       {!loading && !error && report && (
@@ -359,7 +308,6 @@ function IncomeReportView() {
                     <th>TOTAL</th>
                   </tr>
                 </thead>
-
                 <tbody>
                   {report.rows.map((row) => (
                     <tr
@@ -368,13 +316,12 @@ function IncomeReportView() {
                       <td>{row.supplierName}</td>
                       <td>{row.ownerName}</td>
                       <td>{row.bank}</td>
-                      <td>{formatRupiah(row.total)}</td>
+                      <td>{formatCurrency(row.total)}</td>
                     </tr>
                   ))}
-
                   <tr className="reports-total-row">
                     <td colSpan={3}>GRAND TOTAL</td>
-                    <td>{formatRupiah(report.grandTotal)}</td>
+                    <td>{formatCurrency(report.grandTotal)}</td>
                   </tr>
                 </tbody>
               </table>
@@ -388,10 +335,8 @@ function IncomeReportView() {
 
 function SupplierReportView() {
   const today = getTodayLocal()
-
   const [startDate, setStartDate] = useState(today)
   const [endDate, setEndDate] = useState(today)
-
   const [report, setReport] = useState<SupplierReport | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -399,27 +344,19 @@ function SupplierReportView() {
   useEffect(() => {
     let cancelled = false
 
-    void getSupplierReport({
-      startDate,
-      endDate,
-      kitchenId: ''
-    })
+    void getSupplierReport({ startDate, endDate, kitchenId: '' })
       .then((result) => {
         if (!cancelled) {
           setReport(result)
+          setError(null)
         }
       })
       .catch((error) => {
         console.error(error)
-
-        if (!cancelled) {
-          setError('Gagal memuat rekap pengeluaran')
-        }
+        if (!cancelled) setError('Gagal memuat rekap pengeluaran')
       })
       .finally(() => {
-        if (!cancelled) {
-          setLoading(false)
-        }
+        if (!cancelled) setLoading(false)
       })
 
     return () => {
@@ -438,12 +375,10 @@ function SupplierReportView() {
             setEndDate(nextEndDate)
           }}
         />
-
         <button
           type="button"
           onClick={() => {
             if (!report) return
-
             void exportSupplierReport(report, startDate, endDate).catch(
               (error) => {
                 console.error(error)
@@ -455,7 +390,6 @@ function SupplierReportView() {
         >
           Export Excel
         </button>
-
         <button
           type="button"
           onClick={() => printReport()}
@@ -466,7 +400,6 @@ function SupplierReportView() {
       </div>
 
       {loading && <LoadingState />}
-
       {error && <ErrorState message={error} />}
 
       {!loading && !error && report && (
@@ -487,28 +420,26 @@ function SupplierReportView() {
                     <th>TOTAL</th>
                   </tr>
                 </thead>
-
                 <tbody>
                   {report.summaryRows.map((row) => (
                     <tr key={row.kitchenName}>
                       <td>{row.kitchenName}</td>
-                      <td>{formatRupiah(row.Arutala)}</td>
-                      <td>{formatRupiah(row.Sukalarang)}</td>
-                      <td>{formatRupiah(row.Aris)}</td>
-                      <td>{formatRupiah(row.Babinsa)}</td>
-                      <td>{formatRupiah(row.Operational)}</td>
-                      <td>{formatRupiah(row.Total)}</td>
+                      <td>{formatCurrency(row.Arutala)}</td>
+                      <td>{formatCurrency(row.Sukalarang)}</td>
+                      <td>{formatCurrency(row.Aris)}</td>
+                      <td>{formatCurrency(row.Babinsa)}</td>
+                      <td>{formatCurrency(row.Operational)}</td>
+                      <td>{formatCurrency(row.Total)}</td>
                     </tr>
                   ))}
-
                   <tr className="reports-total-row">
                     <td>GRAND TOTAL</td>
-                    <td>{formatRupiah(report.totals.Arutala)}</td>
-                    <td>{formatRupiah(report.totals.Sukalarang)}</td>
-                    <td>{formatRupiah(report.totals.Aris)}</td>
-                    <td>{formatRupiah(report.totals.Babinsa)}</td>
-                    <td>{formatRupiah(report.totals.Operational)}</td>
-                    <td>{formatRupiah(report.totals.Total)}</td>
+                    <td>{formatCurrency(report.totals.Arutala)}</td>
+                    <td>{formatCurrency(report.totals.Sukalarang)}</td>
+                    <td>{formatCurrency(report.totals.Aris)}</td>
+                    <td>{formatCurrency(report.totals.Babinsa)}</td>
+                    <td>{formatCurrency(report.totals.Operational)}</td>
+                    <td>{formatCurrency(report.totals.Total)}</td>
                   </tr>
                 </tbody>
               </table>
@@ -528,7 +459,6 @@ export function ReportsPage() {
       <header className="reports-header">
         <div>
           <h1>Laporan</h1>
-
           <p>Rekap transaksi berdasarkan periode dan dapur.</p>
         </div>
       </header>
@@ -541,7 +471,6 @@ export function ReportsPage() {
         >
           Keseluruhan
         </button>
-
         <button
           type="button"
           className={tab === 'income' ? 'active' : ''}
@@ -549,7 +478,6 @@ export function ReportsPage() {
         >
           Rekap Pemasukan
         </button>
-
         <button
           type="button"
           className={tab === 'supplier' ? 'active' : ''}
@@ -560,9 +488,7 @@ export function ReportsPage() {
       </nav>
 
       {tab === 'overall' && <OverallReportView />}
-
       {tab === 'income' && <IncomeReportView />}
-
       {tab === 'supplier' && <SupplierReportView />}
     </main>
   )

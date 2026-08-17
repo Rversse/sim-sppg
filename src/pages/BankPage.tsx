@@ -24,7 +24,7 @@ import {
 import { canAccess } from '@/features/auth/role-policy'
 import { useAuth } from '@/features/auth/use-auth'
 
-import { formatCurrency, formatDateTime } from '@/lib/formatters'
+import { formatCurrency, formatDateTime, getTodayLocal } from '@/lib/formatters'
 
 const HISTORY_PAGE_SIZE = 10
 const BANK_MODULE_START_DATE = '2026-07-20'
@@ -47,16 +47,6 @@ type TransferFormState = {
   transferAmount: string
   adminFee: string
   paymentFor: string
-}
-
-function getTodayLocal() {
-  const now = new Date()
-
-  return [
-    now.getFullYear(),
-    String(now.getMonth() + 1).padStart(2, '0'),
-    String(now.getDate()).padStart(2, '0')
-  ].join('-')
 }
 
 function createEmptyTransferForm(): TransferFormState {

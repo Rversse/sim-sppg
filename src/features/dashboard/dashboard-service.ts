@@ -204,62 +204,6 @@ export async function getSupplierOptions(
     .sort((a, b) => a.label.localeCompare(b.label))
 }
 
-export async function getDashboardTransactions(
-  filters: DashboardFilters,
-  client: SupabaseClient = supabase
-): Promise<DashboardTransaction[]> {
-  let query = client
-    .from('transactions')
-    .select('id,transaction_date,flow_type,category,amount,note,kitchen_id')
-    .gte('transaction_date', filters.startDate)
-    .lte('transaction_date', filters.endDate)
-    .order('transaction_date', { ascending: false })
-
-  if (filters.kitchenId) {
-    query = query.eq('kitchen_id', filters.kitchenId)
-  }
-
-  if (filters.flowType) {
-    query = query.eq('flow_type', filters.flowType)
-  }
-
-  if (filters.supplierFilter) {
-    if (filters.flowType === 'expense') {
-      const { data: supplier, error: supplierError } = await client
-        .from('suppliers')
-        .select('id')
-        .eq('name', filters.supplierFilter)
-        .maybeSingle()
-
-      if (supplierError) {
-        throw supplierError
-      }
-
-      if (!supplier) {
-        return []
-      }
-
-      query = query.eq('flow_type', 'expense').eq('supplier_id', supplier.id)
-    } else if (
-      filters.flowType === 'income' ||
-      filters.flowType === '' ||
-      filters.flowType === 'neutral'
-    ) {
-      query = query
-        .eq('flow_type', filters.flowType === '' ? 'income' : filters.flowType)
-        .eq('account_id', filters.supplierFilter)
-    }
-  }
-
-  const { data, error } = await query.limit(50)
-
-  if (error) {
-    throw error
-  }
-
-  return (data ?? []) as DashboardTransaction[]
-}
-
 export async function getDashboardTransactionPage(
   filters: DashboardFilters,
   page: number,
