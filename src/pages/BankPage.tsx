@@ -24,6 +24,8 @@ import {
 import { canAccess } from '@/features/auth/role-policy'
 import { useAuth } from '@/features/auth/use-auth'
 
+import { formatCurrency, formatDateTime } from '@/lib/formatters'
+
 const HISTORY_PAGE_SIZE = 10
 const BANK_MODULE_START_DATE = '2026-07-20'
 const MAX_AUTOCOMPLETE_RESULTS = 5
@@ -70,14 +72,6 @@ function createEmptyTransferForm(): TransferFormState {
   }
 }
 
-function formatRupiah(value: number) {
-  return new Intl.NumberFormat('id-ID', {
-    style: 'currency',
-    currency: 'IDR',
-    maximumFractionDigits: 0
-  }).format(value)
-}
-
 function formatIntegerInput(value: string) {
   const digits = value.replace(/\\D/g, '')
 
@@ -92,23 +86,6 @@ function parseIntegerInput(value: string) {
   const digits = value.replace(/\\D/g, '')
 
   return digits ? Number(digits) : 0
-}
-
-function formatDateTime(value: string) {
-  const parts = new Intl.DateTimeFormat('id-ID', {
-    day: '2-digit',
-    month: 'short',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-    hourCycle: 'h23'
-  }).formatToParts(new Date(value))
-
-  const values = Object.fromEntries(
-    parts.map((part) => [part.type, part.value])
-  )
-
-  return `${values.day} ${values.month} ${values.year}, ${values.hour}:${values.minute}`
 }
 
 function getPaginationPages(currentPage: number, totalPages: number) {
@@ -252,28 +229,28 @@ function AccountCard({
 
       <div className="bank-account-balance">
         <span>Saldo Saat Ini</span>
-        <strong>{formatRupiah(summary.balance)}</strong>
+        <strong>{formatCurrency(summary.balance)}</strong>
       </div>
 
       <div className="bank-account-stats">
         <div>
           <span>Pencairan Masuk</span>
           <strong className="bank-income">
-            {formatRupiah(summary.disbursementIncome)}
+            {formatCurrency(summary.disbursementIncome)}
           </strong>
         </div>
 
         <div>
           <span>Transfer Masuk</span>
           <strong className="bank-income">
-            {formatRupiah(summary.transferIncome)}
+            {formatCurrency(summary.transferIncome)}
           </strong>
         </div>
 
         <div>
           <span>Transfer Keluar</span>
           <strong className="bank-expense">
-            {formatRupiah(summary.transferExpense)}
+            {formatCurrency(summary.transferExpense)}
           </strong>
         </div>
       </div>
@@ -776,7 +753,7 @@ export function BankPage() {
     if (isDeletingTransaction) return
 
     const confirmed = window.confirm(
-      `Hapus transfer ${formatRupiah(Number(transaction.transfer_amount) || 0)}?\n\nTindakan ini tidak dapat dibatalkan.`
+      `Hapus transfer ${formatCurrency(Number(transaction.transfer_amount) || 0)}?\n\nTindakan ini tidak dapat dibatalkan.`
     )
 
     if (!confirmed) return
@@ -841,25 +818,27 @@ export function BankPage() {
             <section className="bank-summary-grid">
               <article className="bank-summary-card income">
                 <span>Total Pencairan Masuk</span>
-                <strong>{formatRupiah(totalSummary.disbursementIncome)}</strong>
+                <strong>
+                  {formatCurrency(totalSummary.disbursementIncome)}
+                </strong>
                 <small>dari pencairan dashboard</small>
               </article>
 
               <article className="bank-summary-card transfer-in">
                 <span>Total Transfer Masuk</span>
-                <strong>{formatRupiah(totalSummary.transferIncome)}</strong>
+                <strong>{formatCurrency(totalSummary.transferIncome)}</strong>
                 <small>dari transfer antar rekening</small>
               </article>
 
               <article className="bank-summary-card expense">
                 <span>Total Transfer Keluar</span>
-                <strong>{formatRupiah(totalSummary.transferExpense)}</strong>
+                <strong>{formatCurrency(totalSummary.transferExpense)}</strong>
                 <small>termasuk biaya admin</small>
               </article>
 
               <article className="bank-summary-card balance">
                 <span>Total Saldo Akhir</span>
-                <strong>{formatRupiah(totalSummary.balance)}</strong>
+                <strong>{formatCurrency(totalSummary.balance)}</strong>
                 <small>(saldo awal + masuk) - keluar</small>
               </article>
             </section>
@@ -1059,7 +1038,9 @@ export function BankPage() {
                   <input
                     type="text"
                     value={
-                      transferForm.accountId ? formatRupiah(senderBalance) : ''
+                      transferForm.accountId
+                        ? formatCurrency(senderBalance)
+                        : ''
                     }
                     placeholder="Saldo Pengirim"
                     disabled
@@ -1315,7 +1296,7 @@ export function BankPage() {
             <div className="bank-history-summary">
               <div className="bank-history-current">
                 <span>Saldo Saat Ini</span>
-                <strong>{formatRupiah(historySummary.balance)}</strong>
+                <strong>{formatCurrency(historySummary.balance)}</strong>
               </div>
 
               <div className="bank-history-stats">
@@ -1323,7 +1304,7 @@ export function BankPage() {
                   <div className="bank-history-stat">
                     <span>Saldo Awal</span>
                     <strong>
-                      {formatRupiah(
+                      {formatCurrency(
                         Number(historySummary.account.opening_balance)
                       )}
                     </strong>
@@ -1334,7 +1315,7 @@ export function BankPage() {
                   <div className="bank-history-stat">
                     <span>Pencairan Masuk</span>
                     <strong className="bank-income">
-                      {formatRupiah(historySummary.disbursementIncome)}
+                      {formatCurrency(historySummary.disbursementIncome)}
                     </strong>
                   </div>
                 ) : null}
@@ -1343,7 +1324,7 @@ export function BankPage() {
                   <div className="bank-history-stat">
                     <span>Transfer Masuk</span>
                     <strong className="bank-income">
-                      {formatRupiah(historySummary.transferIncome)}
+                      {formatCurrency(historySummary.transferIncome)}
                     </strong>
                   </div>
                 ) : null}
@@ -1352,7 +1333,7 @@ export function BankPage() {
                   <div className="bank-history-stat">
                     <span>Transfer Keluar</span>
                     <strong className="bank-expense">
-                      {formatRupiah(historySummary.transferExpense)}
+                      {formatCurrency(historySummary.transferExpense)}
                     </strong>
                   </div>
                 ) : null}
@@ -1415,15 +1396,15 @@ export function BankPage() {
                           className={incoming ? 'bank-income' : 'bank-expense'}
                         >
                           {incoming ? '+' : '-'}
-                          {formatRupiah(incoming ? transferAmount : total)}
+                          {formatCurrency(incoming ? transferAmount : total)}
                         </strong>
 
                         {!incoming && adminFee > 0 ? (
-                          <p>Admin: {formatRupiah(adminFee)}</p>
+                          <p>Admin: {formatCurrency(adminFee)}</p>
                         ) : null}
 
                         <p className="bank-history-balance">
-                          Saldo akhir: {formatRupiah(item.runningBalance)}
+                          Saldo akhir: {formatCurrency(item.runningBalance)}
                         </p>
 
                         {canCreateTransaction ? (
