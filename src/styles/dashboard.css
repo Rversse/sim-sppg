@@ -1116,28 +1116,16 @@
 }
 
 .dashboard-transaction-form-grid textarea {
-  min-height: 42px;
-  height: 42px;
-  max-height: 42px;
-  padding: 0 10px;
-  border-radius: 9px;
-  text-align: left;
-  line-height: 40px;
-  resize: none;
-  overflow: hidden;
+  min-height: 82px;
+  padding: 10px;
+  text-align: center;
+  line-height: 1.45;
+  resize: vertical;
 }
 
 .dashboard-transaction-form-grid textarea::placeholder {
   color: var(--app-text-subtle);
-  text-align: left;
-}
-
-.dashboard-transaction-form-note {
-  align-self: end;
-}
-
-.dashboard-transaction-form-note textarea {
-  display: block;
+  text-align: center;
 }
 
 .dashboard-transaction-form-grid input:hover,
@@ -1164,10 +1152,6 @@
 .dashboard-transaction-form-note {
   grid-column: auto;
   min-width: 0;
-}
-
-.dashboard-transaction-form-note textarea {
-  min-height: 82px;
 }
 
 .dashboard-transaction-modal-actions {
