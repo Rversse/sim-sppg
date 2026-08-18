@@ -23,6 +23,7 @@ import {
 
 import { canAccess } from '@/features/auth/role-policy'
 import { useAuth } from '@/features/auth/use-auth'
+import { supabase } from '@/lib/supabase'
 
 import { formatCurrency, formatDateTime, getTodayLocal } from '@/lib/formatters'
 
@@ -289,51 +290,92 @@ export function BankPage() {
 
   useEffect(() => {
     let cancelled = false
+    let refreshTimer: ReturnType<typeof setTimeout> | null = null
 
-    const loadOverview = async (showLoading = false) => {
-      if (showLoading) {
-        setLoading(true)
+    const refreshOverview = (showLoading = false) => {
+      if (refreshTimer !== null) {
+        window.clearTimeout(refreshTimer)
       }
 
-      try {
-        const data = await getBankOverview()
-
+      refreshTimer = window.setTimeout(async () => {
         if (cancelled) return
 
-        setOverview(data)
-        setErrorMessage('')
-      } catch (error: unknown) {
-        if (cancelled) return
-
-        console.error(error)
-        setOverview(null)
-        setErrorMessage('Gagal memuat transaksi bank.')
-      } finally {
-        if (!cancelled) {
-          setLoading(false)
+        if (showLoading) {
+          setLoading(true)
         }
-      }
+
+        try {
+          const data = await getBankOverview()
+
+          if (cancelled) return
+
+          setOverview(data)
+          setErrorMessage('')
+        } catch (error: unknown) {
+          if (cancelled) return
+
+          console.error(error)
+          setErrorMessage('Gagal memuat transaksi bank.')
+        } finally {
+          if (!cancelled) {
+            setLoading(false)
+          }
+        }
+      }, 150)
     }
 
-    void loadOverview(true)
+    refreshOverview(true)
 
     const handleFocus = () => {
-      void loadOverview()
+      refreshOverview()
     }
 
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'visible') {
-        void loadOverview()
+        refreshOverview()
       }
     }
+
+    const channel = supabase
+      .channel('bank-page-data-refresh')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'transactions'
+        },
+        () => {
+          refreshOverview()
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'bank_transactions'
+        },
+        () => {
+          refreshOverview()
+        }
+      )
+      .subscribe()
 
     window.addEventListener('focus', handleFocus)
     document.addEventListener('visibilitychange', handleVisibilityChange)
 
     return () => {
       cancelled = true
+
+      if (refreshTimer !== null) {
+        window.clearTimeout(refreshTimer)
+      }
+
       window.removeEventListener('focus', handleFocus)
       document.removeEventListener('visibilitychange', handleVisibilityChange)
+
+      void supabase.removeChannel(channel)
     }
   }, [])
 
