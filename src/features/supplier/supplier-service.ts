@@ -7,12 +7,18 @@ type ProfileRow = { id: string; username: string | null }
 
 async function getProfileNames(ids: string[], client: SupabaseClient) {
   const uniqueIds = [...new Set(ids.filter(Boolean))]
-  if (!uniqueIds.length) return new Map<string, string>()
+
+  if (!uniqueIds.length) {
+    return new Map<string, string>()
+  }
+
   const { data, error } = await client
     .from('profiles')
     .select('id,username')
     .in('id', uniqueIds)
+
   if (error) throw error
+
   return new Map(
     ((data ?? []) as ProfileRow[]).map((profile) => [
       profile.id,
@@ -59,7 +65,9 @@ export async function getSuppliers(
     .order('business_name')
 
   if (error) throw error
+
   const suppliers = (data ?? []) as unknown as Supplier[]
+
   const names = await getProfileNames(
     suppliers.flatMap((supplier) => [
       supplier.created_by ?? '',
@@ -67,6 +75,7 @@ export async function getSuppliers(
     ]),
     client
   )
+
   return suppliers.map((supplier) => ({
     ...supplier,
     created_by_name: supplier.created_by
@@ -82,15 +91,11 @@ export async function createSupplier(
   input: SupplierInput,
   client: SupabaseClient = supabase
 ): Promise<void> {
-  if (!input.business_name.trim()) throw new Error('Nama supplier wajib diisi.')
+  validateSupplierInput(input)
 
-  const { error } = await client.from('income_suppliers').insert({
-    business_name: normalizeBusinessName(input.business_name),
-    owner_name: input.owner_name.trim(),
-    product_type: input.product_type.trim(),
-    phone: input.phone.trim() || null,
-    address: input.address.trim() || null
-  })
+  const { error } = await client
+    .from('income_suppliers')
+    .insert(toSupplierRecord(input))
 
   if (error) throw error
 }
@@ -101,18 +106,15 @@ export async function updateSupplier(
   client: SupabaseClient = supabase
 ): Promise<void> {
   if (!id) throw new Error('ID supplier tidak ditemukan.')
-  if (!input.business_name.trim()) throw new Error('Nama supplier wajib diisi.')
+
+  validateSupplierInput(input)
 
   const businessName = normalizeBusinessName(input.business_name)
 
   const { error } = await client
     .from('income_suppliers')
     .update({
-      business_name: businessName,
-      owner_name: input.owner_name.trim(),
-      product_type: input.product_type.trim(),
-      phone: input.phone.trim() || null,
-      address: input.address.trim() || null,
+      ...toSupplierRecord(input),
       updated_at: new Date().toISOString()
     })
     .eq('id', id)
@@ -136,7 +138,9 @@ export async function deleteSupplier(
   client: SupabaseClient = supabase
 ): Promise<void> {
   const supplier = await getSupplier(id, client)
+
   if (!supplier) throw new Error('Supplier tidak ditemukan.')
+
   if (supplier.accounts.length > 0) {
     throw new Error(
       `Supplier masih memiliki ${supplier.accounts.length} rekening. Hapus seluruh rekening terlebih dahulu.`
@@ -144,6 +148,7 @@ export async function deleteSupplier(
   }
 
   const { error } = await client.from('income_suppliers').delete().eq('id', id)
+
   if (error) throw error
 }
 
@@ -153,33 +158,37 @@ export async function saveSupplierAccount(
   input: AccountInput,
   client: SupabaseClient = supabase
 ): Promise<void> {
-  if (!input.bank) throw new Error('Bank wajib dipilih.')
-  if (!input.account_number.trim())
-    throw new Error('Nomor rekening wajib diisi.')
+  validateAccountInput(input)
 
   const supplier = await getSupplier(supplierId, client)
+
   if (!supplier) throw new Error('Supplier tidak ditemukan.')
+
+  const accountNumber = input.account_number.trim()
 
   const duplicate = supplier.accounts.find(
     (account) =>
       account.id !== accountId &&
       account.bank === input.bank &&
-      (account.account_number ?? '') === input.account_number.trim()
+      (account.account_number ?? '') === accountNumber
   )
 
-  if (duplicate)
+  if (duplicate) {
     throw new Error('Rekening dengan bank dan nomor tersebut sudah ada.')
+  }
 
   if (accountId) {
     const { error } = await client
       .from('accounts')
       .update({
         bank: input.bank,
-        account_number: input.account_number.trim(),
+        account_number: accountNumber,
         opening_balance: input.opening_balance
       })
       .eq('id', accountId)
+
     if (error) throw error
+
     return
   }
 
@@ -187,7 +196,7 @@ export async function saveSupplierAccount(
     supplier_id: supplierId,
     name: supplier.business_name,
     bank: input.bank,
-    account_number: input.account_number.trim(),
+    account_number: accountNumber,
     opening_balance: input.opening_balance
   })
 
@@ -200,9 +209,11 @@ export async function deleteSupplierAccount(
   client: SupabaseClient = supabase
 ): Promise<void> {
   const supplier = await getSupplier(supplierId, client)
+
   if (!supplier) throw new Error('Supplier tidak ditemukan.')
 
   const account = supplier.accounts.find((item) => item.id === accountId)
+
   if (!account) throw new Error('Rekening tidak ditemukan.')
 
   const { count: mappingCount, error: mappingError } = await client
@@ -211,6 +222,7 @@ export async function deleteSupplierAccount(
     .eq('account_id', accountId)
 
   if (mappingError) throw mappingError
+
   if ((mappingCount ?? 0) > 0) {
     throw new Error(
       `Rekening masih dipakai oleh ${mappingCount} dapur. Hapus mapping terlebih dahulu.`
@@ -223,6 +235,7 @@ export async function deleteSupplierAccount(
     .eq('account_id', accountId)
 
   if (transactionError) throw transactionError
+
   if ((transactionCount ?? 0) > 0) {
     throw new Error(
       `Rekening tidak dapat dihapus karena sudah digunakan pada ${transactionCount} transaksi.`
@@ -234,6 +247,7 @@ export async function deleteSupplierAccount(
   }
 
   const { error } = await client.from('accounts').delete().eq('id', accountId)
+
   if (error) throw error
 }
 
@@ -242,6 +256,7 @@ export async function getSupplier(
   client: SupabaseClient = supabase
 ): Promise<Supplier | null> {
   const suppliers = await getSuppliers(client)
+
   return suppliers.find((supplier) => supplier.id === supplierId) ?? null
 }
 
@@ -255,6 +270,7 @@ export async function getActiveKitchens(
     .order('name')
 
   if (error) throw error
+
   return (data ?? []) as { id: string; name: string }[]
 }
 
@@ -269,6 +285,7 @@ export async function getAccountKitchenIds(
     .eq('flow_type', 'income')
 
   if (error) throw error
+
   return (data ?? []).map((row) => row.kitchen_id as string)
 }
 
@@ -282,6 +299,7 @@ export async function saveAccountKitchenMapping(
     .delete()
     .eq('account_id', accountId)
     .eq('flow_type', 'income')
+
   if (deleteError) throw deleteError
 
   if (!kitchenIds.length) return
@@ -293,7 +311,34 @@ export async function saveAccountKitchenMapping(
   }))
 
   const { error } = await client.from('kitchen_account_rules').insert(payload)
+
   if (error) throw error
+}
+
+function validateSupplierInput(input: SupplierInput) {
+  if (!input.business_name.trim()) {
+    throw new Error('Nama supplier wajib diisi.')
+  }
+}
+
+function validateAccountInput(input: AccountInput) {
+  if (!input.bank) {
+    throw new Error('Bank wajib dipilih.')
+  }
+
+  if (!input.account_number.trim()) {
+    throw new Error('Nomor rekening wajib diisi.')
+  }
+}
+
+function toSupplierRecord(input: SupplierInput) {
+  return {
+    business_name: normalizeBusinessName(input.business_name),
+    owner_name: input.owner_name.trim(),
+    product_type: input.product_type.trim(),
+    phone: input.phone.trim() || null,
+    address: input.address.trim() || null
+  }
 }
 
 function normalizeBusinessName(value: string) {
