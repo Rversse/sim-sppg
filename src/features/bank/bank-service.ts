@@ -5,6 +5,30 @@ import { supabase } from '@/lib/supabase'
 const BANK_MODULE_START_DATE = '2026-07-20'
 const SUPABASE_PAGE_SIZE = 1000
 
+const BANK_FUTURE_READ_DAYS = 2
+
+function formatLocalDate(date: Date): string {
+  return [
+    date.getFullYear(),
+    String(date.getMonth() + 1).padStart(2, '0'),
+    String(date.getDate()).padStart(2, '0')
+  ].join('-')
+}
+
+function getBankReadEndDates(): {
+  today: string
+  incomeEndDate: string
+} {
+  const now = new Date()
+  const future = new Date(now)
+  future.setDate(future.getDate() + BANK_FUTURE_READ_DAYS)
+
+  return {
+    today: formatLocalDate(now),
+    incomeEndDate: formatLocalDate(future)
+  }
+}
+
 export type BankAccount = {
   id: string
   name: string
@@ -312,17 +336,12 @@ export async function getBankOverview(
   client: SupabaseClient = supabase
 ): Promise<BankOverview> {
   const startDate = BANK_MODULE_START_DATE
-  const now = new Date()
-  const endDate = [
-    now.getFullYear(),
-    String(now.getMonth() + 1).padStart(2, '0'),
-    String(now.getDate()).padStart(2, '0')
-  ].join('-')
+  const { today, incomeEndDate } = getBankReadEndDates()
 
   const [accounts, transferRows, incomeTransactions] = await Promise.all([
     getBankAccounts(client),
-    getBankTransferSummaryRows(startDate, endDate, client),
-    getBankIncomeTransactions(startDate, endDate, client)
+    getBankTransferSummaryRows(startDate, today, client),
+    getBankIncomeTransactions(startDate, incomeEndDate, client)
   ])
 
   const incomeByAccount = new Map<string, number>()
@@ -448,12 +467,7 @@ export async function getBankHistoryPage(
   }
 
   const startDate = BANK_MODULE_START_DATE
-  const now = new Date()
-  const endDate = [
-    now.getFullYear(),
-    String(now.getMonth() + 1).padStart(2, '0'),
-    String(now.getDate()).padStart(2, '0')
-  ].join('-')
+  const { today, incomeEndDate } = getBankReadEndDates()
 
   const allBankTransactions = await fetchAllRows(async (from, to) => {
     const { data, error } = await client
@@ -501,7 +515,7 @@ export async function getBankHistoryPage(
       )
       .or(`account_id.eq.${accountId},recipient_account_id.eq.${accountId}`)
       .gte('transaction_date', startDate)
-      .lte('transaction_date', endDate)
+      .lte('transaction_date', today)
       .order('transaction_date', { ascending: false })
       .order('created_at', { ascending: false })
       .range(from, to)
@@ -590,7 +604,7 @@ export async function getBankHistoryPage(
       .eq('account_id', accountId)
       .in('flow_type', ['income', 'neutral'])
       .gte('transaction_date', startDate)
-      .lte('transaction_date', endDate)
+      .lte('transaction_date', incomeEndDate)
       .order('transaction_date', { ascending: true })
       .order('created_at', { ascending: true })
       .range(from, to)

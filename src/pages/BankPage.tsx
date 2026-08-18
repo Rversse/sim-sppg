@@ -818,7 +818,7 @@ export function BankPage() {
         <section className="bank-hero">
           <div>
             <p className="bank-period-label">
-              Periode: 20 Juli 2026 – Hari Ini
+              Periode Pencairan: 20 Juli 2026 – H+2 Hari
             </p>
 
             {canCreateTransaction ? (
