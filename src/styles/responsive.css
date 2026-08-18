@@ -1,21 +1,11 @@
-/* SHARED RESPONSIVE RULES
-   Extracted from the legacy src/index.css during CSS-only refactor.
-   Cascade order is preserved by src/index.css imports.
-*/
-
-@media (max-width: 1100px) {
-  .dashboard-filter-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-
-  .dashboard-kpi-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .dashboard-main-grid {
-    grid-template-columns: 1fr;
-  }
-}
+/* =========================================================
+   SIM SPPG — GLOBAL RESPONSIVE
+   Owner:
+   - app shell
+   - header
+   - mobile navigation
+   No page-specific selectors belong here.
+   ========================================================= */
 
 @media (max-width: 760px) {
   .app-shell {
@@ -96,120 +86,5 @@
     font-size: 7px;
     text-overflow: ellipsis;
     white-space: nowrap;
-  }
-
-  .dashboard-hero {
-    align-items: flex-start;
-    flex-direction: column;
-  }
-
-  .dashboard-date-chip {
-    width: 100%;
-  }
-
-  .dashboard-filter-grid {
-    grid-template-columns: 1fr 1fr;
-  }
-
-  .dashboard-filter-heading {
-    align-items: flex-start;
-  }
-
-  .dashboard-kpi-grid {
-    grid-template-columns: 1fr 1fr;
-  }
-
-  .dashboard-kpi {
-    min-height: 130px;
-    padding: 14px;
-  }
-
-  .dashboard-kpi > strong {
-    margin-top: 13px;
-    font-size: 18px;
-  }
-
-  .dashboard-history-row {
-    grid-template-columns: 1fr auto;
-    gap: 8px 14px;
-  }
-
-  .dashboard-history-detail {
-    grid-column: 1 / -1;
-    grid-row: 2;
-  }
-
-  .dashboard-history-amount {
-    grid-column: 2;
-    grid-row: 1;
-  }
-}
-
-@media (max-width: 470px) {
-  .dashboard-filter-grid,
-  .dashboard-kpi-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .dashboard-filter-heading {
-    flex-direction: column;
-  }
-
-  .dashboard-reset {
-    padding: 0;
-  }
-
-  .dashboard-panel,
-  .dashboard-filter-card {
-    padding: 14px;
-    border-radius: 13px;
-  }
-
-  .dashboard-chart {
-    height: 205px;
-    gap: 4px;
-    margin-top: 18px;
-    padding-right: 0;
-    padding-left: 0;
-  }
-
-  .dashboard-bars {
-    width: min(38px, 82%);
-    height: 165px;
-    gap: 2px;
-  }
-
-  .dashboard-status-summary {
-    gap: 5px;
-  }
-
-  .dashboard-panel-header {
-    align-items: flex-start;
-  }
-
-  .dashboard-panel-header > div {
-    min-width: 0;
-  }
-
-  .dashboard-panel-header h2,
-  .dashboard-panel-header h3 {
-    overflow-wrap: anywhere;
-  }
-
-  .dashboard-panel-badge {
-    flex: 0 0 auto;
-    font-size: 8px;
-  }
-
-  .dashboard-chart-column {
-    min-width: 18px;
-  }
-
-  .dashboard-chart-column small {
-    font-size: 7px;
-  }
-
-  .dashboard-legend {
-    gap: 10px;
   }
 }

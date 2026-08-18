@@ -1,7 +1,11 @@
 /* =========================================================
-   SHARED SYSTEM
-   Single owner for generic typography, controls, tables, and
-   shared page-level tokens.
+   SIM SPPG — SHARED SYSTEM
+   Owner:
+   - design tokens
+   - generic typography
+   - generic control/table baselines
+   - generic focus treatment
+   No page-specific selectors belong here.
    ========================================================= */
 
 :root {
@@ -35,80 +39,46 @@
   --app-surface-radius: 16px;
   --app-panel-padding: 20px;
   --app-section-gap: 20px;
+
+  --read-text: #172033;
+  --read-text-muted: #55657a;
+  --read-text-soft: #708095;
+  --read-border: #dce5ef;
+
+  --motion-fast: 150ms;
+  --motion: 220ms;
+  --motion-smooth: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-/* Typography */
-.dashboard-filter-grid label > span,
-.reports-filter-panel label > span,
-.dashboard-transaction-form-grid label > span,
-.bank-form-grid label > span,
-.kitchen-form-grid label > span,
-.vehicle-form-grid label > span,
-.supplier-form-grid label > span {
-  font-size: var(--app-font-xs);
+/* =========================================================
+   TYPOGRAPHY BASE
+   ========================================================= */
+
+body {
+  color: var(--read-text);
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
 
-.reports-table,
-.kitchen-table,
-.vehicle-table,
-.supplier-table,
-.disbursement-table {
-  font-size: var(--app-font-table-body);
+button,
+input,
+select,
+textarea {
+  font: inherit;
 }
 
-.reports-table thead th,
-.kitchen-table thead th,
-.vehicle-table thead th,
-.supplier-table thead th,
-.disbursement-table thead th {
-  font-size: var(--app-font-xs);
-}
+/* =========================================================
+   GENERIC CONTROLS
+   Page styles own width, height and spacing where needed.
+   This block only establishes safe common geometry.
+   ========================================================= */
 
-.bank-history-row,
-.bank-history-main,
-.bank-history-values {
-  line-height: var(--app-line-normal);
-}
-
-/* Generic controls: one source for baseline height/radius. */
-.dashboard-filter-grid input,
-.dashboard-filter-grid select,
-.reports-filter-panel input,
-.reports-filter-panel select,
-.dashboard-transaction-form-grid input,
-.dashboard-transaction-form-grid select,
-.dashboard-transaction-form-grid textarea,
-.bank-form-grid input,
-.bank-form-grid select,
-.bank-form-grid textarea,
-.kitchen-form-grid input,
-.kitchen-form-grid select,
-.vehicle-form-grid input,
-.vehicle-form-grid select,
-.supplier-form-grid input,
-.supplier-form-grid select {
-  min-height: var(--app-control-height);
-  border-radius: var(--app-control-radius);
+input,
+select,
+textarea {
   box-sizing: border-box;
-}
-
-.dashboard-filter-grid input,
-.dashboard-filter-grid select,
-.reports-filter-panel input,
-.reports-filter-panel select,
-.dashboard-transaction-form-grid input,
-.dashboard-transaction-form-grid select,
-.dashboard-transaction-form-grid textarea,
-.bank-form-grid input,
-.bank-form-grid select,
-.bank-form-grid textarea,
-.kitchen-form-grid input,
-.kitchen-form-grid select,
-.vehicle-form-grid input,
-.vehicle-form-grid select,
-.supplier-form-grid input,
-.supplier-form-grid select {
-  padding-inline: 12px;
 }
 
 button:focus-visible,
@@ -120,18 +90,18 @@ textarea:focus-visible {
   outline-offset: 1px;
 }
 
-/* Shared surfaces */
+/* =========================================================
+   GENERIC SHARED SURFACES
+   ========================================================= */
+
 .dashboard-filter-card,
 .dashboard-panel,
 .reports-filter-panel,
-.reports-table-wrapper,
-.bank-accounts-panel,
-.bank-summary-card,
-.bank-account-card,
 .kitchen-panel,
 .vehicle-panel,
 .supplier-panel,
-.disbursement-panel {
+.disbursement-panel,
+.bank-accounts-panel {
   border-radius: var(--app-surface-radius);
 }
 
@@ -155,86 +125,34 @@ textarea:focus-visible {
   margin-bottom: var(--app-space-3);
 }
 
-.dashboard-hero-actions,
-.reports-actions,
-.bank-form-actions,
-.bank-history-actions,
-.kitchen-form-actions,
-.vehicle-form-actions,
-.supplier-form-actions,
-.disbursement-form-actions {
-  gap: var(--app-space-2);
+/* =========================================================
+   GENERIC TABLE TYPOGRAPHY
+   ========================================================= */
+
+table {
+  font-size: var(--app-font-table-body);
 }
 
-.dashboard-transaction-modal,
-.bank-form-modal,
-.bank-history-modal,
-.kitchen-modal,
-.vehicle-modal,
-.supplier-modal,
-.disbursement-modal {
-  border-radius: 18px;
-}
-
-@media (max-width: 760px) {
-  :root {
-    --app-control-height: 40px;
-    --app-table-cell-y: 10px;
-    --app-table-cell-x: 11px;
-    --app-panel-padding: 16px;
-    --app-section-gap: 16px;
-  }
-}
-
-/* Canonical page title */
-.dashboard-hero h1,
-.reports-header h1,
-.bank-hero h1,
-.kitchen-header h1,
-.vehicle-header h1,
-.supplier-header h1,
-.disbursement-header h1 {
-  display: none;
-}
-
-.dashboard-eyebrow,
-.bank-eyebrow,
-.disbursement-eyebrow {
-  display: none;
-}
-
-.dashboard-hero p:not(.dashboard-eyebrow),
-.reports-header p,
-.bank-hero > div > p:not(.bank-eyebrow),
-.kitchen-header p,
-.vehicle-header p,
-.supplier-header p,
-.disbursement-header p:not(.disbursement-eyebrow) {
-  line-height: var(--app-line-normal);
-}
-
-/* Existing global hover behavior */
-.dashboard-history-row,
-.kitchen-table tbody tr,
-.vehicle-table tbody tr,
-.supplier-table tbody tr {
-  transition: background-color var(--app-motion-fast) ease;
-}
-
-.dashboard-history-row:hover,
-.kitchen-table tbody tr:hover,
-.vehicle-table tbody tr:hover,
-.supplier-table tbody tr:hover {
-  background: #fbfdff;
+th {
+  font-size: var(--app-font-xs);
 }
 
 /* =========================================================
-   PREMIUM SHARED INTERACTION LAYER
+   GLOBAL BUTTON INTERACTION
    ========================================================= */
+
+button {
+  -webkit-tap-highlight-color: transparent;
+}
+
+button:not(:disabled):active {
+  transform: translateY(1px);
+}
 
 [data-slot='button'] {
   transition:
-    transform var(--app-motion-fast) var(--app-ease),
+    transform var(--app-motion-fast)
+      var(--app-ease, cubic-bezier(0.22, 1, 0.36, 1)),
     box-shadow var(--app-motion-fast) ease,
     background-color var(--app-motion-fast) ease,
     border-color var(--app-motion-fast) ease,
@@ -250,156 +168,28 @@ textarea:focus-visible {
   transform: translateY(0) scale(0.985);
 }
 
-.dashboard-filter-grid input,
-.dashboard-filter-grid select,
-.reports-filter-panel input,
-.reports-filter-panel select,
-.kitchen-input,
-.vehicle-input,
-.vehicle-select,
-.supplier-input {
-  transition:
-    border-color var(--app-motion-fast) ease,
-    box-shadow var(--app-motion-fast) ease,
-    background-color var(--app-motion-fast) ease,
-    transform var(--app-motion-fast) var(--app-ease);
+button:disabled,
+select:disabled,
+input:disabled,
+textarea:disabled {
+  cursor: not-allowed;
 }
 
-.kitchen-input:hover,
-.vehicle-input:hover,
-.vehicle-select:hover,
-.supplier-input:hover {
-  transform: translateY(-1px);
-}
+/* =========================================================
+   REDUCED MOTION
+   Deliberately kept global; this is accessibility policy,
+   not page-specific styling.
+   ========================================================= */
 
-.dashboard-filter-grid input:hover,
-.dashboard-filter-grid select:hover,
-.reports-filter-panel input:hover,
-.reports-filter-panel select:hover,
-.kitchen-input:hover,
-.vehicle-input:hover,
-.vehicle-select:hover,
-.supplier-input:hover {
-  border-color: var(--app-border-mid);
-  background: #fff;
-  box-shadow: 0 6px 18px rgb(15 23 42 / 0.035);
-}
-
-.dashboard-filter-grid input:focus,
-.dashboard-filter-grid select:focus,
-.reports-filter-panel input:focus,
-.reports-filter-panel select:focus,
-.kitchen-input:focus,
-.vehicle-input:focus,
-.vehicle-select:focus,
-.supplier-input:focus {
-  border-color: var(--app-accent);
-  background: #fff;
-  box-shadow:
-    var(--app-focus-ring),
-    0 8px 24px rgb(15 23 42 / 0.045);
-  outline: none;
-}
-
-.kitchen-panel,
-.vehicle-panel,
-.supplier-panel {
-  transition:
-    border-color var(--app-motion) ease,
-    box-shadow var(--app-motion) ease;
-}
-
-.kitchen-panel:hover,
-.vehicle-panel:hover,
-.supplier-panel:hover {
-  border-color: var(--app-border-mid);
-  box-shadow:
-    0 18px 48px rgb(15 23 42 / 0.06),
-    0 2px 10px rgb(15 23 42 / 0.035);
-}
-
-.kitchen-table tbody tr,
-.vehicle-table tbody tr,
-.supplier-table tbody tr {
-  transition:
-    background-color var(--app-motion-fast) ease,
-    box-shadow var(--app-motion-fast) ease;
-}
-
-.kitchen-table tbody tr:hover,
-.vehicle-table tbody tr:hover,
-.supplier-table tbody tr:hover {
-  background: linear-gradient(
-    90deg,
-    rgb(57 255 136 / 0.035),
-    rgba(255, 255, 255, 0) 55%
-  );
-  box-shadow: inset 3px 0 0 rgb(57 255 136 / 0.55);
-}
-
-.kitchen-table tbody tr:hover td:first-child,
-.vehicle-table tbody tr:hover td:first-child,
-.supplier-table tbody tr:hover td:first-child {
-  color: var(--app-primary);
-}
-
-.kitchen-action-cell > button,
-.kitchen-action-cell > a,
-.vehicle-action-cell > button,
-.vehicle-action-cell > a,
-.supplier-action-cell > button,
-.supplier-action-cell > a {
-  transition:
-    transform var(--app-motion-fast) var(--app-ease),
-    box-shadow var(--app-motion-fast) ease,
-    border-color var(--app-motion-fast) ease;
-}
-
-.kitchen-action-cell > button:hover,
-.kitchen-action-cell > a:hover,
-.vehicle-action-cell > button:hover,
-.vehicle-action-cell > a:hover,
-.supplier-action-cell > button:hover,
-.supplier-action-cell > a:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 6px 16px rgb(15 23 42 / 0.08);
-}
-
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
+@media (max-width: 760px) {
+  :root {
+    --app-control-height: 40px;
+    --app-table-cell-y: 10px;
+    --app-table-cell-x: 11px;
+    --app-panel-padding: 16px;
+    --app-section-gap: 16px;
   }
-}
 
-/* READABILITY REFACTOR: SYSTEM START */
-:root {
-  --read-text: #172033;
-  --read-text-muted: #5f6f85;
-  --read-text-soft: #8391a5;
-  --read-border: #dce5ef;
-
-  --motion-fast: 150ms;
-  --motion: 220ms;
-  --motion-smooth: cubic-bezier(0.22, 1, 0.36, 1);
-}
-
-html {
-  font-size: 16px;
-}
-
-body {
-  color: var(--read-text);
-  font-size: 14px;
-  line-height: 1.5;
-  -webkit-font-smoothing: antialiased;
-  text-rendering: optimizeLegibility;
-}
-
-@media (max-width: 640px) {
   body {
     font-size: 13px;
   }
@@ -416,12 +206,6 @@ body {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }
-
-:root {
-  --read-text: #172033;
-  --read-text-muted: #55657a;
-  --read-text-soft: #708095;
-}
-/* READABILITY REFACTOR: SYSTEM END */
