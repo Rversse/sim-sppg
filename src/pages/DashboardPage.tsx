@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+﻿import { useCallback, useEffect, useState } from 'react'
 
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/features/auth/use-auth'
@@ -58,6 +58,22 @@ function flowClass(flow: DashboardFlow) {
   if (flow === 'income') return 'dashboard-flow dashboard-flow-income'
   if (flow === 'expense') return 'dashboard-flow dashboard-flow-expense'
   return 'dashboard-flow dashboard-flow-neutral'
+}
+
+function formatIntegerInput(value: string) {
+  const digits = value.replace(/\D/g, '')
+
+  if (!digits) return ''
+
+  return new Intl.NumberFormat('id-ID', {
+    maximumFractionDigits: 0
+  }).format(Number(digits))
+}
+
+function parseIntegerInput(value: string) {
+  const digits = value.replace(/\D/g, '')
+
+  return digits ? Number(digits) : 0
 }
 
 function formatHistoryInputTimestamp(value: string) {
@@ -319,6 +335,7 @@ export function DashboardPage() {
       : filters.flowType === 'income'
         ? 'Semua rekening'
         : 'Semua supplier / rekening'
+
   const selectedFormKitchen = kitchens.find(
     (kitchen) => kitchen.id === formKitchenId
   )
@@ -668,7 +685,7 @@ export function DashboardPage() {
     setFormDate(transaction.transaction_date)
     setFormKitchenId(transaction.kitchen_id ?? '')
     setFormFlowType(transaction.flow_type)
-    setFormAmount(String(Number(transaction.amount) || 0))
+    setFormAmount(formatIntegerInput(String(Number(transaction.amount) || 0)))
     setFormNote(transaction.note ?? '')
     setFormEntryUnlocked(true)
     setFormAccountId(transaction.account_id ?? '')
@@ -769,7 +786,7 @@ export function DashboardPage() {
       return
     }
 
-    const amount = Number(formAmount)
+    const amount = parseIntegerInput(formAmount)
 
     if (!transactionDetailsUnlocked) {
       setFormError(
@@ -1636,12 +1653,13 @@ export function DashboardPage() {
               <label>
                 <span>Nominal</span>
                 <input
-                  type="number"
-                  min="1"
-                  step="1"
+                  type="text"
+                  inputMode="numeric"
                   value={formAmount}
                   disabled={!transactionDetailsUnlocked}
-                  onChange={(event) => setFormAmount(event.target.value)}
+                  onChange={(event) =>
+                    setFormAmount(formatIntegerInput(event.target.value))
+                  }
                   placeholder="0"
                 />
               </label>

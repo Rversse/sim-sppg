@@ -1,4 +1,4 @@
-/* DASHBOARD
+﻿/* DASHBOARD
    Extracted from the legacy src/index.css during CSS-only refactor.
    Cascade order is preserved by src/index.css imports.
 */
@@ -1087,7 +1087,14 @@
 .dashboard-transaction-form-grid textarea {
   min-height: 82px;
   padding: 10px;
+  text-align: center;
+  line-height: 1.45;
   resize: vertical;
+}
+
+.dashboard-transaction-form-grid textarea::placeholder {
+  color: var(--app-text-subtle);
+  text-align: center;
 }
 
 .dashboard-transaction-form-grid input:hover,
@@ -1251,8 +1258,8 @@
   transform: translateY(-1px);
 }
 
-.dashboard-hero p:not(.dashboard-eyebrow) {
-  font-size: 12px;
+.dashboard-hero p:not(.dashboard-eyebrow),
+.dashboard-panel-header p {
   color: var(--read-text-muted);
 }
 
