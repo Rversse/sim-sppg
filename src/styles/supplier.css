@@ -125,7 +125,7 @@
   transition:
     border-color 220ms ease,
     box-shadow 220ms ease,
-    transform 220ms var(--app-ease);
+    transform 220ms var(--motion-smooth);
 }
 
 .supplier-panel::before {
@@ -210,11 +210,12 @@
 
 .supplier-account-count-button {
   display: inline-flex;
+  min-width: 44px;
   min-height: 28px;
   align-items: center;
   justify-content: center;
-  gap: 5px;
-  padding: 4px 8px;
+  gap: 4px;
+  padding: 4px 7px;
   border: 0;
   border-radius: 7px;
   background: #eff6ff;
@@ -237,6 +238,14 @@
 .supplier-account-count-button svg {
   width: 13px;
   height: 13px;
+  flex: 0 0 13px;
+}
+
+.supplier-account-count-button span {
+  display: inline-flex;
+  min-width: 1ch;
+  justify-content: center;
+  line-height: 1;
 }
 
 .supplier-state-error {
