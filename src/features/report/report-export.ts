@@ -50,6 +50,15 @@ function setupWorksheet(worksheet: ExcelJS.Worksheet, landscape = true) {
   ]
 }
 
+function createWorkbook(ExcelJSRuntime: typeof ExcelJS) {
+  const workbook = new ExcelJSRuntime.Workbook()
+
+  workbook.creator = 'SIM SPPG'
+  workbook.created = new Date()
+
+  return workbook
+}
+
 function styleHeader(row: ExcelJS.Row) {
   row.font = {
     bold: true,
@@ -185,6 +194,15 @@ function setCurrencyColumns(worksheet: ExcelJS.Worksheet, columns: number[]) {
   }
 }
 
+function setColumnWidths(
+  worksheet: ExcelJS.Worksheet,
+  widths: Record<number, number>
+) {
+  for (const [columnNumber, width] of Object.entries(widths)) {
+    worksheet.getColumn(Number(columnNumber)).width = width
+  }
+}
+
 function addReportTitle(
   worksheet: ExcelJS.Worksheet,
   title: string,
@@ -220,22 +238,155 @@ function addReportTitle(
   }
 }
 
-export async function exportOverallReport(
+function addDailyDetailRows(
+  worksheet: ExcelJS.Worksheet,
+  rows: OverallReport['daily']
+) {
+  for (const row of rows) {
+    worksheet.addRow([
+      row.date,
+      row.income,
+      row.expense,
+      row.operational,
+      row.remaining
+    ])
+  }
+}
+
+function createOverallDetailSheet(
+  workbook: ExcelJS.Workbook,
+  report: OverallReport
+) {
+  const worksheet = workbook.addWorksheet('Detail Harian')
+
+  setupWorksheet(worksheet)
+  worksheet.addRow(['Tanggal', 'BGN', 'Supplier', 'OPS', 'Sisa'])
+  styleHeader(worksheet.getRow(1))
+
+  addDailyDetailRows(worksheet, report.daily)
+
+  setCurrencyColumns(worksheet, [2, 3, 4, 5])
+  setColumnWidths(worksheet, {
+    1: 16,
+    2: 18,
+    3: 18,
+    4: 18,
+    5: 18
+  })
+  styleBody(worksheet)
+}
+
+function createIncomeDetailSheet(
+  workbook: ExcelJS.Workbook,
+  report: IncomeReport
+) {
+  const worksheet = workbook.addWorksheet('Detail Harian')
+
+  setupWorksheet(worksheet)
+
+  worksheet.addRow(['Supplier / Rekening', 'Owner', 'Bank', 'Tanggal', 'Total'])
+
+  styleHeader(worksheet.getRow(1))
+
+  const dates = new Set<string>()
+
+  for (const row of report.rows) {
+    for (const date of Object.keys(row.dates)) {
+      dates.add(date)
+    }
+  }
+
+  const sortedDates = [...dates].sort()
+
+  for (const row of report.rows) {
+    for (const date of sortedDates) {
+      const amount = row.dates[date] ?? 0
+
+      if (amount === 0) {
+        continue
+      }
+
+      worksheet.addRow([
+        row.supplierName,
+        row.ownerName,
+        row.bank,
+        date,
+        amount
+      ])
+    }
+  }
+
+  setCurrencyColumns(worksheet, [5])
+  setColumnWidths(worksheet, {
+    1: 30,
+    2: 28,
+    3: 32,
+    4: 16,
+    5: 20
+  })
+  styleBody(worksheet)
+}
+
+function createSupplierDetailSheet(
+  workbook: ExcelJS.Workbook,
+  report: SupplierReport
+) {
+  const worksheet = workbook.addWorksheet('Detail Harian')
+
+  setupWorksheet(worksheet)
+
+  worksheet.addRow([
+    'Tanggal',
+    'Dapur',
+    'Arutala',
+    'Sukalarang',
+    'Aris',
+    'Babinsa',
+    'OPS',
+    'Total'
+  ])
+
+  styleHeader(worksheet.getRow(1))
+
+  for (const day of report.dailyRows) {
+    for (const row of day.kitchens) {
+      worksheet.addRow([
+        day.date,
+        row.kitchenName,
+        row.Arutala,
+        row.Sukalarang,
+        row.Aris,
+        row.Babinsa,
+        row.Operational,
+        row.Total
+      ])
+    }
+  }
+
+  setCurrencyColumns(worksheet, [3, 4, 5, 6, 7, 8])
+  setColumnWidths(worksheet, {
+    1: 16,
+    2: 28,
+    3: 18,
+    4: 18,
+    5: 18,
+    6: 18,
+    7: 18,
+    8: 18
+  })
+  styleBody(worksheet)
+}
+
+function createOverallSummarySheet(
+  workbook: ExcelJS.Workbook,
   report: OverallReport,
   startDate: string,
   endDate: string,
   kitchenName?: string
 ) {
-  const { default: ExcelJSRuntime } = await loadExcelJS()
-  const workbook = new ExcelJSRuntime.Workbook()
-
-  workbook.creator = 'SIM SPPG'
-  workbook.created = new Date()
-
   const worksheet = workbook.addWorksheet('Laporan Keseluruhan')
 
   setupWorksheet(worksheet)
-
   addReportTitle(
     worksheet,
     'LAPORAN KESELURUHAN',
@@ -275,69 +426,25 @@ export async function exportOverallReport(
   ])
 
   styleTotalRow(totalRow)
-
   setCurrencyColumns(worksheet, [2, 3, 4, 5])
-
-  worksheet.getColumn(1).width = 30
-  worksheet.getColumn(2).width = 18
-  worksheet.getColumn(3).width = 18
-  worksheet.getColumn(4).width = 18
-  worksheet.getColumn(5).width = 18
-
+  setColumnWidths(worksheet, {
+    1: 30,
+    2: 18,
+    3: 18,
+    4: 18,
+    5: 18
+  })
   styleBody(worksheet)
-
-  const detailSheet = workbook.addWorksheet('Detail Harian')
-
-  setupWorksheet(detailSheet)
-
-  detailSheet.addRow(['Tanggal', 'BGN', 'Supplier', 'OPS', 'Sisa'])
-
-  styleHeader(detailSheet.getRow(1))
-
-  for (const row of report.daily) {
-    detailSheet.addRow([
-      row.date,
-      row.income,
-      row.expense,
-      row.operational,
-      row.remaining
-    ])
-  }
-
-  setCurrencyColumns(detailSheet, [2, 3, 4, 5])
-
-  detailSheet.getColumn(1).width = 16
-  detailSheet.getColumn(2).width = 18
-  detailSheet.getColumn(3).width = 18
-  detailSheet.getColumn(4).width = 18
-  detailSheet.getColumn(5).width = 18
-
-  styleBody(detailSheet)
-
-  const filename = `laporan-keseluruhan-${formatDateForFilename(
-    startDate
-  )}-${formatDateForFilename(endDate)}.xlsx`
-
-  await downloadWorkbook(workbook, filename)
 }
 
-export async function exportIncomeReport(
-  report: IncomeReport,
-  startDate: string,
-  endDate: string
+function createIncomeSummarySheet(
+  workbook: ExcelJS.Workbook,
+  report: IncomeReport
 ) {
-  const { default: ExcelJSRuntime } = await loadExcelJS()
-  const workbook = new ExcelJSRuntime.Workbook()
-
-  workbook.creator = 'SIM SPPG'
-  workbook.created = new Date()
-
   const worksheet = workbook.addWorksheet('Rekap Pemasukan')
 
   setupWorksheet(worksheet)
-
   worksheet.addRow(['Supplier / Rekening', 'Owner', 'Bank', 'Total'])
-
   styleHeader(worksheet.getRow(1))
 
   for (const row of report.rows) {
@@ -347,87 +454,21 @@ export async function exportIncomeReport(
   const totalRow = worksheet.addRow(['GRAND TOTAL', '', '', report.grandTotal])
 
   styleTotalRow(totalRow)
-
   setCurrencyColumns(worksheet, [4])
-
-  worksheet.getColumn(1).width = 30
-  worksheet.getColumn(2).width = 28
-  worksheet.getColumn(3).width = 32
-  worksheet.getColumn(4).width = 20
-
+  setColumnWidths(worksheet, {
+    1: 30,
+    2: 28,
+    3: 32,
+    4: 20
+  })
   styleBody(worksheet)
-
-  const detailSheet = workbook.addWorksheet('Detail Harian')
-
-  setupWorksheet(detailSheet)
-
-  detailSheet.addRow([
-    'Supplier / Rekening',
-    'Owner',
-    'Bank',
-    'Tanggal',
-    'Total'
-  ])
-
-  styleHeader(detailSheet.getRow(1))
-
-  const dates = new Set<string>()
-
-  for (const row of report.rows) {
-    for (const date of Object.keys(row.dates)) {
-      dates.add(date)
-    }
-  }
-
-  const sortedDates = [...dates].sort()
-
-  for (const row of report.rows) {
-    for (const date of sortedDates) {
-      const amount = row.dates[date] ?? 0
-
-      if (amount === 0) {
-        continue
-      }
-
-      detailSheet.addRow([
-        row.supplierName,
-        row.ownerName,
-        row.bank,
-        date,
-        amount
-      ])
-    }
-  }
-
-  setCurrencyColumns(detailSheet, [5])
-
-  detailSheet.getColumn(1).width = 30
-  detailSheet.getColumn(2).width = 28
-  detailSheet.getColumn(3).width = 32
-  detailSheet.getColumn(4).width = 16
-  detailSheet.getColumn(5).width = 20
-
-  styleBody(detailSheet)
-
-  const filename = `rekap-pemasukan-${formatDateForFilename(
-    startDate
-  )}-${formatDateForFilename(endDate)}.xlsx`
-
-  await downloadWorkbook(workbook, filename)
 }
 
-export async function exportSupplierReport(
+function createSupplierSummarySheet(
+  workbook: ExcelJS.Workbook,
   report: SupplierReport,
-  startDate: string,
-  endDate: string,
   kitchenName?: string
 ) {
-  const { default: ExcelJSRuntime } = await loadExcelJS()
-  const workbook = new ExcelJSRuntime.Workbook()
-
-  workbook.creator = 'SIM SPPG'
-  workbook.created = new Date()
-
   const worksheet = workbook.addWorksheet('Rekap Pengeluaran')
 
   setupWorksheet(worksheet)
@@ -484,59 +525,69 @@ export async function exportSupplierReport(
   ])
 
   styleTotalRow(totalRow)
-
   setCurrencyColumns(worksheet, [2, 3, 4, 5, 6, 7])
 
-  worksheet.getColumn(1).width = 28
-
-  for (let column = 2; column <= 7; column += 1) {
-    worksheet.getColumn(column).width = 18
-  }
+  setColumnWidths(worksheet, {
+    1: 28,
+    2: 18,
+    3: 18,
+    4: 18,
+    5: 18,
+    6: 18,
+    7: 18
+  })
 
   styleBody(worksheet)
+}
 
-  const detailSheet = workbook.addWorksheet('Detail Harian')
+export async function exportOverallReport(
+  report: OverallReport,
+  startDate: string,
+  endDate: string,
+  kitchenName?: string
+) {
+  const { default: ExcelJSRuntime } = await loadExcelJS()
+  const workbook = createWorkbook(ExcelJSRuntime)
 
-  setupWorksheet(detailSheet)
+  createOverallSummarySheet(workbook, report, startDate, endDate, kitchenName)
+  createOverallDetailSheet(workbook, report)
 
-  detailSheet.addRow([
-    'Tanggal',
-    'Dapur',
-    'Arutala',
-    'Sukalarang',
-    'Aris',
-    'Babinsa',
-    'OPS',
-    'Total'
-  ])
+  const filename = `laporan-keseluruhan-${formatDateForFilename(
+    startDate
+  )}-${formatDateForFilename(endDate)}.xlsx`
 
-  styleHeader(detailSheet.getRow(1))
+  await downloadWorkbook(workbook, filename)
+}
 
-  for (const day of report.dailyRows) {
-    for (const row of day.kitchens) {
-      detailSheet.addRow([
-        day.date,
-        row.kitchenName,
-        row.Arutala,
-        row.Sukalarang,
-        row.Aris,
-        row.Babinsa,
-        row.Operational,
-        row.Total
-      ])
-    }
-  }
+export async function exportIncomeReport(
+  report: IncomeReport,
+  startDate: string,
+  endDate: string
+) {
+  const { default: ExcelJSRuntime } = await loadExcelJS()
+  const workbook = createWorkbook(ExcelJSRuntime)
 
-  setCurrencyColumns(detailSheet, [3, 4, 5, 6, 7, 8])
+  createIncomeSummarySheet(workbook, report)
+  createIncomeDetailSheet(workbook, report)
 
-  detailSheet.getColumn(1).width = 16
-  detailSheet.getColumn(2).width = 28
+  const filename = `rekap-pemasukan-${formatDateForFilename(
+    startDate
+  )}-${formatDateForFilename(endDate)}.xlsx`
 
-  for (let column = 3; column <= 8; column += 1) {
-    detailSheet.getColumn(column).width = 18
-  }
+  await downloadWorkbook(workbook, filename)
+}
 
-  styleBody(detailSheet)
+export async function exportSupplierReport(
+  report: SupplierReport,
+  startDate: string,
+  endDate: string,
+  kitchenName?: string
+) {
+  const { default: ExcelJSRuntime } = await loadExcelJS()
+  const workbook = createWorkbook(ExcelJSRuntime)
+
+  createSupplierSummarySheet(workbook, report, kitchenName)
+  createSupplierDetailSheet(workbook, report)
 
   const filename = `rekap-pengeluaran-${formatDateForFilename(
     startDate
