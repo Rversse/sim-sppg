@@ -23,7 +23,6 @@ import {
 
 import { canAccess } from '@/features/auth/role-policy'
 import { useAuth } from '@/features/auth/use-auth'
-import { supabase } from '@/lib/supabase'
 
 import { formatCurrency, formatDateTime, getTodayLocal } from '@/lib/formatters'
 
@@ -290,92 +289,74 @@ export function BankPage() {
 
   useEffect(() => {
     let cancelled = false
-    let refreshTimer: ReturnType<typeof setTimeout> | null = null
+    let refreshInFlight = false
 
-    const refreshOverview = (showLoading = false) => {
-      if (refreshTimer !== null) {
-        window.clearTimeout(refreshTimer)
+    const refreshOverview = async (showLoading = false) => {
+      if (cancelled || refreshInFlight) {
+        return
       }
 
-      refreshTimer = window.setTimeout(async () => {
-        if (cancelled) return
+      refreshInFlight = true
 
-        if (showLoading) {
-          setLoading(true)
+      if (showLoading) {
+        setLoading(true)
+      }
+
+      try {
+        const data = await getBankOverview()
+
+        if (cancelled) {
+          return
         }
 
-        try {
-          const data = await getBankOverview()
-
-          if (cancelled) return
-
-          setOverview(data)
-          setErrorMessage('')
-        } catch (error: unknown) {
-          if (cancelled) return
-
-          console.error(error)
-          setErrorMessage('Gagal memuat transaksi bank.')
-        } finally {
-          if (!cancelled) {
-            setLoading(false)
-          }
+        setOverview(data)
+        setErrorMessage('')
+      } catch (error: unknown) {
+        if (cancelled) {
+          return
         }
-      }, 150)
+
+        console.error(error)
+        setErrorMessage('Gagal memuat transaksi bank.')
+      } finally {
+        refreshInFlight = false
+
+        if (!cancelled && showLoading) {
+          setLoading(false)
+        }
+      }
     }
 
-    refreshOverview(true)
+    // Initial load
+    void refreshOverview(true)
 
+    // Refresh otomatis setiap 5 detik.
+    // Tidak mengubah formula atau business flow; hanya mengambil
+    // state terbaru dari database.
+    const intervalId = window.setInterval(() => {
+      void refreshOverview()
+    }, 5000)
+
+    // Tetap refresh segera saat user kembali ke tab/window.
     const handleFocus = () => {
-      refreshOverview()
+      void refreshOverview()
     }
 
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'visible') {
-        refreshOverview()
+        void refreshOverview()
       }
     }
-
-    const channel = supabase
-      .channel('bank-page-data-refresh')
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'transactions'
-        },
-        () => {
-          refreshOverview()
-        }
-      )
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'bank_transactions'
-        },
-        () => {
-          refreshOverview()
-        }
-      )
-      .subscribe()
 
     window.addEventListener('focus', handleFocus)
     document.addEventListener('visibilitychange', handleVisibilityChange)
 
     return () => {
       cancelled = true
-
-      if (refreshTimer !== null) {
-        window.clearTimeout(refreshTimer)
-      }
+      window.clearInterval(intervalId)
 
       window.removeEventListener('focus', handleFocus)
       document.removeEventListener('visibilitychange', handleVisibilityChange)
-
-      void supabase.removeChannel(channel)
     }
   }, [])
 
