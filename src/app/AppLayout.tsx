@@ -25,6 +25,7 @@ type NavigationItem = {
   to: string
   permission: Permission
   icon: LucideIcon
+  pageTitle: string
 }
 
 type NavigationSection = {
@@ -40,7 +41,8 @@ const navigationSections: NavigationSection[] = [
         label: 'Dashboard',
         to: '/dashboard',
         permission: 'dashboard.view',
-        icon: LayoutDashboard
+        icon: LayoutDashboard,
+        pageTitle: 'Dashboard'
       }
     ]
   },
@@ -51,19 +53,22 @@ const navigationSections: NavigationSection[] = [
         label: 'Data Dapur',
         to: '/master/kitchen',
         permission: 'kitchen.view',
-        icon: ChefHat
+        icon: ChefHat,
+        pageTitle: 'Data Dapur'
       },
       {
         label: 'Data Kendaraan',
         to: '/master/vehicle',
         permission: 'vehicle.view',
-        icon: Car
+        icon: Car,
+        pageTitle: 'Data Kendaraan'
       },
       {
         label: 'Data Supplier',
         to: '/master/supplier',
         permission: 'supplier.view',
-        icon: Building2
+        icon: Building2,
+        pageTitle: 'Data Supplier'
       }
     ]
   },
@@ -74,13 +79,15 @@ const navigationSections: NavigationSection[] = [
         label: 'Transaksi Bank',
         to: '/bank',
         permission: 'bank.view',
-        icon: ArrowLeftRight
+        icon: ArrowLeftRight,
+        pageTitle: 'Transaksi Bank'
       },
       {
         label: 'Pencairan',
         to: '/disbursement',
         permission: 'disbursement.view',
-        icon: Wallet
+        icon: Wallet,
+        pageTitle: 'Pencairan'
       }
     ]
   },
@@ -91,24 +98,21 @@ const navigationSections: NavigationSection[] = [
         label: 'Laporan',
         to: '/reports',
         permission: 'reports.view',
-        icon: FileText
+        icon: FileText,
+        pageTitle: 'Laporan'
       }
     ]
   }
 ]
 
-const pageTitles: Array<{ match: string; title: string }> = [
-  { match: '/dashboard', title: 'Dashboard' },
-  { match: '/master/kitchen', title: 'Data Dapur' },
-  { match: '/master/vehicle', title: 'Data Kendaraan' },
-  { match: '/master/supplier', title: 'Data Supplier' },
-  { match: '/bank', title: 'Transaksi Bank' },
-  { match: '/disbursement', title: 'Pencairan' },
-  { match: '/reports', title: 'Laporan' }
-]
+const SIDEBAR_STORAGE_KEY = 'sim-sppg.sidebar-collapsed'
 
 function getPageTitle(pathname: string) {
-  return pageTitles.find(({ match }) => pathname === match)?.title ?? 'SIM SPPG'
+  return (
+    navigationSections
+      .flatMap((section) => section.items)
+      .find(({ to }) => pathname === to)?.pageTitle ?? 'SIM SPPG'
+  )
 }
 
 function getRoleLabel(role: string | undefined) {
@@ -123,8 +127,6 @@ function getRoleLabel(role: string | undefined) {
       return 'User'
   }
 }
-
-const SIDEBAR_STORAGE_KEY = 'sim-sppg.sidebar-collapsed'
 
 export function AppLayout() {
   const { user } = useAuth()
