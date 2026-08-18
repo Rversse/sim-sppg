@@ -115,7 +115,7 @@
   transition:
     border-color 220ms ease,
     box-shadow 220ms ease,
-    transform 220ms var(--motion-smooth);
+    transform 220ms var(--app-ease);
 }
 
 .kitchen-panel::before {

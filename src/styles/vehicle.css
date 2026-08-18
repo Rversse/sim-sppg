@@ -131,7 +131,7 @@
   transition:
     border-color 220ms ease,
     box-shadow 220ms ease,
-    transform 220ms var(--motion-smooth);
+    transform 220ms var(--app-ease);
 }
 
 .vehicle-panel::before {
@@ -356,8 +356,7 @@
   gap: 8px;
 }
 
-.vehicle-actions
-  > .app-action-button:not(.app-action-button--secondary) {
+.vehicle-actions > .app-action-button:not(.app-action-button--secondary) {
   border-color: var(--app-accent);
   background: var(--app-accent);
   color: var(--app-primary);

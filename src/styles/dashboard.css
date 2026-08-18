@@ -944,7 +944,7 @@
     background-color 160ms ease,
     border-color 160ms ease,
     color 160ms ease,
-    transform 160ms var(--motion-smooth),
+    transform 160ms var(--app-ease),
     box-shadow 160ms ease;
 }
 
@@ -1016,7 +1016,7 @@
   border-radius: 18px;
   background: var(--app-surface);
   box-shadow: 0 24px 70px rgb(15 23 42 / 0.25);
-  animation: dashboard-modal-in 220ms var(--motion-smooth) both;
+  animation: dashboard-modal-in 220ms var(--app-ease) both;
 }
 
 .dashboard-transaction-modal-header {

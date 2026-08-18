@@ -12,98 +12,22 @@
    SHARED BUTTON FOUNDATION
    ========================================================= */
 
-:where(
-  .bank-primary-button,
-  .bank-secondary-button,
-  .bank-history-button,
-  .bank-history-action,
-  .dashboard-transaction-action,
-  .dashboard-pagination-button,
-  .kitchen-button,
-  .vehicle-button,
-  .supplier-action-button,
-  .supplier-account-action,
-  .reports-tabs button,
-  .reports-filter-panel button,
-  .disbursement-button,
-  .app-logout-button,
-  .vehicle-notification-button
-) {
+:where([data-slot='button'], .app-action-button) {
   -webkit-tap-highlight-color: transparent;
   outline: none;
 }
 
-:where(
-  .bank-primary-button,
-  .bank-secondary-button,
-  .bank-history-button,
-  .bank-history-action,
-  .dashboard-transaction-action,
-  .dashboard-pagination-button,
-  .kitchen-button,
-  .vehicle-button,
-  .supplier-action-button,
-  .supplier-account-action,
-  .reports-tabs button,
-  .reports-filter-panel button,
-  .disbursement-button,
-  .app-logout-button,
-  .vehicle-notification-button
-):focus-visible {
+:where([data-slot='button'], .app-action-button):focus-visible {
   box-shadow: var(--app-focus-ring);
 }
 
-:where(
-  .bank-primary-button,
-  .bank-secondary-button,
-  .dashboard-transaction-action,
-  .kitchen-button,
-  .vehicle-button,
-  .reports-filter-panel button,
-  .disbursement-button,
-  .app-logout-button
-) {
-  border-radius: var(--app-radius-md);
-  font-weight: 800;
-  transition:
-    transform 150ms ease,
-    box-shadow 150ms ease,
-    border-color 150ms ease,
-    background-color 150ms ease,
-    color 150ms ease,
-    opacity 150ms ease;
-}
-
-:where(
-    .bank-primary-button,
-    .dashboard-transaction-action,
-    .kitchen-button,
-    .vehicle-button,
-    .reports-filter-panel button,
-    .disbursement-button
-  ):hover:not(:disabled) {
-  transform: translateY(-1px);
-}
-
-:where(
-  .bank-primary-button,
-  .bank-secondary-button,
-  .bank-history-button,
-  .bank-history-action,
-  .dashboard-pagination-button,
-  .kitchen-button,
-  .vehicle-button,
-  .supplier-action-button,
-  .supplier-account-action,
-  .reports-tabs button,
-  .reports-filter-panel button,
-  .disbursement-button,
-  .app-logout-button,
-  .vehicle-notification-button
-):disabled {
+[data-slot='button']:disabled,
+.app-action-button:disabled {
   cursor: not-allowed;
   opacity: 0.52;
 }
+
+/* Page-specific selectors do not belong in this file. */
 
 /* =========================================================
    SHARED MODAL SHELL
@@ -242,60 +166,6 @@
 /* =========================================================
    SHARED MOTION
    ========================================================= */
-
-@keyframes app-page-enter {
-  from {
-    opacity: 0;
-    transform: translateY(7px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes app-fade-in {
-  from {
-    opacity: 0;
-  }
-
-  to {
-    opacity: 1;
-  }
-}
-
-@keyframes app-modal-in {
-  from {
-    opacity: 0;
-    transform: translateY(10px) scale(0.985);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
-
-@keyframes app-shimmer {
-  to {
-    transform: translateX(100%);
-  }
-}
-
-.app-main {
-  animation: app-page-fade-in var(--app-motion-slow) ease both;
-}
-
-@keyframes app-page-fade-in {
-  from {
-    opacity: 0;
-  }
-
-  to {
-    opacity: 1;
-  }
-}
 
 /* =========================================================
    SHARED MASTER-DATA ACTION BUTTON
