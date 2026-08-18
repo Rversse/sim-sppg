@@ -1181,10 +1181,6 @@
   color: var(--app-text-subtle);
 }
 
-.dashboard-transaction-form-note {
-  grid-column: 1 / -1;
-}
-
 .dashboard-transaction-modal-actions {
   display: flex;
   align-items: center;
