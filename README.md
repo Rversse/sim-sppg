@@ -1,73 +1,131 @@
-# React + TypeScript + Vite
+# SIM SPPG
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Sistem Informasi Manajemen SPPG untuk mengelola transaksi, rekening, dapur, supplier, kendaraan, pencairan, dan laporan operasional.
 
-Currently, two official plugins are available:
+## Stack
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- React
+- TypeScript
+- Vite
+- Supabase / PostgreSQL
+- React Router
+- Tailwind CSS
+- Lucide React
 
-## React Compiler
+## Modul
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+### Dashboard
+Menampilkan ringkasan transaksi dan riwayat transaksi berdasarkan periode/filter yang dipilih.
 
-## Expanding the ESLint configuration
+Flow transaksi Dashboard:
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- `income` → RAB / Pencairan
+- `expense` → Pembayaran Supplier
+- `neutral` → Operasional
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+### Transaksi Bank
+Digunakan untuk transfer antar rekening dan transfer keluar.
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked
+Sumber data transaksi bank tetap terpisah dari transaksi Dashboard.
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname
-      }
-      // other options...
-    }
-  }
-])
+### Pencairan
+Modul untuk pengelolaan pencairan dana.
+
+### Master Data
+- Dapur
+- Kendaraan
+- Supplier
+
+### Laporan
+Modul laporan untuk role yang memiliki izin `reports.view`.
+
+## Role
+
+| Role | Akses utama |
+| --- | --- |
+| Admin | Dashboard, Master Data, Transaksi Bank, Pencairan, Laporan, CRUD sesuai permission |
+| Operator | Dashboard, Master Data (view), Transaksi Bank, sesuai permission |
+| Viewer | Transaksi Bank dan data pendukung rekening |
+
+Akses halaman ditentukan oleh permission pada `src/features/auth/role-policy.ts`, kemudian ditegakkan kembali melalui route protection.
+
+## Struktur utama
+
+```text
+src/
+├── app/
+│   ├── AppLayout.tsx
+│   ├── lazy-pages.ts
+│   └── router.tsx
+├── components/
+│   └── ui/
+├── features/
+│   ├── auth/
+│   ├── bank/
+│   ├── dashboard/
+│   ├── disbursement/
+│   ├── kitchen/
+│   ├── report/
+│   ├── supplier/
+│   └── transactions/
+├── lib/
+├── pages/
+└── main.tsx
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Development
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+Install dependencies:
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname
-      }
-      // other options...
-    }
-  }
-])
+```bash
+npm install
 ```
+
+Run development server:
+
+```bash
+npm run dev
+```
+
+Run lint:
+
+```bash
+npm run lint
+```
+
+Run production build check:
+
+```bash
+npm run build
+```
+
+Run the full validation used before pushing changes:
+
+```bash
+npm run check
+```
+
+## Deployment
+
+Production is deployed through the repository's GitHub Actions workflow to GitHub Pages.
+
+Before pushing a change:
+
+```bash
+npm run check
+```
+
+Only push changes after lint and build pass.
+
+## Data integrity
+
+Business flow and database structure are intentionally kept explicit:
+
+- Dashboard transactions and bank transactions remain separate data sources.
+- Bank balance is accumulated from the bank ledger and is not treated as a date-period report.
+- Role restrictions are enforced in the database with RLS in addition to frontend route/permission checks.
+- Financial calculations should be changed only after validating the corresponding database flow and affected services.
+
+## Notes
+
+Do not commit local environment files or secrets. Use `.env` / `.env.*` locally as configured by the project and keep credentials out of source control.
