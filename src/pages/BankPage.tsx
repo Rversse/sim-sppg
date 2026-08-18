@@ -180,32 +180,48 @@ function getPartnerName(transaction: BankTransaction, incoming: boolean) {
   )
 }
 
-function AccountCard({
+function AccountTableRow({
   summary,
+  accountType,
   onOpenHistory
 }: {
   summary: BankAccountSummary
+  accountType: 'holding' | 'priority' | 'others'
   onOpenHistory: () => void
 }) {
   const account = summary.account
 
   return (
-    <article className="bank-account-card">
-      <div className="bank-account-card-header">
-        <div>
-          <span className="bank-account-label">
-            {account.is_holding_destination ? 'PENAMPUNG' : 'REKENING'}
-          </span>
-          <h2>{account.name}</h2>
-          <p>
-            {getAccountDisplayName(account)}
-            {' • '}
-            {account.bank}
-            {' • '}
-            {account.account_number || '—'}
-          </p>
+    <tr className={`bank-account-row bank-account-row--${accountType}`}>
+      <td className="bank-account-identity">
+        <div className="bank-account-name">{account.name}</div>
+        <div className="bank-account-meta">
+          {getAccountDisplayName(account)} • {account.bank}
+          {account.account_number ? ` • ${account.account_number}` : ''}
         </div>
+      </td>
 
+      <td className="bank-number-cell">
+        {formatCurrency(Number(account.opening_balance) || 0)}
+      </td>
+
+      <td className="bank-number-cell bank-number-cell--income">
+        {formatCurrency(summary.disbursementIncome)}
+      </td>
+
+      <td className="bank-number-cell bank-number-cell--income">
+        {formatCurrency(summary.transferIncome)}
+      </td>
+
+      <td className="bank-number-cell bank-number-cell--expense">
+        {formatCurrency(summary.transferExpense)}
+      </td>
+
+      <td className="bank-number-cell bank-number-cell--balance">
+        {formatCurrency(summary.balance)}
+      </td>
+
+      <td className="bank-action-cell">
         <button
           type="button"
           className="bank-history-button"
@@ -214,37 +230,10 @@ function AccountCard({
           title={`Lihat riwayat ${account.name}`}
         >
           <History aria-hidden="true" />
+          <span>Riwayat</span>
         </button>
-      </div>
-
-      <div className="bank-account-balance">
-        <span>Saldo Saat Ini</span>
-        <strong>{formatCurrency(summary.balance)}</strong>
-      </div>
-
-      <div className="bank-account-stats">
-        <div>
-          <span>Pencairan Masuk</span>
-          <strong className="bank-income">
-            {formatCurrency(summary.disbursementIncome)}
-          </strong>
-        </div>
-
-        <div>
-          <span>Transfer Masuk</span>
-          <strong className="bank-income">
-            {formatCurrency(summary.transferIncome)}
-          </strong>
-        </div>
-
-        <div>
-          <span>Transfer Keluar</span>
-          <strong className="bank-expense">
-            {formatCurrency(summary.transferExpense)}
-          </strong>
-        </div>
-      </div>
-    </article>
+      </td>
+    </tr>
   )
 }
 
@@ -887,43 +876,84 @@ export function BankPage() {
               {overview?.summaries.length ? (
                 (() => {
                   const groups = getAccountGroups(overview.summaries)
-
-                  const renderGroup = (
+                  const renderGroupRows = (
                     title: string,
-                    items: BankAccountSummary[]
+                    items: BankAccountSummary[],
+                    accountType: 'holding' | 'priority' | 'others'
                   ) => {
                     if (!items.length) return null
 
                     return (
-                      <section className="bank-account-section" key={title}>
-                        <div className="bank-account-section-header">
-                          <div>
-                            <h3>{title}</h3>
-                            <span>{items.length} rekening</span>
-                          </div>
-                        </div>
+                      <>
+                        <tr
+                          className={`bank-account-group-row bank-account-group-row--${accountType}`}
+                        >
+                          <th colSpan={7}>
+                            <div className="bank-account-group-title">
+                              <span>{title}</span>
+                              <small>{items.length} rekening</small>
+                            </div>
+                          </th>
+                        </tr>
 
-                        <div className="bank-account-grid">
-                          {items.map((summary) => (
-                            <AccountCard
-                              key={summary.account.id}
-                              summary={summary}
-                              onOpenHistory={() =>
-                                openHistory(summary.account.id)
-                              }
-                            />
-                          ))}
-                        </div>
-                      </section>
+                        {items.map((summary) => (
+                          <AccountTableRow
+                            key={summary.account.id}
+                            summary={summary}
+                            accountType={accountType}
+                            onOpenHistory={() =>
+                              openHistory(summary.account.id)
+                            }
+                          />
+                        ))}
+                      </>
                     )
                   }
 
                   return (
-                    <>
-                      {renderGroup('Rekening Penampung', groups.holding)}
-                      {renderGroup('Rekening Prioritas', groups.priority)}
-                      {renderGroup('Rekening Lainnya', groups.others)}
-                    </>
+                    <div className="bank-account-table-wrap">
+                      <table className="bank-account-table">
+                        <colgroup>
+                          <col className="bank-account-col--name" />
+                          <col className="bank-account-col--number" />
+                          <col className="bank-account-col--number" />
+                          <col className="bank-account-col--number" />
+                          <col className="bank-account-col--number" />
+                          <col className="bank-account-col--number" />
+                          <col className="bank-account-col--action" />
+                        </colgroup>
+
+                        <thead>
+                          <tr>
+                            <th scope="col">Rekening</th>
+                            <th scope="col">Saldo Awal</th>
+                            <th scope="col">Pencairan Masuk</th>
+                            <th scope="col">Transfer Masuk</th>
+                            <th scope="col">Transfer Keluar</th>
+                            <th scope="col">Saldo Akhir</th>
+                            <th scope="col">Aksi</th>
+                          </tr>
+                        </thead>
+
+                        <tbody>
+                          {renderGroupRows(
+                            'Rekening Penampung',
+                            groups.holding,
+                            'holding'
+                          )}
+                          {renderGroupRows(
+                            'Rekening Prioritas',
+                            groups.priority,
+                            'priority'
+                          )}
+                          {renderGroupRows(
+                            'Rekening Lainnya',
+                            groups.others,
+                            'others'
+                          )}
+                        </tbody>
+                      </table>
+                    </div>
                   )
                 })()
               ) : (
