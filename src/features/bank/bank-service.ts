@@ -913,12 +913,7 @@ export async function hasSufficientBalance(
   client: SupabaseClient = supabase,
   editingTransactionId?: string
 ): Promise<boolean> {
-  const now = new Date()
-  const today = [
-    now.getFullYear(),
-    String(now.getMonth() + 1).padStart(2, '0'),
-    String(now.getDate()).padStart(2, '0')
-  ].join('-')
+  const { today, incomeEndDate } = getBankReadEndDates()
 
   const { data: account, error: accountError } = await client
     .from('accounts')
@@ -937,7 +932,7 @@ export async function hasSufficientBalance(
       .eq('account_id', accountId)
       .in('flow_type', ['income', 'neutral'])
       .gte('transaction_date', BANK_MODULE_START_DATE)
-      .lte('transaction_date', today)
+      .lte('transaction_date', incomeEndDate)
       .order('transaction_date', { ascending: true })
       .order('created_at', { ascending: true })
       .range(from, to)

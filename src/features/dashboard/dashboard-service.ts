@@ -41,13 +41,6 @@ export type DashboardTransactionPage = {
   total: number
 }
 
-export type DashboardActivity = {
-  date: string
-  income: number
-  expense: number
-  operational: number
-}
-
 const SUPPLIER_NAMES = [
   'Koperasi Arutala',
   'Sukalarang',
@@ -290,78 +283,6 @@ export async function getDashboardTransactionPage(
     data: (data ?? []) as DashboardTransaction[],
     total: count ?? 0
   }
-}
-
-export async function getDashboardActivity(
-  filters: DashboardFilters,
-  client: SupabaseClient = supabase
-): Promise<DashboardActivity[]> {
-  let query = client
-    .from('transactions')
-    .select('transaction_date,flow_type,amount')
-    .gte('transaction_date', filters.startDate)
-    .lte('transaction_date', filters.endDate)
-    .order('transaction_date', { ascending: true })
-
-  if (filters.kitchenId) {
-    query = query.eq('kitchen_id', filters.kitchenId)
-  }
-
-  if (filters.flowType) {
-    query = query.eq('flow_type', filters.flowType)
-  }
-
-  if (filters.supplierFilter) {
-    if (filters.flowType === 'expense') {
-      const supplierId = await getSupplierIdByName(
-        filters.supplierFilter,
-        client
-      )
-
-      if (!supplierId) {
-        return []
-      }
-
-      query = query.eq('supplier_id', supplierId)
-    } else if (filters.flowType === 'income') {
-      query = query.eq('account_id', filters.supplierFilter)
-    } else if (filters.flowType === 'neutral') {
-      query = query.eq('account_id', filters.supplierFilter)
-    } else {
-      query = query
-        .in('flow_type', ['income', 'neutral'])
-        .eq('account_id', filters.supplierFilter)
-    }
-  }
-
-  const { data, error } = await query
-
-  if (error) throw error
-
-  const buckets = new Map<string, DashboardActivity>()
-
-  for (const transaction of data ?? []) {
-    const current = buckets.get(transaction.transaction_date) ?? {
-      date: transaction.transaction_date,
-      income: 0,
-      expense: 0,
-      operational: 0
-    }
-
-    const amount = Number(transaction.amount) || 0
-
-    if (transaction.flow_type === 'income') {
-      current.income += amount
-    } else if (transaction.flow_type === 'expense') {
-      current.expense += amount
-    } else if (transaction.flow_type === 'neutral') {
-      current.operational += amount
-    }
-
-    buckets.set(transaction.transaction_date, current)
-  }
-
-  return Array.from(buckets.values())
 }
 
 export async function getDailyStatus(
