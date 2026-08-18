@@ -290,25 +290,50 @@ export function BankPage() {
   useEffect(() => {
     let cancelled = false
 
-    void getBankOverview()
-      .then((data) => {
+    const loadOverview = async (showLoading = false) => {
+      if (showLoading) {
+        setLoading(true)
+      }
+
+      try {
+        const data = await getBankOverview()
+
         if (cancelled) return
 
         setOverview(data)
         setErrorMessage('')
-        setLoading(false)
-      })
-      .catch((error: unknown) => {
+      } catch (error: unknown) {
         if (cancelled) return
 
         console.error(error)
         setOverview(null)
         setErrorMessage('Gagal memuat transaksi bank.')
-        setLoading(false)
-      })
+      } finally {
+        if (!cancelled) {
+          setLoading(false)
+        }
+      }
+    }
+
+    void loadOverview(true)
+
+    const handleFocus = () => {
+      void loadOverview()
+    }
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        void loadOverview()
+      }
+    }
+
+    window.addEventListener('focus', handleFocus)
+    document.addEventListener('visibilitychange', handleVisibilityChange)
 
     return () => {
       cancelled = true
+      window.removeEventListener('focus', handleFocus)
+      document.removeEventListener('visibilitychange', handleVisibilityChange)
     }
   }, [])
 
