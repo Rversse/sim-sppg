@@ -944,13 +944,6 @@ export function DashboardPage() {
 
   const transactionDetailsUnlocked = modalMode === 'edit' || formEntryUnlocked
 
-  const roleLabel =
-    user?.role === 'admin'
-      ? 'Administrator'
-      : user?.role === 'viewer'
-        ? 'Viewer'
-        : 'Operator'
-
   const totalTransactionPages = Math.max(1, Math.ceil(totalTransactions / 10))
   const transactionPaginationPages = getDashboardPaginationPages(
     transactionPage,
@@ -960,12 +953,6 @@ export function DashboardPage() {
   return (
     <div className="dashboard-page">
       <section className="dashboard-hero">
-        <div>
-          <p className="dashboard-eyebrow">{roleLabel}</p>
-          <h1>Dashboard</h1>
-          <p>Pantau aktivitas dan penggunaan dana SPPG dalam satu tampilan.</p>
-        </div>
-
         <div className="dashboard-hero-actions">
           <div className="dashboard-date-chip">
             <span>Periode</span>

@@ -157,12 +157,6 @@ export function DisbursementPage() {
   return (
     <div className="disbursement-page">
       <section className="disbursement-header">
-        <div>
-          <p className="disbursement-eyebrow">OPERASIONAL • PENCAIRAN</p>
-          <h1>Pencairan</h1>
-          <p>Checklist kesiapan pencairan dana per dapur.</p>
-        </div>
-
         <div className="disbursement-date-card">
           <label>
             <span>Tanggal Pencairan</span>

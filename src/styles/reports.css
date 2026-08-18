@@ -13,28 +13,6 @@
    HEADER / TABS
    ========================================================= */
 
-.reports-header {
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 20px;
-  padding: 0 2px 4px;
-}
-
-.reports-header h1 {
-  margin: 0;
-  color: var(--app-primary);
-  font-size: clamp(28px, 4vw, 40px);
-  line-height: 1;
-  letter-spacing: -0.04em;
-}
-
-.reports-header p {
-  margin: 10px 0 0;
-  color: #66768b;
-  font-size: 12px;
-}
-
 .reports-tabs {
   display: flex;
   width: min(1180px, calc(100vw - 48px));
@@ -542,11 +520,6 @@
 }
 
 @media (max-width: 760px) {
-  .reports-header {
-    align-items: flex-start;
-    flex-direction: column;
-  }
-
   .reports-filter-panel {
     grid-template-columns: 1fr;
     width: min(100%, calc(100vw - 20px));
@@ -653,20 +626,6 @@
     width: 100%;
     margin: 0;
     padding: 0;
-  }
-
-  .reports-header {
-    display: block;
-    padding: 0 0 10px;
-  }
-
-  .reports-header h1 {
-    font-size: 22px;
-  }
-
-  .reports-header p {
-    margin-top: 5px;
-    font-size: 10px;
   }
 
   .reports-summary-grid {

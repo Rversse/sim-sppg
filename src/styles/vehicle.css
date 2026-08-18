@@ -20,20 +20,6 @@
   gap: 16px;
 }
 
-.vehicle-header h1 {
-  margin: 0;
-  color: #0b132b;
-  font-size: 28px;
-  font-weight: 800;
-}
-
-.vehicle-header p {
-  margin: 5px 0 0;
-  color: #66768b;
-  font-size: 11px;
-  line-height: 1.45;
-}
-
 .vehicle-header > .app-action-button {
   border-color: var(--app-accent);
   background: var(--app-accent);
@@ -131,7 +117,7 @@
   transition:
     border-color 220ms ease,
     box-shadow 220ms ease,
-    transform 220ms var(--app-ease);
+    transform 220ms var(--motion-smooth);
 }
 
 .vehicle-panel::before {
@@ -426,4 +412,14 @@
   .vehicle-panel::before {
     transition: none;
   }
+}
+
+/* Topbar already owns "Data Kendaraan". Keep only page actions. */
+.vehicle-header > div:first-child {
+  display: none;
+}
+
+.vehicle-header {
+  justify-content: flex-end;
+  align-items: center;
 }

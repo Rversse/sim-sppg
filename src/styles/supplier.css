@@ -20,20 +20,6 @@
   gap: 16px;
 }
 
-.supplier-header h1 {
-  margin: 0;
-  color: #0b132b;
-  font-size: 28px;
-  font-weight: 800;
-}
-
-.supplier-header p {
-  margin: 5px 0 0;
-  color: #66768b;
-  font-size: 11px;
-  line-height: 1.45;
-}
-
 .supplier-header > .app-action-button {
   border-color: var(--app-accent);
   background: var(--app-accent);
@@ -540,45 +526,12 @@
   }
 }
 
-/* =========================================================
-   SUPPLIER FORM LAYOUT
-   Row 1: Nama Supplier | Pemilik Usaha
-   Row 2: Jenis Produk  | No. HP
-   Row 3: Alamat        | Batal + Simpan
-   ========================================================= */
-
-.supplier-modal {
-  width: min(720px, calc(100vw - 32px));
-  max-width: 720px;
+/* Topbar already owns "Data Supplier". Keep only page actions. */
+.supplier-header > div:first-child {
+  display: none;
 }
 
-.supplier-form-grid {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 14px 12px;
-}
-
-.supplier-field.supplier-full {
-  grid-column: 1 / -1;
-}
-
-.supplier-form-grid > .supplier-modal-actions {
-  grid-column: 2;
-  align-self: end;
+.supplier-header {
   justify-content: flex-end;
-  margin: 0;
-}
-
-.supplier-modal-actions {
-  gap: 7px;
-}
-
-.supplier-modal-actions .app-action-button {
-  min-height: 38px;
-}
-
-@media (max-width: 700px) {
-  .supplier-form-grid > .supplier-modal-actions {
-    grid-column: 1;
-    align-self: stretch;
-  }
+  align-items: center;
 }

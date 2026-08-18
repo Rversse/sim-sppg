@@ -22,34 +22,17 @@
   display: flex;
   min-height: 54px;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-end;
   gap: 16px;
   padding: 0 2px;
 }
 
-.bank-hero > div:first-child {
-  display: grid;
-  min-width: 0;
-  gap: 4px;
-}
-
-.bank-hero > div:last-child {
+.bank-hero > div {
   display: flex;
   align-items: center;
+  justify-content: flex-end;
   gap: 8px;
   flex: 0 0 auto;
-}
-
-.bank-eyebrow,
-.bank-hero h1 {
-  display: none;
-}
-
-.bank-hero p {
-  margin: 0;
-  color: #66768b;
-  font-size: 12px;
-  line-height: 1.45;
 }
 
 .bank-period-label {

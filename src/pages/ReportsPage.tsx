@@ -484,13 +484,6 @@ export function ReportsPage() {
 
   return (
     <main className="reports-page">
-      <header className="reports-header">
-        <div>
-          <h1>Laporan</h1>
-          <p>Rekap transaksi berdasarkan periode dan dapur.</p>
-        </div>
-      </header>
-
       <nav className="reports-tabs">
         <button
           type="button"

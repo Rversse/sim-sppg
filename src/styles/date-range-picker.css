@@ -46,8 +46,8 @@
 }
 
 .date-range-trigger > svg {
-  width: 15px;
-  height: 15px;
+  width: 13px;
+  height: 13px;
   flex: 0 0 15px;
   color: var(--app-text-muted);
 }
@@ -74,28 +74,28 @@
   top: calc(100% + 8px);
   left: 0;
   z-index: 80;
-  width: min(430px, calc(100vw - 24px));
+  width: min(360px, calc(100vw - 24px));
   overflow: hidden;
   border: 1px solid var(--app-border);
-  border-radius: 15px;
+  border-radius: 13px;
   background: var(--app-white);
-  box-shadow: 0 22px 60px rgb(15 23 42 / 0.16);
+  box-shadow: 0 18px 48px rgb(15 23 42 / 0.14);
   animation: date-range-popover-in 160ms ease both;
 }
 
 .date-range-popover-toolbar {
   display: grid;
-  grid-template-columns: 34px minmax(0, 1fr) 34px;
+  grid-template-columns: 30px minmax(0, 1fr) 30px;
   align-items: center;
-  gap: 10px;
-  padding: 12px 14px;
+  gap: 8px;
+  padding: 9px 10px;
   border-bottom: 1px solid var(--app-border-soft);
 }
 
 .date-range-nav {
   display: grid;
-  width: 32px;
-  height: 32px;
+  width: 28px;
+  height: 28px;
   place-items: center;
   padding: 0;
   border: 1px solid var(--app-border);
@@ -126,27 +126,18 @@
 .date-range-calendars {
   display: grid;
   grid-template-columns: 1fr;
-  padding: 14px;
+  padding: 10px;
 }
 
 .date-range-calendar-month {
   min-width: 0;
 }
 
-.date-range-month-title {
-  margin-bottom: 10px;
-  color: var(--app-primary);
-  font-size: 11px;
-  font-weight: 900;
-  text-align: center;
-  text-transform: capitalize;
-}
-
 .date-range-weekdays,
 .date-range-days {
   display: grid;
   grid-template-columns: repeat(7, minmax(0, 1fr));
-  gap: 3px;
+  gap: 2px;
 }
 
 .date-range-weekdays {
@@ -169,11 +160,11 @@
   min-width: 0;
   padding: 0;
   border: 1px solid transparent;
-  border-radius: 8px;
+  border-radius: 7px;
   background: transparent;
   color: var(--app-text);
   cursor: pointer;
-  font-size: 9px;
+  font-size: 8px;
   font-weight: 700;
   transition:
     border-color 120ms ease,
@@ -216,11 +207,11 @@
 
 .date-range-popover-footer {
   display: flex;
-  min-height: 42px;
+  min-height: 34px;
   align-items: center;
   justify-content: space-between;
   gap: 10px;
-  padding: 9px 14px;
+  padding: 7px 10px;
   border-top: 1px solid var(--app-border-soft);
   background: var(--app-bg-soft);
   color: var(--app-text-muted);
@@ -377,7 +368,7 @@
 @media (max-width: 760px) {
   .date-range-popover {
     left: 50%;
-    width: min(430px, calc(100vw - 20px));
+    width: min(360px, calc(100vw - 20px));
     transform: translateX(-50%);
   }
 

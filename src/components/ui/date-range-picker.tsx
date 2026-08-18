@@ -132,10 +132,6 @@ function CalendarMonth({
 
   return (
     <div className="date-range-calendar-month">
-      <div className="date-range-month-title">
-        {MONTH_FORMATTER.format(month)}
-      </div>
-
       <div className="date-range-weekdays">
         {WEEK_DAYS.map((day) => (
           <span key={day}>{day}</span>

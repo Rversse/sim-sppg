@@ -22,20 +22,6 @@
   gap: 16px;
 }
 
-.kitchen-header h1 {
-  margin: 0;
-  color: #0b132b;
-  font-size: 28px;
-  font-weight: 800;
-}
-
-.kitchen-header p {
-  margin: 5px 0 0;
-  color: #66768b;
-  font-size: 11px;
-  line-height: 1.45;
-}
-
 .kitchen-header > .app-action-button {
   border-color: var(--app-accent);
   background: var(--app-accent);
@@ -371,79 +357,12 @@
   }
 }
 
-/* =========================================================
-   COMPACT KITCHEN FORM
-   Row 1: Nama Dapur | Yayasan
-   Row 2: Perwakilan | Alamat Dapur
-   Row 3: Status | Batal + Simpan
-   ========================================================= */
-
-.kitchen-modal {
-  width: min(680px, calc(100vw - 32px));
-  max-width: 680px;
+/* Topbar already owns "Data Dapur". Keep only page actions. */
+.kitchen-header > div:first-child {
+  display: none;
 }
 
-.kitchen-modal-body {
-  padding: 20px;
-  gap: 16px;
-}
-
-.kitchen-form-grid {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 14px 12px;
-}
-
-.kitchen-field label {
-  color: #53647a;
-  font-size: 10px;
-  font-weight: 850;
-}
-
-.kitchen-field input,
-.kitchen-field select {
-  min-height: 42px;
-  padding-inline: 12px;
-  border-color: #d3deea;
-  border-radius: 10px;
-  background: #fff;
-  box-shadow: inset 0 1px 1px rgb(15 23 42 / 0.02);
-  font-size: 11px;
-}
-
-.kitchen-field input:focus,
-.kitchen-field select:focus {
-  border-color: var(--app-accent);
-  box-shadow:
-    0 0 0 3px rgb(57 255 136 / 0.11),
-    0 4px 14px rgb(15 23 42 / 0.035);
-}
-
-.kitchen-form-grid > .kitchen-modal-actions {
-  min-width: 0;
-  align-self: end;
+.kitchen-header {
   justify-content: flex-end;
-  margin: 0;
-}
-
-.kitchen-modal-actions {
-  gap: 7px;
-}
-
-.kitchen-modal-actions .app-action-button {
-  min-height: 38px;
-}
-
-@media (max-width: 700px) {
-  .kitchen-modal {
-    width: min(100%, calc(100vw - 20px));
-  }
-
-  .kitchen-form-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .kitchen-form-grid > .kitchen-modal-actions {
-    grid-column: 1;
-    align-self: stretch;
-  }
+  align-items: center;
 }

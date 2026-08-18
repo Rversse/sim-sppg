@@ -159,13 +159,6 @@ export function KitchenPage() {
   return (
     <div className="kitchen-page">
       <div className="kitchen-header">
-        <div>
-          <h1>Data Dapur</h1>
-          <p>
-            Master identitas dapur. Data kendaraan dikelola di modul terpisah.
-          </p>
-        </div>
-
         {canManage ? (
           <button type="button" className="app-action-button" onClick={openAdd}>
             <Plus aria-hidden="true" />

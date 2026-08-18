@@ -817,24 +817,21 @@ export function BankPage() {
       <div className="bank-page">
         <section className="bank-hero">
           <div>
-            <p className="bank-eyebrow">SIM SPPG • TRANSAKSI BANK</p>
-            <h1>Transaksi Bank</h1>
-            <p>Pantau saldo rekening dan riwayat perpindahan dana.</p>
             <p className="bank-period-label">
               Periode: 20 Juli 2026 – Hari Ini
             </p>
-          </div>
 
-          {canCreateTransaction ? (
-            <button
-              type="button"
-              className="bank-primary-button"
-              onClick={openCreateModal}
-              disabled={!overview?.accounts.length}
-            >
-              + Transfer
-            </button>
-          ) : null}
+            {canCreateTransaction ? (
+              <button
+                type="button"
+                className="bank-primary-button"
+                onClick={openCreateModal}
+                disabled={!overview?.accounts.length}
+              >
+                + Transfer
+              </button>
+            ) : null}
+          </div>
         </section>
 
         {loading ? (

@@ -265,11 +265,6 @@ export function VehiclePage() {
   return (
     <div className="vehicle-page">
       <div className="vehicle-header">
-        <div>
-          <h1>Data Kendaraan</h1>
-          <p>Master kendaraan per dapur dengan pemantauan PKB dan STNK.</p>
-        </div>
-
         {canManage ? (
           <button type="button" className="app-action-button" onClick={openAdd}>
             <Plus aria-hidden="true" />

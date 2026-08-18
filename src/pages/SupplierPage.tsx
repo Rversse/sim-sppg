@@ -349,14 +349,6 @@ export function SupplierPage() {
   return (
     <div className="supplier-page">
       <div className="supplier-header">
-        <div>
-          <h1>Data Supplier</h1>
-          <p>
-            Master supplier, rekening, saldo awal, dan mapping rekening ke
-            dapur.
-          </p>
-        </div>
-
         {canManage ? (
           <button
             type="button"
