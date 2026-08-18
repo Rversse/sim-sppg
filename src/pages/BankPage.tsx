@@ -29,6 +29,7 @@ import { formatCurrency, formatDateTime, getTodayLocal } from '@/lib/formatters'
 const HISTORY_PAGE_SIZE = 10
 const BANK_MODULE_START_DATE = '2026-07-20'
 const MAX_AUTOCOMPLETE_RESULTS = 5
+const BANK_OVERVIEW_REFRESH_INTERVAL = 5000
 
 const PRIORITY_OWNERS = [
   'DEDE JAELANI',
@@ -327,17 +328,12 @@ export function BankPage() {
       }
     }
 
-    // Initial load
     void refreshOverview(true)
 
-    // Refresh otomatis setiap 5 detik.
-    // Tidak mengubah formula atau business flow; hanya mengambil
-    // state terbaru dari database.
     const intervalId = window.setInterval(() => {
       void refreshOverview()
-    }, 5000)
+    }, BANK_OVERVIEW_REFRESH_INTERVAL)
 
-    // Tetap refresh segera saat user kembali ke tab/window.
     const handleFocus = () => {
       void refreshOverview()
     }
@@ -354,7 +350,6 @@ export function BankPage() {
     return () => {
       cancelled = true
       window.clearInterval(intervalId)
-
       window.removeEventListener('focus', handleFocus)
       document.removeEventListener('visibilitychange', handleVisibilityChange)
     }

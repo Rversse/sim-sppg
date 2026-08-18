@@ -3,6 +3,7 @@ import type { SupabaseClient } from '@supabase/supabase-js'
 import { supabase } from '@/lib/supabase'
 
 const BANK_MODULE_START_DATE = '2026-07-20'
+const SUPABASE_PAGE_SIZE = 1000
 
 export type BankAccount = {
   id: string
@@ -93,6 +94,27 @@ type BankTransferSummaryRow = {
   recipient_account_id: string | null
   transfer_amount: number | string | null
   admin_fee: number | string | null
+}
+
+async function fetchAllRows<T>(
+  fetchPage: (from: number, to: number) => Promise<T[]>
+): Promise<T[]> {
+  const rows: T[] = []
+  let from = 0
+
+  while (true) {
+    const page = await fetchPage(from, from + SUPABASE_PAGE_SIZE - 1)
+
+    rows.push(...page)
+
+    if (page.length < SUPABASE_PAGE_SIZE) {
+      break
+    }
+
+    from += SUPABASE_PAGE_SIZE
+  }
+
+  return rows
 }
 
 function getSupplierOwnerName(
@@ -202,59 +224,64 @@ export async function getBankTransactions(
   endDate: string,
   client: SupabaseClient = supabase
 ): Promise<BankTransaction[]> {
-  const { data, error } = await client
-    .from('bank_transactions')
-    .select(
-      `
-        id,
-        account_id,
-        recipient_account_id,
-        recipient_name,
-        payment_for,
-        transfer_amount,
-        admin_fee,
-        transaction_date,
-        created_at,
-        transfer_type,
-        created_by,
-        sender:accounts!bank_transactions_account_fkey(
+  const rows = await fetchAllRows(async (from, to) => {
+    const { data, error } = await client
+      .from('bank_transactions')
+      .select(
+        `
           id,
-          name,
-          bank,
-          account_number,
-          opening_balance,
-          account_category,
-          is_holding_destination,
-          income_suppliers(
-            business_name,
-            owner_name
+          account_id,
+          recipient_account_id,
+          recipient_name,
+          payment_for,
+          transfer_amount,
+          admin_fee,
+          transaction_date,
+          created_at,
+          transfer_type,
+          created_by,
+          sender:accounts!bank_transactions_account_fkey(
+            id,
+            name,
+            bank,
+            account_number,
+            opening_balance,
+            account_category,
+            is_holding_destination,
+            income_suppliers(
+              business_name,
+              owner_name
+            )
+          ),
+          recipient:accounts!bank_transactions_recipient_account_fkey(
+            id,
+            name,
+            bank,
+            account_number,
+            opening_balance,
+            account_category,
+            is_holding_destination,
+            income_suppliers(
+              business_name,
+              owner_name
+            )
           )
-        ),
-        recipient:accounts!bank_transactions_recipient_account_fkey(
-          id,
-          name,
-          bank,
-          account_number,
-          opening_balance,
-          account_category,
-          is_holding_destination,
-          income_suppliers(
-            business_name,
-            owner_name
-          )
-        )
-      `
-    )
-    .gte('transaction_date', startDate)
-    .lte('transaction_date', endDate)
-    .order('transaction_date', { ascending: false })
-    .order('created_at', { ascending: false })
+        `
+      )
+      .gte('transaction_date', startDate)
+      .lte('transaction_date', endDate)
+      .order('transaction_date', { ascending: false })
+      .order('created_at', { ascending: false })
+      .range(from, to)
 
-  if (error) {
-    throw error
-  }
+    if (error) {
+      throw error
+    }
 
-  return (data ?? []) as unknown as BankTransaction[]
+    return (data ?? []) as unknown as BankTransaction[]
+  })
+
+  return rows
 }
 
 export async function getBankIncomeTransactions(
@@ -262,18 +289,23 @@ export async function getBankIncomeTransactions(
   endDate: string,
   client: SupabaseClient = supabase
 ): Promise<TransactionIncomeRow[]> {
-  const { data, error } = await client
-    .from('transactions')
-    .select('account_id,amount')
-    .in('flow_type', ['income', 'neutral'])
-    .gte('transaction_date', startDate)
-    .lte('transaction_date', endDate)
+  return fetchAllRows(async (from, to) => {
+    const { data, error } = await client
+      .from('transactions')
+      .select('account_id,amount')
+      .in('flow_type', ['income', 'neutral'])
+      .gte('transaction_date', startDate)
+      .lte('transaction_date', endDate)
+      .order('transaction_date', { ascending: true })
+      .order('created_at', { ascending: true })
+      .range(from, to)
 
-  if (error) {
-    throw error
-  }
+    if (error) {
+      throw error
+    }
 
-  return (data ?? []) as TransactionIncomeRow[]
+    return (data ?? []) as TransactionIncomeRow[]
+  })
 }
 
 export async function getBankOverview(
@@ -378,17 +410,22 @@ async function getBankTransferSummaryRows(
   endDate: string,
   client: SupabaseClient = supabase
 ): Promise<BankTransferSummaryRow[]> {
-  const { data, error } = await client
-    .from('bank_transactions')
-    .select('account_id,recipient_account_id,transfer_amount,admin_fee')
-    .gte('transaction_date', startDate)
-    .lte('transaction_date', endDate)
+  return fetchAllRows(async (from, to) => {
+    const { data, error } = await client
+      .from('bank_transactions')
+      .select('account_id,recipient_account_id,transfer_amount,admin_fee')
+      .gte('transaction_date', startDate)
+      .lte('transaction_date', endDate)
+      .order('transaction_date', { ascending: true })
+      .order('created_at', { ascending: true })
+      .range(from, to)
 
-  if (error) {
-    throw error
-  }
+    if (error) {
+      throw error
+    }
 
-  return (data ?? []) as BankTransferSummaryRow[]
+    return (data ?? []) as BankTransferSummaryRow[]
+  })
 }
 
 export async function getBankHistoryPage(
@@ -418,58 +455,63 @@ export async function getBankHistoryPage(
     String(now.getDate()).padStart(2, '0')
   ].join('-')
 
-  const { data: bankRows, error: bankError } = await client
-    .from('bank_transactions')
-    .select(
-      `
-        id,
-        account_id,
-        recipient_account_id,
-        recipient_name,
-        payment_for,
-        transfer_amount,
-        admin_fee,
-        transaction_date,
-        created_at,
-        transfer_type,
-        created_by,
-        sender:accounts!bank_transactions_account_fkey(
+  const allBankTransactions = await fetchAllRows(async (from, to) => {
+    const { data, error } = await client
+      .from('bank_transactions')
+      .select(
+        `
           id,
-          name,
-          bank,
-          account_number,
-          opening_balance,
-          account_category,
-          is_holding_destination,
-          income_suppliers(
-            business_name,
-            owner_name
+          account_id,
+          recipient_account_id,
+          recipient_name,
+          payment_for,
+          transfer_amount,
+          admin_fee,
+          transaction_date,
+          created_at,
+          transfer_type,
+          created_by,
+          sender:accounts!bank_transactions_account_fkey(
+            id,
+            name,
+            bank,
+            account_number,
+            opening_balance,
+            account_category,
+            is_holding_destination,
+            income_suppliers(
+              business_name,
+              owner_name
+            )
+          ),
+          recipient:accounts!bank_transactions_recipient_account_fkey(
+            id,
+            name,
+            bank,
+            account_number,
+            opening_balance,
+            account_category,
+            is_holding_destination,
+            income_suppliers(
+              business_name,
+              owner_name
+            )
           )
-        ),
-        recipient:accounts!bank_transactions_recipient_account_fkey(
-          id,
-          name,
-          bank,
-          account_number,
-          opening_balance,
-          account_category,
-          is_holding_destination,
-          income_suppliers(
-            business_name,
-            owner_name
-          )
-        )
-      `
-    )
-    .or(`account_id.eq.${accountId},recipient_account_id.eq.${accountId}`)
-    .gte('transaction_date', startDate)
-    .lte('transaction_date', endDate)
+        `
+      )
+      .or(`account_id.eq.${accountId},recipient_account_id.eq.${accountId}`)
+      .gte('transaction_date', startDate)
+      .lte('transaction_date', endDate)
+      .order('transaction_date', { ascending: false })
+      .order('created_at', { ascending: false })
+      .range(from, to)
 
-  if (bankError) {
-    throw bankError
-  }
+    if (error) {
+      throw error
+    }
 
-  const allBankTransactions = (bankRows ?? []) as unknown as BankTransaction[]
+    return (data ?? []) as unknown as BankTransaction[]
+  })
 
   const compareLedgerEvents = (
     a: {
@@ -541,17 +583,24 @@ export async function getBankHistoryPage(
         amount: number
       }
 
-  const { data: incomeRows, error: incomeError } = await client
-    .from('transactions')
-    .select('id,transaction_date,created_at,amount')
-    .eq('account_id', accountId)
-    .in('flow_type', ['income', 'neutral'])
-    .gte('transaction_date', startDate)
-    .lte('transaction_date', endDate)
+  const incomeRows = await fetchAllRows(async (from, to) => {
+    const { data, error } = await client
+      .from('transactions')
+      .select('id,transaction_date,created_at,amount')
+      .eq('account_id', accountId)
+      .in('flow_type', ['income', 'neutral'])
+      .gte('transaction_date', startDate)
+      .lte('transaction_date', endDate)
+      .order('transaction_date', { ascending: true })
+      .order('created_at', { ascending: true })
+      .range(from, to)
 
-  if (incomeError) {
-    throw incomeError
-  }
+    if (error) {
+      throw error
+    }
+
+    return data ?? []
+  })
 
   const ledgerEvents: HistoryLedgerEvent[] = allBankTransactions.map(
     (transaction) => ({
@@ -563,7 +612,7 @@ export async function getBankHistoryPage(
     })
   )
 
-  for (const row of incomeRows ?? []) {
+  for (const row of incomeRows) {
     ledgerEvents.push({
       kind: 'income',
       id: row.id,
@@ -678,33 +727,38 @@ export async function getRecipientHistory(
   startDate: string,
   client: SupabaseClient = supabase
 ): Promise<RecipientHistoryOption[]> {
-  const { data, error } = await client
-    .from('bank_transactions')
-    .select(
-      `
-        recipient_name,
-        recipient_account_id,
-        transaction_date,
-        recipient:accounts!bank_transactions_recipient_account_fkey(
-          bank,
-          income_suppliers(
-            business_name,
-            owner_name
+  const data = await fetchAllRows(async (from, to) => {
+    const { data, error } = await client
+      .from('bank_transactions')
+      .select(
+        `
+          recipient_name,
+          recipient_account_id,
+          transaction_date,
+          recipient:accounts!bank_transactions_recipient_account_fkey(
+            bank,
+            income_suppliers(
+              business_name,
+              owner_name
+            )
           )
-        )
-      `
-    )
-    .gte('transaction_date', startDate)
-    .order('transaction_date', { ascending: false })
+        `
+      )
+      .gte('transaction_date', startDate)
+      .order('transaction_date', { ascending: false })
+      .range(from, to)
 
-  if (error) {
-    throw error
-  }
+    if (error) {
+      throw error
+    }
+
+    return data ?? []
+  })
 
   const result: RecipientHistoryOption[] = []
   const used = new Set<string>()
 
-  for (const item of data ?? []) {
+  for (const item of data) {
     const name = item.recipient_name?.trim().replace(/\s+/g, ' ')
 
     if (!name) continue
@@ -737,20 +791,25 @@ export async function getPaymentHistory(
   startDate: string,
   client: SupabaseClient = supabase
 ): Promise<string[]> {
-  const { data, error } = await client
-    .from('bank_transactions')
-    .select('payment_for,transaction_date')
-    .gte('transaction_date', startDate)
-    .order('transaction_date', { ascending: false })
+  const data = await fetchAllRows(async (from, to) => {
+    const { data, error } = await client
+      .from('bank_transactions')
+      .select('payment_for,transaction_date')
+      .gte('transaction_date', startDate)
+      .order('transaction_date', { ascending: false })
+      .range(from, to)
 
-  if (error) {
-    throw error
-  }
+    if (error) {
+      throw error
+    }
+
+    return data ?? []
+  })
 
   const result: string[] = []
   const used = new Set<string>()
 
-  for (const item of data ?? []) {
+  for (const item of data) {
     const value = normalizePaymentPurpose(item.payment_for)
 
     if (!value) continue
@@ -830,51 +889,72 @@ export async function hasSufficientBalance(
     throw accountError
   }
 
-  const { data: incomeTransactions, error: incomeError } = await client
-    .from('transactions')
-    .select('amount')
-    .eq('account_id', accountId)
-    .in('flow_type', ['income', 'neutral'])
-    .gte('transaction_date', BANK_MODULE_START_DATE)
-    .lte('transaction_date', today)
+  const incomeTransactions = await fetchAllRows(async (from, to) => {
+    const { data, error } = await client
+      .from('transactions')
+      .select('amount')
+      .eq('account_id', accountId)
+      .in('flow_type', ['income', 'neutral'])
+      .gte('transaction_date', BANK_MODULE_START_DATE)
+      .lte('transaction_date', today)
+      .order('transaction_date', { ascending: true })
+      .order('created_at', { ascending: true })
+      .range(from, to)
 
-  if (incomeError) {
-    throw incomeError
-  }
+    if (error) {
+      throw error
+    }
 
-  const { data: incomingTransfers, error: incomingError } = await client
-    .from('bank_transactions')
-    .select('transfer_amount')
-    .eq('recipient_account_id', accountId)
-    .gte('transaction_date', BANK_MODULE_START_DATE)
-    .lte('transaction_date', today)
+    return data ?? []
+  })
 
-  if (incomingError) {
-    throw incomingError
-  }
+  const incomingTransfers = await fetchAllRows(async (from, to) => {
+    const { data, error } = await client
+      .from('bank_transactions')
+      .select('transfer_amount')
+      .eq('recipient_account_id', accountId)
+      .gte('transaction_date', BANK_MODULE_START_DATE)
+      .lte('transaction_date', today)
+      .order('transaction_date', { ascending: true })
+      .order('created_at', { ascending: true })
+      .range(from, to)
 
-  const { data: outgoingTransfers, error: outgoingError } = await client
-    .from('bank_transactions')
-    .select('id,transfer_amount,admin_fee')
-    .eq('account_id', accountId)
-    .gte('transaction_date', BANK_MODULE_START_DATE)
-    .lte('transaction_date', today)
+    if (error) {
+      throw error
+    }
 
-  if (outgoingError) {
-    throw outgoingError
-  }
+    return data ?? []
+  })
 
-  const income = (incomeTransactions ?? []).reduce(
+  const outgoingTransfers = await fetchAllRows(async (from, to) => {
+    const { data, error } = await client
+      .from('bank_transactions')
+      .select('id,transfer_amount,admin_fee')
+      .eq('account_id', accountId)
+      .gte('transaction_date', BANK_MODULE_START_DATE)
+      .lte('transaction_date', today)
+      .order('transaction_date', { ascending: true })
+      .order('created_at', { ascending: true })
+      .range(from, to)
+
+    if (error) {
+      throw error
+    }
+
+    return data ?? []
+  })
+
+  const income = incomeTransactions.reduce(
     (total, item) => total + (Number(item.amount) || 0),
     0
   )
 
-  const incoming = (incomingTransfers ?? []).reduce(
+  const incoming = incomingTransfers.reduce(
     (total, item) => total + (Number(item.transfer_amount) || 0),
     0
   )
 
-  const outgoing = (outgoingTransfers ?? []).reduce((total, item) => {
+  const outgoing = outgoingTransfers.reduce((total, item) => {
     if (editingTransactionId && item.id === editingTransactionId) {
       return total
     }
