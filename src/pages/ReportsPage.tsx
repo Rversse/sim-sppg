@@ -3,10 +3,7 @@ import { useEffect, useState } from 'react'
 import {
   getOverallReport,
   getIncomeReport,
-  getSupplierReport,
-  type OverallReport,
-  type IncomeReport,
-  type SupplierReport
+  getSupplierReport
 } from '@/features/report/reports-service'
 
 import {
@@ -23,6 +20,74 @@ import { formatCurrency, getTodayLocal } from '@/lib/formatters'
 
 type ReportTab = 'overall' | 'income' | 'supplier'
 
+type ReportLoader<T> = (startDate: string, endDate: string) => Promise<T>
+
+function loadOverallReport(startDate: string, endDate: string) {
+  return getOverallReport({ startDate, endDate, kitchenId: '' })
+}
+
+function loadIncomeReport(startDate: string, endDate: string) {
+  return getIncomeReport({ startDate, endDate })
+}
+
+function loadSupplierReport(startDate: string, endDate: string) {
+  return getSupplierReport({ startDate, endDate, kitchenId: '' })
+}
+
+function useReportData<T>(
+  loader: ReportLoader<T>,
+  errorMessage: string
+): {
+  startDate: string
+  endDate: string
+  setStartDate: (value: string) => void
+  setEndDate: (value: string) => void
+  report: T | null
+  loading: boolean
+  error: string | null
+  setError: (value: string | null) => void
+} {
+  const today = getTodayLocal()
+  const [startDate, setStartDate] = useState(today)
+  const [endDate, setEndDate] = useState(today)
+  const [report, setReport] = useState<T | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    let cancelled = false
+
+    void loader(startDate, endDate)
+      .then((result) => {
+        if (cancelled) return
+        setReport(result)
+        setError(null)
+      })
+      .catch((error) => {
+        console.error(error)
+        if (!cancelled) setError(errorMessage)
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false)
+      })
+
+    return () => {
+      cancelled = true
+    }
+  }, [endDate, errorMessage, loader, startDate])
+
+  return {
+    startDate,
+    endDate,
+    setStartDate,
+    setEndDate,
+    report,
+    loading,
+    error,
+    setError
+  }
+}
+
 function DateFilter({
   startDate,
   endDate,
@@ -36,6 +101,35 @@ function DateFilter({
     <div className="reports-date-range-field">
       <DateRangePicker value={{ startDate, endDate }} onChange={onChange} />
     </div>
+  )
+}
+
+function ReportActions({
+  reportAvailable,
+  loading,
+  onExport
+}: {
+  reportAvailable: boolean
+  loading: boolean
+  onExport: () => void
+}) {
+  return (
+    <>
+      <button
+        type="button"
+        onClick={onExport}
+        disabled={!reportAvailable || loading}
+      >
+        Export Excel
+      </button>
+      <button
+        type="button"
+        onClick={() => printReport()}
+        disabled={!reportAvailable || loading}
+      >
+        Print
+      </button>
+    </>
   )
 }
 
@@ -75,50 +169,54 @@ function EmptyState() {
   )
 }
 
+function ReportDateRange({
+  startDate,
+  endDate,
+  setStartDate,
+  setEndDate
+}: {
+  startDate: string
+  endDate: string
+  setStartDate: (value: string) => void
+  setEndDate: (value: string) => void
+}) {
+  return (
+    <DateFilter
+      startDate={startDate}
+      endDate={endDate}
+      onChange={({ startDate: nextStartDate, endDate: nextEndDate }) => {
+        setStartDate(nextStartDate)
+        setEndDate(nextEndDate)
+      }}
+    />
+  )
+}
+
 function OverallReportView() {
-  const today = getTodayLocal()
-  const [startDate, setStartDate] = useState(today)
-  const [endDate, setEndDate] = useState(today)
-  const [report, setReport] = useState<OverallReport | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-
-  useEffect(() => {
-    let cancelled = false
-
-    void getOverallReport({ startDate, endDate, kitchenId: '' })
-      .then((result) => {
-        if (cancelled) return
-        setReport(result)
-        setError(null)
-      })
-      .catch((error) => {
-        console.error(error)
-        if (!cancelled) setError('Gagal memuat laporan keseluruhan')
-      })
-      .finally(() => {
-        if (!cancelled) setLoading(false)
-      })
-
-    return () => {
-      cancelled = true
-    }
-  }, [startDate, endDate])
+  const {
+    startDate,
+    endDate,
+    setStartDate,
+    setEndDate,
+    report,
+    loading,
+    error,
+    setError
+  } = useReportData(loadOverallReport, 'Gagal memuat laporan keseluruhan')
 
   return (
     <section className="reports-section">
       <div className="reports-filter-panel">
-        <DateFilter
+        <ReportDateRange
           startDate={startDate}
           endDate={endDate}
-          onChange={({ startDate: nextStartDate, endDate: nextEndDate }) => {
-            setStartDate(nextStartDate)
-            setEndDate(nextEndDate)
-          }}
+          setStartDate={setStartDate}
+          setEndDate={setEndDate}
         />
-        <button
-          type="button"
-          onClick={() => {
+        <ReportActions
+          reportAvailable={Boolean(report)}
+          loading={loading}
+          onExport={() => {
             if (!report) return
             void exportOverallReport(report, startDate, endDate).catch(
               (error) => {
@@ -127,17 +225,7 @@ function OverallReportView() {
               }
             )
           }}
-          disabled={!report || loading}
-        >
-          Export Excel
-        </button>
-        <button
-          type="button"
-          onClick={() => printReport()}
-          disabled={!report || loading}
-        >
-          Print
-        </button>
+        />
       </div>
 
       {loading && <LoadingState />}
@@ -217,50 +305,30 @@ function OverallReportView() {
 }
 
 function IncomeReportView() {
-  const today = getTodayLocal()
-  const [startDate, setStartDate] = useState(today)
-  const [endDate, setEndDate] = useState(today)
-  const [report, setReport] = useState<IncomeReport | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-
-  useEffect(() => {
-    let cancelled = false
-
-    void getIncomeReport({ startDate, endDate })
-      .then((result) => {
-        if (!cancelled) {
-          setReport(result)
-          setError(null)
-        }
-      })
-      .catch((error) => {
-        console.error(error)
-        if (!cancelled) setError('Gagal memuat rekap pemasukan')
-      })
-      .finally(() => {
-        if (!cancelled) setLoading(false)
-      })
-
-    return () => {
-      cancelled = true
-    }
-  }, [startDate, endDate])
+  const {
+    startDate,
+    endDate,
+    setStartDate,
+    setEndDate,
+    report,
+    loading,
+    error,
+    setError
+  } = useReportData(loadIncomeReport, 'Gagal memuat rekap pemasukan')
 
   return (
     <section className="reports-section">
       <div className="reports-filter-panel">
-        <DateFilter
+        <ReportDateRange
           startDate={startDate}
           endDate={endDate}
-          onChange={({ startDate: nextStartDate, endDate: nextEndDate }) => {
-            setStartDate(nextStartDate)
-            setEndDate(nextEndDate)
-          }}
+          setStartDate={setStartDate}
+          setEndDate={setEndDate}
         />
-        <button
-          type="button"
-          onClick={() => {
+        <ReportActions
+          reportAvailable={Boolean(report)}
+          loading={loading}
+          onExport={() => {
             if (!report) return
             void exportIncomeReport(report, startDate, endDate).catch(
               (error) => {
@@ -269,17 +337,7 @@ function IncomeReportView() {
               }
             )
           }}
-          disabled={!report || loading}
-        >
-          Export Excel
-        </button>
-        <button
-          type="button"
-          onClick={() => printReport()}
-          disabled={!report || loading}
-        >
-          Print
-        </button>
+        />
       </div>
 
       {loading && <LoadingState />}
@@ -334,50 +392,30 @@ function IncomeReportView() {
 }
 
 function SupplierReportView() {
-  const today = getTodayLocal()
-  const [startDate, setStartDate] = useState(today)
-  const [endDate, setEndDate] = useState(today)
-  const [report, setReport] = useState<SupplierReport | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-
-  useEffect(() => {
-    let cancelled = false
-
-    void getSupplierReport({ startDate, endDate, kitchenId: '' })
-      .then((result) => {
-        if (!cancelled) {
-          setReport(result)
-          setError(null)
-        }
-      })
-      .catch((error) => {
-        console.error(error)
-        if (!cancelled) setError('Gagal memuat rekap pengeluaran')
-      })
-      .finally(() => {
-        if (!cancelled) setLoading(false)
-      })
-
-    return () => {
-      cancelled = true
-    }
-  }, [startDate, endDate])
+  const {
+    startDate,
+    endDate,
+    setStartDate,
+    setEndDate,
+    report,
+    loading,
+    error,
+    setError
+  } = useReportData(loadSupplierReport, 'Gagal memuat rekap pengeluaran')
 
   return (
     <section className="reports-section">
       <div className="reports-filter-panel">
-        <DateFilter
+        <ReportDateRange
           startDate={startDate}
           endDate={endDate}
-          onChange={({ startDate: nextStartDate, endDate: nextEndDate }) => {
-            setStartDate(nextStartDate)
-            setEndDate(nextEndDate)
-          }}
+          setStartDate={setStartDate}
+          setEndDate={setEndDate}
         />
-        <button
-          type="button"
-          onClick={() => {
+        <ReportActions
+          reportAvailable={Boolean(report)}
+          loading={loading}
+          onExport={() => {
             if (!report) return
             void exportSupplierReport(report, startDate, endDate).catch(
               (error) => {
@@ -386,17 +424,7 @@ function SupplierReportView() {
               }
             )
           }}
-          disabled={!report || loading}
-        >
-          Export Excel
-        </button>
-        <button
-          type="button"
-          onClick={() => printReport()}
-          disabled={!report || loading}
-        >
-          Print
-        </button>
+        />
       </div>
 
       {loading && <LoadingState />}
