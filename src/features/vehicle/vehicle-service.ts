@@ -25,14 +25,9 @@ export async function createVehicle(
 ) {
   validateVehicleInput(input)
 
-  const { error } = await client.from('kitchen_vehicles').insert({
-    kitchen_id: input.kitchen_id,
-    vehicle_type: input.vehicle_type,
-    vehicle_name: input.vehicle_name.trim() || null,
-    plate_number: input.plate_number.trim(),
-    pkb_expiry: input.pkb_expiry || null,
-    stnk_expiry: input.stnk_expiry || null
-  })
+  const { error } = await client
+    .from('kitchen_vehicles')
+    .insert(toVehicleRecord(input))
 
   if (error) throw error
 }
@@ -48,14 +43,7 @@ export async function updateVehicle(
 
   const { error } = await client
     .from('kitchen_vehicles')
-    .update({
-      kitchen_id: input.kitchen_id,
-      vehicle_type: input.vehicle_type,
-      vehicle_name: input.vehicle_name.trim() || null,
-      plate_number: input.plate_number.trim(),
-      pkb_expiry: input.pkb_expiry || null,
-      stnk_expiry: input.stnk_expiry || null
-    })
+    .update(toVehicleRecord(input))
     .eq('id', id)
 
   if (error) throw error
@@ -70,6 +58,17 @@ export async function deleteVehicle(
   const { error } = await client.from('kitchen_vehicles').delete().eq('id', id)
 
   if (error) throw error
+}
+
+function toVehicleRecord(input: VehicleInput) {
+  return {
+    kitchen_id: input.kitchen_id,
+    vehicle_type: input.vehicle_type,
+    vehicle_name: input.vehicle_name.trim() || null,
+    plate_number: input.plate_number.trim(),
+    pkb_expiry: input.pkb_expiry || null,
+    stnk_expiry: input.stnk_expiry || null
+  }
 }
 
 function validateVehicleInput(input: VehicleInput) {
