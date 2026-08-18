@@ -90,11 +90,29 @@ export type BankOverview = {
   summaries: BankAccountSummary[]
 }
 
-export type BankHistoryItem = {
-  transaction: BankTransaction
-  direction: 'in' | 'out'
-  runningBalance: number
+export type BankIncomeHistoryTransaction = {
+  id: string
+  transaction_date: string
+  created_at: string
+  amount: number
+  flow_type: 'income' | 'neutral'
+  note: string | null
+  kitchen_name: string | null
 }
+
+export type BankHistoryItem =
+  | {
+      kind: 'bank'
+      transaction: BankTransaction
+      direction: 'in' | 'out'
+      runningBalance: number
+    }
+  | {
+      kind: 'income'
+      transaction: BankIncomeHistoryTransaction
+      direction: 'in'
+      runningBalance: number
+    }
 
 export type BankHistoryPage = {
   transactions: BankHistoryItem[]
@@ -380,43 +398,25 @@ export async function getBankOverview(
     )
   }
 
-  const usedAccountIds = new Set<string>()
+  const summaries = accounts.map((account) => {
+    const disbursementIncome = incomeByAccount.get(account.id) ?? 0
+    const transferIncome = transferIncomeByAccount.get(account.id) ?? 0
+    const transferExpense = transferExpenseByAccount.get(account.id) ?? 0
 
-  for (const transaction of incomeTransactions) {
-    if (transaction.account_id) {
-      usedAccountIds.add(transaction.account_id)
+    const balance =
+      Number(account.opening_balance) +
+      disbursementIncome +
+      transferIncome -
+      transferExpense
+
+    return {
+      account,
+      disbursementIncome,
+      transferIncome,
+      transferExpense,
+      balance
     }
-  }
-
-  for (const transaction of transferRows) {
-    usedAccountIds.add(transaction.account_id)
-
-    if (transaction.recipient_account_id) {
-      usedAccountIds.add(transaction.recipient_account_id)
-    }
-  }
-
-  const summaries = accounts
-    .filter((account) => usedAccountIds.has(account.id))
-    .map((account) => {
-      const disbursementIncome = incomeByAccount.get(account.id) ?? 0
-      const transferIncome = transferIncomeByAccount.get(account.id) ?? 0
-      const transferExpense = transferExpenseByAccount.get(account.id) ?? 0
-
-      const balance =
-        Number(account.opening_balance) +
-        disbursementIncome +
-        transferIncome -
-        transferExpense
-
-      return {
-        account,
-        disbursementIncome,
-        transferIncome,
-        transferExpense,
-        balance
-      }
-    })
+  })
 
   return {
     accounts,
@@ -469,63 +469,101 @@ export async function getBankHistoryPage(
   const startDate = BANK_MODULE_START_DATE
   const { today, incomeEndDate } = getBankReadEndDates()
 
-  const allBankTransactions = await fetchAllRows(async (from, to) => {
-    const { data, error } = await client
-      .from('bank_transactions')
-      .select(
-        `
-          id,
-          account_id,
-          recipient_account_id,
-          recipient_name,
-          payment_for,
-          transfer_amount,
-          admin_fee,
-          transaction_date,
-          created_at,
-          transfer_type,
-          created_by,
-          sender:accounts!bank_transactions_account_fkey(
+  const [allBankTransactions, incomeRows] = await Promise.all([
+    fetchAllRows(async (from, to) => {
+      const { data, error } = await client
+        .from('bank_transactions')
+        .select(
+          `
             id,
-            name,
-            bank,
-            account_number,
-            opening_balance,
-            account_category,
-            is_holding_destination,
-            income_suppliers(
-              business_name,
-              owner_name
+            account_id,
+            recipient_account_id,
+            recipient_name,
+            payment_for,
+            transfer_amount,
+            admin_fee,
+            transaction_date,
+            created_at,
+            transfer_type,
+            created_by,
+            sender:accounts!bank_transactions_account_fkey(
+              id,
+              name,
+              bank,
+              account_number,
+              opening_balance,
+              account_category,
+              is_holding_destination,
+              income_suppliers(
+                business_name,
+                owner_name
+              )
+            ),
+            recipient:accounts!bank_transactions_recipient_account_fkey(
+              id,
+              name,
+              bank,
+              account_number,
+              opening_balance,
+              account_category,
+              is_holding_destination,
+              income_suppliers(
+                business_name,
+                owner_name
+              )
             )
-          ),
-          recipient:accounts!bank_transactions_recipient_account_fkey(
+          `
+        )
+        .or(`account_id.eq.${accountId},recipient_account_id.eq.${accountId}`)
+        .gte('transaction_date', startDate)
+        .lte('transaction_date', today)
+        .order('transaction_date', { ascending: false })
+        .order('created_at', { ascending: false })
+        .range(from, to)
+
+      if (error) {
+        throw error
+      }
+
+      return (data ?? []) as unknown as BankTransaction[]
+    }),
+    fetchAllRows(async (from, to) => {
+      const { data, error } = await client
+        .from('transactions')
+        .select(
+          `
             id,
-            name,
-            bank,
-            account_number,
-            opening_balance,
-            account_category,
-            is_holding_destination,
-            income_suppliers(
-              business_name,
-              owner_name
-            )
-          )
-        `
-      )
-      .or(`account_id.eq.${accountId},recipient_account_id.eq.${accountId}`)
-      .gte('transaction_date', startDate)
-      .lte('transaction_date', today)
-      .order('transaction_date', { ascending: false })
-      .order('created_at', { ascending: false })
-      .range(from, to)
+            transaction_date,
+            created_at,
+            amount,
+            flow_type,
+            note,
+            kitchens(name)
+          `
+        )
+        .eq('account_id', accountId)
+        .in('flow_type', ['income', 'neutral'])
+        .gte('transaction_date', startDate)
+        .lte('transaction_date', incomeEndDate)
+        .order('transaction_date', { ascending: false })
+        .order('created_at', { ascending: false })
+        .range(from, to)
 
-    if (error) {
-      throw error
-    }
+      if (error) {
+        throw error
+      }
 
-    return (data ?? []) as unknown as BankTransaction[]
-  })
+      return (data ?? []) as Array<{
+        id: string
+        transaction_date: string
+        created_at: string
+        amount: number | string | null
+        flow_type: 'income' | 'neutral'
+        note: string | null
+        kitchens: { name: string } | { name: string }[] | null
+      }>
+    })
+  ])
 
   const compareLedgerEvents = (
     a: {
@@ -553,34 +591,6 @@ export async function getBankHistoryPage(
     return b.id.localeCompare(a.id)
   }
 
-  allBankTransactions.sort((a, b) =>
-    compareLedgerEvents(
-      {
-        transactionDate: a.transaction_date,
-        createdAt: a.created_at,
-        id: a.id
-      },
-      {
-        transactionDate: b.transaction_date,
-        createdAt: b.created_at,
-        id: b.id
-      }
-    )
-  )
-
-  const total = allBankTransactions.length
-  const offset = (page - 1) * pageSize
-  const pageTransactions = allBankTransactions.slice(offset, offset + pageSize)
-
-  if (!pageTransactions.length) {
-    return {
-      transactions: [],
-      total,
-      page,
-      pageSize
-    }
-  }
-
   type HistoryLedgerEvent =
     | {
         kind: 'bank'
@@ -594,27 +604,8 @@ export async function getBankHistoryPage(
         id: string
         transactionDate: string
         createdAt: string
-        amount: number
+        transaction: BankIncomeHistoryTransaction
       }
-
-  const incomeRows = await fetchAllRows(async (from, to) => {
-    const { data, error } = await client
-      .from('transactions')
-      .select('id,transaction_date,created_at,amount')
-      .eq('account_id', accountId)
-      .in('flow_type', ['income', 'neutral'])
-      .gte('transaction_date', startDate)
-      .lte('transaction_date', incomeEndDate)
-      .order('transaction_date', { ascending: true })
-      .order('created_at', { ascending: true })
-      .range(from, to)
-
-    if (error) {
-      throw error
-    }
-
-    return data ?? []
-  })
 
   const ledgerEvents: HistoryLedgerEvent[] = allBankTransactions.map(
     (transaction) => ({
@@ -627,12 +618,22 @@ export async function getBankHistoryPage(
   )
 
   for (const row of incomeRows) {
+    const kitchen = Array.isArray(row.kitchens) ? row.kitchens[0] : row.kitchens
+
     ledgerEvents.push({
       kind: 'income',
       id: row.id,
       transactionDate: row.transaction_date,
       createdAt: row.created_at,
-      amount: Number(row.amount) || 0
+      transaction: {
+        id: row.id,
+        transaction_date: row.transaction_date,
+        created_at: row.created_at,
+        amount: Number(row.amount) || 0,
+        flow_type: row.flow_type,
+        note: row.note,
+        kitchen_name: kitchen?.name ?? null
+      }
     })
   }
 
@@ -641,24 +642,39 @@ export async function getBankHistoryPage(
       {
         transactionDate: a.transactionDate,
         createdAt: a.createdAt,
-        id: a.id
+        id: `${a.kind}:${a.id}`
       },
       {
         transactionDate: b.transactionDate,
         createdAt: b.createdAt,
-        id: b.id
+        id: `${b.kind}:${b.id}`
       }
     )
   )
 
-  const pageTransactionIds = new Set(
-    pageTransactions.map((transaction) => transaction.id)
+  const total = ledgerEvents.length
+  const offset = (page - 1) * pageSize
+  const pageEvents = ledgerEvents.slice(offset, offset + pageSize)
+
+  if (!pageEvents.length) {
+    return {
+      transactions: [],
+      total,
+      page,
+      pageSize
+    }
+  }
+
+  const pageEventKeys = new Set(
+    pageEvents.map((event) => `${event.kind}:${event.id}`)
   )
 
-  const historyByTransactionId = new Map<string, BankHistoryItem>()
+  const historyByEventKey = new Map<string, BankHistoryItem>()
   let runningBalance = Number(balance) || 0
 
   for (const event of ledgerEvents) {
+    const eventKey = `${event.kind}:${event.id}`
+
     if (event.kind === 'bank') {
       const transaction = event.transaction
       const incoming = transaction.recipient_account_id === accountId
@@ -668,8 +684,9 @@ export async function getBankHistoryPage(
         continue
       }
 
-      if (pageTransactionIds.has(transaction.id)) {
-        historyByTransactionId.set(transaction.id, {
+      if (pageEventKeys.has(eventKey)) {
+        historyByEventKey.set(eventKey, {
+          kind: 'bank',
           transaction,
           direction: incoming ? 'in' : 'out',
           runningBalance
@@ -688,12 +705,22 @@ export async function getBankHistoryPage(
       continue
     }
 
-    runningBalance -= event.amount
+    if (pageEventKeys.has(eventKey)) {
+      historyByEventKey.set(eventKey, {
+        kind: 'income',
+        transaction: event.transaction,
+        direction: 'in',
+        runningBalance
+      })
+    }
+
+    runningBalance -= event.transaction.amount
   }
 
   return {
-    transactions: pageTransactions.map((transaction) => {
-      const history = historyByTransactionId.get(transaction.id)
+    transactions: pageEvents.map((event) => {
+      const eventKey = `${event.kind}:${event.id}`
+      const history = historyByEventKey.get(eventKey)
 
       if (!history) {
         throw new Error('Saldo history transaksi tidak dapat dihitung.')

@@ -24,7 +24,12 @@ import {
 import { canAccess } from '@/features/auth/role-policy'
 import { useAuth } from '@/features/auth/use-auth'
 
-import { formatCurrency, formatDateTime, getTodayLocal } from '@/lib/formatters'
+import {
+  formatCurrency,
+  formatDate,
+  formatDateTime,
+  getTodayLocal
+} from '@/lib/formatters'
 
 const HISTORY_PAGE_SIZE = 10
 const BANK_MODULE_START_DATE = '2026-07-20'
@@ -1392,7 +1397,7 @@ export function BankPage() {
                   {' • '}
                   {historySummary.account.account_number || '—'}
                   {' • '}
-                  Periode 20 Juli 2026 – Hari Ini
+                  Periode 20 Juli 2026 – H+2 Hari
                 </p>
               </div>
 
@@ -1464,6 +1469,57 @@ export function BankPage() {
                 </div>
               ) : (
                 historyTransactions.map((item) => {
+                  if (item.kind === 'income') {
+                    const transaction = item.transaction
+                    const title = transaction.kitchen_name
+                      ? `Pencairan ${transaction.kitchen_name}`
+                      : 'Pencairan Dashboard'
+                    const badge =
+                      transaction.flow_type === 'income'
+                        ? 'PENCAIRAN MASUK'
+                        : 'OPERASIONAL MASUK'
+
+                    return (
+                      <article
+                        className="bank-history-row incoming"
+                        key={`income-${transaction.id}`}
+                      >
+                        <div className="bank-history-main">
+                          <div className="bank-history-top">
+                            <strong>{title}</strong>
+                            <span className="bank-history-badge incoming">
+                              {badge}
+                            </span>
+                          </div>
+
+                          <div className="bank-history-meta">
+                            {formatDateTime(transaction.created_at)}
+                            {' • '}
+                            Tanggal transaksi{' '}
+                            {formatDate(transaction.transaction_date)}
+                          </div>
+
+                          {transaction.note?.trim() ? (
+                            <div className="bank-history-purpose">
+                              Catatan:{' '}
+                              <strong>{transaction.note.trim()}</strong>
+                            </div>
+                          ) : null}
+                        </div>
+
+                        <div className="bank-history-values">
+                          <strong className="bank-income">
+                            +{formatCurrency(transaction.amount)}
+                          </strong>
+
+                          <p className="bank-history-balance">
+                            Saldo akhir: {formatCurrency(item.runningBalance)}
+                          </p>
+                        </div>
+                      </article>
+                    )
+                  }
+
                   const transaction = item.transaction
                   const incoming = item.direction === 'in'
                   const transferAmount =
@@ -1476,7 +1532,7 @@ export function BankPage() {
                       className={`bank-history-row ${
                         incoming ? 'incoming' : 'outgoing'
                       }`}
-                      key={`${item.direction}-${transaction.id}`}
+                      key={`bank-${item.direction}-${transaction.id}`}
                     >
                       <div className="bank-history-main">
                         <div className="bank-history-top">
