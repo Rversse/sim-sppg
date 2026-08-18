@@ -19,7 +19,7 @@ import type {
 
 const EMPTY: VehicleInput = {
   kitchen_id: '',
-  vehicle_type: 'car',
+  vehicle_type: '' as VehicleType,
   vehicle_name: '',
   plate_number: '',
   pkb_expiry: '',
@@ -43,13 +43,26 @@ function daysUntil(value: string | null) {
 
 function expiryLabel(value: string | null) {
   const days = daysUntil(value)
-  if (days === null) return { text: 'Belum diisi', className: 'expiry-neutral' }
-  if (days < 0)
-    return { text: `Lewat ${Math.abs(days)} hari`, className: 'expiry-danger' }
-  if (days <= 7)
+
+  if (days === null) {
+    return { text: 'Belum diisi', className: 'expiry-neutral' }
+  }
+
+  if (days < 0) {
+    return {
+      text: `Lewat ${Math.abs(days)} hari`,
+      className: 'expiry-danger'
+    }
+  }
+
+  if (days <= 7) {
     return { text: `${days} hari lagi`, className: 'expiry-danger' }
-  if (days <= 30)
+  }
+
+  if (days <= 30) {
     return { text: `${days} hari lagi`, className: 'expiry-warning' }
+  }
+
   return { text: `${days} hari lagi`, className: 'expiry-ok' }
 }
 
@@ -73,11 +86,13 @@ export function VehiclePage() {
   async function load() {
     setLoading(true)
     setError('')
+
     try {
       const [vehicleData, kitchenData] = await Promise.all([
         getVehicles(),
         getActiveKitchens()
       ])
+
       setVehicles(vehicleData)
       setKitchens(kitchenData)
     } catch (err) {
@@ -90,6 +105,7 @@ export function VehiclePage() {
 
   useEffect(() => {
     if (!canView) return
+
     let cancelled = false
 
     void Promise.all([getVehicles(), getActiveKitchens()])
@@ -116,14 +132,17 @@ export function VehiclePage() {
 
   const filtered = useMemo(() => {
     const keyword = search.trim().toLowerCase()
+
     const result = vehicles.filter((vehicle) => {
       const matchesKitchen =
         !kitchenFilter || vehicle.kitchen_id === kitchenFilter
+
       const matchesSearch =
         !keyword ||
         [vehicle.kitchen?.name, vehicle.vehicle_name, vehicle.plate_number]
           .filter(Boolean)
           .some((value) => String(value).toLowerCase().includes(keyword))
+
       return matchesKitchen && matchesSearch
     })
 
@@ -133,6 +152,7 @@ export function VehiclePage() {
         'id',
         { sensitivity: 'base' }
       )
+
       if (kitchen !== 0) return kitchen
 
       const vehicle = (a.vehicle_name ?? '').localeCompare(
@@ -140,6 +160,7 @@ export function VehiclePage() {
         'id',
         { sensitivity: 'base' }
       )
+
       if (vehicle !== 0) return vehicle
 
       return a.plate_number.localeCompare(b.plate_number, 'id', {
@@ -162,6 +183,7 @@ export function VehiclePage() {
 
   function openAdd() {
     if (!canManage) return
+
     setEditingId(null)
     setForm({ ...EMPTY })
     setFormOpen(true)
@@ -169,6 +191,7 @@ export function VehiclePage() {
 
   function openEdit(vehicle: Vehicle) {
     if (!canManage) return
+
     setEditingId(vehicle.id)
     setForm({
       kitchen_id: vehicle.kitchen_id,
@@ -183,13 +206,16 @@ export function VehiclePage() {
 
   function closeForm() {
     if (saving) return
+
     setFormOpen(false)
     setEditingId(null)
   }
 
   async function save() {
     if (!canManage || saving) return
+
     setSaving(true)
+
     try {
       if (editingId) {
         await updateVehicle(editingId, form)
@@ -198,6 +224,7 @@ export function VehiclePage() {
         await createVehicle(form)
         success('Kendaraan ditambahkan', 'Data kendaraan berhasil ditambahkan.')
       }
+
       closeForm()
       await load()
     } catch (err) {
@@ -213,12 +240,14 @@ export function VehiclePage() {
 
   async function remove(vehicle: Vehicle) {
     if (!canManage) return
+
     if (
       !window.confirm(
         `Hapus kendaraan ${vehicle.vehicle_name || vehicle.plate_number}?`
       )
-    )
+    ) {
       return
+    }
 
     try {
       await deleteVehicle(vehicle.id)
@@ -266,6 +295,7 @@ export function VehiclePage() {
           value={search}
           onChange={(event) => setSearch(event.target.value)}
         />
+
         <select
           className="vehicle-select"
           value={kitchenFilter}
@@ -283,6 +313,7 @@ export function VehiclePage() {
               </option>
             ))}
         </select>
+
         <span className="vehicle-count">{filtered.length} kendaraan</span>
       </div>
 
@@ -308,6 +339,7 @@ export function VehiclePage() {
                 ) : null}
               </tr>
             </thead>
+
             <tbody>
               {filtered.map((vehicle) => {
                 const pkb = expiryLabel(vehicle.pkb_expiry)
@@ -337,6 +369,7 @@ export function VehiclePage() {
                         <span className={stnk.className}>{stnk.text}</span>
                       </div>
                     </td>
+
                     {canManage ? (
                       <td className="vehicle-action-cell">
                         <div className="app-action-row">
@@ -349,6 +382,7 @@ export function VehiclePage() {
                           >
                             <Pencil aria-hidden="true" />
                           </button>
+
                           <button
                             type="button"
                             className="app-action-button app-action-button--icon app-action-button--danger"
@@ -386,6 +420,7 @@ export function VehiclePage() {
               <h2 id="vehicle-modal-title">
                 {editingId ? 'Edit Kendaraan' : 'Tambah Kendaraan'}
               </h2>
+
               <button
                 type="button"
                 className="app-action-button app-action-button--icon app-action-button--secondary"
@@ -400,7 +435,7 @@ export function VehiclePage() {
 
             <div className="vehicle-modal-body">
               <div className="vehicle-grid">
-                <div className="vehicle-field vehicle-full">
+                <div className="vehicle-field">
                   <label htmlFor="vehicle-kitchen">Dapur</label>
                   <select
                     id="vehicle-kitchen"
@@ -433,6 +468,9 @@ export function VehiclePage() {
                       }))
                     }
                   >
+                    <option value="" disabled>
+                      Pilih Kendaraan
+                    </option>
                     <option value="car">Mobil</option>
                     <option value="motorcycle">Motor</option>
                   </select>
@@ -467,21 +505,6 @@ export function VehiclePage() {
                 </div>
 
                 <div className="vehicle-field">
-                  <label htmlFor="vehicle-pkb">Jatuh Tempo PKB</label>
-                  <input
-                    id="vehicle-pkb"
-                    type="date"
-                    value={form.pkb_expiry}
-                    onChange={(event) =>
-                      setForm((current) => ({
-                        ...current,
-                        pkb_expiry: event.target.value
-                      }))
-                    }
-                  />
-                </div>
-
-                <div className="vehicle-field">
                   <label htmlFor="vehicle-stnk">Masa Berlaku STNK</label>
                   <input
                     id="vehicle-stnk"
@@ -491,6 +514,21 @@ export function VehiclePage() {
                       setForm((current) => ({
                         ...current,
                         stnk_expiry: event.target.value
+                      }))
+                    }
+                  />
+                </div>
+
+                <div className="vehicle-field">
+                  <label htmlFor="vehicle-pkb">Jatuh Tempo PKB</label>
+                  <input
+                    id="vehicle-pkb"
+                    type="date"
+                    value={form.pkb_expiry}
+                    onChange={(event) =>
+                      setForm((current) => ({
+                        ...current,
+                        pkb_expiry: event.target.value
                       }))
                     }
                   />
@@ -507,6 +545,7 @@ export function VehiclePage() {
                   <X aria-hidden="true" />
                   <span>Batal</span>
                 </button>
+
                 <button
                   type="button"
                   className="app-action-button"

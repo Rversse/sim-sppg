@@ -944,7 +944,7 @@
     background-color 160ms ease,
     border-color 160ms ease,
     color 160ms ease,
-    transform 160ms var(--app-ease),
+    transform 160ms var(--motion-smooth),
     box-shadow 160ms ease;
 }
 
@@ -1016,7 +1016,7 @@
   border-radius: 18px;
   background: var(--app-surface);
   box-shadow: 0 24px 70px rgb(15 23 42 / 0.25);
-  animation: dashboard-modal-in 220ms var(--app-ease) both;
+  animation: dashboard-modal-in 220ms var(--motion-smooth) both;
 }
 
 .dashboard-transaction-modal-header {
@@ -1116,16 +1116,28 @@
 }
 
 .dashboard-transaction-form-grid textarea {
-  min-height: 82px;
-  padding: 10px;
-  text-align: center;
-  line-height: 1.45;
-  resize: vertical;
+  min-height: 42px;
+  height: 42px;
+  max-height: 42px;
+  padding: 0 10px;
+  border-radius: 9px;
+  text-align: left;
+  line-height: 40px;
+  resize: none;
+  overflow: hidden;
 }
 
 .dashboard-transaction-form-grid textarea::placeholder {
   color: var(--app-text-subtle);
-  text-align: center;
+  text-align: left;
+}
+
+.dashboard-transaction-form-note {
+  align-self: end;
+}
+
+.dashboard-transaction-form-note textarea {
+  display: block;
 }
 
 .dashboard-transaction-form-grid input:hover,
@@ -1150,7 +1162,12 @@
 }
 
 .dashboard-transaction-form-note {
-  grid-column: 1 / -1;
+  grid-column: auto;
+  min-width: 0;
+}
+
+.dashboard-transaction-form-note textarea {
+  min-height: 82px;
 }
 
 .dashboard-transaction-modal-actions {

@@ -498,7 +498,7 @@ export function SupplierPage() {
 
             <div className="supplier-modal-body modal-body">
               <div className="supplier-form-grid">
-                <div className="supplier-field supplier-full">
+                <div className="supplier-field">
                   <label htmlFor="supplier-business">Nama Supplier</label>
                   <input
                     id="supplier-business"
@@ -513,7 +513,7 @@ export function SupplierPage() {
                 </div>
 
                 <div className="supplier-field">
-                  <label htmlFor="supplier-owner">Pemilik</label>
+                  <label htmlFor="supplier-owner">Pemilik Usaha</label>
                   <input
                     id="supplier-owner"
                     value={supplierForm.owner_name}
@@ -567,28 +567,28 @@ export function SupplierPage() {
                     }
                   />
                 </div>
-              </div>
 
-              <div className="supplier-modal-actions">
-                <button
-                  type="button"
-                  className="app-action-button app-action-button--secondary"
-                  onClick={() => setSupplierModal(false)}
-                  disabled={busy}
-                >
-                  <X aria-hidden="true" />
-                  <span>Batal</span>
-                </button>
+                <div className="supplier-modal-actions">
+                  <button
+                    type="button"
+                    className="app-action-button app-action-button--secondary"
+                    onClick={() => setSupplierModal(false)}
+                    disabled={busy}
+                  >
+                    <X aria-hidden="true" />
+                    <span>Batal</span>
+                  </button>
 
-                <button
-                  type="button"
-                  className="app-action-button"
-                  onClick={() => void saveSupplier()}
-                  disabled={busy}
-                >
-                  <Save aria-hidden="true" />
-                  <span>{busy ? 'Menyimpan...' : 'Simpan'}</span>
-                </button>
+                  <button
+                    type="button"
+                    className="app-action-button"
+                    onClick={() => void saveSupplier()}
+                    disabled={busy}
+                  >
+                    <Save aria-hidden="true" />
+                    <span>{busy ? 'Menyimpan...' : 'Simpan'}</span>
+                  </button>
+                </div>
               </div>
             </div>
           </section>
