@@ -213,7 +213,6 @@ function AccountCard({
           title={`Lihat riwayat ${account.name}`}
         >
           <History aria-hidden="true" />
-          <span>Riwayat</span>
         </button>
       </div>
 

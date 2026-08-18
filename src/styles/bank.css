@@ -397,7 +397,7 @@
 
 .bank-history-button {
   display: inline-flex !important;
-  min-width: 68px !important;
+  min-width: 30px !important;
   min-height: 30px !important;
   align-items: center !important;
   justify-content: center !important;
