@@ -33,6 +33,14 @@
     display: none;
   }
 
+  .app-page-title {
+    font-size: 15px;
+  }
+
+  .app-sidebar-toggle {
+    display: none;
+  }
+
   .app-user-avatar {
     width: 32px;
     height: 32px;

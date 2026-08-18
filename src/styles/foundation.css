@@ -704,29 +704,6 @@ textarea {
 }
 
 /* =========================================================
-   RESPONSIVE — APP SHELL ONLY
-   ========================================================= */
-
-@media (max-width: 760px) {
-  .app-sidebar-toggle {
-    display: none;
-  }
-
-  .app-sidebar {
-    display: none;
-  }
-
-  .app-header {
-    height: 60px;
-    padding-inline: 14px;
-  }
-
-  .app-page-title {
-    font-size: 15px;
-  }
-}
-
-/* =========================================================
    REDUCED MOTION
    ========================================================= */
 

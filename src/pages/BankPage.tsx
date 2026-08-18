@@ -79,6 +79,49 @@ function parseIntegerInput(value: string) {
   return digits ? Number(digits) : 0
 }
 
+function formatBankAmount(value: number) {
+  const parts = new Intl.NumberFormat('id-ID', {
+    style: 'currency',
+    currency: 'IDR',
+    currencyDisplay: 'symbol',
+    maximumFractionDigits: 0
+  }).formatToParts(value)
+
+  const prefix = `${parts
+    .filter((part) => part.type === 'minusSign')
+    .map((part) => part.value)
+    .join('')}${parts.find((part) => part.type === 'currency')?.value ?? 'Rp'}`
+
+  const numericValue = parts
+    .filter((part) =>
+      ['integer', 'group', 'decimal', 'fraction'].includes(part.type)
+    )
+    .map((part) => part.value)
+    .join('')
+
+  return {
+    prefix,
+    value: numericValue || '0'
+  }
+}
+
+function BankAmountCell({
+  value,
+  className = ''
+}: {
+  value: number
+  className?: string
+}) {
+  const formatted = formatBankAmount(value)
+
+  return (
+    <div className={`bank-amount ${className}`.trim()}>
+      <span className="bank-amount-prefix">{formatted.prefix}</span>
+      <span className="bank-amount-value">{formatted.value}</span>
+    </div>
+  )
+}
+
 function getPaginationPages(currentPage: number, totalPages: number) {
   if (totalPages <= 7) {
     return Array.from({ length: totalPages }, (_, index) => index + 1)
@@ -196,29 +239,40 @@ function AccountTableRow({
       <td className="bank-account-identity">
         <div className="bank-account-name">{account.name}</div>
         <div className="bank-account-meta">
-          {getAccountDisplayName(account)} • {account.bank}
-          {account.account_number ? ` • ${account.account_number}` : ''}
+          <span className="bank-account-meta-owner">
+            {getAccountDisplayName(account)}
+          </span>
+          <span className="bank-account-meta-separator">•</span>
+          <span className="bank-account-meta-bank">{account.bank}</span>
+          {account.account_number ? (
+            <>
+              <span className="bank-account-meta-separator">•</span>
+              <span className="bank-account-meta-number">
+                {account.account_number}
+              </span>
+            </>
+          ) : null}
         </div>
       </td>
 
       <td className="bank-number-cell">
-        {formatCurrency(Number(account.opening_balance) || 0)}
+        <BankAmountCell value={Number(account.opening_balance) || 0} />
       </td>
 
       <td className="bank-number-cell bank-number-cell--income">
-        {formatCurrency(summary.disbursementIncome)}
+        <BankAmountCell value={summary.disbursementIncome} />
       </td>
 
       <td className="bank-number-cell bank-number-cell--income">
-        {formatCurrency(summary.transferIncome)}
+        <BankAmountCell value={summary.transferIncome} />
       </td>
 
       <td className="bank-number-cell bank-number-cell--expense">
-        {formatCurrency(summary.transferExpense)}
+        <BankAmountCell value={summary.transferExpense} />
       </td>
 
       <td className="bank-number-cell bank-number-cell--balance">
-        {formatCurrency(summary.balance)}
+        <BankAmountCell value={summary.balance} />
       </td>
 
       <td className="bank-action-cell">

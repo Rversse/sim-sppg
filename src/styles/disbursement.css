@@ -6,8 +6,11 @@
 
 .disbursement-page {
   display: grid;
+  width: 100%;
+  max-width: none;
+  margin: 0;
   gap: 16px;
-  padding: 0 2px 20px;
+  padding: 0 0 20px;
 }
 
 /* =========================================================
@@ -212,7 +215,7 @@
    ========================================================= */
 
 .disbursement-panel {
-  padding: 15px;
+  padding: 20px;
   border: 1px solid var(--app-border-strong);
   border-radius: 17px;
   box-shadow: var(--app-shadow-card);

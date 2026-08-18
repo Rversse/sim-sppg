@@ -174,38 +174,3 @@ input:disabled,
 textarea:disabled {
   cursor: not-allowed;
 }
-
-/* =========================================================
-   REDUCED MOTION
-   Deliberately kept global; this is accessibility policy,
-   not page-specific styling.
-   ========================================================= */
-
-@media (max-width: 760px) {
-  :root {
-    --app-control-height: 40px;
-    --app-table-cell-y: 10px;
-    --app-table-cell-x: 11px;
-    --app-panel-padding: 16px;
-    --app-section-gap: 16px;
-  }
-
-  body {
-    font-size: 13px;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  html {
-    scroll-behavior: auto;
-  }
-
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
-  }
-}
