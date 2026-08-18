@@ -353,7 +353,7 @@
 
 .dashboard-main-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1.55fr) minmax(340px, 0.82fr);
+  grid-template-columns: minmax(340px, 0.8fr) minmax(0, 1.55fr);
   align-items: start;
   gap: 18px;
 }
@@ -368,9 +368,11 @@
 }
 
 .dashboard-status-panel {
-  max-width: 620px;
   width: 100%;
-  justify-self: end;
+  max-width: none;
+  min-height: 0;
+  height: fit-content;
+  justify-self: stretch;
 }
 
 .dashboard-panel-header {
@@ -403,106 +405,6 @@
   color: #64748b;
   font-size: 9px;
   font-weight: 800;
-}
-
-.dashboard-chart {
-  display: flex;
-  height: 255px;
-  align-items: stretch;
-  gap: 8px;
-  margin-top: 24px;
-  padding: 12px 4px 0;
-  border-bottom: 1px solid #e2e8f0;
-}
-
-.dashboard-chart-column {
-  display: flex;
-  min-width: 24px;
-  flex: 1 1 0;
-  flex-direction: column;
-  justify-content: flex-end;
-  align-items: center;
-  gap: 8px;
-  overflow: hidden;
-}
-
-.dashboard-bars {
-  display: flex;
-  width: min(48px, 78%);
-  height: 205px;
-  align-items: flex-end;
-  gap: 3px;
-}
-
-.dashboard-bar {
-  min-height: 4px;
-  flex: 1 1 0;
-  border-radius: 5px 5px 2px 2px;
-  transition:
-    height 250ms ease,
-    opacity 150ms ease;
-}
-
-.dashboard-bar:hover {
-  opacity: 0.8;
-}
-
-.dashboard-bar-income {
-  background: var(--app-primary);
-}
-
-.dashboard-bar-expense {
-  background: var(--app-accent);
-}
-
-.dashboard-bar-operational {
-  background: var(--app-text-subtle);
-}
-
-.dashboard-chart-column small {
-  display: block;
-  max-width: 100%;
-  overflow: hidden;
-  color: #94a3b8;
-  font-size: 8px;
-  line-height: 1;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.dashboard-legend {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 14px;
-  margin-top: 13px;
-}
-
-.dashboard-legend span {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  color: #64748b;
-  font-size: 9px;
-  font-weight: 700;
-}
-
-.dashboard-dot {
-  width: 7px;
-  height: 7px;
-  flex: 0 0 7px;
-  border-radius: 50%;
-}
-
-.dashboard-dot-income {
-  background: var(--app-primary);
-}
-
-.dashboard-dot-expense {
-  background: var(--app-accent);
-}
-
-.dashboard-dot-operational {
-  background: var(--app-text-subtle);
 }
 
 .dashboard-status-summary {
@@ -548,9 +450,7 @@
 }
 
 .dashboard-status-list {
-  max-height: 225px;
-  overflow: auto;
-  scrollbar-width: thin;
+  overflow: visible;
 }
 
 .dashboard-status-row {
@@ -621,6 +521,7 @@
   width: 100%;
   max-width: none;
   margin: 0;
+  min-height: 0;
   overflow: hidden;
 }
 
@@ -1343,28 +1244,6 @@
     border-radius: 13px;
   }
 
-  .dashboard-chart {
-    height: 205px;
-    gap: 4px;
-    margin-top: 18px;
-    padding-right: 0;
-    padding-left: 0;
-  }
-
-  .dashboard-bars {
-    width: min(38px, 82%);
-    height: 165px;
-    gap: 2px;
-  }
-
-  .dashboard-chart-column {
-    min-width: 18px;
-  }
-
-  .dashboard-chart-column small {
-    font-size: 7px;
-  }
-
   .dashboard-status-summary {
     gap: 5px;
   }
@@ -1402,10 +1281,6 @@
 
   .dashboard-transaction-modal-actions > button {
     flex: 1;
-  }
-
-  .dashboard-legend {
-    gap: 10px;
   }
 }
 

@@ -4,12 +4,10 @@ import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/features/auth/use-auth'
 import {
   getActiveKitchens,
-  getDashboardActivity,
   getDashboardSummary,
   getDashboardTransactionPage,
   getDailyStatus,
   getSupplierOptions,
-  type DashboardActivity,
   type DashboardFilters,
   type DashboardKitchen,
   type DashboardSummary,
@@ -180,7 +178,6 @@ export function DashboardPage() {
   const [transactions, setTransactions] = useState<DashboardTransaction[]>([])
   const [totalTransactions, setTotalTransactions] = useState(0)
   const [transactionPage, setTransactionPage] = useState(1)
-  const [activity, setActivity] = useState<DashboardActivity[]>([])
   const [dailyStatus, setDailyStatus] = useState<StatusData | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -212,14 +209,12 @@ export function DashboardPage() {
   const loadDashboardData = useCallback(async () => {
     const [
       nextSummary,
-      nextActivity,
       nextStatus,
       nextKitchens,
       nextTransactions,
       nextSuppliers
     ] = await Promise.all([
       getDashboardSummary(filters),
-      getDashboardActivity(filters),
       getDailyStatus(filters.startDate),
       kitchens.length ? Promise.resolve(kitchens) : getActiveKitchens(),
       getDashboardTransactionPage(filters, transactionPage, 10),
@@ -228,7 +223,6 @@ export function DashboardPage() {
 
     return {
       summary: nextSummary,
-      activity: nextActivity,
       dailyStatus: nextStatus,
       kitchens: nextKitchens,
       transactions: nextTransactions,
@@ -241,7 +235,6 @@ export function DashboardPage() {
       setSummary(data.summary)
       setTransactions(data.transactions.data)
       setTotalTransactions(data.transactions.total)
-      setActivity(data.activity)
       setDailyStatus(data.dailyStatus)
       setKitchens(data.kitchens)
       setSupplierOptions(data.supplierOptions)
@@ -341,27 +334,6 @@ export function DashboardPage() {
   )
   const isSukarajaFormKitchen =
     selectedFormKitchen?.name?.includes('Sukaraja') ?? false
-
-  const chartData = activity.map(
-    (item) =>
-      [
-        item.date,
-        {
-          income: item.income,
-          expense: item.expense,
-          operational: item.operational
-        }
-      ] as const
-  )
-
-  const maxChartValue = Math.max(
-    1,
-    ...chartData.flatMap(([, values]) => [
-      values.income,
-      values.expense,
-      values.operational
-    ])
-  )
 
   function updateFilter<K extends keyof DashboardFilters>(
     key: K,
@@ -1135,123 +1107,10 @@ export function DashboardPage() {
       </section>
 
       <section className="dashboard-main-grid">
-        <article className="dashboard-panel dashboard-chart-panel">
+        <article className="dashboard-panel dashboard-status-panel dashboard-main-panel">
           <div className="dashboard-panel-header">
             <div>
-              <h3>
-                {filters.flowType === ''
-                  ? 'Aktivitas Transaksi'
-                  : filters.flowType === 'income'
-                    ? 'Aktivitas RAB'
-                    : filters.flowType === 'expense'
-                      ? 'Aktivitas Pembayaran Supplier'
-                      : 'Aktivitas Operasional'}
-              </h3>
-              <p>
-                {filters.flowType === ''
-                  ? 'Tren seluruh transaksi pada periode yang dipilih.'
-                  : filters.flowType === 'income'
-                    ? 'Tren pencairan dan RAB pada periode yang dipilih.'
-                    : filters.flowType === 'expense'
-                      ? 'Tren pembayaran supplier pada periode yang dipilih.'
-                      : 'Tren transaksi operasional pada periode yang dipilih.'}
-              </p>
-            </div>
-
-            <span className="dashboard-panel-badge">
-              {totalTransactions} transaksi
-            </span>
-          </div>
-
-          <div className="dashboard-chart">
-            {chartData.length ? (
-              chartData.map(([date, values]) => (
-                <div className="dashboard-chart-column" key={date}>
-                  <div className="dashboard-bars">
-                    {(filters.flowType === '' ||
-                      filters.flowType === 'income') && (
-                      <span
-                        className="dashboard-bar dashboard-bar-income"
-                        style={{
-                          height: `${Math.max(
-                            4,
-                            (values.income / maxChartValue) * 100
-                          )}%`
-                        }}
-                        title={`RAB ${formatCurrency(values.income)}`}
-                      />
-                    )}
-
-                    {(filters.flowType === '' ||
-                      filters.flowType === 'expense') && (
-                      <span
-                        className="dashboard-bar dashboard-bar-expense"
-                        style={{
-                          height: `${Math.max(
-                            4,
-                            (values.expense / maxChartValue) * 100
-                          )}%`
-                        }}
-                        title={`Supplier ${formatCurrency(values.expense)}`}
-                      />
-                    )}
-
-                    {(filters.flowType === '' ||
-                      filters.flowType === 'neutral') && (
-                      <span
-                        className="dashboard-bar dashboard-bar-operational"
-                        style={{
-                          height: `${Math.max(
-                            4,
-                            (values.operational / maxChartValue) * 100
-                          )}%`
-                        }}
-                        title={`Operasional ${formatCurrency(values.operational)}`}
-                      />
-                    )}
-                  </div>
-
-                  <small>
-                    {new Intl.DateTimeFormat('id-ID', {
-                      day: '2-digit',
-                      month: 'short'
-                    }).format(new Date(`${date}T00:00:00`))}
-                  </small>
-                </div>
-              ))
-            ) : (
-              <div className="dashboard-empty">
-                Belum ada transaksi pada periode ini.
-              </div>
-            )}
-          </div>
-
-          <div className="dashboard-legend">
-            {(filters.flowType === '' || filters.flowType === 'income') && (
-              <span>
-                <i className="dashboard-dot dashboard-dot-income" /> RAB
-              </span>
-            )}
-
-            {(filters.flowType === '' || filters.flowType === 'expense') && (
-              <span>
-                <i className="dashboard-dot dashboard-dot-expense" /> Supplier
-              </span>
-            )}
-
-            {(filters.flowType === '' || filters.flowType === 'neutral') && (
-              <span>
-                <i className="dashboard-dot dashboard-dot-operational" />{' '}
-                Operasional
-              </span>
-            )}
-          </div>
-        </article>
-
-        <article className="dashboard-panel dashboard-status-panel">
-          <div className="dashboard-panel-header">
-            <div>
-              <h2>Status Pencairan untuk {formatDate(filters.startDate)}</h2>
+              <h2>Status Pencairan</h2>
             </div>
           </div>
 
@@ -1295,180 +1154,180 @@ export function DashboardPage() {
             <div className="dashboard-empty">Memuat status dapur…</div>
           )}
         </article>
-      </section>
 
-      <section className="dashboard-panel dashboard-history-panel">
-        <div className="dashboard-panel-header">
-          <div>
-            <h2>Riwayat Transaksi</h2>
-            <p>
-              Menampilkan {transactions.length} dari {totalTransactions}{' '}
-              transaksi sesuai filter.
-            </p>
+        <section className="dashboard-panel dashboard-history-panel dashboard-main-panel">
+          <div className="dashboard-panel-header">
+            <div>
+              <h2>Riwayat Transaksi</h2>
+              <p>
+                Menampilkan {transactions.length} dari {totalTransactions}{' '}
+                transaksi sesuai filter.
+              </p>
+            </div>
+            <span className="dashboard-panel-badge">Live dari Database</span>
           </div>
-          <span className="dashboard-panel-badge">Live dari Database</span>
-        </div>
 
-        <div className="dashboard-history">
-          {transactions.length ? (
-            transactions.map((transaction) => {
-              const kitchen = kitchens.find(
-                (item) => item.id === transaction.kitchen_id
-              )
-              const meta = historyMeta[transaction.id]
+          <div className="dashboard-history">
+            {transactions.length ? (
+              transactions.map((transaction) => {
+                const kitchen = kitchens.find(
+                  (item) => item.id === transaction.kitchen_id
+                )
+                const meta = historyMeta[transaction.id]
 
-              return (
-                <div className="dashboard-history-row" key={transaction.id}>
-                  <div className="dashboard-history-main">
-                    <div className="dashboard-history-heading">
-                      <strong>
-                        {kitchen?.name ?? 'Dapur tidak diketahui'}
-                      </strong>
-                      <span className={flowClass(transaction.flow_type)}>
-                        {flowLabel(transaction.flow_type)}
-                      </span>
-                    </div>
-
-                    <div className="dashboard-history-party">
-                      <strong>
-                        {meta?.businessName ??
-                          transaction.category ??
-                          'Transaksi'}
-                      </strong>
-
-                      {meta?.ownerName ? (
-                        <>
-                          <i aria-hidden="true">•</i>
-                          <span>{meta.ownerName}</span>
-                        </>
-                      ) : null}
-
-                      {meta?.bankAccount ? (
-                        <>
-                          <i aria-hidden="true">•</i>
-                          <span>{meta.bankAccount}</span>
-                        </>
-                      ) : null}
-                    </div>
-
-                    <time
-                      className="dashboard-history-timestamp"
-                      dateTime={transaction.created_at}
-                    >
-                      {formatHistoryInputTimestamp(transaction.created_at)}
-                    </time>
-
-                    <div className="dashboard-history-divider" />
-
-                    <p className="dashboard-history-note">
-                      <span>Catatan:</span> {transaction.note?.trim() || '-'}
-                    </p>
-                  </div>
-                  <div className="dashboard-history-side">
-                    <strong className="dashboard-history-amount">
-                      {formatCurrency(Number(transaction.amount))}
-                    </strong>
-
-                    {user?.role === 'admin' ? (
-                      <div className="dashboard-history-actions">
-                        <button
-                          type="button"
-                          onClick={() =>
-                            void openEditTransactionModal(transaction)
-                          }
-                        >
-                          Edit
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() =>
-                            void handleTransactionDelete(transaction)
-                          }
-                        >
-                          Hapus
-                        </button>
+                return (
+                  <div className="dashboard-history-row" key={transaction.id}>
+                    <div className="dashboard-history-main">
+                      <div className="dashboard-history-heading">
+                        <strong>
+                          {kitchen?.name ?? 'Dapur tidak diketahui'}
+                        </strong>
+                        <span className={flowClass(transaction.flow_type)}>
+                          {flowLabel(transaction.flow_type)}
+                        </span>
                       </div>
-                    ) : null}
+
+                      <div className="dashboard-history-party">
+                        <strong>
+                          {meta?.businessName ??
+                            transaction.category ??
+                            'Transaksi'}
+                        </strong>
+
+                        {meta?.ownerName ? (
+                          <>
+                            <i aria-hidden="true">•</i>
+                            <span>{meta.ownerName}</span>
+                          </>
+                        ) : null}
+
+                        {meta?.bankAccount ? (
+                          <>
+                            <i aria-hidden="true">•</i>
+                            <span>{meta.bankAccount}</span>
+                          </>
+                        ) : null}
+                      </div>
+
+                      <time
+                        className="dashboard-history-timestamp"
+                        dateTime={transaction.created_at}
+                      >
+                        {formatHistoryInputTimestamp(transaction.created_at)}
+                      </time>
+
+                      <div className="dashboard-history-divider" />
+
+                      <p className="dashboard-history-note">
+                        <span>Catatan:</span> {transaction.note?.trim() || '-'}
+                      </p>
+                    </div>
+                    <div className="dashboard-history-side">
+                      <strong className="dashboard-history-amount">
+                        {formatCurrency(Number(transaction.amount))}
+                      </strong>
+
+                      {user?.role === 'admin' ? (
+                        <div className="dashboard-history-actions">
+                          <button
+                            type="button"
+                            onClick={() =>
+                              void openEditTransactionModal(transaction)
+                            }
+                          >
+                            Edit
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() =>
+                              void handleTransactionDelete(transaction)
+                            }
+                          >
+                            Hapus
+                          </button>
+                        </div>
+                      ) : null}
+                    </div>
                   </div>
-                </div>
-              )
-            })
-          ) : (
-            <div className="dashboard-empty">
-              Tidak ada transaksi yang cocok dengan filter.
-            </div>
-          )}
-        </div>
-
-        {totalTransactions > 0 ? (
-          <nav
-            className="dashboard-pagination"
-            aria-label="Pagination riwayat transaksi"
-          >
-            <span className="dashboard-pagination-summary">
-              Menampilkan {(transactionPage - 1) * 10 + 1}–
-              {Math.min(transactionPage * 10, totalTransactions)} dari{' '}
-              {totalTransactions}
-            </span>
-
-            <div className="dashboard-pagination-controls">
-              <button
-                type="button"
-                className="dashboard-pagination-button dashboard-pagination-nav"
-                disabled={transactionPage === 1 || loading}
-                onClick={() =>
-                  setTransactionPage((current) => Math.max(1, current - 1))
-                }
-                aria-label="Halaman sebelumnya"
-              >
-                ‹
-              </button>
-
-              <div className="dashboard-pagination-pages">
-                {transactionPaginationPages.map((page, index) =>
-                  page === 'ellipsis' ? (
-                    <span
-                      className="dashboard-pagination-ellipsis"
-                      key={`ellipsis-${index}`}
-                      aria-hidden="true"
-                    >
-                      …
-                    </span>
-                  ) : (
-                    <button
-                      key={page}
-                      type="button"
-                      className={`dashboard-pagination-page ${
-                        page === transactionPage ? 'is-active' : ''
-                      }`}
-                      aria-current={
-                        page === transactionPage ? 'page' : undefined
-                      }
-                      disabled={loading}
-                      onClick={() => setTransactionPage(page)}
-                    >
-                      {page}
-                    </button>
-                  )
-                )}
+                )
+              })
+            ) : (
+              <div className="dashboard-empty">
+                Tidak ada transaksi yang cocok dengan filter.
               </div>
+            )}
+          </div>
 
-              <button
-                type="button"
-                className="dashboard-pagination-button dashboard-pagination-nav"
-                disabled={transactionPage >= totalTransactionPages || loading}
-                onClick={() =>
-                  setTransactionPage((current) =>
-                    Math.min(totalTransactionPages, current + 1)
-                  )
-                }
-                aria-label="Halaman berikutnya"
-              >
-                ›
-              </button>
-            </div>
-          </nav>
-        ) : null}
+          {totalTransactions > 0 ? (
+            <nav
+              className="dashboard-pagination"
+              aria-label="Pagination riwayat transaksi"
+            >
+              <span className="dashboard-pagination-summary">
+                Menampilkan {(transactionPage - 1) * 10 + 1}–
+                {Math.min(transactionPage * 10, totalTransactions)} dari{' '}
+                {totalTransactions}
+              </span>
+
+              <div className="dashboard-pagination-controls">
+                <button
+                  type="button"
+                  className="dashboard-pagination-button dashboard-pagination-nav"
+                  disabled={transactionPage === 1 || loading}
+                  onClick={() =>
+                    setTransactionPage((current) => Math.max(1, current - 1))
+                  }
+                  aria-label="Halaman sebelumnya"
+                >
+                  ‹
+                </button>
+
+                <div className="dashboard-pagination-pages">
+                  {transactionPaginationPages.map((page, index) =>
+                    page === 'ellipsis' ? (
+                      <span
+                        className="dashboard-pagination-ellipsis"
+                        key={`ellipsis-${index}`}
+                        aria-hidden="true"
+                      >
+                        …
+                      </span>
+                    ) : (
+                      <button
+                        key={page}
+                        type="button"
+                        className={`dashboard-pagination-page ${
+                          page === transactionPage ? 'is-active' : ''
+                        }`}
+                        aria-current={
+                          page === transactionPage ? 'page' : undefined
+                        }
+                        disabled={loading}
+                        onClick={() => setTransactionPage(page)}
+                      >
+                        {page}
+                      </button>
+                    )
+                  )}
+                </div>
+
+                <button
+                  type="button"
+                  className="dashboard-pagination-button dashboard-pagination-nav"
+                  disabled={transactionPage >= totalTransactionPages || loading}
+                  onClick={() =>
+                    setTransactionPage((current) =>
+                      Math.min(totalTransactionPages, current + 1)
+                    )
+                  }
+                  aria-label="Halaman berikutnya"
+                >
+                  ›
+                </button>
+              </div>
+            </nav>
+          ) : null}
+        </section>
       </section>
 
       {modalOpen ? (
