@@ -273,6 +273,7 @@ export function KitchenPage() {
               <h2 id="kitchen-modal-title">
                 {editingId ? 'Edit Dapur' : 'Tambah Dapur'}
               </h2>
+
               <button
                 type="button"
                 className="app-action-button app-action-button--icon app-action-button--secondary"
@@ -287,7 +288,7 @@ export function KitchenPage() {
 
             <div className="kitchen-modal-body">
               <div className="kitchen-form-grid">
-                <div className="kitchen-field kitchen-full">
+                <div className="kitchen-field">
                   <label htmlFor="kitchen-name">Nama Dapur</label>
                   <input
                     id="kitchen-name"
@@ -329,8 +330,8 @@ export function KitchenPage() {
                   />
                 </div>
 
-                <div className="kitchen-field kitchen-full">
-                  <label htmlFor="kitchen-address">Alamat</label>
+                <div className="kitchen-field">
+                  <label htmlFor="kitchen-address">Alamat Dapur</label>
                   <input
                     id="kitchen-address"
                     value={form.address}
@@ -359,27 +360,28 @@ export function KitchenPage() {
                     <option value="false">Nonaktif</option>
                   </select>
                 </div>
-              </div>
 
-              <div className="kitchen-modal-actions">
-                <button
-                  type="button"
-                  className="app-action-button app-action-button--secondary"
-                  onClick={closeForm}
-                  disabled={saving}
-                >
-                  <X aria-hidden="true" />
-                  <span>Batal</span>
-                </button>
-                <button
-                  type="button"
-                  className="app-action-button"
-                  onClick={() => void save()}
-                  disabled={saving}
-                >
-                  <Save aria-hidden="true" />
-                  <span>{saving ? 'Menyimpan...' : 'Simpan'}</span>
-                </button>
+                <div className="kitchen-modal-actions">
+                  <button
+                    type="button"
+                    className="app-action-button app-action-button--secondary"
+                    onClick={closeForm}
+                    disabled={saving}
+                  >
+                    <X aria-hidden="true" />
+                    <span>Batal</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    className="app-action-button"
+                    onClick={() => void save()}
+                    disabled={saving}
+                  >
+                    <Save aria-hidden="true" />
+                    <span>{saving ? 'Menyimpan...' : 'Simpan'}</span>
+                  </button>
+                </div>
               </div>
             </div>
           </section>

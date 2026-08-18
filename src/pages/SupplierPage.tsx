@@ -418,7 +418,7 @@ export function SupplierPage() {
                       onClick={() => openAccountManager(supplier.id)}
                     >
                       <WalletCards aria-hidden="true" />
-                      <span>{supplier.accounts.length} Rek</span>
+                      <span>{supplier.accounts.length}</span>
                     </button>
                   </td>
 
@@ -554,7 +554,7 @@ export function SupplierPage() {
                   />
                 </div>
 
-                <div className="supplier-field supplier-full">
+                <div className="supplier-field">
                   <label htmlFor="supplier-address">Alamat</label>
                   <input
                     id="supplier-address"
