@@ -30,22 +30,29 @@ function validateKitchenInput(input: KitchenInput): string | null {
   return null
 }
 
+function toKitchenRecord(input: KitchenInput) {
+  return {
+    name: input.name.trim(),
+    pic: input.pic.trim() || null,
+    foundation: input.foundation.trim() || null,
+    address: input.address.trim() || null,
+    is_active: input.is_active
+  }
+}
+
 export async function createKitchen(
   input: KitchenInput,
   client = supabase
 ): Promise<Pick<Kitchen, 'id'>> {
   const validationError = validateKitchenInput(input)
-  if (validationError) throw new Error(validationError)
+
+  if (validationError) {
+    throw new Error(validationError)
+  }
 
   const { data, error } = await client
     .from('kitchens')
-    .insert({
-      name: input.name.trim(),
-      pic: input.pic.trim() || null,
-      foundation: input.foundation.trim() || null,
-      address: input.address.trim() || null,
-      is_active: input.is_active
-    })
+    .insert(toKitchenRecord(input))
     .select('id')
     .single()
 
@@ -61,17 +68,14 @@ export async function updateKitchen(
   if (!id) throw new Error('ID dapur tidak ditemukan.')
 
   const validationError = validateKitchenInput(input)
-  if (validationError) throw new Error(validationError)
+
+  if (validationError) {
+    throw new Error(validationError)
+  }
 
   const { error } = await client
     .from('kitchens')
-    .update({
-      name: input.name.trim(),
-      pic: input.pic.trim() || null,
-      foundation: input.foundation.trim() || null,
-      address: input.address.trim() || null,
-      is_active: input.is_active
-    })
+    .update(toKitchenRecord(input))
     .eq('id', id)
 
   if (error) throw error

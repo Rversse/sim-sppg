@@ -222,7 +222,7 @@ export function AppLayout() {
 
         <div className="app-sidebar-footer">
           <span className="app-online-dot" aria-hidden="true" />
-          <span>System online</span>
+          <span>Online</span>
         </div>
       </aside>
 
