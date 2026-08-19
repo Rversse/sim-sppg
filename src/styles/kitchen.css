@@ -79,8 +79,18 @@
 }
 
 .kitchen-count {
+  display: inline-flex;
+  min-height: 28px;
+  align-items: center;
+  flex: 0 0 auto;
+  padding: 0 8px;
+  border: 1px solid var(--app-border);
+  border-radius: 999px;
+  background: rgb(255 255 255 / 0.78);
+  box-shadow: 0 3px 10px rgb(15 23 42 / 0.025);
   color: var(--app-text-muted);
   font-size: 10px;
+  white-space: nowrap;
 }
 
 /* =========================================================
