@@ -216,29 +216,47 @@ export async function deleteSupplierAccount(
 
   if (!account) throw new Error('Rekening tidak ditemukan.')
 
-  const { count: mappingCount, error: mappingError } = await client
-    .from('kitchen_account_rules')
-    .select('*', { count: 'exact', head: true })
-    .eq('account_id', accountId)
+  const [mappingResult, transactionResult, bankTransferResult] =
+    await Promise.all([
+      client
+        .from('kitchen_account_rules')
+        .select('*', { count: 'exact', head: true })
+        .eq('account_id', accountId),
 
-  if (mappingError) throw mappingError
+      client
+        .from('transactions')
+        .select('*', { count: 'exact', head: true })
+        .eq('account_id', accountId),
 
-  if ((mappingCount ?? 0) > 0) {
+      client
+        .from('bank_transactions')
+        .select('*', { count: 'exact', head: true })
+        .or(`account_id.eq.${accountId},recipient_account_id.eq.${accountId}`)
+    ])
+
+  if (mappingResult.error) throw mappingResult.error
+  if (transactionResult.error) throw transactionResult.error
+  if (bankTransferResult.error) throw bankTransferResult.error
+
+  const mappingCount = mappingResult.count ?? 0
+  const transactionCount = transactionResult.count ?? 0
+  const bankTransferCount = bankTransferResult.count ?? 0
+
+  if (mappingCount > 0) {
     throw new Error(
       `Rekening masih dipakai oleh ${mappingCount} dapur. Hapus mapping terlebih dahulu.`
     )
   }
 
-  const { count: transactionCount, error: transactionError } = await client
-    .from('transactions')
-    .select('*', { count: 'exact', head: true })
-    .eq('account_id', accountId)
-
-  if (transactionError) throw transactionError
-
-  if ((transactionCount ?? 0) > 0) {
+  if (transactionCount > 0) {
     throw new Error(
       `Rekening tidak dapat dihapus karena sudah digunakan pada ${transactionCount} transaksi.`
+    )
+  }
+
+  if (bankTransferCount > 0) {
+    throw new Error(
+      `Rekening tidak dapat dihapus karena sudah digunakan pada ${bankTransferCount} transaksi bank.`
     )
   }
 

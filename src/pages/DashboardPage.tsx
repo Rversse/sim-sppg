@@ -817,6 +817,8 @@ export function DashboardPage() {
       if (modalMode === 'create') {
         const duplicate = await hasDuplicateTransaction(payload)
 
+        let allowDuplicate = false
+
         if (duplicate) {
           const confirmed = window.confirm(
             'Transaksi dengan tanggal, dapur, rekening/supplier, dan nominal yang sama sudah ada.\n\nTetap simpan?'
@@ -826,9 +828,11 @@ export function DashboardPage() {
             setSaving(false)
             return
           }
+
+          allowDuplicate = true
         }
 
-        await createTransaction(payload)
+        await createTransaction(payload, supabase, { allowDuplicate })
       } else {
         if (!editingId) {
           throw new Error('ID transaksi tidak ditemukan')

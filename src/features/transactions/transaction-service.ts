@@ -229,7 +229,8 @@ export async function hasDuplicateTransaction(
 
 export async function createTransaction(
   payload: TransactionPayload,
-  client: SupabaseClient = supabase
+  client: SupabaseClient = supabase,
+  options: { allowDuplicate?: boolean } = {}
 ) {
   const validationError = validateTransactionPayload(payload)
 
@@ -239,9 +240,13 @@ export async function createTransaction(
 
   const duplicate = await hasDuplicateTransaction(payload, client)
 
+  if (duplicate && !options.allowDuplicate) {
+    return { duplicate: true }
+  }
+
   return {
     duplicate,
-    ...(duplicate ? {} : await insertTransaction(payload, client))
+    ...(await insertTransaction(payload, client))
   }
 }
 
