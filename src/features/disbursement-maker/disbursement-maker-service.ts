@@ -489,6 +489,75 @@ export async function updateMakerStatus(
     throw new Error('Maker item tidak ditemukan')
   }
 
+  const { data: currentItem, error: fetchError } = await client
+    .from('disbursement_maker_items')
+    .select(
+      `
+      id,
+      kitchen_id,
+      transaction_date,
+      account_id,
+      amount,
+      flow_type,
+      status,
+      realized_transaction_id,
+      created_at,
+      updated_at
+    `
+    )
+    .eq('id', makerItemId)
+    .maybeSingle()
+
+  if (fetchError) {
+    throw fetchError
+  }
+
+  if (!currentItem) {
+    throw new Error('Maker item tidak ditemukan')
+  }
+
+  const currentStatus = currentItem.status as MakerStatus
+
+  if (
+    currentStatus !== 'READY' &&
+    currentStatus !== 'PROCESSED' &&
+    currentStatus !== 'REALIZED'
+  ) {
+    throw new Error(`Status Maker tidak valid: ${String(currentItem.status)}`)
+  }
+
+  if (currentStatus === 'REALIZED') {
+    throw new Error('Maker yang sudah direalisasikan tidak dapat diubah')
+  }
+
+  const allowedTransitions: Record<MakerStatus, MakerStatus[]> = {
+    READY: ['READY', 'PROCESSED'],
+    PROCESSED: ['PROCESSED', 'READY'],
+    REALIZED: ['REALIZED']
+  }
+
+  const allowedStatuses = allowedTransitions[currentStatus]
+
+  if (!allowedStatuses.includes(status)) {
+    throw new Error(
+      `Status ${currentStatus} tidak dapat diubah menjadi ${status}`
+    )
+  }
+
+  if (status === 'REALIZED') {
+    throw new Error(
+      'Status REALIZED hanya dapat ditetapkan melalui proses realisasi batch'
+    )
+  }
+
+  if (currentStatus === 'READY' && currentItem.realized_transaction_id) {
+    throw new Error('Maker READY tidak boleh memiliki transaksi realisasi')
+  }
+
+  if (currentStatus === 'PROCESSED' && currentItem.realized_transaction_id) {
+    throw new Error('Maker PROCESSED tidak boleh memiliki transaksi realisasi')
+  }
+
   const { data, error } = await client
     .from('disbursement_maker_items')
     .update({
