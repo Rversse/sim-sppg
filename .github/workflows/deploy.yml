@@ -53,6 +53,7 @@ jobs:
             "bank"
             "reports"
             "disbursement"
+            "disbursement-maker"
             "master/kitchen"
             "master/vehicle"
             "master/supplier"
