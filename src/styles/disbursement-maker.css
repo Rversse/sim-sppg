@@ -1,0 +1,693 @@
+/* =========================================================
+   DISBURSEMENT MAKER
+   ========================================================= */
+
+.maker-page {
+  width: 100%;
+  max-width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 0;
+}
+
+.maker-toolbar,
+.maker-form-panel,
+.maker-list-panel,
+.maker-realize-panel {
+  width: 100%;
+  background: #ffffff;
+  border: 1px solid #dbe3ee;
+  border-radius: 16px;
+  box-sizing: border-box;
+}
+
+.maker-toolbar {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 16px;
+}
+
+.maker-toolbar-fields {
+  min-width: 0;
+  flex: 1;
+  display: grid;
+  grid-template-columns:
+    minmax(180px, 0.8fr)
+    minmax(220px, 1fr)
+    minmax(180px, 0.8fr);
+  gap: 10px;
+}
+
+.maker-field {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.maker-field > span {
+  font-size: 10px;
+  font-weight: 800;
+  line-height: 1.2;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.maker-field input,
+.maker-field select {
+  width: 100%;
+  min-height: 40px;
+  box-sizing: border-box;
+  padding: 0 12px;
+  border: 1px solid #d7e0eb;
+  border-radius: 9px;
+  background: #ffffff;
+  color: #172033;
+  font: inherit;
+  font-size: 13px;
+  outline: none;
+  transition:
+    border-color 0.18s ease,
+    box-shadow 0.18s ease,
+    background-color 0.18s ease;
+}
+
+.maker-field input::placeholder {
+  color: #a3aec0;
+}
+
+.maker-field input:focus,
+.maker-field select:focus {
+  border-color: #9bb6d8;
+  box-shadow: 0 0 0 3px rgba(15, 23, 42, 0.05);
+}
+
+.maker-field input:disabled,
+.maker-field select:disabled {
+  cursor: not-allowed;
+  background: #f4f7fa;
+  color: #94a3b8;
+}
+
+.maker-form-panel {
+  padding: 18px;
+}
+
+.maker-form-heading,
+.maker-list-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.maker-form-heading h2,
+.maker-list-header h2,
+.maker-realize-panel h2 {
+  margin: 0;
+  color: #0f172a;
+  font-size: 17px;
+  line-height: 1.25;
+  font-weight: 800;
+}
+
+.maker-eyebrow {
+  display: block;
+  margin-bottom: 5px;
+  font-size: 10px;
+  font-weight: 800;
+  line-height: 1.2;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.maker-selected-account {
+  min-width: 220px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 3px;
+  text-align: right;
+}
+
+.maker-selected-account strong {
+  color: #172033;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.maker-selected-account span {
+  color: #64748b;
+  font-size: 11px;
+}
+
+.maker-form-grid {
+  margin-top: 15px;
+  display: grid;
+  grid-template-columns:
+    minmax(240px, 1.35fr)
+    minmax(180px, 0.8fr)
+    auto;
+  align-items: end;
+  gap: 10px;
+}
+
+.maker-field--wide {
+  min-width: 0;
+}
+
+.maker-form-actions {
+  display: flex;
+  align-items: flex-end;
+}
+
+.maker-form-actions .app-action-button {
+  min-width: 100px;
+}
+
+.maker-error {
+  margin-top: 12px;
+  padding: 10px 12px;
+  border: 1px solid #fecaca;
+  border-radius: 9px;
+  background: #fff5f5;
+  color: #b91c1c;
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.maker-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.maker-summary-card {
+  min-width: 0;
+  padding: 14px 16px;
+  border: 1px solid #dbe3ee;
+  border-radius: 13px;
+  background: #ffffff;
+  box-sizing: border-box;
+}
+
+.maker-summary-card span {
+  display: block;
+  margin-bottom: 7px;
+  color: #64748b;
+  font-size: 10px;
+  font-weight: 800;
+  line-height: 1.2;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.maker-summary-card strong {
+  display: block;
+  overflow: hidden;
+  color: #0f172a;
+  font-size: 18px;
+  font-weight: 800;
+  line-height: 1.2;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.maker-summary-card--amount {
+  background: #f7fbff;
+  border-color: #cfe0f5;
+}
+
+.maker-summary-card--ready {
+  background: #fffcf0;
+  border-color: #f3df9b;
+}
+
+.maker-summary-card--processed {
+  background: #f3fcf6;
+  border-color: #c6e8d0;
+}
+
+.maker-list-panel {
+  padding: 18px;
+}
+
+.maker-list-header {
+  padding-bottom: 14px;
+  border-bottom: 1px solid #e8edf3;
+}
+
+.maker-list-meta {
+  flex-shrink: 0;
+  padding: 6px 9px;
+  border: 1px solid #dbe3ee;
+  border-radius: 8px;
+  background: #f8fafc;
+  color: #475569;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.maker-empty {
+  padding: 34px 16px;
+  text-align: center;
+  color: #94a3b8;
+  font-size: 13px;
+}
+
+.maker-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  padding-top: 12px;
+}
+
+.maker-item-card {
+  min-width: 0;
+  padding: 14px;
+  border: 1px solid #e1e7ef;
+  border-radius: 13px;
+  background: #ffffff;
+  box-sizing: border-box;
+}
+
+.maker-item-top {
+  display: grid;
+  grid-template-columns: 30px minmax(0, 1fr);
+  gap: 10px;
+  align-items: flex-start;
+}
+
+.maker-item-index {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #dbe3ee;
+  border-radius: 8px;
+  background: #f8fafc;
+  color: #475569;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.maker-item-heading {
+  min-width: 0;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.maker-item-heading > div {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.maker-item-heading strong {
+  overflow: hidden;
+  color: #172033;
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 1.35;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.maker-item-heading div span {
+  color: #64748b;
+  font-size: 11px;
+  line-height: 1.35;
+}
+
+.maker-status {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  min-height: 25px;
+  padding: 0 8px;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.maker-status-ready {
+  border-color: #fde68a;
+  background: #fffbeb;
+  color: #a16207;
+}
+
+.maker-status-processed {
+  border-color: #bbf7d0;
+  background: #f0fdf4;
+  color: #15803d;
+}
+
+.maker-status-realized {
+  border-color: #bfdbfe;
+  background: #eff6ff;
+  color: #1d4ed8;
+}
+
+.maker-item-meta {
+  margin-top: 8px;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  color: #475569;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.maker-item-meta span:first-child {
+  color: #2563eb;
+}
+
+.maker-copy-grid {
+  margin-top: 11px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.maker-copy-box {
+  min-width: 0;
+  position: relative;
+  padding: 10px 42px 10px 11px;
+  border: 1px solid #e1e7ef;
+  border-radius: 9px;
+  background: #f8fafc;
+  box-sizing: border-box;
+}
+
+.maker-copy-box > span {
+  display: block;
+  margin-bottom: 5px;
+  color: #94a3b8;
+  font-size: 9px;
+  font-weight: 800;
+  line-height: 1.2;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.maker-copy-box strong {
+  display: block;
+  overflow: hidden;
+  color: #172033;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.45;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.maker-copy-box button {
+  position: absolute;
+  top: 50%;
+  right: 8px;
+  width: 28px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transform: translateY(-50%);
+  border: 1px solid #d7e0eb;
+  border-radius: 7px;
+  background: #ffffff;
+  color: #334155;
+  cursor: pointer;
+  transition:
+    border-color 0.18s ease,
+    background-color 0.18s ease,
+    transform 0.18s ease;
+}
+
+.maker-copy-box button:hover {
+  border-color: #b8c5d5;
+  background: #f8fafc;
+}
+
+.maker-copy-box button:active {
+  transform: translateY(-50%) scale(0.97);
+}
+
+.maker-copy-box button svg {
+  width: 14px;
+  height: 14px;
+}
+
+.maker-copy-box button span {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.maker-item-actions {
+  margin-top: 10px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.maker-item-button {
+  min-height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 0 10px;
+  border-radius: 8px;
+  font-size: 10px;
+  font-weight: 800;
+  cursor: pointer;
+  transition:
+    transform 0.16s ease,
+    border-color 0.16s ease,
+    background-color 0.16s ease;
+}
+
+.maker-item-button svg {
+  width: 13px;
+  height: 13px;
+}
+
+.maker-item-button:hover {
+  transform: translateY(-1px);
+}
+
+.maker-item-button--primary {
+  border: 1px solid #0f172a;
+  background: #0f172a;
+  color: #ffffff;
+}
+
+.maker-item-button--secondary {
+  border: 1px solid #d7e0eb;
+  background: #ffffff;
+  color: #334155;
+}
+
+.maker-realize-panel {
+  padding: 18px;
+}
+
+.maker-realize-panel > div:first-child p {
+  margin: 7px 0 0;
+  max-width: 700px;
+  color: #64748b;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.maker-realize-summary {
+  margin-top: 15px;
+  padding-top: 14px;
+  border-top: 1px solid #e8edf3;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 20px;
+}
+
+.maker-realize-summary > div {
+  min-width: 130px;
+}
+
+.maker-realize-summary > div span {
+  display: block;
+  margin-bottom: 4px;
+  color: #64748b;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.maker-realize-summary > div strong {
+  color: #172033;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.maker-realize-summary .app-action-button {
+  min-width: 132px;
+  justify-content: center;
+}
+
+.maker-page .app-action-button {
+  min-height: 38px;
+}
+
+.maker-page .app-action-button svg {
+  width: 15px;
+  height: 15px;
+}
+
+.maker-item-button--success {
+  border: 1px solid #16a34a;
+  background: #16a34a;
+  color: #ffffff;
+}
+
+.maker-item-button--success:hover {
+  background: #15803d;
+  border-color: #15803d;
+}
+
+.maker-item-button--danger {
+  border: 1px solid #fecaca;
+  background: #ffffff;
+  color: #dc2626;
+}
+
+.maker-item-button--danger:hover {
+  background: #fff5f5;
+  border-color: #fca5a5;
+}
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 1100px) {
+  .maker-toolbar {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .maker-toolbar-fields {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .maker-toolbar > .app-action-button {
+    align-self: flex-start;
+  }
+
+  .maker-summary-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 900px) {
+  .maker-list {
+    grid-template-columns: 1fr;
+  }
+
+  .maker-form-grid {
+    grid-template-columns:
+      minmax(0, 1fr)
+      minmax(170px, 0.75fr);
+  }
+
+  .maker-form-actions {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 760px) {
+  .maker-toolbar-fields {
+    grid-template-columns: 1fr;
+  }
+
+  .maker-form-heading,
+  .maker-list-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .maker-selected-account {
+    width: 100%;
+    align-items: flex-start;
+    text-align: left;
+  }
+
+  .maker-form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .maker-form-actions {
+    grid-column: auto;
+  }
+
+  .maker-copy-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .maker-item-heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .maker-realize-summary {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .maker-realize-summary > div {
+    min-width: 0;
+  }
+
+  .maker-realize-summary .app-action-button {
+    width: 100%;
+  }
+}
+
+@media (max-width: 520px) {
+  .maker-page {
+    gap: 12px;
+  }
+
+  .maker-toolbar,
+  .maker-form-panel,
+  .maker-list-panel,
+  .maker-realize-panel {
+    border-radius: 13px;
+    padding: 14px;
+  }
+
+  .maker-summary-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .maker-summary-card strong {
+    font-size: 17px;
+  }
+
+  .maker-item-card {
+    padding: 13px;
+  }
+}

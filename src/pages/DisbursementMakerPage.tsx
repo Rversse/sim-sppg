@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState, type KeyboardEvent } from 'react'
 import { Check, Copy, Plus, RefreshCw, Trash2 } from 'lucide-react'
 
 import { useAuth } from '@/features/auth/use-auth'
@@ -6,10 +6,12 @@ import { useToast } from '@/features/ui/toast-context'
 import {
   buildMakerDescription,
   createMakerItem,
+  deleteMakerItem,
   getActiveMakerKitchens,
   getMakerAccountOptions,
   getMakerItems,
   normalizeMakerAmount,
+  realizeMakerItems,
   updateMakerStatus
 } from '@/features/disbursement-maker/disbursement-maker-service'
 import type {
@@ -23,7 +25,7 @@ import { getTodayLocal } from '@/lib/formatters'
 type MakerFormState = {
   transactionDate: string
   kitchenId: string
-  flowType: MakerFlow
+  flowType: MakerFlow | ''
   accountId: string
   amount: string
 }
@@ -31,7 +33,7 @@ type MakerFormState = {
 const DEFAULT_FORM: MakerFormState = {
   transactionDate: getTodayLocal(),
   kitchenId: '',
-  flowType: 'income',
+  flowType: '',
   accountId: '',
   amount: ''
 }
@@ -86,6 +88,7 @@ export function DisbursementMakerPage() {
 
   const [kitchens, setKitchens] = useState<MakerKitchen[]>([])
   const [accounts, setAccounts] = useState<MakerAccountOption[]>([])
+  const [itemAccounts, setItemAccounts] = useState<MakerAccountOption[]>([])
   const [items, setItems] = useState<MakerItem[]>([])
 
   const [form, setForm] = useState<MakerFormState>(DEFAULT_FORM)
@@ -96,6 +99,9 @@ export function DisbursementMakerPage() {
   const [saving, setSaving] = useState(false)
 
   const [errorMessage, setErrorMessage] = useState('')
+
+  const accountSelectRef = useRef<HTMLSelectElement | null>(null)
+  const amountInputRef = useRef<HTMLInputElement | null>(null)
 
   const selectedAccount = useMemo(
     () =>
@@ -147,6 +153,11 @@ export function DisbursementMakerPage() {
     filteredItems.length > 0 &&
     filteredItems.every((item) => item.status === 'PROCESSED')
 
+  const dateAndKitchenReady =
+    Boolean(form.transactionDate) && Boolean(form.kitchenId)
+
+  const flowReady = dateAndKitchenReady && Boolean(form.flowType)
+
   useEffect(() => {
     let cancelled = false
 
@@ -157,17 +168,6 @@ export function DisbursementMakerPage() {
         }
 
         setKitchens(data)
-
-        setForm((current) => {
-          if (current.kitchenId || data.length === 0) {
-            return current
-          }
-
-          return {
-            ...current,
-            kitchenId: data[0].id
-          }
-        })
       })
       .catch((error) => {
         if (cancelled) {
@@ -189,21 +189,22 @@ export function DisbursementMakerPage() {
   }, [])
 
   useEffect(() => {
-    if (!form.kitchenId) {
+    if (!dateAndKitchenReady || !form.flowType) {
       return
     }
 
+    const selectedFlow: MakerFlow = form.flowType
     let cancelled = false
 
     void Promise.resolve()
       .then(() => {
         if (cancelled) {
-          return
+          return null
         }
 
         setLoadingAccounts(true)
 
-        return getMakerAccountOptions(form.kitchenId, form.flowType)
+        return getMakerAccountOptions(form.kitchenId, selectedFlow)
       })
       .then((data) => {
         if (cancelled || !data) {
@@ -211,19 +212,6 @@ export function DisbursementMakerPage() {
         }
 
         setAccounts(data)
-
-        setForm((current) => {
-          const stillValid = data.some(
-            (account) => account.accountId === current.accountId
-          )
-
-          return {
-            ...current,
-            accountId: stillValid
-              ? current.accountId
-              : (data[0]?.accountId ?? '')
-          }
-        })
       })
       .catch((error) => {
         if (cancelled) {
@@ -243,7 +231,7 @@ export function DisbursementMakerPage() {
     return () => {
       cancelled = true
     }
-  }, [form.kitchenId, form.flowType])
+  }, [form.kitchenId, form.flowType, dateAndKitchenReady])
 
   useEffect(() => {
     if (!form.transactionDate || !form.kitchenId) {
@@ -253,24 +241,36 @@ export function DisbursementMakerPage() {
     let cancelled = false
 
     void Promise.resolve()
-      .then(() => {
+      .then(async () => {
         if (cancelled) {
-          return
+          return null
         }
 
         setLoadingItems(true)
 
-        return getMakerItems({
-          transactionDate: form.transactionDate,
-          kitchenId: form.kitchenId
-        })
+        const [makerItems, incomeAccounts, neutralAccounts] = await Promise.all(
+          [
+            getMakerItems({
+              transactionDate: form.transactionDate,
+              kitchenId: form.kitchenId
+            }),
+            getMakerAccountOptions(form.kitchenId, 'income'),
+            getMakerAccountOptions(form.kitchenId, 'neutral')
+          ]
+        )
+
+        return {
+          makerItems,
+          accountOptions: [...incomeAccounts, ...neutralAccounts]
+        }
       })
-      .then((data) => {
-        if (cancelled || !data) {
+      .then((result) => {
+        if (cancelled || !result) {
           return
         }
 
-        setItems(data)
+        setItems(result.makerItems)
+        setItemAccounts(result.accountOptions)
         setErrorMessage('')
       })
       .catch((error) => {
@@ -279,6 +279,8 @@ export function DisbursementMakerPage() {
         }
 
         console.error(error)
+        setItems([])
+        setItemAccounts([])
         setErrorMessage('Gagal memuat data Maker.')
       })
       .finally(() => {
@@ -292,19 +294,68 @@ export function DisbursementMakerPage() {
     }
   }, [form.transactionDate, form.kitchenId])
 
-  function updateField<Key extends keyof MakerFormState>(
-    key: Key,
-    value: MakerFormState[Key]
-  ) {
+  function updateField(key: keyof MakerFormState, value: string | MakerFlow) {
     setErrorMessage('')
 
-    setForm((current) => ({
-      ...current,
-      [key]: value
-    }))
-
-    if (key === 'kitchenId' || key === 'flowType') {
+    if (key === 'transactionDate') {
       setAccounts([])
+
+      setForm((current) => ({
+        ...current,
+        transactionDate: value as string,
+        flowType: '',
+        accountId: '',
+        amount: ''
+      }))
+
+      return
+    }
+
+    if (key === 'kitchenId') {
+      setAccounts([])
+
+      setForm((current) => ({
+        ...current,
+        kitchenId: value as string,
+        flowType: '',
+        accountId: '',
+        amount: ''
+      }))
+
+      return
+    }
+
+    if (key === 'flowType') {
+      setAccounts([])
+
+      setForm((current) => ({
+        ...current,
+        flowType: value as MakerFlow,
+        accountId: '',
+        amount: ''
+      }))
+
+      return
+    }
+
+    if (key === 'accountId') {
+      setForm((current) => ({
+        ...current,
+        accountId: value as string
+      }))
+
+      window.setTimeout(() => {
+        amountInputRef.current?.focus()
+      }, 0)
+
+      return
+    }
+
+    if (key === 'amount') {
+      setForm((current) => ({
+        ...current,
+        amount: value as string
+      }))
     }
   }
 
@@ -316,15 +367,21 @@ export function DisbursementMakerPage() {
     setLoadingItems(true)
 
     try {
-      const data = await getMakerItems({
-        transactionDate: form.transactionDate,
-        kitchenId: form.kitchenId
-      })
+      const [makerItems, incomeAccounts, neutralAccounts] = await Promise.all([
+        getMakerItems({
+          transactionDate: form.transactionDate,
+          kitchenId: form.kitchenId
+        }),
+        getMakerAccountOptions(form.kitchenId, 'income'),
+        getMakerAccountOptions(form.kitchenId, 'neutral')
+      ])
 
-      setItems(data)
+      setItems(makerItems)
+      setItemAccounts([...incomeAccounts, ...neutralAccounts])
       setErrorMessage('')
     } catch (error) {
       console.error(error)
+
       setErrorMessage('Gagal memuat data Maker.')
     } finally {
       setLoadingItems(false)
@@ -343,6 +400,11 @@ export function DisbursementMakerPage() {
 
     if (!form.kitchenId) {
       setErrorMessage('Dapur wajib dipilih.')
+      return
+    }
+
+    if (!form.flowType) {
+      setErrorMessage('Jenis pencairan wajib dipilih.')
       return
     }
 
@@ -382,18 +444,44 @@ export function DisbursementMakerPage() {
 
       setForm((current) => ({
         ...current,
+        accountId: '',
         amount: ''
       }))
 
       await reloadItems()
+
+      window.setTimeout(() => {
+        accountSelectRef.current?.focus()
+      }, 0)
     } catch (error) {
       console.error(error)
+
       setErrorMessage(
         error instanceof Error ? error.message : 'Gagal membuat item Maker.'
       )
     } finally {
       setSaving(false)
     }
+  }
+
+  async function handleAmountKeyDown(event: KeyboardEvent<HTMLInputElement>) {
+    if (event.key !== 'Enter') {
+      return
+    }
+
+    event.preventDefault()
+
+    if (
+      !form.accountId ||
+      !form.amount ||
+      saving ||
+      !form.flowType ||
+      !dateAndKitchenReady
+    ) {
+      return
+    }
+
+    await addMakerItem()
   }
 
   async function setProcessed(item: MakerItem) {
@@ -404,10 +492,7 @@ export function DisbursementMakerPage() {
     try {
       await updateMakerStatus(item.id, 'PROCESSED', undefined, user?.id)
 
-      success(
-        'Pencairan ditandai selesai',
-        'Item berhasil ditandai sudah diproses.'
-      )
+      success('Pencairan selesai', 'Item berhasil ditandai sudah diproses.')
 
       await reloadItems()
     } catch (error) {
@@ -437,6 +522,85 @@ export function DisbursementMakerPage() {
       toastError(
         'Gagal mengubah status',
         error instanceof Error ? error.message : 'Status Maker gagal diubah.'
+      )
+    }
+  }
+
+  async function deleteMaker(item: MakerItem) {
+    if (item.status === 'REALIZED') {
+      return
+    }
+
+    const confirmed = window.confirm(
+      `Hapus pencairan ${getFlowLabel(item.flowType)} sebesar ${formatCurrency(
+        item.amount
+      )}?`
+    )
+
+    if (!confirmed) {
+      return
+    }
+
+    try {
+      await deleteMakerItem(item.id)
+
+      success('Pencairan dihapus', 'Item Maker berhasil dihapus.')
+
+      await reloadItems()
+    } catch (error) {
+      console.error(error)
+
+      toastError(
+        'Gagal menghapus',
+        error instanceof Error ? error.message : 'Item Maker gagal dihapus.'
+      )
+    }
+  }
+
+  async function realizeItems() {
+    if (!user?.id || !form.transactionDate || !form.kitchenId) {
+      return
+    }
+
+    if (!canRealize) {
+      toastError(
+        'Belum bisa direalisasikan',
+        'Semua pencairan harus sudah selesai diproses.'
+      )
+      return
+    }
+
+    const confirmed = window.confirm(
+      `Realisasikan ${filteredItems.length} pencairan untuk ${
+        selectedKitchenName
+      } tanggal ${form.transactionDate}?`
+    )
+
+    if (!confirmed) {
+      return
+    }
+
+    try {
+      const realizedItems = await realizeMakerItems(
+        form.transactionDate,
+        form.kitchenId,
+        user.id
+      )
+
+      success(
+        'Pencairan direalisasikan',
+        `${realizedItems.length} pencairan berhasil dimasukkan ke transaksi.`
+      )
+
+      await reloadItems()
+    } catch (error) {
+      console.error(error)
+
+      toastError(
+        'Realisasi gagal',
+        error instanceof Error
+          ? error.message
+          : 'Pencairan gagal direalisasikan.'
       )
     }
   }
@@ -474,12 +638,19 @@ export function DisbursementMakerPage() {
     kitchens.find((kitchen) => kitchen.id === form.kitchenId)?.name ??
     'Pilih dapur'
 
+  function getItemAccount(accountId: string) {
+    return (
+      itemAccounts.find((account) => account.accountId === accountId) ?? null
+    )
+  }
+
   return (
     <div className="maker-page">
       <section className="maker-toolbar">
         <div className="maker-toolbar-fields">
           <label className="maker-field">
             <span>Tanggal</span>
+
             <input
               type="date"
               value={form.transactionDate}
@@ -491,6 +662,7 @@ export function DisbursementMakerPage() {
 
           <label className="maker-field">
             <span>Dapur</span>
+
             <select
               value={form.kitchenId}
               onChange={(event) => updateField('kitchenId', event.target.value)}
@@ -510,13 +682,22 @@ export function DisbursementMakerPage() {
 
           <label className="maker-field">
             <span>Jenis Pencairan</span>
+
             <select
               value={form.flowType}
               onChange={(event) =>
-                updateField('flowType', event.target.value as MakerFlow)
+                updateField('flowType', event.target.value as MakerFlow | '')
               }
+              disabled={!dateAndKitchenReady}
             >
+              <option value="">
+                {dateAndKitchenReady
+                  ? 'Pilih jenis pencairan'
+                  : 'Pilih tanggal dan dapur terlebih dahulu'}
+              </option>
+
               <option value="income">RAB</option>
+
               <option value="neutral">Gas</option>
             </select>
           </label>
@@ -535,14 +716,12 @@ export function DisbursementMakerPage() {
 
       <section className="maker-form-panel">
         <div className="maker-form-heading">
-          <div>
-            <span className="maker-eyebrow">Maker Pencairan</span>
-            <h2>Tambah pencairan</h2>
-          </div>
+          <h2>Tambah pencairan</h2>
 
           {selectedAccount ? (
             <div className="maker-selected-account">
               <strong>{selectedAccount.accountName}</strong>
+
               <span>
                 {selectedAccount.bank} • {selectedAccount.accountNumber}
               </span>
@@ -555,14 +734,17 @@ export function DisbursementMakerPage() {
             <span>Rekening Tujuan</span>
 
             <select
+              ref={accountSelectRef}
               value={form.accountId}
               onChange={(event) => updateField('accountId', event.target.value)}
-              disabled={loadingAccounts || !form.kitchenId}
+              disabled={!flowReady || loadingAccounts}
             >
               <option value="">
-                {loadingAccounts
-                  ? 'Memuat rekening...'
-                  : 'Pilih rekening tujuan'}
+                {!flowReady
+                  ? 'Pilih jenis pencairan terlebih dahulu'
+                  : loadingAccounts
+                    ? 'Memuat rekening...'
+                    : 'Pilih rekening tujuan'}
               </option>
 
               {accounts.map((account) => (
@@ -576,12 +758,16 @@ export function DisbursementMakerPage() {
 
           <label className="maker-field">
             <span>Nominal</span>
+
             <input
+              ref={amountInputRef}
               type="text"
               inputMode="numeric"
               placeholder="Contoh: 2.315.000"
               value={form.amount}
               onChange={(event) => updateField('amount', event.target.value)}
+              onKeyDown={handleAmountKeyDown}
+              disabled={!form.accountId}
             />
           </label>
 
@@ -606,22 +792,22 @@ export function DisbursementMakerPage() {
       </section>
 
       <section className="maker-summary-grid">
-        <div className="maker-summary-card">
+        <div className="maker-summary-card maker-summary-card--total">
           <span>Total Pencairan</span>
           <strong>{filteredItems.length}</strong>
         </div>
 
-        <div className="maker-summary-card">
+        <div className="maker-summary-card maker-summary-card--amount">
           <span>Total Nominal</span>
           <strong>{formatCurrency(totals.total)}</strong>
         </div>
 
-        <div className="maker-summary-card">
+        <div className="maker-summary-card maker-summary-card--ready">
           <span>Siap Diproses</span>
           <strong>{formatCurrency(totals.ready)}</strong>
         </div>
 
-        <div className="maker-summary-card">
+        <div className="maker-summary-card maker-summary-card--processed">
           <span>Sudah Diproses</span>
           <strong>{formatCurrency(totals.processed)}</strong>
         </div>
@@ -631,6 +817,7 @@ export function DisbursementMakerPage() {
         <div className="maker-list-header">
           <div>
             <span className="maker-eyebrow">Daftar Pencairan</span>
+
             <h2>{selectedKitchenName}</h2>
           </div>
 
@@ -651,16 +838,13 @@ export function DisbursementMakerPage() {
                 item.flowType
               )
 
-              const account =
-                accounts.find(
-                  (candidate) => candidate.accountId === item.accountId
-                ) ?? null
+              const account = getItemAccount(item.accountId)
 
               return (
                 <article className="maker-item-card" key={item.id}>
-                  <div className="maker-item-index">{index + 1}</div>
+                  <div className="maker-item-top">
+                    <div className="maker-item-index">{index + 1}</div>
 
-                  <div className="maker-item-main">
                     <div className="maker-item-heading">
                       <div>
                         <strong>
@@ -677,79 +861,82 @@ export function DisbursementMakerPage() {
                         {getStatusLabel(item.status)}
                       </span>
                     </div>
-
-                    <div className="maker-item-meta">
-                      <span>{getFlowLabel(item.flowType)}</span>
-                      <span>•</span>
-                      <span>{formatCurrency(item.amount)}</span>
-                    </div>
-
-                    <div className="maker-copy-grid">
-                      <div className="maker-copy-box">
-                        <span>Nominal Bank</span>
-                        <strong>{item.amount}</strong>
-
-                        <button
-                          type="button"
-                          onClick={() => void handleCopyNominal(item)}
-                        >
-                          <Copy aria-hidden="true" />
-                          <span>Copy</span>
-                        </button>
-                      </div>
-
-                      <div className="maker-copy-box">
-                        <span>Keterangan</span>
-                        <strong>{description}</strong>
-
-                        <button
-                          type="button"
-                          onClick={() => void handleCopyDescription(item)}
-                        >
-                          <Copy aria-hidden="true" />
-                          <span>Copy</span>
-                        </button>
-                      </div>
-                    </div>
-
-                    {item.status !== 'REALIZED' ? (
-                      <div className="maker-item-actions">
-                        {item.status === 'READY' ? (
-                          <button
-                            type="button"
-                            className="app-action-button"
-                            onClick={() => void setProcessed(item)}
-                          >
-                            <Check aria-hidden="true" />
-                            <span>Sudah Diproses</span>
-                          </button>
-                        ) : (
-                          <button
-                            type="button"
-                            className="app-action-button app-action-button--secondary"
-                            onClick={() => void setReady(item)}
-                          >
-                            <RefreshCw aria-hidden="true" />
-                            <span>Kembalikan</span>
-                          </button>
-                        )}
-
-                        <button
-                          type="button"
-                          className="app-action-button app-action-button--danger"
-                          onClick={() =>
-                            toastError(
-                              'Belum tersedia',
-                              'Penghapusan Maker kita aktifkan setelah flow realisasi selesai.'
-                            )
-                          }
-                        >
-                          <Trash2 aria-hidden="true" />
-                          <span>Hapus</span>
-                        </button>
-                      </div>
-                    ) : null}
                   </div>
+
+                  <div className="maker-item-meta">
+                    <span>{getFlowLabel(item.flowType)}</span>
+
+                    <span>•</span>
+
+                    <span>{formatCurrency(item.amount)}</span>
+                  </div>
+
+                  <div className="maker-copy-grid">
+                    <div className="maker-copy-box">
+                      <span>Nominal Bank</span>
+
+                      <strong>{item.amount}</strong>
+
+                      <button
+                        type="button"
+                        onClick={() => void handleCopyNominal(item)}
+                        aria-label="Copy nominal"
+                        title="Copy nominal"
+                      >
+                        <Copy aria-hidden="true" />
+                      </button>
+                    </div>
+
+                    <div className="maker-copy-box">
+                      <span>Keterangan</span>
+
+                      <strong>{description}</strong>
+
+                      <button
+                        type="button"
+                        onClick={() => void handleCopyDescription(item)}
+                        aria-label="Copy keterangan"
+                        title="Copy keterangan"
+                      >
+                        <Copy aria-hidden="true" />
+                      </button>
+                    </div>
+                  </div>
+
+                  {item.status !== 'REALIZED' ? (
+                    <div className="maker-item-actions">
+                      {item.status === 'READY' ? (
+                        <button
+                          type="button"
+                          className="maker-item-button maker-item-button--success"
+                          onClick={() => void setProcessed(item)}
+                        >
+                          <Check aria-hidden="true" />
+                          <span>Selesai</span>
+                        </button>
+                      ) : (
+                        <button
+                          type="button"
+                          className="maker-item-button maker-item-button--secondary"
+                          onClick={() => void setReady(item)}
+                        >
+                          <RefreshCw aria-hidden="true" />
+                          <span>Buka lagi</span>
+                        </button>
+                      )}
+
+                      <button
+                        type="button"
+                        className="maker-item-button maker-item-button--danger"
+                        onClick={() => void deleteMaker(item)}
+                        aria-label="Hapus pencairan"
+                        title="Hapus pencairan"
+                      >
+                        <Trash2 aria-hidden="true" />
+                        <span>Hapus</span>
+                      </button>
+                    </div>
+                  ) : null}
                 </article>
               )
             })}
@@ -760,7 +947,9 @@ export function DisbursementMakerPage() {
       <section className="maker-realize-panel">
         <div>
           <span className="maker-eyebrow">Realisasi</span>
+
           <h2>Review pencairan</h2>
+
           <p>
             Semua item harus berstatus sudah diproses sebelum bisa
             direalisasikan ke transaksi resmi.
@@ -770,11 +959,13 @@ export function DisbursementMakerPage() {
         <div className="maker-realize-summary">
           <div>
             <span>Total</span>
+
             <strong>{formatCurrency(totals.total)}</strong>
           </div>
 
           <div>
             <span>Sudah diproses</span>
+
             <strong>{formatCurrency(totals.processed)}</strong>
           </div>
 
@@ -782,12 +973,7 @@ export function DisbursementMakerPage() {
             type="button"
             className="app-action-button"
             disabled={!canRealize}
-            onClick={() => {
-              toastError(
-                'Belum tersedia',
-                'Fungsi realisasi akan kita sambungkan setelah validasi batch selesai.'
-              )
-            }}
+            onClick={() => void realizeItems()}
           >
             <Check aria-hidden="true" />
             <span>Realisasikan</span>

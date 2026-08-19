@@ -530,3 +530,68 @@ export async function updateMakerStatus(
     updatedAt: data.updated_at
   }
 }
+
+export async function deleteMakerItem(
+  makerItemId: string,
+  client: SupabaseClient = supabase
+): Promise<void> {
+  if (!makerItemId) {
+    throw new Error('Maker item tidak ditemukan')
+  }
+
+  const { data, error } = await client
+    .from('disbursement_maker_items')
+    .delete()
+    .eq('id', makerItemId)
+    .select('id')
+    .maybeSingle()
+
+  if (error) {
+    throw error
+  }
+
+  if (!data) {
+    throw new Error('Maker item tidak ditemukan atau sudah dihapus')
+  }
+}
+
+export async function realizeMakerItems(
+  transactionDate: string,
+  kitchenId: string,
+  userId: string,
+  client: SupabaseClient = supabase
+): Promise<
+  {
+    makerItemId: string
+    transactionId: string
+  }[]
+> {
+  if (!transactionDate) {
+    throw new Error('Tanggal wajib diisi')
+  }
+
+  if (!kitchenId) {
+    throw new Error('Dapur wajib dipilih')
+  }
+
+  if (!userId) {
+    throw new Error('User tidak ditemukan')
+  }
+
+  const { data, error } = await client.rpc('realize_disbursement_maker', {
+    p_transaction_date: transactionDate,
+    p_kitchen_id: kitchenId,
+    p_user_id: userId
+  })
+
+  if (error) {
+    throw error
+  }
+
+  return (data ?? []).map(
+    (item: { maker_item_id: string; transaction_id: string }) => ({
+      makerItemId: item.maker_item_id,
+      transactionId: item.transaction_id
+    })
+  )
+}
