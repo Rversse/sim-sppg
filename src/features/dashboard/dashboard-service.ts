@@ -48,6 +48,17 @@ const SUPPLIER_NAMES = [
   'Babinsa'
 ] as const
 
+const OPERATIONAL_EXCLUDED_KITCHENS = ['Sukaraja', 'Cihaur'] as const
+
+function isOperationalExcludedKitchen(
+  name: string | null | undefined
+): boolean {
+  return (
+    name === OPERATIONAL_EXCLUDED_KITCHENS[0] ||
+    name === OPERATIONAL_EXCLUDED_KITCHENS[1]
+  )
+}
+
 export async function getDashboardSummary(
   filters: DashboardFilters,
   client: SupabaseClient = supabase
@@ -333,7 +344,7 @@ export async function getDailyStatus(
     const income = flows.includes('income')
     const expense = flows.includes('expense')
     const operational = flows.includes('neutral')
-    const needsOperational = !['Sukaraja', 'Cihaur'].includes(kitchen.name)
+    const needsOperational = !isOperationalExcludedKitchen(kitchen.name)
     const required = needsOperational ? 3 : 2
     const completed =
       Number(income) + Number(expense) + Number(needsOperational && operational)
