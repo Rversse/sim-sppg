@@ -152,9 +152,16 @@ export function normalizeMakerAmount(value: string | number): number {
   return amount
 }
 
-export function buildMakerDescription(transactionDate: string): string {
+export function buildMakerDescription(
+  transactionDate: string,
+  flowType: MakerFlow
+): string {
   if (!transactionDate) {
     throw new Error('Tanggal wajib diisi')
+  }
+
+  if (flowType !== 'income' && flowType !== 'neutral') {
+    throw new Error('Jenis pencairan tidak valid')
   }
 
   const [year, month, day] = transactionDate.split('-')
@@ -163,7 +170,10 @@ export function buildMakerDescription(transactionDate: string): string {
     throw new Error('Format tanggal tidak valid')
   }
 
-  return `Belanja Bahan Baku, ${day}-${month}-${year}`
+  const description =
+    flowType === 'income' ? 'Belanja Bahan Baku' : 'Pembayaran Gas'
+
+  return `${description}, ${day}-${month}-${year}`
 }
 
 export async function validateMakerAccount(
