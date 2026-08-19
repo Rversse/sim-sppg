@@ -149,9 +149,13 @@ export function DisbursementMakerPage() {
     [filteredItems]
   )
 
+  const pendingItems = filteredItems.filter(
+    (item) => item.status !== 'REALIZED'
+  )
+
   const canRealize =
-    filteredItems.length > 0 &&
-    filteredItems.every((item) => item.status === 'PROCESSED')
+    pendingItems.length > 0 &&
+    pendingItems.every((item) => item.status === 'PROCESSED')
 
   const dateAndKitchenReady =
     Boolean(form.transactionDate) && Boolean(form.kitchenId)
@@ -571,7 +575,7 @@ export function DisbursementMakerPage() {
     }
 
     const confirmed = window.confirm(
-      `Realisasikan ${filteredItems.length} pencairan untuk ${
+      `Realisasikan ${pendingItems.length} pencairan untuk ${
         selectedKitchenName
       } tanggal ${form.transactionDate}?`
     )
