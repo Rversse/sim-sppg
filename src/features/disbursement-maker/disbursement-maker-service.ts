@@ -6,6 +6,11 @@ export type MakerFlow = 'income' | 'neutral'
 
 export type MakerStatus = 'READY' | 'PROCESSED' | 'REALIZED'
 
+export type MakerKitchen = {
+  id: string
+  name: string
+}
+
 export type MakerAccountOption = {
   accountId: string
   accountName: string
@@ -66,6 +71,76 @@ type KitchenAccountRuleRow = {
     | null
 }
 
+type AccountRow = {
+  id: string
+  name: string
+  bank: string
+  account_number: string
+  income_suppliers:
+    | {
+        business_name: string | null
+        owner_name: string | null
+      }
+    | {
+        business_name: string | null
+        owner_name: string | null
+      }[]
+    | null
+}
+
+function mapAccountOption(account: AccountRow): MakerAccountOption {
+  const supplier = Array.isArray(account.income_suppliers)
+    ? (account.income_suppliers[0] ?? null)
+    : account.income_suppliers
+
+  return {
+    accountId: account.id,
+    accountName: account.name,
+    bank: account.bank,
+    accountNumber: account.account_number,
+    supplierName: supplier?.business_name ?? null,
+    supplierOwnerName: supplier?.owner_name ?? null
+  }
+}
+
+export async function getActiveMakerKitchens(
+  client: SupabaseClient = supabase
+): Promise<MakerKitchen[]> {
+  const { data, error } = await client
+    .from('kitchens')
+    .select('id,name')
+    .eq('is_active', true)
+    .order('name')
+
+  if (error) {
+    throw error
+  }
+
+  return (data ?? []) as MakerKitchen[]
+}
+
+export async function validateMakerKitchen(
+  kitchenId: string,
+  client: SupabaseClient = supabase
+): Promise<boolean> {
+  if (!kitchenId) {
+    return false
+  }
+
+  const { data, error } = await client
+    .from('kitchens')
+    .select('id')
+    .eq('id', kitchenId)
+    .eq('is_active', true)
+    .maybeSingle()
+
+  if (error) {
+    throw error
+  }
+
+  return Boolean(data)
+}
+
 export async function getMakerAccountOptions(
   kitchenId: string,
   flowType: MakerFlow,
@@ -73,6 +148,39 @@ export async function getMakerAccountOptions(
 ): Promise<MakerAccountOption[]> {
   if (!kitchenId) {
     return []
+  }
+
+  const validKitchen = await validateMakerKitchen(kitchenId, client)
+
+  if (!validKitchen) {
+    return []
+  }
+
+  if (flowType === 'neutral') {
+    const { data, error } = await client
+      .from('accounts')
+      .select(
+        `
+        id,
+        name,
+        bank,
+        account_number,
+        income_suppliers!accounts_supplier_id_fkey(
+          business_name,
+          owner_name
+        )
+      `
+      )
+      .eq('name', 'ARUTALA')
+      .eq('bank', 'BNI')
+      .eq('account_number', '1985322260')
+      .maybeSingle()
+
+    if (error) {
+      throw error
+    }
+
+    return data ? [mapAccountOption(data as unknown as AccountRow)] : []
   }
 
   const { data, error } = await client
@@ -93,7 +201,7 @@ export async function getMakerAccountOptions(
     `
     )
     .eq('kitchen_id', kitchenId)
-    .eq('flow_type', flowType)
+    .eq('flow_type', 'income')
     .order('account_id')
 
   if (error) {
@@ -112,18 +220,7 @@ export async function getMakerAccountOptions(
         return null
       }
 
-      const supplier = Array.isArray(account.income_suppliers)
-        ? (account.income_suppliers[0] ?? null)
-        : account.income_suppliers
-
-      return {
-        accountId: account.id,
-        accountName: account.name,
-        bank: account.bank,
-        accountNumber: account.account_number,
-        supplierName: supplier?.business_name ?? null,
-        supplierOwnerName: supplier?.owner_name ?? null
-      }
+      return mapAccountOption(account)
     })
     .filter((account): account is MakerAccountOption => account !== null)
 }
@@ -134,7 +231,13 @@ export function normalizeMakerAmount(value: string | number): number {
       throw new Error('Nominal tidak valid')
     }
 
-    return Math.trunc(value)
+    const amount = Math.trunc(value)
+
+    if (!Number.isSafeInteger(amount)) {
+      throw new Error('Nominal terlalu besar')
+    }
+
+    return amount
   }
 
   const normalized = value.replace(/\D/g, '')
@@ -186,11 +289,34 @@ export async function validateMakerAccount(
     return false
   }
 
+  const validKitchen = await validateMakerKitchen(kitchenId, client)
+
+  if (!validKitchen) {
+    return false
+  }
+
+  if (flowType === 'neutral') {
+    const { data, error } = await client
+      .from('accounts')
+      .select('id')
+      .eq('id', accountId)
+      .eq('name', 'ARUTALA')
+      .eq('bank', 'BNI')
+      .eq('account_number', '1985322260')
+      .maybeSingle()
+
+    if (error) {
+      throw error
+    }
+
+    return Boolean(data)
+  }
+
   const { data, error } = await client
     .from('kitchen_account_rules')
     .select('account_id')
     .eq('kitchen_id', kitchenId)
-    .eq('flow_type', flowType)
+    .eq('flow_type', 'income')
     .eq('account_id', accountId)
     .maybeSingle()
 
@@ -303,7 +429,7 @@ export async function createMakerItem(
     createdBy?: string | null
   },
   client: SupabaseClient = supabase
-) {
+): Promise<MakerItem> {
   const amount = normalizeMakerAmount(input.amount)
 
   const validationError = validateMakerItem({
@@ -374,7 +500,7 @@ export async function createMakerItem(
     realizedTransactionId: data.realized_transaction_id,
     createdAt: data.created_at,
     updatedAt: data.updated_at
-  } satisfies MakerItem
+  }
 }
 
 export async function updateMakerStatus(
@@ -382,7 +508,7 @@ export async function updateMakerStatus(
   status: MakerStatus,
   client: SupabaseClient = supabase,
   updatedBy?: string | null
-) {
+): Promise<MakerItem> {
   if (!makerItemId) {
     throw new Error('Maker item tidak ditemukan')
   }
@@ -426,5 +552,5 @@ export async function updateMakerStatus(
     realizedTransactionId: data.realized_transaction_id,
     createdAt: data.created_at,
     updatedAt: data.updated_at
-  } satisfies MakerItem
+  }
 }
