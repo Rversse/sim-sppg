@@ -13,45 +13,40 @@
 
 .dashboard-hero-actions {
   display: flex;
-  align-items: flex-end;
+  align-items: center;
   justify-content: flex-end;
   gap: 10px;
 }
 
 .dashboard-date-chip {
-  min-width: 170px;
+  display: inline-flex;
+  width: fit-content;
+  min-width: 0;
   height: 34px;
   min-height: 34px;
-  display: inline-flex;
   align-items: center;
+  justify-content: center;
+  gap: 7px;
   padding: 0 10px;
   border: 1px solid #e2e8f0;
   border-radius: 8px;
   background: var(--app-white);
   box-shadow: 0 5px 20px rgb(15 23 42 / 0.04);
-  white-space: nowrap;
-}
-.dashboard-date-chip {
+  color: #0b132b;
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1;
   white-space: nowrap;
 }
 
 .dashboard-date-chip span,
 .dashboard-date-chip strong {
   display: inline;
+  margin: 0;
+  color: inherit;
+  font: inherit;
+  line-height: inherit;
   white-space: nowrap;
-}
-
-.dashboard-date-chip span {
-  margin-right: 7px;
-  color: #94a3b8;
-  font-size: 9px;
-  font-weight: 800;
-  text-transform: uppercase;
-}
-
-.dashboard-date-chip strong {
-  color: #0b132b;
-  font-size: 12px;
 }
 
 /* =========================================================

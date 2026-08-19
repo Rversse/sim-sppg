@@ -50,40 +50,30 @@
   gap: 10px;
 }
 
-.vehicle-input,
+.vehicle-input {
+  flex: 1;
+}
+
 .vehicle-select {
-  min-height: 42px;
+  min-height: var(--app-control-height);
   padding: 0 11px;
   border: 1px solid var(--app-border-strong);
-  border-radius: 9px;
+  border-radius: var(--app-control-radius);
   background: var(--app-white);
   color: var(--read-text);
   box-shadow: 0 3px 12px rgb(15 23 42 / 0.025);
   font-size: 13px;
   outline: none;
-  transition:
-    border-color var(--app-motion-fast) ease,
-    box-shadow var(--app-motion-fast) ease,
-    transform var(--app-motion-fast) var(--app-ease);
 }
 
-.vehicle-input {
-  flex: 1;
-}
-
-.vehicle-input:hover,
 .vehicle-select:hover {
-  transform: translateY(-1px);
+  border-color: var(--app-border-mid);
 }
 
-.vehicle-input:focus,
 .vehicle-select:focus {
   border-color: var(--app-accent);
   box-shadow: var(--app-focus-ring);
-}
-
-.vehicle-input::placeholder {
-  color: #9aa7b8;
+  outline: none;
 }
 
 .vehicle-control-grow {

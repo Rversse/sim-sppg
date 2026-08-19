@@ -303,9 +303,9 @@
     > .app-action-button:not(.app-action-button--secondary),
   .vehicle-actions > .app-action-button:not(.app-action-button--secondary)
 ) {
-  border-color: var(--app-accent);
-  background: var(--app-accent);
-  color: var(--app-primary);
+  border-color: var(--app-action-primary-border);
+  background: var(--app-action-primary-bg);
+  color: var(--app-action-primary-text);
   box-shadow: 0 7px 20px rgb(57 255 136 / 0.12);
 }
 

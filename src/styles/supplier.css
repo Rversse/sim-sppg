@@ -50,36 +50,6 @@
   gap: 10px;
 }
 
-.supplier-input {
-  min-height: 42px;
-  flex: 1;
-  padding: 0 11px;
-  border: 1px solid var(--app-border-strong);
-  border-radius: 9px;
-  background: var(--app-white);
-  color: var(--read-text);
-  box-shadow: 0 3px 12px rgb(15 23 42 / 0.025);
-  font-size: 13px;
-  transition:
-    border-color var(--app-motion-fast) ease,
-    box-shadow var(--app-motion-fast) ease,
-    transform var(--app-motion-fast) var(--app-ease);
-}
-
-.supplier-input:hover {
-  transform: translateY(-1px);
-}
-
-.supplier-input:focus {
-  border-color: var(--app-accent);
-  box-shadow: var(--app-focus-ring);
-  outline: none;
-}
-
-.supplier-input::placeholder {
-  color: #9aa7b8;
-}
-
 .supplier-control-grow {
   flex: 1;
 }

@@ -931,7 +931,7 @@ export function DashboardPage() {
       <section className="dashboard-hero">
         <div className="dashboard-hero-actions">
           <div className="dashboard-date-chip">
-            <span>Periode</span>
+            <span>Periode : </span>
             <strong>
               {formatDate(filters.startDate)}
               {filters.endDate !== filters.startDate
