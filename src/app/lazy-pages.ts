@@ -28,6 +28,10 @@ export const lazyPages = {
     () => import('@/pages/DashboardPage'),
     'DashboardPage'
   ),
+  DisbursementMakerPage: lazyNamed(
+    () => import('@/pages/DisbursementMakerPage'),
+    'DisbursementMakerPage'
+  ),
   KitchenPage: lazyNamed(() => import('@/pages/KitchenPage'), 'KitchenPage'),
   VehiclePage: lazyNamed(() => import('@/pages/VehiclePage'), 'VehiclePage'),
   SupplierPage: lazyNamed(() => import('@/pages/SupplierPage'), 'SupplierPage'),

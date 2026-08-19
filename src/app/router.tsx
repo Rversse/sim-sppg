@@ -21,6 +21,7 @@ const {
   BankPage,
   ReportsPage,
   DisbursementPage,
+  DisbursementMakerPage,
   DefaultRoute
 } = lazyPages
 
@@ -69,6 +70,15 @@ export const router = createBrowserRouter(
                 {
                   path: 'dashboard',
                   element: pageElement(DashboardPage)
+                }
+              ]
+            },
+            {
+              element: <RoleRoute permission="disbursement-maker.view" />,
+              children: [
+                {
+                  path: 'disbursement-maker',
+                  element: pageElement(DisbursementMakerPage)
                 }
               ]
             },

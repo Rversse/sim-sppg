@@ -10,6 +10,7 @@ import {
   LogOut,
   Menu,
   Wallet,
+  WandSparkles,
   type LucideIcon
 } from 'lucide-react'
 
@@ -43,6 +44,13 @@ const navigationSections: NavigationSection[] = [
         permission: 'dashboard.view',
         icon: LayoutDashboard,
         pageTitle: 'Dashboard'
+      },
+      {
+        label: 'Pencairan Maker',
+        to: '/disbursement-maker',
+        permission: 'disbursement-maker.view',
+        icon: WandSparkles,
+        pageTitle: 'Pencairan Maker'
       }
     ]
   },

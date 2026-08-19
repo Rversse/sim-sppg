@@ -13,11 +13,13 @@ export type Permission =
   | 'bank.transaction.create'
   | 'disbursement.view'
   | 'reports.view'
+  | 'disbursement-maker.view'
 
 const permissions: Record<Permission, readonly UserRole[]> = {
   // Dashboard
   'dashboard.view': ['admin', 'operator'],
   'dashboard.transaction.create': ['admin'],
+  'disbursement-maker.view': ['admin'],
 
   // Master Data
   'kitchen.view': ['admin', 'operator'],
