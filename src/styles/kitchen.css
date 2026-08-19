@@ -39,18 +39,6 @@
   line-height: 1.45;
 }
 
-.kitchen-header > .app-action-button {
-  border-color: var(--app-accent);
-  background: var(--app-accent);
-  color: var(--app-primary);
-  box-shadow: 0 7px 20px rgb(57 255 136 / 0.12);
-}
-
-.kitchen-header > .app-action-button:hover:not(:disabled) {
-  border-color: #53ff99;
-  background: #53ff99;
-}
-
 .kitchen-toolbar {
   position: relative;
   display: flex;
@@ -307,19 +295,6 @@
   display: flex;
   justify-content: flex-end;
   gap: 8px;
-}
-
-.kitchen-modal-actions > .app-action-button:not(.app-action-button--secondary) {
-  border-color: var(--app-accent);
-  background: var(--app-accent);
-  color: var(--app-primary);
-  box-shadow: 0 7px 20px rgb(57 255 136 / 0.12);
-}
-
-.kitchen-modal-actions
-  > .app-action-button:not(.app-action-button--secondary):hover:not(:disabled) {
-  border-color: #53ff99;
-  background: #53ff99;
 }
 
 /* =========================================================

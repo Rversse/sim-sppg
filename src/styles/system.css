@@ -111,7 +111,8 @@ textarea:focus-visible {
 .kitchen-panel,
 .vehicle-panel,
 .supplier-panel,
-.disbursement-panel {
+.disbursement-panel,
+.bank-accounts-panel {
   padding: var(--app-panel-padding);
 }
 

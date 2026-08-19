@@ -287,6 +287,44 @@
 }
 
 /* =========================================================
+   SHARED ACCENT ACTION BUTTON
+   Primary "add" buttons across master-data/CRUD pages.
+   Consolidated here so hover/box-shadow stay in one place.
+   ========================================================= */
+
+:where(
+  .kitchen-header > .app-action-button,
+  .supplier-header > .app-action-button,
+  .vehicle-header > .app-action-button,
+  .dashboard-transaction-action,
+  .kitchen-modal-actions
+    > .app-action-button:not(.app-action-button--secondary),
+  .supplier-modal-actions
+    > .app-action-button:not(.app-action-button--secondary),
+  .vehicle-actions > .app-action-button:not(.app-action-button--secondary)
+) {
+  border-color: var(--app-accent);
+  background: var(--app-accent);
+  color: var(--app-primary);
+  box-shadow: 0 7px 20px rgb(57 255 136 / 0.12);
+}
+
+:where(
+    .kitchen-header > .app-action-button,
+    .supplier-header > .app-action-button,
+    .vehicle-header > .app-action-button,
+    .dashboard-transaction-action,
+    .kitchen-modal-actions
+      > .app-action-button:not(.app-action-button--secondary),
+    .supplier-modal-actions
+      > .app-action-button:not(.app-action-button--secondary),
+    .vehicle-actions > .app-action-button:not(.app-action-button--secondary)
+  ):hover:not(:disabled) {
+  border-color: #53ff99;
+  background: #53ff99;
+}
+
+/* =========================================================
    RESPONSIVE MODAL SHELL
    ========================================================= */
 

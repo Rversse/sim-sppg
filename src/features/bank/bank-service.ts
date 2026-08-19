@@ -873,6 +873,12 @@ export function validateBankTransactionPayload(
     return 'Tanggal wajib diisi.'
   }
 
+  const today = getBankReadEndDates().today
+
+  if (payload.transaction_date > today) {
+    return 'Tanggal transfer bank tidak boleh melebihi hari ini.'
+  }
+
   if (!payload.account_id) {
     return 'Pilih rekening pengirim.'
   }
@@ -947,7 +953,7 @@ export async function hasSufficientBalance(
   const incomingTransfers = await fetchAllRows(async (from, to) => {
     const { data, error } = await client
       .from('bank_transactions')
-      .select('transfer_amount')
+      .select('id,transfer_amount')
       .eq('recipient_account_id', accountId)
       .gte('transaction_date', BANK_MODULE_START_DATE)
       .lte('transaction_date', today)
@@ -985,10 +991,13 @@ export async function hasSufficientBalance(
     0
   )
 
-  const incoming = incomingTransfers.reduce(
-    (total, item) => total + (Number(item.transfer_amount) || 0),
-    0
-  )
+  const incoming = incomingTransfers.reduce((total, item) => {
+    if (editingTransactionId && item.id === editingTransactionId) {
+      return total
+    }
+
+    return total + (Number(item.transfer_amount) || 0)
+  }, 0)
 
   const outgoing = outgoingTransfers.reduce((total, item) => {
     if (editingTransactionId && item.id === editingTransactionId) {
