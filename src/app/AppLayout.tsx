@@ -184,10 +184,7 @@ export function AppLayout() {
     applyTheme(isDark)
 
     try {
-      window.localStorage.setItem(
-        THEME_STORAGE_KEY,
-        isDark ? 'dark' : 'light'
-      )
+      window.localStorage.setItem(THEME_STORAGE_KEY, isDark ? 'dark' : 'light')
     } catch {
       // Theme persistence is optional.
     }
@@ -211,9 +208,7 @@ export function AppLayout() {
     }))
     .filter((section) => section.items.length > 0)
 
-  const visibleNavigation = visibleSections.flatMap(
-    (section) => section.items
-  )
+  const visibleNavigation = visibleSections.flatMap((section) => section.items)
 
   const pageTitle = getPageTitle(pathname)
   const roleLabel = getRoleLabel(user?.role)
@@ -235,11 +230,7 @@ export function AppLayout() {
   }
 
   return (
-    <div
-      className={`app-shell${
-        sidebarCollapsed ? ' sidebar-collapsed' : ''
-      }`}
-    >
+    <div className={`app-shell${sidebarCollapsed ? ' sidebar-collapsed' : ''}`}>
       <aside className="app-sidebar">
         <div className="app-sidebar-theme">
           <button
@@ -252,13 +243,9 @@ export function AppLayout() {
             title={isDark ? 'Tema Dark' : 'Tema Light'}
           >
             <span className="app-theme-switch-track" aria-hidden="true">
-              <span className="app-theme-switch-icon">
-                <Sun />
+              <span className="app-theme-switch-thumb">
+                {isDark ? <Moon /> : <Sun />}
               </span>
-              <span className="app-theme-switch-icon">
-                <Moon />
-              </span>
-              <span className="app-theme-switch-thumb" />
             </span>
           </button>
         </div>
@@ -277,9 +264,7 @@ export function AppLayout() {
         <nav className="app-nav" aria-label="Navigasi utama">
           {visibleSections.map((section) => (
             <div className="app-nav-section" key={section.label}>
-              <span className="app-nav-section-label">
-                {section.label}
-              </span>
+              <span className="app-nav-section-label">{section.label}</span>
 
               <div className="app-nav-section-items">
                 {section.items.map((item) => {
@@ -296,9 +281,7 @@ export function AppLayout() {
                       <span className="app-nav-icon" aria-hidden="true">
                         <Icon />
                       </span>
-                      <span className="app-nav-label">
-                        {item.label}
-                      </span>
+                      <span className="app-nav-label">{item.label}</span>
                     </NavLink>
                   )
                 })}

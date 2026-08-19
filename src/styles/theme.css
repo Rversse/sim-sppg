@@ -193,7 +193,9 @@ html.theme-transitioning *::after {
 }
 
 /* =========================================================
-   THEME SWITCH — 60 × 30, FIXED GEOMETRY
+   SIDEBAR THEME SWITCH
+   Uiverse-inspired pill/slider treatment.
+   Existing React state/logic is preserved.
    ========================================================= */
 
 .app-sidebar-theme {
@@ -207,25 +209,33 @@ html.theme-transitioning *::after {
   position: relative;
   display: block;
   width: 60px !important;
-  height: 30px;
+  height: 32px;
   flex: 0 0 60px;
   padding: 0;
-  border: 1px solid rgb(255 255 255 / 0.1);
+  border: 1px solid rgb(255 255 255 / 0.12);
   border-radius: 999px;
-  background: rgb(255 255 255 / 0.055);
-  color: #94a3b8;
+  background: #212121;
+  color: #ffffff;
   cursor: pointer;
-  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.02);
+  overflow: hidden;
+  box-shadow:
+    inset 0 1px 2px rgb(0 0 0 / 0.22),
+    inset 0 -1px 1px rgb(255 255 255 / 0.03),
+    0 3px 10px rgb(0 0 0 / 0.16);
   transition:
     border-color var(--theme-motion-fast) ease,
     background-color var(--theme-motion-fast) ease,
-    transform var(--theme-motion-fast) var(--theme-ease);
+    transform var(--theme-motion-fast) var(--theme-ease),
+    box-shadow var(--theme-motion-fast) ease;
 }
 
 .app-theme-switch:hover {
-  border-color: rgb(255 255 255 / 0.17);
-  background: rgb(255 255 255 / 0.08);
+  border-color: rgb(255 255 255 / 0.22);
+  background: #252525;
   transform: translateY(-1px);
+  box-shadow:
+    inset 0 1px 2px rgb(0 0 0 / 0.24),
+    0 5px 14px rgb(0 0 0 / 0.2);
 }
 
 .app-theme-switch:active {
@@ -234,7 +244,9 @@ html.theme-transitioning *::after {
 
 .app-theme-switch:focus-visible {
   outline: none;
-  box-shadow: 0 0 0 3px rgb(59 130 246 / 0.26);
+  box-shadow:
+    0 0 0 3px rgb(59 130 246 / 0.28),
+    inset 0 1px 2px rgb(0 0 0 / 0.22);
 }
 
 .app-theme-switch-track {
@@ -243,87 +255,49 @@ html.theme-transitioning *::after {
   display: block;
 }
 
-.app-theme-switch-icon {
-  position: absolute;
-  top: 6px;
-  display: grid;
-  width: 16px;
-  height: 16px;
-  place-items: center;
-  color: #94a3b8;
-  pointer-events: none;
-  z-index: 1;
-}
-
-.app-theme-switch-icon:first-child {
-  left: 7px;
-}
-
-.app-theme-switch-icon:last-child {
-  right: 7px;
-}
-
-.app-theme-switch-icon svg {
-  width: 14px;
-  height: 14px;
-  stroke-width: 2;
-}
-
-/* Day / night identity: sun is warm, moon is cool. */
-.app-theme-switch-icon:first-child {
-  color: #f59e0b;
-}
-
-.app-theme-switch-icon:last-child {
-  color: #94a3b8;
-}
-
 .app-theme-switch-thumb {
   position: absolute;
   top: 2px;
   left: 2px;
   z-index: 2;
-  width: 24px;
-  height: 24px;
-  border-radius: 999px;
+  display: grid;
+  width: 26px;
+  height: 26px;
+  place-items: center;
+  border-radius: 50%;
   background: #ffffff;
+  color: #fbbf24;
   box-shadow:
-    0 2px 7px rgb(0 0 0 / 0.22),
-    inset 0 0 0 1px rgb(15 23 42 / 0.05);
+    0 2px 5px rgb(0 0 0 / 0.28),
+    inset 0 0 0 1px rgb(15 23 42 / 0.06);
   transform: translateX(0);
   transition:
-    transform 180ms var(--theme-ease),
-    background-color var(--theme-motion-fast) ease,
-    box-shadow var(--theme-motion-fast) ease;
+    transform 220ms var(--theme-ease),
+    background-color 180ms ease,
+    color 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.app-theme-switch-thumb svg {
+  width: 15px;
+  height: 15px;
+  stroke-width: 2.2;
+  filter: drop-shadow(0 0 4px rgb(251 191 36 / 0.22));
 }
 
 .app-theme-switch[data-dark='true'] .app-theme-switch-thumb {
-  transform: translateX(32px);
-  background: #1e293b;
+  transform: translateX(30px);
+  background: #172033;
+  color: #dbeafe;
   box-shadow:
-    0 2px 7px rgb(0 0 0 / 0.34),
+    0 2px 5px rgb(0 0 0 / 0.38),
     inset 0 0 0 1px rgb(255 255 255 / 0.08);
 }
 
-.app-theme-switch[data-dark='false'] .app-theme-switch-icon:first-child {
-  color: #fbbf24;
-  filter: drop-shadow(0 0 5px rgb(251 191 36 / 0.28));
+.app-theme-switch[data-dark='true'] .app-theme-switch-thumb svg {
+  filter: drop-shadow(0 0 4px rgb(203 213 225 / 0.16));
 }
 
-.app-theme-switch[data-dark='false'] .app-theme-switch-icon:last-child {
-  color: #64748b;
-}
-
-.app-theme-switch[data-dark='true'] .app-theme-switch-icon:first-child {
-  color: #64748b;
-}
-
-.app-theme-switch[data-dark='true'] .app-theme-switch-icon:last-child {
-  color: #cbd5e1;
-  filter: drop-shadow(0 0 5px rgb(203 213 225 / 0.16));
-}
-
-/* Keep the switch centered in the 78px collapsed rail; never shrink it. */
 .app-shell.sidebar-collapsed .app-sidebar-theme {
   justify-content: center;
   padding: 10px 9px 4px;
@@ -331,10 +305,11 @@ html.theme-transitioning *::after {
 
 .app-shell.sidebar-collapsed .app-theme-switch {
   width: 60px !important;
+  height: 32px;
   flex-basis: 60px;
 }
 
-/* Fix hidden-label geometry so collapsed nav icons stay centered. */
+/* Keep collapsed navigation icons mathematically centered. */
 .app-shell.sidebar-collapsed .app-nav-link {
   gap: 0;
 }
@@ -371,7 +346,8 @@ html.theme-transitioning *::after {
   transition:
     transform var(--theme-motion-fast) var(--theme-ease),
     border-color var(--theme-motion-fast) ease,
-    background-color var(--theme-motion-fast) ease;
+    background-color var(--theme-motion-fast) ease,
+    color var(--theme-motion-fast) ease;
 }
 
 .app-mobile-theme-switch:hover {
