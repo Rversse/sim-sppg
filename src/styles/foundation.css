@@ -141,13 +141,7 @@ textarea {
 
   overflow: hidden;
 
-  background:
-    radial-gradient(
-      circle at 14% 8%,
-      var(--theme-primary-soft),
-      transparent 26%
-    ),
-    var(--theme-sidebar-bg);
+  background: var(--theme-sidebar-bg);
   color: #fff;
 
   will-change: width, flex-basis;
@@ -605,23 +599,6 @@ textarea {
 }
 
 .app-mobile-nav {
-  display: none;
-}
-
-/* =========================================================
-   THEME SWITCH / COLLAPSED SIDEBAR
-   ========================================================= */
-
-.app-shell.sidebar-collapsed .app-sidebar-theme {
-  justify-content: center;
-  padding-inline: 10px;
-}
-
-.app-shell.sidebar-collapsed .app-theme-switch {
-  width: 42px;
-}
-
-.app-shell.sidebar-collapsed .app-theme-switch-label {
   display: none;
 }
 

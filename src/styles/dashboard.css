@@ -200,7 +200,7 @@
 .dashboard-kpi:hover {
   transform: translateY(-2px);
   border-color: var(--app-border-mid);
-  box-shadow: 0 14px 34px rgb(15 23 42 / 0.07);
+  box-shadow: var(--theme-shadow-hover);
 }
 
 .dashboard-kpi::after {
@@ -254,13 +254,13 @@
 }
 
 .dashboard-kpi-primary {
-  border-color: var(--theme-primary);
-  background: var(--theme-primary);
+  border-color: var(--theme-emphasis-border);
+  background: var(--theme-emphasis-surface);
   box-shadow: var(--theme-shadow-card);
 }
 
 .dashboard-kpi-primary:hover {
-  border-color: var(--theme-primary);
+  border-color: var(--theme-emphasis-border);
   box-shadow: var(--theme-shadow-hover);
 }
 
@@ -269,15 +269,15 @@
 }
 
 .dashboard-kpi-primary > span {
-  color: var(--theme-text-secondary);
+  color: var(--theme-emphasis-muted);
 }
 
 .dashboard-kpi-primary > small {
-  color: var(--theme-text-muted);
+  color: var(--theme-emphasis-muted);
 }
 
 .dashboard-kpi-primary > strong {
-  color: var(--theme-primary);
+  color: var(--theme-emphasis-value);
 }
 
 .dashboard-kpi-grid > .dashboard-kpi:nth-child(1) {
@@ -335,20 +335,30 @@
 }
 
 .dashboard-kpi-grid > .dashboard-kpi:nth-child(4) {
-  border-color: var(--theme-primary);
-  background: var(--theme-primary);
+  border-color: var(--theme-emphasis-border);
+  background: var(--theme-emphasis-surface);
+  box-shadow: var(--theme-shadow-card);
+}
+
+.dashboard-kpi-grid > .dashboard-kpi:nth-child(4):hover {
+  border-color: var(--theme-emphasis-border);
+  box-shadow: var(--theme-shadow-hover);
+}
+
+.dashboard-kpi-grid > .dashboard-kpi:nth-child(4)::after {
+  background: color-mix(in srgb, var(--theme-primary) 9%, transparent);
 }
 
 .dashboard-kpi-grid > .dashboard-kpi:nth-child(4) > span {
-  color: var(--theme-text-secondary);
+  color: var(--theme-emphasis-muted);
 }
 
 .dashboard-kpi-grid > .dashboard-kpi:nth-child(4) > strong {
-  color: var(--theme-primary);
+  color: var(--theme-emphasis-value);
 }
 
 .dashboard-kpi-grid > .dashboard-kpi:nth-child(4) > small {
-  color: var(--theme-text-muted);
+  color: var(--theme-emphasis-muted);
 }
 
 .dashboard-kpi-grid > .dashboard-kpi.is-selected {

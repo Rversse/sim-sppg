@@ -1,6 +1,7 @@
 /* =========================================================
    SIM SPPG — THEME SYSTEM
-   Light / Dark only. UI-only theme tokens and switch.
+   Light / Dark only.
+   UI-only theme tokens and theme switch.
    ========================================================= */
 
 :root,
@@ -13,11 +14,11 @@
   --theme-surface-raised: #ffffff;
 
   --theme-text-primary: #0f172a;
-  --theme-text-secondary: #64748b;
-  --theme-text-muted: #94a3b8;
+  --theme-text-secondary: #475569;
+  --theme-text-muted: #64748b;
 
-  --theme-border: #dce3ec;
-  --theme-border-strong: #cbd5e1;
+  --theme-border: #d8e0ea;
+  --theme-border-strong: #c5d0de;
 
   --theme-primary: #2563eb;
   --theme-primary-hover: #1d4ed8;
@@ -39,25 +40,25 @@
   --theme-focus-ring: 0 0 0 3px rgb(37 99 235 / 0.14);
 
   --theme-shadow-card:
-    0 1px 3px rgb(15 23 42 / 0.05), 0 1px 2px rgb(15 23 42 / 0.04);
+    0 1px 3px rgb(15 23 42 / 0.055), 0 1px 2px rgb(15 23 42 / 0.035);
 
   --theme-shadow-hover:
-    0 10px 26px rgb(15 23 42 / 0.08), 0 2px 6px rgb(15 23 42 / 0.04);
+    0 10px 26px rgb(15 23 42 / 0.09), 0 2px 6px rgb(15 23 42 / 0.04);
 
   --theme-shadow-modal:
     0 28px 80px rgb(15 23 42 / 0.18), 0 8px 24px rgb(15 23 42 / 0.08);
 
   --theme-sidebar-bg: #0f172a;
   --theme-sidebar-surface: #111827;
-  --theme-sidebar-text: #aeb9cb;
-  --theme-sidebar-text-muted: #7f8ca2;
+  --theme-sidebar-text: #d0d7e2;
+  --theme-sidebar-text-muted: #94a3b8;
   --theme-sidebar-text-active: #ffffff;
-  --theme-sidebar-hover: rgb(255 255 255 / 0.06);
+  --theme-sidebar-hover: rgb(255 255 255 / 0.055);
   --theme-sidebar-active: #2563eb;
-  --theme-sidebar-active-soft: rgb(37 99 235 / 0.13);
+  --theme-sidebar-active-soft: rgb(37 99 235 / 0.14);
 
-  --theme-header-bg: rgb(255 255 255 / 0.86);
-  --theme-header-shadow: 0 10px 28px rgb(15 23 42 / 0.025);
+  --theme-header-bg: rgb(255 255 255 / 0.9);
+  --theme-header-shadow: 0 10px 28px rgb(15 23 42 / 0.028);
   --theme-overlay: rgb(6 12 27 / 0.58);
 
   --theme-motion-fast: 150ms;
@@ -75,49 +76,49 @@
   --theme-surface-raised: #1b2434;
 
   --theme-text-primary: #f8fafc;
-  --theme-text-secondary: #94a3b8;
-  --theme-text-muted: #64748b;
+  --theme-text-secondary: #c1cad7;
+  --theme-text-muted: #94a3b8;
 
-  --theme-border: #263247;
-  --theme-border-strong: #334155;
+  --theme-border: #29374b;
+  --theme-border-strong: #3b4a61;
 
   --theme-primary: #3b82f6;
   --theme-primary-hover: #60a5fa;
-  --theme-primary-soft: rgb(59 130 246 / 0.13);
+  --theme-primary-soft: rgb(59 130 246 / 0.14);
   --theme-primary-foreground: #ffffff;
 
   --theme-success: #22c55e;
   --theme-success-hover: #16a34a;
-  --theme-success-soft: rgb(34 197 94 / 0.12);
+  --theme-success-soft: rgb(34 197 94 / 0.13);
 
   --theme-warning: #f59e0b;
   --theme-warning-hover: #d97706;
-  --theme-warning-soft: rgb(245 158 11 / 0.12);
+  --theme-warning-soft: rgb(245 158 11 / 0.13);
 
   --theme-danger: #f87171;
   --theme-danger-hover: #ef4444;
-  --theme-danger-soft: rgb(248 113 113 / 0.12);
+  --theme-danger-soft: rgb(248 113 113 / 0.13);
 
   --theme-focus-ring: 0 0 0 3px rgb(96 165 250 / 0.18);
 
-  --theme-shadow-card: 0 1px 3px rgb(0 0 0 / 0.22), 0 1px 2px rgb(0 0 0 / 0.18);
+  --theme-shadow-card: 0 1px 3px rgb(0 0 0 / 0.25), 0 1px 2px rgb(0 0 0 / 0.18);
 
   --theme-shadow-hover:
-    0 12px 28px rgb(0 0 0 / 0.28), 0 3px 8px rgb(0 0 0 / 0.18);
+    0 12px 28px rgb(0 0 0 / 0.3), 0 3px 8px rgb(0 0 0 / 0.18);
 
   --theme-shadow-modal:
     0 32px 90px rgb(0 0 0 / 0.46), 0 10px 30px rgb(0 0 0 / 0.24);
 
   --theme-sidebar-bg: #080e1b;
   --theme-sidebar-surface: #0f172a;
-  --theme-sidebar-text: #b7c3d6;
-  --theme-sidebar-text-muted: #7f8ca2;
+  --theme-sidebar-text: #c6d0df;
+  --theme-sidebar-text-muted: #8fa0b7;
   --theme-sidebar-text-active: #ffffff;
   --theme-sidebar-hover: rgb(255 255 255 / 0.05);
   --theme-sidebar-active: #2563eb;
   --theme-sidebar-active-soft: rgb(59 130 246 / 0.13);
 
-  --theme-header-bg: rgb(11 17 32 / 0.86);
+  --theme-header-bg: rgb(11 17 32 / 0.9);
   --theme-header-shadow: 0 10px 28px rgb(0 0 0 / 0.16);
   --theme-overlay: rgb(0 0 0 / 0.68);
 
@@ -126,6 +127,10 @@
   --theme-motion-slow: 320ms;
   --theme-ease: cubic-bezier(0.22, 1, 0.36, 1);
 }
+
+/* =========================================================
+   GLOBAL THEME TRANSITION
+   ========================================================= */
 
 html.theme-transitioning,
 html.theme-transitioning *,
@@ -141,26 +146,74 @@ html.theme-transitioning *::after {
 }
 
 /* =========================================================
-   SIDEBAR THEME SWITCH
+   SIDEBAR — CLEAN, SOLID, NO GLOW HAZE
+   ========================================================= */
+
+.app-sidebar {
+  background: var(--theme-sidebar-bg) !important;
+  color: #ffffff;
+}
+
+.app-brand strong {
+  color: #ffffff;
+}
+
+.app-brand span {
+  color: var(--theme-sidebar-text-muted);
+}
+
+.app-nav-section-label {
+  color: var(--theme-sidebar-text-muted);
+}
+
+.app-nav-link {
+  color: var(--theme-sidebar-text);
+}
+
+.app-nav-link:hover {
+  color: #ffffff;
+  background: var(--theme-sidebar-hover);
+}
+
+.app-nav-icon {
+  background: rgb(255 255 255 / 0.055);
+}
+
+.app-sidebar-footer {
+  color: var(--theme-sidebar-text-muted);
+}
+
+.app-sidebar-footer span:last-child {
+  color: var(--theme-sidebar-text-muted);
+}
+
+.app-online-dot {
+  background: #34d399;
+  box-shadow: 0 0 0 4px rgb(52 211 153 / 0.09);
+}
+
+/* =========================================================
+   THEME SWITCH — 60 × 30, FIXED GEOMETRY
    ========================================================= */
 
 .app-sidebar-theme {
   display: flex;
+  align-items: center;
   justify-content: flex-end;
-  padding: 10px 14px 0;
+  padding: 10px 14px 4px;
 }
 
 .app-theme-switch {
-  display: inline-flex;
-  width: 66px;
-  height: 34px;
-  align-items: center;
-  justify-content: space-between;
-  padding: 3px;
-  border: 1px solid rgb(255 255 255 / 0.09);
+  position: relative;
+  display: block;
+  width: 60px !important;
+  height: 30px;
+  flex: 0 0 60px;
+  padding: 0;
+  border: 1px solid rgb(255 255 255 / 0.1);
   border-radius: 999px;
-  background: rgb(255 255 255 / 0.045);
-  color: var(--theme-sidebar-text-muted);
+  background: rgb(255 255 255 / 0.055);
+  color: #94a3b8;
   cursor: pointer;
   box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.02);
   transition:
@@ -170,7 +223,7 @@ html.theme-transitioning *::after {
 }
 
 .app-theme-switch:hover {
-  border-color: rgb(255 255 255 / 0.16);
+  border-color: rgb(255 255 255 / 0.17);
   background: rgb(255 255 255 / 0.08);
   transform: translateY(-1px);
 }
@@ -181,42 +234,62 @@ html.theme-transitioning *::after {
 
 .app-theme-switch:focus-visible {
   outline: none;
-  box-shadow: var(--theme-focus-ring);
+  box-shadow: 0 0 0 3px rgb(59 130 246 / 0.26);
 }
 
 .app-theme-switch-track {
-  position: relative;
-  display: flex;
-  width: 100%;
-  height: 100%;
-  align-items: center;
-  justify-content: space-between;
+  position: absolute;
+  inset: 0;
+  display: block;
 }
 
 .app-theme-switch-icon {
+  position: absolute;
+  top: 6px;
   display: grid;
-  width: 24px;
-  height: 24px;
+  width: 16px;
+  height: 16px;
   place-items: center;
-  border-radius: 999px;
-  color: var(--theme-sidebar-text-muted);
-  transition: color var(--theme-motion-fast) ease;
+  color: #94a3b8;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.app-theme-switch-icon:first-child {
+  left: 7px;
+}
+
+.app-theme-switch-icon:last-child {
+  right: 7px;
 }
 
 .app-theme-switch-icon svg {
   width: 14px;
   height: 14px;
+  stroke-width: 2;
+}
+
+/* Day / night identity: sun is warm, moon is cool. */
+.app-theme-switch-icon:first-child {
+  color: #f59e0b;
+}
+
+.app-theme-switch-icon:last-child {
+  color: #94a3b8;
 }
 
 .app-theme-switch-thumb {
   position: absolute;
   top: 2px;
   left: 2px;
-  width: 28px;
-  height: 28px;
+  z-index: 2;
+  width: 24px;
+  height: 24px;
   border-radius: 999px;
   background: #ffffff;
-  box-shadow: 0 3px 10px rgb(0 0 0 / 0.22);
+  box-shadow:
+    0 2px 7px rgb(0 0 0 / 0.22),
+    inset 0 0 0 1px rgb(15 23 42 / 0.05);
   transform: translateX(0);
   transition:
     transform 180ms var(--theme-ease),
@@ -226,25 +299,53 @@ html.theme-transitioning *::after {
 
 .app-theme-switch[data-dark='true'] .app-theme-switch-thumb {
   transform: translateX(32px);
-  background: #172033;
+  background: #1e293b;
   box-shadow:
-    0 3px 10px rgb(0 0 0 / 0.32),
+    0 2px 7px rgb(0 0 0 / 0.34),
     inset 0 0 0 1px rgb(255 255 255 / 0.08);
 }
 
-.app-theme-switch[data-dark='false'] .app-theme-switch-icon:first-child,
-.app-theme-switch[data-dark='true'] .app-theme-switch-icon:last-child {
-  color: var(--theme-primary-hover);
+.app-theme-switch[data-dark='false'] .app-theme-switch-icon:first-child {
+  color: #fbbf24;
+  filter: drop-shadow(0 0 5px rgb(251 191 36 / 0.28));
 }
 
-.app-theme-switch-label {
-  margin-left: 8px;
-  color: var(--theme-sidebar-text-muted);
-  font-size: 9px;
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  white-space: nowrap;
+.app-theme-switch[data-dark='false'] .app-theme-switch-icon:last-child {
+  color: #64748b;
+}
+
+.app-theme-switch[data-dark='true'] .app-theme-switch-icon:first-child {
+  color: #64748b;
+}
+
+.app-theme-switch[data-dark='true'] .app-theme-switch-icon:last-child {
+  color: #cbd5e1;
+  filter: drop-shadow(0 0 5px rgb(203 213 225 / 0.16));
+}
+
+/* Keep the switch centered in the 78px collapsed rail; never shrink it. */
+.app-shell.sidebar-collapsed .app-sidebar-theme {
+  justify-content: center;
+  padding: 10px 9px 4px;
+}
+
+.app-shell.sidebar-collapsed .app-theme-switch {
+  width: 60px !important;
+  flex-basis: 60px;
+}
+
+/* Fix hidden-label geometry so collapsed nav icons stay centered. */
+.app-shell.sidebar-collapsed .app-nav-link {
+  gap: 0;
+}
+
+.app-shell.sidebar-collapsed .app-nav-label {
+  display: none;
+}
+
+.app-shell.sidebar-collapsed .app-nav-link,
+.app-shell.sidebar-collapsed .app-nav-icon {
+  margin-inline: auto;
 }
 
 /* =========================================================
@@ -264,8 +365,8 @@ html.theme-transitioning *::after {
   padding: 0;
   border: 1px solid var(--app-border-strong);
   border-radius: 9px;
-  background: var(--app-white);
-  color: var(--app-primary);
+  background: var(--theme-surface-raised);
+  color: var(--theme-primary);
   cursor: pointer;
   transition:
     transform var(--theme-motion-fast) var(--theme-ease),

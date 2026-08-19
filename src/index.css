@@ -5,15 +5,13 @@
  *
  * Ownership order:
  * 1. foundation.css      -> shell, design tokens, header structure
- * 2. system.css          -> generic typography, controls, shared surfaces
- * 3. responsive.css      -> global breakpoints
- * 4. page-shared.css     -> tiny shared utilities/accessibility
- * 5. page styles        -> page-specific layout/content
- * 6. auth-notifications -> notification-specific component
- * 7. component-surfaces -> shared modal/button behavior only
- *
- * Bank history is owned by bank.css and is intentionally not split into
- * a second page stylesheet.
+ * 2. theme.css           -> Light / Dark theme tokens and switch
+ * 3. system.css          -> generic typography, controls, shared surfaces
+ * 4. responsive.css      -> global breakpoints
+ * 5. page-shared.css     -> tiny shared utilities/accessibility
+ * 6. page styles         -> page-specific layout/content
+ * 8. auth-notifications  -> notification-specific component
+ * 9. component-surfaces  -> shared modal/button behavior only
  */
 
 @import './styles/foundation.css';
