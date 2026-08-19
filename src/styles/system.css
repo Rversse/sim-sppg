@@ -40,6 +40,13 @@
   --app-panel-padding: 20px;
   --app-section-gap: 20px;
 
+  /* Shared page geometry: every route uses the same outer layout. */
+  --app-page-width: 100%;
+  --app-page-max-width: none;
+  --app-page-margin: 0;
+  --app-page-gap: 16px;
+  --app-page-padding: 0;
+
   --read-text: #172033;
   --read-text-muted: #55657a;
   --read-text-soft: #708095;
@@ -88,6 +95,29 @@ select:focus-visible,
 textarea:focus-visible {
   outline: 2px solid color-mix(in srgb, var(--app-accent) 62%, white);
   outline-offset: 1px;
+}
+
+/* =========================================================
+   GENERIC PAGE GEOMETRY
+   One source of truth for page width, margin, padding and vertical gap.
+   Page styles own only page-specific fields and surfaces.
+   ========================================================= */
+
+:where(
+  .dashboard-page,
+  .bank-page,
+  .kitchen-page,
+  .supplier-page,
+  .vehicle-page,
+  .reports-page,
+  .disbursement-page
+) {
+  display: grid;
+  width: var(--app-page-width);
+  max-width: var(--app-page-max-width);
+  margin: var(--app-page-margin);
+  gap: var(--app-page-gap);
+  padding: var(--app-page-padding);
 }
 
 /* =========================================================

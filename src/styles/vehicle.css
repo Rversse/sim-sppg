@@ -4,14 +4,6 @@
    Desktop + responsive + CRUD modal live here.
    ========================================================= */
 
-.vehicle-page {
-  display: grid;
-  width: 100%;
-  max-width: none;
-  margin: 0;
-  gap: 16px;
-}
-
 /* =========================================================
    HEADER / TOOLBAR
    ========================================================= */

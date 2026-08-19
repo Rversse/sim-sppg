@@ -4,15 +4,6 @@
    Desktop + responsive + loading/table states live here.
    ========================================================= */
 
-.disbursement-page {
-  display: grid;
-  width: 100%;
-  max-width: none;
-  margin: 0;
-  gap: 16px;
-  padding: 0 0 20px;
-}
-
 /* =========================================================
    HEADER
    ========================================================= */

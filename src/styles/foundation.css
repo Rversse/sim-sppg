@@ -597,7 +597,7 @@ textarea {
 .app-main {
   width: min(1500px, 100%);
   margin: 0 auto;
-  padding: 2px;
+  padding: 16px 2px;
   animation: app-page-in 300ms var(--app-ease) both;
 }
 
