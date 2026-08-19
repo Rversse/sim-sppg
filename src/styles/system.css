@@ -47,15 +47,10 @@
   --app-page-gap: 16px;
   --app-page-padding: 0;
 
-  /* Shared primary action surface for CRUD/master-data add actions. */
-  --app-action-primary-bg: var(--app-accent);
-  --app-action-primary-border: var(--app-accent);
-  --app-action-primary-text: #0b132b;
-
-  --read-text: #172033;
-  --read-text-muted: #55657a;
-  --read-text-soft: #708095;
-  --read-border: #dce5ef;
+  --read-text: var(--theme-text-primary);
+  --read-text-muted: var(--theme-text-secondary);
+  --read-text-soft: var(--theme-text-muted);
+  --read-border: var(--theme-border);
 
   --motion-fast: 150ms;
   --motion: 220ms;
@@ -98,57 +93,8 @@ a:focus-visible,
 input:focus-visible,
 select:focus-visible,
 textarea:focus-visible {
-  outline: 2px solid color-mix(in srgb, var(--app-accent) 62%, white);
+  outline: 2px solid color-mix(in srgb, var(--theme-primary) 62%, transparent);
   outline-offset: 1px;
-}
-
-/* =========================================================
-   SHARED MASTER-DATA SEARCH FIELD
-   One visual surface for Kitchen / Supplier / Vehicle search.
-   ========================================================= */
-
-:where(.kitchen-input, .supplier-input, .vehicle-input) {
-  width: 100%;
-  min-height: var(--app-search-height, 42px);
-  padding: 0 12px;
-  border: 1px solid var(--app-border-strong);
-  border-radius: var(--app-control-radius);
-  background: linear-gradient(
-    180deg,
-    rgb(255 255 255 / 0.99),
-    rgb(248 250 252 / 0.98)
-  );
-  color: var(--read-text);
-  box-shadow:
-    0 3px 12px rgb(15 23 42 / 0.025),
-    inset 0 1px 0 rgb(255 255 255 / 0.7);
-  font-size: 13px;
-  transition:
-    border-color var(--app-motion-fast) ease,
-    box-shadow var(--app-motion-fast) ease,
-    background-color var(--app-motion-fast) ease,
-    transform var(--app-motion-fast) var(--app-motion-smooth);
-}
-
-:where(.kitchen-input, .supplier-input, .vehicle-input):hover {
-  border-color: var(--app-border-mid);
-  background: var(--app-white);
-  transform: translateY(-1px);
-}
-
-:where(.kitchen-input, .supplier-input, .vehicle-input):focus {
-  border-color: var(--app-accent);
-  background: var(--app-white);
-  box-shadow: var(--app-focus-ring);
-  outline: none;
-}
-
-:where(.kitchen-input, .supplier-input, .vehicle-input)::placeholder {
-  color: var(--app-text-subtle);
-}
-
-:where(.kitchen-input, .supplier-input, .vehicle-input):focus::placeholder {
-  color: #b0bbc8;
 }
 
 /* =========================================================
@@ -246,7 +192,7 @@ button:not(:disabled):active {
 
 [data-slot='button']:hover:not(:disabled) {
   transform: translateY(-1px);
-  box-shadow: 0 8px 22px rgb(15 23 42 / 0.07);
+  box-shadow: var(--theme-shadow-hover);
 }
 
 [data-slot='button']:active:not(:disabled) {
@@ -258,4 +204,11 @@ select:disabled,
 input:disabled,
 textarea:disabled {
   cursor: not-allowed;
+}
+
+/* Theme-aware primary action aliases used by shared action buttons. */
+:root {
+  --app-action-primary-bg: var(--theme-primary);
+  --app-action-primary-border: var(--theme-primary);
+  --app-action-primary-text: var(--theme-primary-foreground);
 }

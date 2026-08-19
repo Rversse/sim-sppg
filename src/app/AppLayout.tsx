@@ -9,6 +9,8 @@ import {
   LayoutDashboard,
   LogOut,
   Menu,
+  Moon,
+  Sun,
   Wallet,
   WandSparkles,
   type LucideIcon
@@ -114,6 +116,7 @@ const navigationSections: NavigationSection[] = [
 ]
 
 const SIDEBAR_STORAGE_KEY = 'sim-sppg.sidebar-collapsed'
+const THEME_STORAGE_KEY = 'sim-sppg.theme'
 
 function getPageTitle(pathname: string) {
   return (
@@ -136,6 +139,20 @@ function getRoleLabel(role: string | undefined) {
   }
 }
 
+function getStoredDarkMode() {
+  try {
+    return window.localStorage.getItem(THEME_STORAGE_KEY) === 'dark'
+  } catch {
+    return false
+  }
+}
+
+function applyTheme(isDark: boolean) {
+  const theme = isDark ? 'dark' : 'light'
+  document.documentElement.dataset.theme = theme
+  document.documentElement.style.colorScheme = theme
+}
+
 export function AppLayout() {
   const { user } = useAuth()
   const { success, error } = useToast()
@@ -149,6 +166,8 @@ export function AppLayout() {
     }
   })
 
+  const [isDark, setIsDark] = useState(() => getStoredDarkMode())
+
   useEffect(() => {
     try {
       window.localStorage.setItem(
@@ -160,6 +179,29 @@ export function AppLayout() {
     }
   }, [sidebarCollapsed])
 
+  useEffect(() => {
+    document.documentElement.classList.add('theme-transitioning')
+    applyTheme(isDark)
+
+    try {
+      window.localStorage.setItem(
+        THEME_STORAGE_KEY,
+        isDark ? 'dark' : 'light'
+      )
+    } catch {
+      // Theme persistence is optional.
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      document.documentElement.classList.remove('theme-transitioning')
+    }, 180)
+
+    return () => {
+      window.clearTimeout(timeoutId)
+      document.documentElement.classList.remove('theme-transitioning')
+    }
+  }, [isDark])
+
   const visibleSections = navigationSections
     .map((section) => ({
       ...section,
@@ -169,9 +211,16 @@ export function AppLayout() {
     }))
     .filter((section) => section.items.length > 0)
 
-  const visibleNavigation = visibleSections.flatMap((section) => section.items)
+  const visibleNavigation = visibleSections.flatMap(
+    (section) => section.items
+  )
+
   const pageTitle = getPageTitle(pathname)
   const roleLabel = getRoleLabel(user?.role)
+
+  function toggleTheme() {
+    setIsDark((current) => !current)
+  }
 
   async function handleLogout() {
     const { error: signOutError } = await supabase.auth.signOut()
@@ -186,8 +235,34 @@ export function AppLayout() {
   }
 
   return (
-    <div className={`app-shell${sidebarCollapsed ? ' sidebar-collapsed' : ''}`}>
+    <div
+      className={`app-shell${
+        sidebarCollapsed ? ' sidebar-collapsed' : ''
+      }`}
+    >
       <aside className="app-sidebar">
+        <div className="app-sidebar-theme">
+          <button
+            type="button"
+            className="app-theme-switch"
+            data-dark={isDark}
+            onClick={toggleTheme}
+            aria-label={isDark ? 'Aktifkan tema light' : 'Aktifkan tema dark'}
+            aria-pressed={isDark}
+            title={isDark ? 'Tema Dark' : 'Tema Light'}
+          >
+            <span className="app-theme-switch-track" aria-hidden="true">
+              <span className="app-theme-switch-icon">
+                <Sun />
+              </span>
+              <span className="app-theme-switch-icon">
+                <Moon />
+              </span>
+              <span className="app-theme-switch-thumb" />
+            </span>
+          </button>
+        </div>
+
         <div className="app-brand">
           <span className="app-brand-mark" aria-hidden="true">
             <img src={logo} alt="" />
@@ -202,7 +277,9 @@ export function AppLayout() {
         <nav className="app-nav" aria-label="Navigasi utama">
           {visibleSections.map((section) => (
             <div className="app-nav-section" key={section.label}>
-              <span className="app-nav-section-label">{section.label}</span>
+              <span className="app-nav-section-label">
+                {section.label}
+              </span>
 
               <div className="app-nav-section-items">
                 {section.items.map((item) => {
@@ -219,7 +296,9 @@ export function AppLayout() {
                       <span className="app-nav-icon" aria-hidden="true">
                         <Icon />
                       </span>
-                      <span className="app-nav-label">{item.label}</span>
+                      <span className="app-nav-label">
+                        {item.label}
+                      </span>
                     </NavLink>
                   )
                 })}
@@ -227,11 +306,6 @@ export function AppLayout() {
             </div>
           ))}
         </nav>
-
-        <div className="app-sidebar-footer">
-          <span className="app-online-dot" aria-hidden="true" />
-          <span>Online</span>
-        </div>
       </aside>
 
       <div className="app-content">
@@ -258,6 +332,25 @@ export function AppLayout() {
           </div>
 
           <div className="app-user">
+            <div className="app-mobile-theme-control">
+              <button
+                type="button"
+                className="app-mobile-theme-switch"
+                onClick={toggleTheme}
+                aria-label={
+                  isDark ? 'Aktifkan tema light' : 'Aktifkan tema dark'
+                }
+                aria-pressed={isDark}
+                title={isDark ? 'Tema Dark' : 'Tema Light'}
+              >
+                {isDark ? (
+                  <Moon aria-hidden="true" />
+                ) : (
+                  <Sun aria-hidden="true" />
+                )}
+              </button>
+            </div>
+
             <VehicleExpiryNotification />
 
             <span className="app-user-role">{roleLabel}</span>

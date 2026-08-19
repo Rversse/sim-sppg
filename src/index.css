@@ -17,6 +17,7 @@
  */
 
 @import './styles/foundation.css';
+@import './styles/theme.css';
 @import './styles/system.css';
 @import './styles/responsive.css';
 @import './styles/page-shared.css';
