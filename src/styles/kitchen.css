@@ -199,39 +199,40 @@
    ========================================================= */
 
 .kitchen-modal {
-  width: min(620px, calc(100vw - 32px));
+  width: min(430px, calc(100vw - 28px)) !important;
+  max-width: 430px !important;
 }
 
 .kitchen-modal-head {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
-  padding: 13px 16px;
+  gap: 8px;
+  padding: 7px 10px;
   border-bottom: 1px solid var(--theme-border);
 }
 
 .kitchen-modal-head h2 {
   margin: 0;
   color: var(--theme-text-primary);
-  font-size: 16px;
+  font-size: 13px;
 }
 
 .kitchen-modal-body {
   display: grid;
-  gap: 14px;
-  padding: 18px;
+  gap: 7px;
+  padding: 9px 10px 10px;
 }
 
 .kitchen-form-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px;
+  gap: 7px 9px;
 }
 
 .kitchen-field {
   display: grid;
-  gap: 6px;
+  gap: 3px;
 }
 
 .kitchen-field.kitchen-full {
@@ -240,20 +241,20 @@
 
 .kitchen-field label {
   color: var(--theme-text-secondary);
-  font-size: 11px;
+  font-size: 8px;
   font-weight: 800;
 }
 
 .kitchen-field input,
 .kitchen-field select {
-  min-height: 40px;
-  padding: 0 11px;
+  min-height: 32px;
+  padding: 0 8px;
   border: 1px solid var(--theme-border-strong);
-  border-radius: 9px;
+  border-radius: 8px;
   background: var(--theme-surface-raised);
   color: var(--theme-text-primary);
   outline: none;
-  font-size: 11px;
+  font-size: 10px;
   transition:
     border-color var(--theme-motion-fast) ease,
     box-shadow var(--theme-motion-fast) ease,
@@ -278,9 +279,12 @@
 }
 
 .kitchen-modal-actions {
+  grid-column: 2;
   display: flex;
+  align-items: flex-end;
   justify-content: flex-end;
-  gap: 8px;
+  gap: 5px;
+  min-height: 32px;
 }
 
 /* =========================================================
@@ -391,4 +395,52 @@
 [data-theme='dark'] .kitchen-badge-off {
   background: var(--theme-danger-soft);
   color: var(--theme-danger);
+}
+/* Compact CRUD actions — Kitchen modal only. */
+.kitchen-modal-actions .app-action-button,
+.kitchen-modal-head .app-action-button {
+  min-height: 32px;
+  height: 32px;
+  padding: 0 10px;
+  font-size: 9px;
+  border-radius: 8px;
+}
+
+.kitchen-modal-head .app-action-button--icon {
+  width: 30px;
+  min-width: 30px;
+  padding: 0;
+}
+
+.kitchen-modal-actions .app-action-button svg,
+.kitchen-modal-head .app-action-button svg {
+  width: 13px;
+  height: 13px;
+}
+
+/* Mobile: keep the compact modal usable. */
+@media (max-width: 700px) {
+  .kitchen-modal {
+    width: min(100%, calc(100vw - 20px)) !important;
+    max-width: none !important;
+  }
+
+  .kitchen-form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .kitchen-field.kitchen-full {
+    grid-column: auto;
+  }
+
+  .kitchen-modal-actions {
+    grid-column: 1;
+    align-items: stretch;
+    flex-direction: row;
+  }
+
+  .kitchen-modal-actions .app-action-button {
+    flex: 1;
+    width: auto;
+  }
 }
