@@ -17,14 +17,14 @@
 
 .supplier-header h1 {
   margin: 0;
-  color: #0b132b;
+  color: var(--theme-text-primary);
   font-size: 28px;
   font-weight: 800;
 }
 
 .supplier-header p {
   margin: 5px 0 0;
-  color: #66768b;
+  color: var(--theme-text-secondary);
   font-size: 11px;
   line-height: 1.45;
 }
@@ -39,8 +39,8 @@
 .supplier-header > .app-action-button:hover:not(:disabled) {
   transform: translateY(-1px) scale(1.01);
   box-shadow:
-    0 12px 28px rgb(57 255 136 / 0.18),
-    0 2px 6px rgb(15 23 42 / 0.04);
+    0 12px 28px color-mix(in srgb, var(--theme-primary) 18%, transparent),
+    0 2px 6px color-mix(in srgb, var(--theme-text-primary) 4%, transparent);
 }
 
 .supplier-toolbar {
@@ -62,7 +62,7 @@
   padding: 0 8px;
   border: 1px solid var(--app-border);
   border-radius: 999px;
-  background: rgb(255 255 255 / 0.78);
+  background: color-mix(in srgb, var(--theme-surface-raised) 78%, transparent);
   box-shadow: 0 3px 10px rgb(15 23 42 / 0.025);
   color: var(--app-text-muted);
   font-size: 10px;
@@ -95,7 +95,7 @@
   background: linear-gradient(
     90deg,
     transparent,
-    rgb(57 255 136 / 0.55),
+    color-mix(in srgb, var(--theme-primary) 55%, transparent),
     transparent
   );
   content: '';
@@ -126,7 +126,7 @@
 .supplier-table th,
 .supplier-table td {
   padding: 13px 12px;
-  border-bottom: 1px solid #eef2f7;
+  border-bottom: 1px solid var(--theme-border);
   text-align: center;
   vertical-align: middle;
 }
@@ -135,7 +135,7 @@
   padding-top: 12px;
   padding-bottom: 12px;
   background: var(--app-bg-soft);
-  color: #64748b;
+  color: var(--theme-text-secondary);
   font-size: 10px;
   font-weight: 900;
   letter-spacing: 0.055em;
@@ -176,8 +176,8 @@
   padding: 4px 8px;
   border: 0;
   border-radius: 7px;
-  background: #eff6ff;
-  color: #0f5fbd;
+  background: var(--theme-primary-soft);
+  color: var(--theme-primary);
   cursor: pointer;
   font-size: 10px;
   font-weight: 800;
@@ -189,7 +189,7 @@
 
 .supplier-account-count-button:hover {
   transform: translateY(-1px);
-  background: #dbeafe;
+  background: var(--theme-primary-soft);
   box-shadow: 0 7px 16px rgb(59 130 246 / 0.1);
 }
 
@@ -204,7 +204,7 @@
 
 .supplier-empty {
   padding: 28px;
-  color: #94a3b8;
+  color: var(--theme-text-muted);
   text-align: center;
   font-size: 11px;
 }
@@ -224,19 +224,19 @@
   justify-content: space-between;
   gap: 12px;
   padding: 13px 16px;
-  border-bottom: 1px solid #eef2f7;
+  border-bottom: 1px solid var(--theme-border);
 }
 
 .supplier-modal-head h2 {
   margin: 0;
-  color: #0b132b;
+  color: var(--theme-text-primary);
   font-size: 16px;
 }
 
 .supplier-modal-subtitle {
   display: block;
   margin-top: 3px;
-  color: #66768b;
+  color: var(--theme-text-secondary);
   font-size: 9px;
 }
 
@@ -262,7 +262,7 @@
 }
 
 .supplier-field label {
-  color: #607086;
+  color: var(--theme-text-secondary);
   font-size: 11px;
   font-weight: 800;
 }
@@ -302,7 +302,7 @@
 
 .supplier-account-card {
   padding: 12px;
-  border: 1px solid #e5eaf0;
+  border: 1px solid var(--theme-border);
   border-radius: 10px;
   background: var(--app-white);
 }
@@ -318,14 +318,14 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  color: #0b132b;
+  color: var(--theme-text-primary);
   font-size: 12px;
 }
 
 .supplier-account-bank svg {
   width: 14px;
   height: 14px;
-  color: #64748b;
+  color: var(--theme-text-secondary);
 }
 
 .supplier-account-number {
@@ -354,7 +354,7 @@
 
 .supplier-account-editor {
   padding-top: 12px;
-  border-top: 1px solid #eef2f7;
+  border-top: 1px solid var(--theme-border);
 }
 
 .supplier-mapping-list {
@@ -369,9 +369,9 @@
   align-items: center;
   gap: 8px;
   padding: 9px;
-  border: 1px solid #e5eaf0;
+  border: 1px solid var(--theme-border);
   border-radius: 9px;
-  color: #334155;
+  color: var(--theme-text-primary);
   font-size: 10px;
   cursor: pointer;
 }
@@ -400,8 +400,13 @@
 .supplier-account-modal.is-readonly .supplier-account-card {
   background:
     radial-gradient(circle at 95% 0%, rgb(57 255 136 / 0.06), transparent 28%),
-    linear-gradient(180deg, #fff, #fbfdff);
-  box-shadow: 0 10px 26px rgb(15 23 42 / 0.045);
+    linear-gradient(
+      180deg,
+      var(--theme-surface-raised),
+      var(--theme-surface-soft)
+    );
+  box-shadow: 0 10px 26px
+    color-mix(in srgb, var(--theme-text-primary) 5%, transparent);
 }
 
 .supplier-account-readonly-meta {
@@ -410,13 +415,13 @@
   gap: 8px 18px;
   margin-top: 11px;
   padding-top: 10px;
-  border-top: 1px dashed #dce5ef;
-  color: #65758a;
+  border-top: 1px dashed var(--theme-border-strong);
+  color: var(--theme-text-secondary);
   font-size: 10px;
 }
 
 .supplier-account-readonly-meta strong {
-  color: #203047;
+  color: var(--theme-text-primary);
 }
 
 /* =========================================================
@@ -493,4 +498,85 @@
 .supplier-header {
   justify-content: flex-end;
   align-items: center;
+}
+
+/* =========================================================
+   SUPPLIER THEME FINALIZATION
+   ========================================================= */
+
+[data-theme='dark'] .supplier-panel {
+  background: var(--theme-surface);
+}
+
+[data-theme='dark'] .supplier-table th {
+  background: var(--theme-surface-soft);
+  color: var(--theme-text-secondary);
+}
+
+[data-theme='dark'] .supplier-table td {
+  background: var(--theme-surface);
+  border-color: var(--theme-border);
+  color: var(--theme-text-secondary);
+}
+
+[data-theme='dark'] .supplier-table tbody strong,
+[data-theme='dark'] .supplier-account-bank {
+  color: var(--theme-text-primary);
+}
+
+[data-theme='dark'] .supplier-count {
+  background: var(--theme-surface-soft);
+}
+
+[data-theme='dark'] .supplier-account-count-button {
+  background: var(--theme-primary-soft);
+  color: var(--theme-primary);
+}
+
+[data-theme='dark'] .supplier-account-count-button:hover {
+  background: color-mix(
+    in srgb,
+    var(--theme-primary) 18%,
+    var(--theme-surface-soft)
+  );
+}
+
+[data-theme='dark'] .supplier-field input,
+[data-theme='dark'] .supplier-field select {
+  background: var(--theme-surface-raised);
+  color: var(--theme-text-primary);
+  border-color: var(--theme-border-strong);
+}
+
+[data-theme='dark'] .supplier-account-card,
+[data-theme='dark'] .supplier-mapping-item {
+  background: var(--theme-surface);
+  border-color: var(--theme-border);
+}
+
+[data-theme='dark'] .supplier-account-editor {
+  border-color: var(--theme-border);
+}
+
+[data-theme='dark'] .supplier-account-readonly-meta {
+  border-color: var(--theme-border);
+  color: var(--theme-text-secondary);
+}
+
+[data-theme='dark'] .supplier-account-readonly-meta strong {
+  color: var(--theme-text-primary);
+}
+
+[data-theme='dark'] .supplier-account-modal.is-readonly .supplier-account-card {
+  background:
+    radial-gradient(
+      circle at 95% 0%,
+      color-mix(in srgb, var(--theme-primary) 7%, transparent),
+      transparent 28%
+    ),
+    linear-gradient(
+      180deg,
+      var(--theme-surface-raised),
+      var(--theme-surface-soft)
+    );
 }

@@ -199,40 +199,40 @@
    ========================================================= */
 
 .kitchen-modal {
-  width: min(430px, calc(100vw - 28px)) !important;
-  max-width: 430px !important;
+  width: min(500px, calc(100vw - 28px)) !important;
+  max-width: 500px !important;
 }
 
 .kitchen-modal-head {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 8px;
-  padding: 7px 10px;
+  gap: 10px;
+  padding: 10px 13px;
   border-bottom: 1px solid var(--theme-border);
 }
 
 .kitchen-modal-head h2 {
   margin: 0;
   color: var(--theme-text-primary);
-  font-size: 13px;
+  font-size: 14px;
 }
 
 .kitchen-modal-body {
   display: grid;
-  gap: 7px;
-  padding: 9px 10px 10px;
+  gap: 9px;
+  padding: 12px 14px 14px;
 }
 
 .kitchen-form-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 7px 9px;
+  gap: 9px 10px;
 }
 
 .kitchen-field {
   display: grid;
-  gap: 3px;
+  gap: 4px;
 }
 
 .kitchen-field.kitchen-full {
@@ -241,14 +241,14 @@
 
 .kitchen-field label {
   color: var(--theme-text-secondary);
-  font-size: 8px;
+  font-size: 9px;
   font-weight: 800;
 }
 
 .kitchen-field input,
 .kitchen-field select {
-  min-height: 32px;
-  padding: 0 8px;
+  min-height: 34px;
+  padding: 0 9px;
   border: 1px solid var(--theme-border-strong);
   border-radius: 8px;
   background: var(--theme-surface-raised);
@@ -283,8 +283,8 @@
   display: flex;
   align-items: flex-end;
   justify-content: flex-end;
-  gap: 5px;
-  min-height: 32px;
+  gap: 6px;
+  min-height: 34px;
 }
 
 /* =========================================================
@@ -396,19 +396,24 @@
   background: var(--theme-danger-soft);
   color: var(--theme-danger);
 }
-/* Compact CRUD actions — Kitchen modal only. */
+
+/* =========================================================
+   KITCHEN MODAL ACTION SIZE
+   Matches the 34px form controls.
+   ========================================================= */
+
 .kitchen-modal-actions .app-action-button,
 .kitchen-modal-head .app-action-button {
-  min-height: 32px;
-  height: 32px;
-  padding: 0 10px;
-  font-size: 9px;
+  min-height: 34px;
+  height: 34px;
+  padding: 0 11px;
   border-radius: 8px;
+  font-size: 9px;
 }
 
 .kitchen-modal-head .app-action-button--icon {
-  width: 30px;
-  min-width: 30px;
+  width: 32px;
+  min-width: 32px;
   padding: 0;
 }
 
@@ -418,19 +423,10 @@
   height: 13px;
 }
 
-/* Mobile: keep the compact modal usable. */
 @media (max-width: 700px) {
   .kitchen-modal {
     width: min(100%, calc(100vw - 20px)) !important;
     max-width: none !important;
-  }
-
-  .kitchen-form-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .kitchen-field.kitchen-full {
-    grid-column: auto;
   }
 
   .kitchen-modal-actions {
