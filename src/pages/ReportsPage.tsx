@@ -17,6 +17,7 @@ import {
   type DateRangeValue
 } from '@/components/ui/date-range-picker'
 import { formatCurrency, getTodayLocal } from '@/lib/formatters'
+import { supabase } from '@/lib/supabase'
 
 type ReportTab = 'overall' | 'income' | 'supplier'
 
@@ -54,6 +55,10 @@ function useReportData<T>(
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
+  function requestReload() {
+    setLoading(true)
+  }
+
   useEffect(() => {
     let cancelled = false
 
@@ -63,12 +68,16 @@ function useReportData<T>(
         setReport(result)
         setError(null)
       })
-      .catch((error) => {
-        console.error(error)
-        if (!cancelled) setError(errorMessage)
+      .catch((loadError: unknown) => {
+        console.error(loadError)
+        if (!cancelled) {
+          setError(errorMessage)
+        }
       })
       .finally(() => {
-        if (!cancelled) setLoading(false)
+        if (!cancelled) {
+          setLoading(false)
+        }
       })
 
     return () => {
@@ -76,11 +85,139 @@ function useReportData<T>(
     }
   }, [endDate, errorMessage, loader, startDate])
 
+  useEffect(() => {
+    let cancelled = false
+    let refreshInFlight = false
+    let refreshQueued = false
+    let refreshTimer: ReturnType<typeof setTimeout> | null = null
+
+    const scheduleRealtimeRefresh = () => {
+      if (cancelled || refreshTimer !== null) {
+        return
+      }
+
+      refreshTimer = setTimeout(() => {
+        refreshTimer = null
+
+        if (cancelled) {
+          return
+        }
+
+        if (refreshInFlight) {
+          refreshQueued = true
+          return
+        }
+
+        refreshInFlight = true
+
+        void loader(startDate, endDate)
+          .then((result) => {
+            if (cancelled) return
+            setReport(result)
+            setError(null)
+          })
+          .catch((loadError: unknown) => {
+            console.error('Gagal memperbarui laporan dari Realtime:', loadError)
+
+            if (!cancelled) {
+              setError(errorMessage)
+            }
+          })
+          .finally(() => {
+            refreshInFlight = false
+
+            if (refreshQueued && !cancelled) {
+              refreshQueued = false
+              scheduleRealtimeRefresh()
+            }
+          })
+      }, 150)
+    }
+
+    const channel = supabase
+      .channel('reports-page-live')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'transactions'
+        },
+        scheduleRealtimeRefresh
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'kitchens'
+        },
+        scheduleRealtimeRefresh
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'accounts'
+        },
+        scheduleRealtimeRefresh
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'income_suppliers'
+        },
+        scheduleRealtimeRefresh
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'suppliers'
+        },
+        scheduleRealtimeRefresh
+      )
+      .subscribe((status) => {
+        if (
+          status === 'CHANNEL_ERROR' ||
+          status === 'TIMED_OUT' ||
+          status === 'CLOSED'
+        ) {
+          console.warn(`[Reports Realtime] ${status}`)
+        }
+      })
+
+    return () => {
+      cancelled = true
+
+      if (refreshTimer !== null) {
+        clearTimeout(refreshTimer)
+        refreshTimer = null
+      }
+
+      void supabase.removeChannel(channel)
+    }
+  }, [endDate, errorMessage, loader, startDate])
+
+  const updateStartDate = (value: string) => {
+    requestReload()
+    setStartDate(value)
+  }
+
+  const updateEndDate = (value: string) => {
+    requestReload()
+    setEndDate(value)
+  }
+
   return {
     startDate,
     endDate,
-    setStartDate,
-    setEndDate,
+    setStartDate: updateStartDate,
+    setEndDate: updateEndDate,
     report,
     loading,
     error,

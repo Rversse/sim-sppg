@@ -1,7 +1,8 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Pencil, Plus, Save, Trash2, X } from 'lucide-react'
 
 import { canAccess } from '@/features/auth/role-policy'
+import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/features/auth/use-auth'
 import { useToast } from '@/features/ui/toast-context'
 import {
@@ -34,21 +35,28 @@ export function KitchenPage() {
   const [form, setForm] = useState<KitchenInput>(EMPTY_INPUT)
   const [saving, setSaving] = useState(false)
 
-  async function load() {
-    setLoading(true)
+  const load = useCallback(async (showLoading = true) => {
+    if (showLoading) {
+      setLoading(true)
+    }
+
     setError('')
+
     try {
       setKitchens(await getKitchens())
     } catch (err) {
       console.error(err)
       setError('Gagal memuat data dapur.')
     } finally {
-      setLoading(false)
+      if (showLoading) {
+        setLoading(false)
+      }
     }
-  }
+  }, [])
 
   useEffect(() => {
     if (!canView) return
+
     let cancelled = false
 
     void getKitchens()
@@ -59,7 +67,7 @@ export function KitchenPage() {
           setLoading(false)
         }
       })
-      .catch((err) => {
+      .catch((err: unknown) => {
         if (!cancelled) {
           console.error(err)
           setError('Gagal memuat data dapur.')
@@ -71,6 +79,83 @@ export function KitchenPage() {
       cancelled = true
     }
   }, [canView])
+
+  useEffect(() => {
+    if (!canView) {
+      return
+    }
+
+    let cancelled = false
+    let refreshInFlight = false
+    let refreshQueued = false
+    let refreshTimer: ReturnType<typeof setTimeout> | null = null
+
+    const scheduleRealtimeRefresh = () => {
+      if (cancelled || refreshTimer !== null) {
+        return
+      }
+
+      refreshTimer = setTimeout(() => {
+        refreshTimer = null
+
+        if (cancelled) {
+          return
+        }
+
+        if (refreshInFlight) {
+          refreshQueued = true
+          return
+        }
+
+        refreshInFlight = true
+
+        void load(false)
+          .catch((err: unknown) => {
+            console.error('Gagal memperbarui data dapur dari Realtime:', err)
+          })
+          .finally(() => {
+            refreshInFlight = false
+
+            if (refreshQueued && !cancelled) {
+              refreshQueued = false
+              scheduleRealtimeRefresh()
+            }
+          })
+      }, 150)
+    }
+
+    const channel = supabase
+      .channel('kitchen-page-live')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'kitchens'
+        },
+        scheduleRealtimeRefresh
+      )
+      .subscribe((status) => {
+        if (
+          status === 'CHANNEL_ERROR' ||
+          status === 'TIMED_OUT' ||
+          status === 'CLOSED'
+        ) {
+          console.warn(`[Kitchen Realtime] ${status}`)
+        }
+      })
+
+    return () => {
+      cancelled = true
+
+      if (refreshTimer !== null) {
+        clearTimeout(refreshTimer)
+        refreshTimer = null
+      }
+
+      void supabase.removeChannel(channel)
+    }
+  }, [canView, load])
 
   const filtered = useMemo(() => {
     const keyword = search.trim().toLowerCase()
@@ -127,7 +212,7 @@ export function KitchenPage() {
         success('Dapur ditambahkan', 'Data dapur berhasil ditambahkan.')
       }
       closeForm()
-      await load()
+      await load(false)
     } catch (err) {
       console.error(err)
       toastError(
@@ -146,7 +231,7 @@ export function KitchenPage() {
     try {
       await deleteKitchen(kitchen.id)
       success('Dapur dihapus', 'Data dapur berhasil dihapus.')
-      await load()
+      await load(false)
     } catch (err) {
       console.error(err)
       toastError(

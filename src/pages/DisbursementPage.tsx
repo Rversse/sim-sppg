@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 
 import { canAccess } from '@/features/auth/role-policy'
 import { useAuth } from '@/features/auth/use-auth'
@@ -17,6 +17,7 @@ import {
 } from '@/features/disbursement/disbursement-service'
 
 import { formatDateLong } from '@/lib/formatters'
+import { supabase } from '@/lib/supabase'
 
 const DISBURSEMENT_DATE_KEY = 'disbursement_selected_date'
 
@@ -81,10 +82,95 @@ export function DisbursementPage() {
     setSelectedDate(value)
   }
 
-  async function reloadCurrentDate() {
+  const reloadCurrentDate = useCallback(async () => {
     const data = await getDisbursementRows(selectedDate)
     setRows(data)
-  }
+  }, [selectedDate])
+
+  useEffect(() => {
+    let cancelled = false
+    let refreshInFlight = false
+    let refreshQueued = false
+    let refreshTimer: ReturnType<typeof setTimeout> | null = null
+
+    const scheduleRealtimeRefresh = () => {
+      if (cancelled || refreshTimer !== null) {
+        return
+      }
+
+      refreshTimer = setTimeout(() => {
+        refreshTimer = null
+
+        if (cancelled) {
+          return
+        }
+
+        if (refreshInFlight) {
+          refreshQueued = true
+          return
+        }
+
+        refreshInFlight = true
+
+        void reloadCurrentDate()
+          .catch((err: unknown) => {
+            console.error(
+              'Gagal memperbarui checklist pencairan dari Realtime:',
+              err
+            )
+          })
+          .finally(() => {
+            refreshInFlight = false
+
+            if (refreshQueued && !cancelled) {
+              refreshQueued = false
+              scheduleRealtimeRefresh()
+            }
+          })
+      }, 150)
+    }
+
+    const channel = supabase
+      .channel('disbursement-checklist-live')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'disbursement_checklists'
+        },
+        scheduleRealtimeRefresh
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'kitchens'
+        },
+        scheduleRealtimeRefresh
+      )
+      .subscribe((status) => {
+        if (
+          status === 'CHANNEL_ERROR' ||
+          status === 'TIMED_OUT' ||
+          status === 'CLOSED'
+        ) {
+          console.warn(`[Disbursement Realtime] ${status}`)
+        }
+      })
+
+    return () => {
+      cancelled = true
+
+      if (refreshTimer !== null) {
+        clearTimeout(refreshTimer)
+        refreshTimer = null
+      }
+
+      void supabase.removeChannel(channel)
+    }
+  }, [reloadCurrentDate])
 
   async function handleToggle(
     row: DisbursementRow,

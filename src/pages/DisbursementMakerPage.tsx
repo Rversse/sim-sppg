@@ -33,9 +33,146 @@ import { supabase } from '@/lib/supabase'
 type MakerFormState = {
   transactionDate: string
   kitchenId: string
-  flowType: MakerFlow | ''
+  flowType: MakerFlow | LocalMakerType | ''
   accountId: string
   amount: string
+}
+
+type LocalMakerType = 'ops_harian' | 'lainnya'
+
+type LocalMakerItem = {
+  id: string
+  transactionDate: string
+  kitchenId: string
+  type: LocalMakerType
+  amount: number
+  createdAt: string
+}
+
+const LOCAL_MAKER_STORAGE_KEY = 'sim_sppg_disbursement_maker_local_v1'
+const LOCAL_MAKER_CHANNEL_NAME = 'sim-sppg-disbursement-maker-local'
+
+type LocalMakerSyncMessage = {
+  storageKey: string
+}
+
+function getLocalMakerLabel(type: LocalMakerType) {
+  return type === 'ops_harian' ? 'Ops Harian' : 'Lainnya'
+}
+
+function buildLocalMakerStorageKey(transactionDate: string, kitchenId: string) {
+  return `${transactionDate}::${kitchenId}`
+}
+
+function readLocalMakerItems(
+  transactionDate: string,
+  kitchenId: string
+): LocalMakerItem[] {
+  if (!transactionDate || !kitchenId || typeof window === 'undefined') {
+    return []
+  }
+
+  try {
+    const raw = window.localStorage.getItem(LOCAL_MAKER_STORAGE_KEY)
+    if (!raw) return []
+
+    const parsed: unknown = JSON.parse(raw)
+    if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
+      return []
+    }
+
+    const value = (parsed as Record<string, unknown>)[
+      buildLocalMakerStorageKey(transactionDate, kitchenId)
+    ]
+
+    if (!Array.isArray(value)) return []
+
+    return value.filter((item): item is LocalMakerItem => {
+      if (!item || typeof item !== 'object') return false
+      const candidate = item as Record<string, unknown>
+      return (
+        typeof candidate.id === 'string' &&
+        typeof candidate.transactionDate === 'string' &&
+        typeof candidate.kitchenId === 'string' &&
+        (candidate.type === 'ops_harian' || candidate.type === 'lainnya') &&
+        typeof candidate.amount === 'number' &&
+        Number.isSafeInteger(candidate.amount) &&
+        candidate.amount > 0 &&
+        typeof candidate.createdAt === 'string'
+      )
+    })
+  } catch (error) {
+    console.error('Gagal membaca catatan pencairan lokal:', error)
+    return []
+  }
+}
+
+function writeLocalMakerItems(
+  transactionDate: string,
+  kitchenId: string,
+  items: LocalMakerItem[]
+) {
+  if (!transactionDate || !kitchenId || typeof window === 'undefined') {
+    return
+  }
+
+  try {
+    const raw = window.localStorage.getItem(LOCAL_MAKER_STORAGE_KEY)
+    const parsed: unknown = raw ? JSON.parse(raw) : {}
+    const record =
+      parsed && typeof parsed === 'object' && !Array.isArray(parsed)
+        ? (parsed as Record<string, unknown>)
+        : {}
+
+    const storageKey = buildLocalMakerStorageKey(transactionDate, kitchenId)
+
+    if (items.length) {
+      record[storageKey] = items
+    } else {
+      delete record[storageKey]
+    }
+
+    window.localStorage.setItem(LOCAL_MAKER_STORAGE_KEY, JSON.stringify(record))
+
+    if ('BroadcastChannel' in window) {
+      const channel = new BroadcastChannel(LOCAL_MAKER_CHANNEL_NAME)
+      channel.postMessage({
+        storageKey
+      } satisfies LocalMakerSyncMessage)
+      channel.close()
+    }
+  } catch (error) {
+    console.error('Gagal menyimpan catatan pencairan lokal:', error)
+    throw new Error('Catatan lokal gagal disimpan di browser.', {
+      cause: error
+    })
+  }
+}
+
+function parseLocalMakerAmount(value: string) {
+  const digits = value.replace(/\D/g, '')
+  const amount = digits ? Number(digits) : 0
+  if (!Number.isSafeInteger(amount) || amount <= 0) {
+    throw new Error('Nominal harus lebih dari 0.')
+  }
+  return amount
+}
+
+function formatLocalMakerInput(value: string) {
+  const digits = value.replace(/\D/g, '')
+  if (!digits) return ''
+  return new Intl.NumberFormat('id-ID', {
+    maximumFractionDigits: 0
+  }).format(Number(digits))
+}
+
+function buildLocalMakerDescription(item: LocalMakerItem) {
+  if (item.type !== 'ops_harian') return null
+
+  const [year, month, day] = item.transactionDate.split('-')
+  if (!year || !month || !day) return null
+
+  return `Biaya Ops Harian, ${day}-${month}-${year}`
 }
 
 const DEFAULT_FORM: MakerFormState = {
@@ -98,6 +235,8 @@ export function DisbursementMakerPage() {
   const [accounts, setAccounts] = useState<MakerAccountOption[]>([])
   const [itemAccounts, setItemAccounts] = useState<MakerAccountOption[]>([])
   const [items, setItems] = useState<MakerItem[]>([])
+
+  const [localItems, setLocalItems] = useState<LocalMakerItem[]>([])
 
   const [form, setForm] = useState<MakerFormState>(DEFAULT_FORM)
 
@@ -168,7 +307,25 @@ export function DisbursementMakerPage() {
   const dateAndKitchenReady =
     Boolean(form.transactionDate) && Boolean(form.kitchenId)
 
+  const isLocalFlow =
+    form.flowType === 'ops_harian' || form.flowType === 'lainnya'
+
   const flowReady = dateAndKitchenReady && Boolean(form.flowType)
+
+  const filteredLocalItems = useMemo(
+    () =>
+      localItems.filter(
+        (item) =>
+          item.transactionDate === form.transactionDate &&
+          item.kitchenId === form.kitchenId
+      ),
+    [localItems, form.transactionDate, form.kitchenId]
+  )
+
+  const localTotal = useMemo(
+    () => filteredLocalItems.reduce((sum, item) => sum + item.amount, 0),
+    [filteredLocalItems]
+  )
 
   useEffect(() => {
     let cancelled = false
@@ -201,7 +358,12 @@ export function DisbursementMakerPage() {
   }, [])
 
   useEffect(() => {
-    if (!dateAndKitchenReady || !form.flowType) {
+    if (
+      !dateAndKitchenReady ||
+      !form.flowType ||
+      form.flowType === 'ops_harian' ||
+      form.flowType === 'lainnya'
+    ) {
       return
     }
 
@@ -244,6 +406,48 @@ export function DisbursementMakerPage() {
       cancelled = true
     }
   }, [form.kitchenId, form.flowType, dateAndKitchenReady])
+
+  useEffect(() => {
+    if (!form.transactionDate || !form.kitchenId) {
+      return
+    }
+
+    let channel: BroadcastChannel | null = null
+    const activeStorageKey = buildLocalMakerStorageKey(
+      form.transactionDate,
+      form.kitchenId
+    )
+
+    const syncLocalItems = (storageKey: string | null) => {
+      if (storageKey !== activeStorageKey) {
+        return
+      }
+
+      setLocalItems(readLocalMakerItems(form.transactionDate, form.kitchenId))
+    }
+
+    const handleStorage = (event: StorageEvent) => {
+      if (event.key !== LOCAL_MAKER_STORAGE_KEY) {
+        return
+      }
+
+      syncLocalItems(activeStorageKey)
+    }
+
+    window.addEventListener('storage', handleStorage)
+
+    if ('BroadcastChannel' in window) {
+      channel = new BroadcastChannel(LOCAL_MAKER_CHANNEL_NAME)
+      channel.onmessage = (event: MessageEvent<LocalMakerSyncMessage>) => {
+        syncLocalItems(event.data?.storageKey ?? null)
+      }
+    }
+
+    return () => {
+      window.removeEventListener('storage', handleStorage)
+      channel?.close()
+    }
+  }, [form.kitchenId, form.transactionDate])
 
   useEffect(() => {
     if (!form.transactionDate || !form.kitchenId) {
@@ -311,6 +515,7 @@ export function DisbursementMakerPage() {
 
     if (key === 'transactionDate') {
       setAccounts([])
+      setLocalItems(readLocalMakerItems(value as string, form.kitchenId))
 
       setForm((current) => ({
         ...current,
@@ -325,6 +530,7 @@ export function DisbursementMakerPage() {
 
     if (key === 'kitchenId') {
       setAccounts([])
+      setLocalItems(readLocalMakerItems(form.transactionDate, value as string))
 
       setForm((current) => ({
         ...current,
@@ -342,7 +548,7 @@ export function DisbursementMakerPage() {
 
       setForm((current) => ({
         ...current,
-        flowType: value as MakerFlow,
+        flowType: value as MakerFlow | LocalMakerType,
         accountId: '',
         amount: ''
       }))
@@ -364,9 +570,13 @@ export function DisbursementMakerPage() {
     }
 
     if (key === 'amount') {
+      const nextAmount = isLocalFlow
+        ? formatLocalMakerInput(value as string)
+        : (value as string)
+
       setForm((current) => ({
         ...current,
-        amount: value as string
+        amount: nextAmount
       }))
     }
   }
@@ -496,7 +706,93 @@ export function DisbursementMakerPage() {
     }
   }, [form.kitchenId, form.transactionDate, reloadItems])
 
+  function addLocalMakerItem() {
+    if (!dateAndKitchenReady || !isLocalFlow || saving) return
+
+    const localType =
+      form.flowType === 'ops_harian' || form.flowType === 'lainnya'
+        ? form.flowType
+        : null
+
+    if (!localType) {
+      return
+    }
+
+    let amount: number
+    try {
+      amount = parseLocalMakerAmount(form.amount)
+    } catch (error) {
+      setErrorMessage(
+        error instanceof Error ? error.message : 'Nominal tidak valid.'
+      )
+      return
+    }
+
+    const item: LocalMakerItem = {
+      id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+      transactionDate: form.transactionDate,
+      kitchenId: form.kitchenId,
+      type: localType,
+      amount,
+      createdAt: new Date().toISOString()
+    }
+
+    const currentItems = readLocalMakerItems(
+      form.transactionDate,
+      form.kitchenId
+    )
+    const nextItems = [...currentItems, item]
+
+    try {
+      writeLocalMakerItems(form.transactionDate, form.kitchenId, nextItems)
+      setLocalItems(nextItems)
+      setForm((current) => ({ ...current, amount: '' }))
+      setErrorMessage('')
+      success(
+        `${getLocalMakerLabel(item.type)} dicatat`,
+        `${formatCurrency(amount)} tersimpan sebagai catatan lokal.`
+      )
+    } catch (error) {
+      setErrorMessage(
+        error instanceof Error ? error.message : 'Catatan lokal gagal disimpan.'
+      )
+    }
+  }
+
+  function deleteLocalMakerItem(item: LocalMakerItem) {
+    if (
+      !window.confirm(
+        `Hapus catatan ${getLocalMakerLabel(item.type)} sebesar ${formatCurrency(item.amount)}?`
+      )
+    ) {
+      return
+    }
+
+    const currentItems = readLocalMakerItems(
+      form.transactionDate,
+      form.kitchenId
+    )
+    const nextItems = currentItems.filter(
+      (candidate) => candidate.id !== item.id
+    )
+
+    try {
+      writeLocalMakerItems(form.transactionDate, form.kitchenId, nextItems)
+      setLocalItems(nextItems)
+      success('Catatan dihapus', 'Catatan lokal berhasil dihapus.')
+    } catch (error) {
+      setErrorMessage(
+        error instanceof Error ? error.message : 'Catatan lokal gagal dihapus.'
+      )
+    }
+  }
+
   async function addMakerItem() {
+    if (isLocalFlow) {
+      addLocalMakerItem()
+      return
+    }
+
     if (!user?.id || saving) {
       return
     }
@@ -535,19 +831,26 @@ export function DisbursementMakerPage() {
     setSaving(true)
     setErrorMessage('')
 
+    const officialFlowType: MakerFlow =
+      form.flowType === 'income' || form.flowType === 'neutral'
+        ? form.flowType
+        : (() => {
+            throw new Error('Jenis pencairan resmi tidak valid.')
+          })()
+
     try {
       await createMakerItem({
         kitchenId: form.kitchenId,
         transactionDate: form.transactionDate,
         accountId: form.accountId,
         amount,
-        flowType: form.flowType,
+        flowType: officialFlowType,
         createdBy: user.id
       })
 
       success(
         'Maker ditambahkan',
-        `${getFlowLabel(form.flowType)} berhasil ditambahkan.`
+        `${getFlowLabel(officialFlowType)} berhasil ditambahkan.`
       )
 
       setForm((current) => ({
@@ -580,7 +883,7 @@ export function DisbursementMakerPage() {
     event.preventDefault()
 
     if (
-      !form.accountId ||
+      (!isLocalFlow && !form.accountId) ||
       !form.amount ||
       saving ||
       !form.flowType ||
@@ -807,6 +1110,8 @@ export function DisbursementMakerPage() {
               <option value="income">RAB</option>
 
               <option value="neutral">Gas</option>
+              <option value="ops_harian">Ops Harian</option>
+              <option value="lainnya">Lainnya</option>
             </select>
           </label>
         </div>
@@ -845,7 +1150,7 @@ export function DisbursementMakerPage() {
               ref={accountSelectRef}
               value={form.accountId}
               onChange={(event) => updateField('accountId', event.target.value)}
-              disabled={!flowReady || loadingAccounts}
+              disabled={!flowReady || isLocalFlow || loadingAccounts}
             >
               <option value="">
                 {!flowReady
@@ -864,6 +1169,18 @@ export function DisbursementMakerPage() {
             </select>
           </label>
 
+          {isLocalFlow ? (
+            <div className="maker-local-note maker-local-note--full">
+              <span>
+                <strong>
+                  {form.flowType === 'ops_harian' ? 'Ops Harian' : 'Lainnya'}
+                </strong>{' '}
+                — catatan lokal saja, tidak masuk database, transaksi, saldo,
+                atau realisasi.
+              </span>
+            </div>
+          ) : null}
+
           <label className="maker-field">
             <span>Nominal</span>
 
@@ -875,7 +1192,7 @@ export function DisbursementMakerPage() {
               value={form.amount}
               onChange={(event) => updateField('amount', event.target.value)}
               onKeyDown={handleAmountKeyDown}
-              disabled={!form.accountId}
+              disabled={!form.accountId && !isLocalFlow}
             />
           </label>
 
@@ -884,7 +1201,9 @@ export function DisbursementMakerPage() {
               type="button"
               className="app-action-button"
               onClick={() => void addMakerItem()}
-              disabled={saving || !form.accountId || !form.amount}
+              disabled={
+                saving || (!isLocalFlow && !form.accountId) || !form.amount
+              }
             >
               <Plus aria-hidden="true" />
               <span>Tambah</span>
@@ -920,6 +1239,15 @@ export function DisbursementMakerPage() {
           <strong>{formatCurrency(totals.processed)}</strong>
         </div>
       </section>
+
+      {isLocalFlow ? (
+        <section className="maker-summary-grid">
+          <div className="maker-summary-card maker-summary-card--amount">
+            <span>Catatan Lokal</span>
+            <strong>{formatCurrency(localTotal)}</strong>
+          </div>
+        </section>
+      ) : null}
 
       <section className="maker-list-panel">
         <div className="maker-list-header">
@@ -1052,42 +1380,133 @@ export function DisbursementMakerPage() {
         )}
       </section>
 
-      <section className="maker-realize-panel">
-        <div>
-          <span className="maker-eyebrow">Realisasi</span>
-
-          <h2>Review pencairan</h2>
-
-          <p>
-            Semua item harus berstatus sudah diproses sebelum bisa
-            direalisasikan ke transaksi resmi.
-          </p>
-        </div>
-
-        <div className="maker-realize-summary">
-          <div>
-            <span>Total</span>
-
-            <strong>{formatCurrency(totals.total)}</strong>
+      {filteredLocalItems.length > 0 ? (
+        <section className="maker-list-panel maker-local-list-panel">
+          <div className="maker-list-header">
+            <div>
+              <span className="maker-eyebrow">Catatan Lokal</span>
+              <h2>Ops Harian / Lainnya</h2>
+            </div>
+            <span className="maker-list-meta">
+              {filteredLocalItems.length} catatan
+            </span>
           </div>
 
-          <div>
-            <span>Sudah diproses</span>
+          <div className="maker-list maker-local-grid">
+            {filteredLocalItems.map((item, index) => (
+              <article
+                className="maker-item-card maker-local-card"
+                key={item.id}
+              >
+                <div className="maker-item-top">
+                  <div className="maker-item-index">{index + 1}</div>
 
-            <strong>{formatCurrency(totals.processed)}</strong>
+                  <div className="maker-item-heading">
+                    <div>
+                      <strong>{getLocalMakerLabel(item.type)}</strong>
+                      <span>Catatan lokal</span>
+                    </div>
+                    <span className="maker-status maker-status-ready">
+                      Tercatat
+                    </span>
+                  </div>
+                </div>
+
+                <div className="maker-item-meta">
+                  <span>{getLocalMakerLabel(item.type)}</span>
+                  <span>•</span>
+                  <span>{formatCurrency(item.amount)}</span>
+                </div>
+
+                <div className="maker-copy-grid">
+                  <div className="maker-copy-box">
+                    <span>Nominal</span>
+                    <strong>{formatNumber(item.amount)}</strong>
+                    <button
+                      type="button"
+                      onClick={() => void copyText(String(item.amount))}
+                      aria-label="Copy nominal"
+                      title="Copy nominal"
+                    >
+                      <Copy aria-hidden="true" />
+                    </button>
+                  </div>
+
+                  {item.type === 'ops_harian' ? (
+                    <div className="maker-copy-box">
+                      <span>Keterangan</span>
+                      <strong>{buildLocalMakerDescription(item) ?? '—'}</strong>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const description = buildLocalMakerDescription(item)
+                          if (description) {
+                            void copyText(description)
+                          }
+                        }}
+                        aria-label="Copy keterangan"
+                        title="Copy keterangan"
+                      >
+                        <Copy aria-hidden="true" />
+                      </button>
+                    </div>
+                  ) : null}
+                </div>
+
+                <div className="maker-item-actions">
+                  <button
+                    type="button"
+                    className="maker-item-button maker-item-button--danger"
+                    onClick={() => deleteLocalMakerItem(item)}
+                  >
+                    <Trash2 aria-hidden="true" />
+                    <span>Hapus</span>
+                  </button>
+                </div>
+              </article>
+            ))}
+          </div>
+        </section>
+      ) : null}
+
+      {!isLocalFlow ? (
+        <section className="maker-realize-panel">
+          <div>
+            <span className="maker-eyebrow">Realisasi</span>
+
+            <h2>Review pencairan</h2>
+
+            <p>
+              Semua item harus berstatus sudah diproses sebelum bisa
+              direalisasikan ke transaksi resmi.
+            </p>
           </div>
 
-          <button
-            type="button"
-            className="app-action-button"
-            disabled={!canRealize}
-            onClick={() => void realizeItems()}
-          >
-            <Check aria-hidden="true" />
-            <span>Realisasikan</span>
-          </button>
-        </div>
-      </section>
+          <div className="maker-realize-summary">
+            <div>
+              <span>Total</span>
+
+              <strong>{formatCurrency(totals.total)}</strong>
+            </div>
+
+            <div>
+              <span>Sudah diproses</span>
+
+              <strong>{formatCurrency(totals.processed)}</strong>
+            </div>
+
+            <button
+              type="button"
+              className="app-action-button"
+              disabled={!canRealize}
+              onClick={() => void realizeItems()}
+            >
+              <Check aria-hidden="true" />
+              <span>Realisasikan</span>
+            </button>
+          </div>
+        </section>
+      ) : null}
     </div>
   )
 }
