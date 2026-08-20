@@ -262,7 +262,7 @@
   border: 1px solid var(--theme-border-strong);
   border-radius: 8px;
   background: var(--theme-surface-soft);
-  color: #64748b;
+  color: var(--theme-text-secondary);
   font-size: 8px;
   font-weight: 800;
 }
@@ -296,7 +296,7 @@
 
 .disbursement-table th {
   background: var(--theme-surface-soft);
-  color: #64748b;
+  color: var(--theme-text-secondary);
   font-size: 8px;
   font-weight: 900;
   letter-spacing: 0.04em;
@@ -305,7 +305,7 @@
 }
 
 .disbursement-table td {
-  color: #334155;
+  color: var(--theme-text-primary);
   font-size: 9px;
 }
 
@@ -384,7 +384,7 @@
   padding: 0 8px;
   border-radius: 999px;
   background: var(--theme-surface-soft);
-  color: #64748b;
+  color: var(--theme-text-secondary);
   font-size: 8px;
   font-weight: 800;
 }

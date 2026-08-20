@@ -1,73 +1,12 @@
 /* =========================================================
-   SIM SPPG — THEME SYSTEM
-   Light / Dark only.
-   UI-only theme tokens and theme switch.
+   SIM SPPG — DARK-ONLY THEME
+   UI-only design tokens. Theme switch removed.
    ========================================================= */
 
 :root,
-[data-theme='light'] {
-  color-scheme: light;
-
-  --theme-page-bg: #f5f7fa;
-  --theme-surface: #ffffff;
-  --theme-surface-soft: #f8fafc;
-  --theme-surface-raised: #ffffff;
-
-  --theme-text-primary: #0f172a;
-  --theme-text-secondary: #475569;
-  --theme-text-muted: #64748b;
-
-  --theme-border: #d8e0ea;
-  --theme-border-strong: #c5d0de;
-
-  --theme-primary: #2563eb;
-  --theme-primary-hover: #1d4ed8;
-  --theme-primary-soft: #eff6ff;
-  --theme-primary-foreground: #ffffff;
-
-  --theme-success: #16a34a;
-  --theme-success-hover: #15803d;
-  --theme-success-soft: #f0fdf4;
-
-  --theme-warning: #d97706;
-  --theme-warning-hover: #b45309;
-  --theme-warning-soft: #fffbeb;
-
-  --theme-danger: #dc2626;
-  --theme-danger-hover: #b91c1c;
-  --theme-danger-soft: #fef2f2;
-
-  --theme-focus-ring: 0 0 0 3px rgb(37 99 235 / 0.14);
-
-  --theme-shadow-card:
-    0 1px 3px rgb(15 23 42 / 0.055), 0 1px 2px rgb(15 23 42 / 0.035);
-
-  --theme-shadow-hover:
-    0 10px 26px rgb(15 23 42 / 0.09), 0 2px 6px rgb(15 23 42 / 0.04);
-
-  --theme-shadow-modal:
-    0 28px 80px rgb(15 23 42 / 0.18), 0 8px 24px rgb(15 23 42 / 0.08);
-
-  --theme-sidebar-bg: #0f172a;
-  --theme-sidebar-surface: #111827;
-  --theme-sidebar-text: #d0d7e2;
-  --theme-sidebar-text-muted: #94a3b8;
-  --theme-sidebar-text-active: #ffffff;
-  --theme-sidebar-hover: rgb(255 255 255 / 0.055);
-  --theme-sidebar-active: #2563eb;
-  --theme-sidebar-active-soft: rgb(37 99 235 / 0.14);
-
-  --theme-header-bg: rgb(255 255 255 / 0.9);
-  --theme-header-shadow: 0 10px 28px rgb(15 23 42 / 0.028);
-  --theme-overlay: rgb(6 12 27 / 0.58);
-
-  --theme-motion-fast: 150ms;
-  --theme-motion: 220ms;
-  --theme-motion-slow: 320ms;
-  --theme-ease: cubic-bezier(0.22, 1, 0.36, 1);
-}
-
 [data-theme='dark'] {
+  color-scheme: dark;
+
   color-scheme: dark;
 
   --theme-page-bg: #0b1120;
@@ -128,9 +67,10 @@
   --theme-ease: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-/* =========================================================
-   GLOBAL THEME TRANSITION
-   ========================================================= */
+/* Keep the root in dark mode even before React mounts. */
+html {
+  color-scheme: dark;
+}
 
 html.theme-transitioning,
 html.theme-transitioning *,
@@ -146,16 +86,16 @@ html.theme-transitioning *::after {
 }
 
 /* =========================================================
-   SIDEBAR — CLEAN, SOLID, NO GLOW HAZE
+   SIDEBAR — CLEAN, SOLID
    ========================================================= */
 
 .app-sidebar {
   background: var(--theme-sidebar-bg) !important;
-  color: #ffffff;
+  color: var(--theme-text-primary);
 }
 
 .app-brand strong {
-  color: #ffffff;
+  color: var(--theme-sidebar-text-active);
 }
 
 .app-brand span {
@@ -171,12 +111,12 @@ html.theme-transitioning *::after {
 }
 
 .app-nav-link:hover {
-  color: #ffffff;
+  color: var(--theme-sidebar-text-active);
   background: var(--theme-sidebar-hover);
 }
 
 .app-nav-icon {
-  background: rgb(255 255 255 / 0.055);
+  background: var(--theme-sidebar-hover);
 }
 
 .app-sidebar-footer {
@@ -193,123 +133,9 @@ html.theme-transitioning *::after {
 }
 
 /* =========================================================
-   SIDEBAR THEME SWITCH
-   Uiverse-inspired pill/slider treatment.
-   Existing React state/logic is preserved.
+   COLLAPSED SIDEBAR NAVIGATION
    ========================================================= */
 
-.app-sidebar-theme {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  padding: 10px 14px 4px;
-}
-
-.app-theme-switch {
-  position: relative;
-  display: block;
-  width: 60px !important;
-  height: 32px;
-  flex: 0 0 60px;
-  padding: 0;
-  border: 1px solid rgb(255 255 255 / 0.12);
-  border-radius: 999px;
-  background: #212121;
-  color: #ffffff;
-  cursor: pointer;
-  overflow: hidden;
-  box-shadow:
-    inset 0 1px 2px rgb(0 0 0 / 0.22),
-    inset 0 -1px 1px rgb(255 255 255 / 0.03),
-    0 3px 10px rgb(0 0 0 / 0.16);
-  transition:
-    border-color var(--theme-motion-fast) ease,
-    background-color var(--theme-motion-fast) ease,
-    transform var(--theme-motion-fast) var(--theme-ease),
-    box-shadow var(--theme-motion-fast) ease;
-}
-
-.app-theme-switch:hover {
-  border-color: rgb(255 255 255 / 0.22);
-  background: #252525;
-  transform: translateY(-1px);
-  box-shadow:
-    inset 0 1px 2px rgb(0 0 0 / 0.24),
-    0 5px 14px rgb(0 0 0 / 0.2);
-}
-
-.app-theme-switch:active {
-  transform: translateY(0) scale(0.98);
-}
-
-.app-theme-switch:focus-visible {
-  outline: none;
-  box-shadow:
-    0 0 0 3px rgb(59 130 246 / 0.28),
-    inset 0 1px 2px rgb(0 0 0 / 0.22);
-}
-
-.app-theme-switch-track {
-  position: absolute;
-  inset: 0;
-  display: block;
-}
-
-.app-theme-switch-thumb {
-  position: absolute;
-  top: 2px;
-  left: 2px;
-  z-index: 2;
-  display: grid;
-  width: 26px;
-  height: 26px;
-  place-items: center;
-  border-radius: 50%;
-  background: #ffffff;
-  color: #fbbf24;
-  box-shadow:
-    0 2px 5px rgb(0 0 0 / 0.28),
-    inset 0 0 0 1px rgb(15 23 42 / 0.06);
-  transform: translateX(0);
-  transition:
-    transform 220ms var(--theme-ease),
-    background-color 180ms ease,
-    color 180ms ease,
-    box-shadow 180ms ease;
-}
-
-.app-theme-switch-thumb svg {
-  width: 15px;
-  height: 15px;
-  stroke-width: 2.2;
-  filter: drop-shadow(0 0 4px rgb(251 191 36 / 0.22));
-}
-
-.app-theme-switch[data-dark='true'] .app-theme-switch-thumb {
-  transform: translateX(30px);
-  background: #172033;
-  color: #dbeafe;
-  box-shadow:
-    0 2px 5px rgb(0 0 0 / 0.38),
-    inset 0 0 0 1px rgb(255 255 255 / 0.08);
-}
-
-.app-theme-switch[data-dark='true'] .app-theme-switch-thumb svg {
-  filter: drop-shadow(0 0 4px rgb(203 213 225 / 0.16));
-}
-
-.app-shell.sidebar-collapsed .app-sidebar-theme {
-  justify-content: center;
-  padding: 10px 9px 4px;
-}
-
-.app-shell.sidebar-collapsed .app-theme-switch {
-  width: 60px !important;
-  height: 32px;
-  flex-basis: 60px;
-}
-
-/* Keep collapsed navigation icons mathematically centered. */
 .app-shell.sidebar-collapsed .app-nav-link {
   gap: 0;
 }
@@ -321,55 +147,4 @@ html.theme-transitioning *::after {
 .app-shell.sidebar-collapsed .app-nav-link,
 .app-shell.sidebar-collapsed .app-nav-icon {
   margin-inline: auto;
-}
-
-/* =========================================================
-   MOBILE THEME SWITCH
-   ========================================================= */
-
-.app-mobile-theme-control {
-  display: none;
-  position: relative;
-}
-
-.app-mobile-theme-switch {
-  display: grid;
-  width: 34px;
-  height: 34px;
-  place-items: center;
-  padding: 0;
-  border: 1px solid var(--app-border-strong);
-  border-radius: 9px;
-  background: var(--theme-surface-raised);
-  color: var(--theme-primary);
-  cursor: pointer;
-  transition:
-    transform var(--theme-motion-fast) var(--theme-ease),
-    border-color var(--theme-motion-fast) ease,
-    background-color var(--theme-motion-fast) ease,
-    color var(--theme-motion-fast) ease;
-}
-
-.app-mobile-theme-switch:hover {
-  border-color: var(--theme-primary);
-  background: var(--theme-primary-soft);
-  transform: translateY(-1px);
-}
-
-.app-mobile-theme-switch:active {
-  transform: translateY(0) scale(0.98);
-}
-
-.app-mobile-theme-switch svg {
-  width: 16px;
-  height: 16px;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  html.theme-transitioning,
-  html.theme-transitioning *,
-  html.theme-transitioning *::before,
-  html.theme-transitioning *::after {
-    transition-duration: 0.01ms !important;
-  }
 }

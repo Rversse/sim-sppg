@@ -14,14 +14,14 @@
    ========================================================= */
 
 @theme {
-  --color-background: #f5f7fa;
-  --color-foreground: #0f172a;
+  --color-background: var(--theme-page-bg);
+  --color-foreground: #f8fafc;
   --color-primary: #2563eb;
   --color-primary-foreground: #ffffff;
   --color-accent: #2563eb;
-  --color-muted: #f8fafc;
-  --color-muted-foreground: #64748b;
-  --color-border: #dce3ec;
+  --color-muted: #172033;
+  --color-muted-foreground: #c1cad7;
+  --color-border: var(--theme-border);
   --color-success: #16a34a;
   --color-warning: #f59e0b;
   --color-danger: #dc2626;
@@ -142,7 +142,7 @@ textarea {
   overflow: hidden;
 
   background: var(--theme-sidebar-bg);
-  color: #fff;
+  color: var(--theme-text-primary);
 
   will-change: width, flex-basis;
 
@@ -220,7 +220,7 @@ textarea {
 }
 
 .app-brand strong {
-  color: #fff;
+  color: var(--theme-text-primary);
   font-size: 15px;
   letter-spacing: 0.02em;
 }
@@ -314,7 +314,7 @@ textarea {
 
 .app-nav-link:hover {
   background: var(--theme-sidebar-hover);
-  color: #fff;
+  color: var(--theme-text-primary);
   transform: translateX(2px);
 }
 

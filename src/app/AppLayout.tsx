@@ -9,8 +9,6 @@ import {
   LayoutDashboard,
   LogOut,
   Menu,
-  Moon,
-  Sun,
   Wallet,
   WandSparkles,
   type LucideIcon
@@ -116,7 +114,6 @@ const navigationSections: NavigationSection[] = [
 ]
 
 const SIDEBAR_STORAGE_KEY = 'sim-sppg.sidebar-collapsed'
-const THEME_STORAGE_KEY = 'sim-sppg.theme'
 
 function getPageTitle(pathname: string) {
   return (
@@ -139,20 +136,6 @@ function getRoleLabel(role: string | undefined) {
   }
 }
 
-function getStoredDarkMode() {
-  try {
-    return window.localStorage.getItem(THEME_STORAGE_KEY) === 'dark'
-  } catch {
-    return false
-  }
-}
-
-function applyTheme(isDark: boolean) {
-  const theme = isDark ? 'dark' : 'light'
-  document.documentElement.dataset.theme = theme
-  document.documentElement.style.colorScheme = theme
-}
-
 export function AppLayout() {
   const { user } = useAuth()
   const { success, error } = useToast()
@@ -166,8 +149,6 @@ export function AppLayout() {
     }
   })
 
-  const [isDark, setIsDark] = useState(() => getStoredDarkMode())
-
   useEffect(() => {
     try {
       window.localStorage.setItem(
@@ -180,24 +161,9 @@ export function AppLayout() {
   }, [sidebarCollapsed])
 
   useEffect(() => {
-    document.documentElement.classList.add('theme-transitioning')
-    applyTheme(isDark)
-
-    try {
-      window.localStorage.setItem(THEME_STORAGE_KEY, isDark ? 'dark' : 'light')
-    } catch {
-      // Theme persistence is optional.
-    }
-
-    const timeoutId = window.setTimeout(() => {
-      document.documentElement.classList.remove('theme-transitioning')
-    }, 180)
-
-    return () => {
-      window.clearTimeout(timeoutId)
-      document.documentElement.classList.remove('theme-transitioning')
-    }
-  }, [isDark])
+    document.documentElement.dataset.theme = 'dark'
+    document.documentElement.style.colorScheme = 'dark'
+  }, [])
 
   const visibleSections = navigationSections
     .map((section) => ({
@@ -212,10 +178,6 @@ export function AppLayout() {
 
   const pageTitle = getPageTitle(pathname)
   const roleLabel = getRoleLabel(user?.role)
-
-  function toggleTheme() {
-    setIsDark((current) => !current)
-  }
 
   async function handleLogout() {
     const { error: signOutError } = await supabase.auth.signOut()
@@ -232,24 +194,6 @@ export function AppLayout() {
   return (
     <div className={`app-shell${sidebarCollapsed ? ' sidebar-collapsed' : ''}`}>
       <aside className="app-sidebar">
-        <div className="app-sidebar-theme">
-          <button
-            type="button"
-            className="app-theme-switch"
-            data-dark={isDark}
-            onClick={toggleTheme}
-            aria-label={isDark ? 'Aktifkan tema light' : 'Aktifkan tema dark'}
-            aria-pressed={isDark}
-            title={isDark ? 'Tema Dark' : 'Tema Light'}
-          >
-            <span className="app-theme-switch-track" aria-hidden="true">
-              <span className="app-theme-switch-thumb">
-                {isDark ? <Moon /> : <Sun />}
-              </span>
-            </span>
-          </button>
-        </div>
-
         <div className="app-brand">
           <span className="app-brand-mark" aria-hidden="true">
             <img src={logo} alt="" />
@@ -315,25 +259,6 @@ export function AppLayout() {
           </div>
 
           <div className="app-user">
-            <div className="app-mobile-theme-control">
-              <button
-                type="button"
-                className="app-mobile-theme-switch"
-                onClick={toggleTheme}
-                aria-label={
-                  isDark ? 'Aktifkan tema light' : 'Aktifkan tema dark'
-                }
-                aria-pressed={isDark}
-                title={isDark ? 'Tema Dark' : 'Tema Light'}
-              >
-                {isDark ? (
-                  <Moon aria-hidden="true" />
-                ) : (
-                  <Sun aria-hidden="true" />
-                )}
-              </button>
-            </div>
-
             <VehicleExpiryNotification />
 
             <span className="app-user-role">{roleLabel}</span>

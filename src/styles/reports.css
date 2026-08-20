@@ -247,7 +247,7 @@
   display: block;
   max-width: 230px;
   margin-top: 0;
-  color: #66768b;
+  color: var(--theme-text-secondary);
   font-size: 9px;
   font-weight: 500;
   line-height: 1.35;
@@ -457,7 +457,7 @@
   border: 1px solid var(--app-border);
   border-radius: 14px;
   background: var(--app-surface);
-  color: #66768b;
+  color: var(--theme-text-secondary);
   font-size: 11px;
   line-height: 1.5;
   text-align: center;

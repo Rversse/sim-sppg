@@ -17,14 +17,14 @@
 
 .vehicle-header h1 {
   margin: 0;
-  color: #0b132b;
+  color: var(--theme-text-primary);
   font-size: 28px;
   font-weight: 800;
 }
 
 .vehicle-header p {
   margin: 5px 0 0;
-  color: #66768b;
+  color: var(--theme-text-secondary);
   font-size: 11px;
   line-height: 1.45;
 }
@@ -88,7 +88,7 @@
   padding: 0 8px;
   border: 1px solid var(--app-border);
   border-radius: 999px;
-  background: rgb(255 255 255 / 0.78);
+  background: color-mix(in srgb, var(--theme-surface-raised) 78%, transparent);
   box-shadow: 0 3px 10px rgb(15 23 42 / 0.025);
   color: var(--app-text-muted);
   font-size: 10px;
@@ -152,7 +152,7 @@
 .vehicle-table th,
 .vehicle-table td {
   padding: 13px 12px;
-  border-bottom: 1px solid #eef2f7;
+  border-bottom: 1px solid var(--theme-border);
   text-align: center;
   vertical-align: middle;
 }
@@ -161,7 +161,7 @@
   padding-top: 12px;
   padding-bottom: 12px;
   background: var(--app-bg-soft);
-  color: #64748b;
+  color: var(--theme-text-secondary);
   font-size: 10px;
   font-weight: 900;
   letter-spacing: 0.055em;
@@ -220,7 +220,7 @@
 }
 
 .vehicle-expiry .expiry-neutral {
-  color: #94a3b8;
+  color: var(--theme-text-muted);
 }
 
 .vehicle-reminder {
@@ -252,7 +252,7 @@
 
 .vehicle-state {
   padding: 26px;
-  color: #94a3b8;
+  color: var(--theme-text-muted);
   text-align: center;
   font-size: 11px;
 }
@@ -275,12 +275,12 @@
   justify-content: space-between;
   gap: 12px;
   padding: 13px 16px;
-  border-bottom: 1px solid #eef2f7;
+  border-bottom: 1px solid var(--theme-border);
 }
 
 .vehicle-modal-head h2 {
   margin: 0;
-  color: #0b132b;
+  color: var(--theme-text-primary);
   font-size: 16px;
 }
 
@@ -306,7 +306,7 @@
 }
 
 .vehicle-field label {
-  color: #607086;
+  color: var(--theme-text-secondary);
   font-size: 11px;
   font-weight: 800;
 }

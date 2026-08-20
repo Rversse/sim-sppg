@@ -5,7 +5,7 @@
  *
  * Ownership order:
  * 1. foundation.css      -> shell, design tokens, header structure
- * 2. theme.css           -> Light / Dark theme tokens and switch
+ * 2. theme.css           -> Dark-only theme tokens
  * 3. system.css          -> generic typography, controls, shared surfaces
  * 4. responsive.css      -> global breakpoints
  * 5. page-shared.css     -> tiny shared utilities/accessibility
