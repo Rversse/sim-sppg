@@ -1,4 +1,4 @@
-﻿import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/features/auth/use-auth'
@@ -242,20 +242,28 @@ export function DashboardPage() {
     []
   )
 
-  const refreshDashboard = useCallback(async () => {
-    setLoading(true)
-    setError(null)
+  const refreshDashboard = useCallback(
+    async (showLoading = false) => {
+      if (showLoading) {
+        setLoading(true)
+      }
 
-    try {
-      const data = await loadDashboardData()
-      applyDashboardData(data)
-    } catch (loadError) {
-      console.error(loadError)
-      setError('Gagal memuat Dashboard. Coba refresh atau periksa koneksi.')
-    } finally {
-      setLoading(false)
-    }
-  }, [applyDashboardData, loadDashboardData])
+      setError(null)
+
+      try {
+        const data = await loadDashboardData()
+        applyDashboardData(data)
+      } catch (loadError) {
+        console.error(loadError)
+        setError('Gagal memuat Dashboard. Coba refresh atau periksa koneksi.')
+      } finally {
+        if (showLoading) {
+          setLoading(false)
+        }
+      }
+    },
+    [applyDashboardData, loadDashboardData]
+  )
 
   useEffect(() => {
     let cancelled = false
@@ -293,6 +301,88 @@ export function DashboardPage() {
       cancelled = true
     }
   }, [applyDashboardData, loadDashboardData])
+
+  useEffect(() => {
+    let cancelled = false
+    let refreshInFlight = false
+    let refreshQueued = false
+    let refreshTimer: ReturnType<typeof setTimeout> | null = null
+
+    const scheduleRealtimeRefresh = () => {
+      if (cancelled) {
+        return
+      }
+
+      if (refreshTimer !== null) {
+        return
+      }
+
+      refreshTimer = setTimeout(() => {
+        refreshTimer = null
+
+        if (cancelled) {
+          return
+        }
+
+        if (refreshInFlight) {
+          refreshQueued = true
+          return
+        }
+
+        refreshInFlight = true
+
+        void refreshDashboard(false)
+          .catch((refreshError) => {
+            console.error(
+              'Gagal memperbarui Dashboard dari Realtime:',
+              refreshError
+            )
+          })
+          .finally(() => {
+            refreshInFlight = false
+
+            if (refreshQueued && !cancelled) {
+              refreshQueued = false
+              scheduleRealtimeRefresh()
+            }
+          })
+      }, 150)
+    }
+
+    const channel = supabase
+      .channel('dashboard-transactions-live')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'transactions'
+        },
+        () => {
+          scheduleRealtimeRefresh()
+        }
+      )
+      .subscribe((status) => {
+        if (
+          status === 'CHANNEL_ERROR' ||
+          status === 'TIMED_OUT' ||
+          status === 'CLOSED'
+        ) {
+          console.warn(`[Dashboard Realtime] ${status}`)
+        }
+      })
+
+    return () => {
+      cancelled = true
+
+      if (refreshTimer !== null) {
+        clearTimeout(refreshTimer)
+        refreshTimer = null
+      }
+
+      void supabase.removeChannel(channel)
+    }
+  }, [refreshDashboard])
 
   const net = filters.flowType === '' ? summary.income - summary.expense : 0
 
@@ -879,7 +969,7 @@ export function DashboardPage() {
       if (transactionPage !== 1) {
         setTransactionPage(1)
       } else {
-        await refreshDashboard()
+        await refreshDashboard(false)
       }
     } catch (saveError) {
       console.error(saveError)
@@ -910,7 +1000,7 @@ export function DashboardPage() {
       if (transactionPage > 1 && transactions.length === 1) {
         setTransactionPage((current) => current - 1)
       } else {
-        await refreshDashboard()
+        await refreshDashboard(false)
       }
     } catch (deleteError) {
       console.error(deleteError)

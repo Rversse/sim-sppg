@@ -21,6 +21,7 @@ import {
   type RecipientHistoryOption
 } from '@/features/bank/bank-service'
 
+import { supabase } from '@/lib/supabase'
 import { canAccess } from '@/features/auth/role-policy'
 import { useAuth } from '@/features/auth/use-auth'
 
@@ -34,7 +35,6 @@ import {
 const HISTORY_PAGE_SIZE = 10
 const BANK_MODULE_START_DATE = '2026-07-20'
 const MAX_AUTOCOMPLETE_RESULTS = 5
-const BANK_OVERVIEW_REFRESH_INTERVAL = 5000
 
 const PRIORITY_OWNERS = [
   'DEDE JAELANI',
@@ -69,7 +69,7 @@ function createEmptyTransferForm(): TransferFormState {
 }
 
 function formatIntegerInput(value: string) {
-  const digits = value.replace(/\\D/g, '')
+  const digits = value.replace(/\D/g, '')
 
   if (!digits) return ''
 
@@ -79,7 +79,7 @@ function formatIntegerInput(value: string) {
 }
 
 function parseIntegerInput(value: string) {
-  const digits = value.replace(/\\D/g, '')
+  const digits = value.replace(/\D/g, '')
 
   return digits ? Number(digits) : 0
 }
@@ -339,13 +339,21 @@ export function BankPage() {
   useEffect(() => {
     let cancelled = false
     let refreshInFlight = false
+    let refreshQueued = false
+    let refreshTimer: ReturnType<typeof window.setTimeout> | null = null
 
     const refreshOverview = async (showLoading = false) => {
-      if (cancelled || refreshInFlight) {
+      if (cancelled) {
+        return
+      }
+
+      if (refreshInFlight) {
+        refreshQueued = true
         return
       }
 
       refreshInFlight = true
+      refreshQueued = false
 
       if (showLoading) {
         setLoading(true)
@@ -373,33 +381,70 @@ export function BankPage() {
         if (!cancelled && showLoading) {
           setLoading(false)
         }
+
+        if (!cancelled && refreshQueued) {
+          refreshQueued = false
+          void refreshOverview()
+        }
       }
+    }
+
+    const scheduleOverviewRefresh = () => {
+      if (cancelled || refreshTimer !== null) {
+        return
+      }
+
+      refreshTimer = window.setTimeout(() => {
+        refreshTimer = null
+        void refreshOverview()
+      }, 150)
     }
 
     void refreshOverview(true)
 
-    const intervalId = window.setInterval(() => {
-      void refreshOverview()
-    }, BANK_OVERVIEW_REFRESH_INTERVAL)
-
-    const handleFocus = () => {
-      void refreshOverview()
-    }
-
-    const handleVisibilityChange = () => {
-      if (document.visibilityState === 'visible') {
-        void refreshOverview()
-      }
-    }
-
-    window.addEventListener('focus', handleFocus)
-    document.addEventListener('visibilitychange', handleVisibilityChange)
+    const channel = supabase
+      .channel('bank-page-live')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'bank_transactions'
+        },
+        scheduleOverviewRefresh
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'transactions'
+        },
+        scheduleOverviewRefresh
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'accounts'
+        },
+        scheduleOverviewRefresh
+      )
+      .subscribe((status) => {
+        if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
+          console.warn(`Bank realtime subscription status: ${status}`)
+        }
+      })
 
     return () => {
       cancelled = true
-      window.clearInterval(intervalId)
-      window.removeEventListener('focus', handleFocus)
-      document.removeEventListener('visibilitychange', handleVisibilityChange)
+
+      if (refreshTimer !== null) {
+        window.clearTimeout(refreshTimer)
+      }
+
+      void supabase.removeChannel(channel)
     }
   }, [])
 
@@ -661,8 +706,8 @@ export function BankPage() {
       destinationMode: editMode,
       recipientAccountId: transaction.recipient_account_id ?? '',
       recipientName: transaction.recipient_name ?? '',
-      transferAmount: String(transaction.transfer_amount),
-      adminFee: String(transaction.admin_fee),
+      transferAmount: formatIntegerInput(String(transaction.transfer_amount)),
+      adminFee: formatIntegerInput(String(transaction.admin_fee)),
       paymentFor: transaction.payment_for ?? ''
     })
     setRecipientQuery(transaction.recipient_name ?? '')

@@ -1,4 +1,11 @@
-import { useEffect, useMemo, useRef, useState, type KeyboardEvent } from 'react'
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type KeyboardEvent
+} from 'react'
 import { Check, Copy, Plus, RefreshCw, Trash2 } from 'lucide-react'
 
 import { useAuth } from '@/features/auth/use-auth'
@@ -21,6 +28,7 @@ import type {
   MakerKitchen
 } from '@/features/disbursement-maker/disbursement-maker-types'
 import { getTodayLocal } from '@/lib/formatters'
+import { supabase } from '@/lib/supabase'
 
 type MakerFormState = {
   transactionDate: string
@@ -363,34 +371,130 @@ export function DisbursementMakerPage() {
     }
   }
 
-  async function reloadItems() {
+  const reloadItems = useCallback(
+    async (showLoading = true) => {
+      if (!form.transactionDate || !form.kitchenId) {
+        return
+      }
+
+      if (showLoading) {
+        setLoadingItems(true)
+      }
+
+      try {
+        const [makerItems, incomeAccounts, neutralAccounts] = await Promise.all(
+          [
+            getMakerItems({
+              transactionDate: form.transactionDate,
+              kitchenId: form.kitchenId
+            }),
+            getMakerAccountOptions(form.kitchenId, 'income'),
+            getMakerAccountOptions(form.kitchenId, 'neutral')
+          ]
+        )
+
+        setItems(makerItems)
+        setItemAccounts([...incomeAccounts, ...neutralAccounts])
+        setErrorMessage('')
+      } catch (error) {
+        console.error(error)
+        setErrorMessage('Gagal memuat data Maker.')
+      } finally {
+        if (showLoading) {
+          setLoadingItems(false)
+        }
+      }
+    },
+    [form.transactionDate, form.kitchenId]
+  )
+
+  useEffect(() => {
     if (!form.transactionDate || !form.kitchenId) {
       return
     }
 
-    setLoadingItems(true)
+    let cancelled = false
+    let refreshInFlight = false
+    let refreshQueued = false
+    let refreshTimer: ReturnType<typeof setTimeout> | null = null
 
-    try {
-      const [makerItems, incomeAccounts, neutralAccounts] = await Promise.all([
-        getMakerItems({
-          transactionDate: form.transactionDate,
-          kitchenId: form.kitchenId
-        }),
-        getMakerAccountOptions(form.kitchenId, 'income'),
-        getMakerAccountOptions(form.kitchenId, 'neutral')
-      ])
+    const scheduleRealtimeRefresh = () => {
+      if (cancelled || refreshTimer !== null) {
+        return
+      }
 
-      setItems(makerItems)
-      setItemAccounts([...incomeAccounts, ...neutralAccounts])
-      setErrorMessage('')
-    } catch (error) {
-      console.error(error)
+      refreshTimer = setTimeout(() => {
+        refreshTimer = null
 
-      setErrorMessage('Gagal memuat data Maker.')
-    } finally {
-      setLoadingItems(false)
+        if (cancelled) {
+          return
+        }
+
+        if (refreshInFlight) {
+          refreshQueued = true
+          return
+        }
+
+        refreshInFlight = true
+
+        void reloadItems(false)
+          .catch((error: unknown) => {
+            console.error('Gagal memperbarui Maker dari Realtime:', error)
+          })
+          .finally(() => {
+            refreshInFlight = false
+
+            if (refreshQueued && !cancelled) {
+              refreshQueued = false
+              scheduleRealtimeRefresh()
+            }
+          })
+      }, 150)
     }
-  }
+
+    /*
+     * Global subscription by design.
+     *
+     * Do not attach a kitchen_id filter here. The page query already filters
+     * by the currently selected date + kitchen. A filtered Realtime channel
+     * could miss DELETE/UPDATE notifications or changes arriving while the
+     * UI selection is transitioning. The global event stream is cheap here
+     * and makes every open Maker page reliably converge to its current DB view.
+     */
+    const channel = supabase
+      .channel('disbursement-maker-live')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'disbursement_maker_items'
+        },
+        () => {
+          scheduleRealtimeRefresh()
+        }
+      )
+      .subscribe((status) => {
+        if (
+          status === 'CHANNEL_ERROR' ||
+          status === 'TIMED_OUT' ||
+          status === 'CLOSED'
+        ) {
+          console.warn(`[Disbursement Maker Realtime] ${status}`)
+        }
+      })
+
+    return () => {
+      cancelled = true
+
+      if (refreshTimer !== null) {
+        clearTimeout(refreshTimer)
+        refreshTimer = null
+      }
+
+      void supabase.removeChannel(channel)
+    }
+  }, [form.kitchenId, form.transactionDate, reloadItems])
 
   async function addMakerItem() {
     if (!user?.id || saving) {

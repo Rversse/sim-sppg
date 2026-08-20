@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import {
   Building2,
   Link2,
@@ -11,6 +11,7 @@ import {
 } from 'lucide-react'
 
 import { canAccess } from '@/features/auth/role-policy'
+import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/features/auth/use-auth'
 import { useToast } from '@/features/ui/toast-context'
 import {
@@ -73,18 +74,24 @@ export function SupplierPage() {
   const [kitchens, setKitchens] = useState<{ id: string; name: string }[]>([])
   const [busy, setBusy] = useState(false)
 
-  async function load() {
-    setLoading(true)
+  const load = useCallback(async (showLoading = true) => {
+    if (showLoading) {
+      setLoading(true)
+    }
+
     setError('')
+
     try {
       setSuppliers(await getSuppliers())
     } catch (err) {
       console.error(err)
       setError('Gagal memuat data supplier.')
     } finally {
-      setLoading(false)
+      if (showLoading) {
+        setLoading(false)
+      }
     }
-  }
+  }, [])
 
   useEffect(() => {
     if (!canView) return
@@ -109,6 +116,101 @@ export function SupplierPage() {
       cancelled = true
     }
   }, [canView])
+
+  useEffect(() => {
+    if (!canView) {
+      return
+    }
+
+    let cancelled = false
+    let refreshInFlight = false
+    let refreshQueued = false
+    let refreshTimer: ReturnType<typeof setTimeout> | null = null
+
+    const scheduleRealtimeRefresh = () => {
+      if (cancelled || refreshTimer !== null) {
+        return
+      }
+
+      refreshTimer = setTimeout(() => {
+        refreshTimer = null
+
+        if (cancelled) {
+          return
+        }
+
+        if (refreshInFlight) {
+          refreshQueued = true
+          return
+        }
+
+        refreshInFlight = true
+
+        void load(false)
+          .catch((err: unknown) => {
+            console.error('Gagal memperbarui Supplier dari Realtime:', err)
+          })
+          .finally(() => {
+            refreshInFlight = false
+
+            if (refreshQueued && !cancelled) {
+              refreshQueued = false
+              scheduleRealtimeRefresh()
+            }
+          })
+      }, 150)
+    }
+
+    const channel = supabase
+      .channel('supplier-page-live')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'income_suppliers'
+        },
+        scheduleRealtimeRefresh
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'accounts'
+        },
+        scheduleRealtimeRefresh
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'kitchen_account_rules'
+        },
+        scheduleRealtimeRefresh
+      )
+      .subscribe((status) => {
+        if (
+          status === 'CHANNEL_ERROR' ||
+          status === 'TIMED_OUT' ||
+          status === 'CLOSED'
+        ) {
+          console.warn(`[Supplier Realtime] ${status}`)
+        }
+      })
+
+    return () => {
+      cancelled = true
+
+      if (refreshTimer !== null) {
+        clearTimeout(refreshTimer)
+        refreshTimer = null
+      }
+
+      void supabase.removeChannel(channel)
+    }
+  }, [canView, load])
 
   const filtered = useMemo(() => {
     const keyword = search.trim().toLowerCase()
@@ -167,7 +269,7 @@ export function SupplierPage() {
       }
 
       setSupplierModal(false)
-      await load()
+      await load(false)
 
       success(
         isEditing ? 'Supplier diperbarui' : 'Supplier ditambahkan',
@@ -199,7 +301,7 @@ export function SupplierPage() {
 
     try {
       await deleteSupplier(supplier.id)
-      await load()
+      await load(false)
       success('Supplier dihapus', 'Data supplier berhasil dihapus.')
     } catch (err) {
       console.error(err)
@@ -258,7 +360,7 @@ export function SupplierPage() {
 
       setEditingAccountId(null)
       setAccountForm(structuredClone(EMPTY_ACCOUNT))
-      await load()
+      await load(false)
 
       success(
         isEditing ? 'Rekening diperbarui' : 'Rekening ditambahkan',
@@ -288,7 +390,7 @@ export function SupplierPage() {
 
     try {
       await deleteSupplierAccount(accountSupplierId, accountId)
-      await load()
+      await load(false)
       success('Rekening dihapus', 'Rekening supplier berhasil dihapus.')
     } catch (err) {
       console.error(err)
@@ -324,7 +426,7 @@ export function SupplierPage() {
     try {
       await saveAccountKitchenMapping(mappingAccountId, selectedKitchens)
       setMappingAccountId(null)
-      await load()
+      await load(false)
 
       success(
         'Mapping disimpan',

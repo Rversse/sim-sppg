@@ -75,6 +75,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const authRequestIdRef = useRef(0)
   const sessionStartedAtRef = useRef<number | null>(null)
   const sessionUserIdRef = useRef<string | null>(null)
+  const currentUserRef = useRef<CurrentUser | null>(null)
 
   useEffect(() => {
     let isMounted = true
@@ -86,6 +87,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (!isMounted || requestId !== authRequestIdRef.current) return
         sessionStartedAtRef.current = null
         sessionUserIdRef.current = null
+        currentUserRef.current = null
         setSession(null)
         setUser(null)
         setIsLoading(false)
@@ -102,6 +104,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       if (!isMounted || requestId !== authRequestIdRef.current) return
 
+      currentUserRef.current = currentUser
       setSession(nextSession)
       setUser(currentUser)
       setIsLoading(false)
@@ -136,6 +139,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         authInitializedRef.current = true
         sessionStartedAtRef.current = null
         sessionUserIdRef.current = null
+        currentUserRef.current = null
         setSession(null)
         setUser(null)
         setIsLoading(false)
@@ -153,9 +157,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         ++authRequestIdRef.current
         sessionStartedAtRef.current = null
         sessionUserIdRef.current = null
+        currentUserRef.current = null
         setSession(null)
         setUser(null)
         setIsLoading(false)
+        return
+      }
+
+      const currentUserId = sessionUserIdRef.current
+      const nextUserId = nextSession.user.id
+
+      // Token refreshes (and other auth events for the same user) must not
+      // toggle the global loading state or re-fetch the profile. Doing so
+      // unmounts the current route tree via ProtectedRoute and makes every
+      // page appear to refresh when the browser tab regains focus.
+      if (currentUserId === nextUserId && currentUserRef.current) {
+        sessionUserIdRef.current = nextUserId
+        setSession(nextSession)
         return
       }
 
