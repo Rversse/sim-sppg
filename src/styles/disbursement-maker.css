@@ -250,11 +250,16 @@
 }
 
 .maker-item-card {
-  display: grid;
-  grid-template-columns: 32px minmax(0, 1fr);
-  gap: 14px;
+  display: block;
   padding: 18px 0;
   border-bottom: 1px solid var(--theme-surface-soft);
+}
+
+.maker-item-top {
+  display: grid;
+  grid-template-columns: 32px minmax(0, 1fr);
+  align-items: start;
+  gap: 14px;
 }
 
 .maker-item-card:last-child {
@@ -768,4 +773,130 @@
 [data-theme='dark'] .maker-list-header,
 [data-theme='dark'] .maker-realize-summary {
   border-color: var(--theme-border);
+}
+
+
+/* =========================================================
+   MAKER ITEM STRUCTURE FIX
+   The page renders .maker-item-top around the index + heading.
+   Keep the item body full-width below it.
+   ========================================================= */
+
+.maker-item-top > .maker-item-heading {
+  min-width: 0;
+}
+
+.maker-item-meta,
+.maker-copy-grid,
+.maker-item-actions {
+  width: 100%;
+}
+
+@media (max-width: 760px) {
+  .maker-item-top {
+    grid-template-columns: 32px minmax(0, 1fr);
+    gap: 10px;
+  }
+}
+
+/* =========================================================
+   MAKER ITEM ACTION BUTTONS
+   These buttons use dedicated classes in DisbursementMakerPage.
+   ========================================================= */
+
+.maker-item-button {
+  display: inline-flex;
+  min-height: 34px;
+  height: 34px;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 0 11px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--theme-text-primary);
+  cursor: pointer;
+  font: inherit;
+  font-size: 10px;
+  font-weight: 800;
+  line-height: 1;
+  transition:
+    transform 150ms ease,
+    box-shadow 150ms ease,
+    border-color 150ms ease,
+    background-color 150ms ease,
+    color 150ms ease;
+}
+
+.maker-item-button svg {
+  width: 15px;
+  height: 15px;
+  flex: 0 0 15px;
+  stroke-width: 2;
+}
+
+.maker-item-button:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.maker-item-button:active:not(:disabled) {
+  transform: translateY(0) scale(0.98);
+}
+
+.maker-item-button:focus-visible {
+  outline: none;
+  box-shadow: var(--theme-focus-ring);
+}
+
+.maker-item-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.52;
+}
+
+.maker-item-button--success {
+  border-color: var(--theme-success);
+  background: var(--theme-success);
+  color: var(--theme-primary-foreground);
+  box-shadow: 0 6px 16px
+    color-mix(in srgb, var(--theme-success) 16%, transparent);
+}
+
+.maker-item-button--success:hover:not(:disabled) {
+  border-color: var(--theme-success-hover);
+  background: var(--theme-success-hover);
+  box-shadow: var(--theme-shadow-hover);
+}
+
+.maker-item-button--secondary {
+  border-color: var(--theme-border-strong);
+  background: var(--theme-surface-raised);
+  color: var(--theme-text-secondary);
+}
+
+.maker-item-button--secondary:hover:not(:disabled) {
+  border-color: var(--theme-primary);
+  background: var(--theme-primary-soft);
+  color: var(--theme-primary);
+  box-shadow: none;
+}
+
+.maker-item-button--danger {
+  border-color: color-mix(
+    in srgb,
+    var(--theme-danger) 34%,
+    var(--theme-border)
+  );
+  background: transparent;
+  color: var(--theme-danger);
+}
+
+.maker-item-button--danger:hover:not(:disabled) {
+  border-color: var(--theme-danger);
+  background: var(--theme-danger-soft);
+  box-shadow: none;
+}
+
+.maker-item-actions {
+  min-height: 34px;
 }
