@@ -243,9 +243,16 @@ export function DisbursementPage() {
   return (
     <div className="disbursement-page">
       <section className="disbursement-header">
+        <div className="disbursement-header-copy">
+          <span>Checklist Operasional</span>
+          <p>
+            Pilih periode untuk melihat dan memperbarui checklist setiap dapur.
+          </p>
+        </div>
+
         <div className="disbursement-date-card">
           <label>
-            <span>Tanggal Pencairan</span>
+            <span>Periode Checklist</span>
             <input
               type="date"
               value={selectedDate}
@@ -278,25 +285,33 @@ export function DisbursementPage() {
         <>
           <section className="disbursement-summary-card">
             <div className="disbursement-summary-main">
-              <strong>
-                {summary.completedKitchens} / {summary.totalKitchens} Dapur
-                Selesai
-              </strong>
-              <span>Progress: {summary.overallProgress}%</span>
+              <div className="disbursement-summary-value">
+                <strong>
+                  {summary.completedKitchens} / {summary.totalKitchens}
+                </strong>
+                <span>Dapur Selesai</span>
+              </div>
+
+              <div className="disbursement-summary-progress-label">
+                <span>Progress Checklist</span>
+                <strong>{summary.overallProgress}%</strong>
+              </div>
             </div>
 
             <div className="disbursement-status-summary">
               <span className="is-danger">
                 <b>{summary.notStartedCount}</b>
-                Belum Mulai
+                <small>Belum Mulai</small>
               </span>
+
               <span className="is-warning">
                 <b>{summary.inProgressCount}</b>
-                Berjalan
+                <small>Berjalan</small>
               </span>
+
               <span className="is-success">
                 <b>{summary.completedKitchens}</b>
-                Selesai
+                <small>Selesai</small>
               </span>
             </div>
 
@@ -306,14 +321,14 @@ export function DisbursementPage() {
               aria-valuemin={0}
               aria-valuemax={100}
               aria-valuenow={summary.overallProgress}
-              aria-label="Progress pencairan keseluruhan"
+              aria-label="Progress Checklist"
             >
               <span style={{ width: `${summary.overallProgress}%` }} />
             </div>
 
             {locked ? (
               <div className="disbursement-lock">
-                🔒 Data terkunci karena tanggal pencairan sudah lebih dari 7
+                🔒 Data terkunci karena periode checklist sudah lebih dari 7
                 hari.
               </div>
             ) : null}

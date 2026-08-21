@@ -91,11 +91,11 @@ const navigationSections: NavigationSection[] = [
         pageTitle: 'Transaksi Bank'
       },
       {
-        label: 'Pencairan',
+        label: 'Checklist Periode',
         to: '/disbursement',
         permission: 'disbursement.view',
         icon: Wallet,
-        pageTitle: 'Pencairan'
+        pageTitle: 'Checklist Periode'
       }
     ]
   },
