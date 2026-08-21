@@ -79,6 +79,18 @@ function mapAccountOption(account: AccountRow): MakerAccountOption {
   }
 }
 
+function sortAccountOptions(
+  options: MakerAccountOption[]
+): MakerAccountOption[] {
+  return [...options].sort((a, b) =>
+    (a.supplierName ?? a.accountName).localeCompare(
+      b.supplierName ?? b.accountName,
+      'id',
+      { sensitivity: 'base' }
+    )
+  )
+}
+
 export async function getActiveMakerKitchens(
   client: SupabaseClient = supabase
 ): Promise<MakerKitchen[]> {
@@ -186,19 +198,21 @@ export async function getMakerAccountOptions(
 
   const rows = (data ?? []) as unknown as KitchenAccountRuleRow[]
 
-  return rows
-    .map((row) => {
-      const account = Array.isArray(row.accounts)
-        ? row.accounts[0]
-        : row.accounts
+  return sortAccountOptions(
+    rows
+      .map((row) => {
+        const account = Array.isArray(row.accounts)
+          ? row.accounts[0]
+          : row.accounts
 
-      if (!account) {
-        return null
-      }
+        if (!account) {
+          return null
+        }
 
-      return mapAccountOption(account)
-    })
-    .filter((account): account is MakerAccountOption => account !== null)
+        return mapAccountOption(account)
+      })
+      .filter((account): account is MakerAccountOption => account !== null)
+  )
 }
 
 export function normalizeMakerAmount(value: string | number): number {

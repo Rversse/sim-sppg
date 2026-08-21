@@ -22,9 +22,9 @@
 }
 
 .vehicle-notification-button:hover {
-  border-color: var(--app-border-strong);
-  background: var(--app-white);
-  color: var(--app-primary);
+  border-color: var(--theme-border);
+  background: var(--theme-surface-soft);
+  color: var(--theme-primary-hover);
 }
 
 .vehicle-notification-button svg {
@@ -42,9 +42,9 @@
   height: 18px;
   place-items: center;
   padding: 0 4px;
-  border: 2px solid var(--app-white);
+  border: 2px solid var(--theme-surface);
   border-radius: 999px;
-  background: #ef4444;
+  background: var(--theme-danger);
   color: #fff;
   font-size: 8px;
   font-weight: 900;
@@ -56,12 +56,12 @@
   position: absolute;
   top: calc(100% + 10px);
   right: 0;
-  width: min(420px, calc(100vw - 28px));
+  width: min(360px, calc(100vw - 28px));
   overflow: hidden;
-  border: 1px solid var(--app-border-strong);
-  border-radius: 16px;
-  background: var(--app-white);
-  box-shadow: 0 24px 64px rgb(15 23 42 / 0.16);
+  border: 1px solid var(--theme-border-strong);
+  border-radius: 14px;
+  background: var(--theme-surface-raised);
+  box-shadow: var(--theme-shadow-modal);
 }
 
 .vehicle-notification-head {
@@ -69,17 +69,13 @@
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  padding: 13px 15px;
-  border-bottom: 1px solid var(--app-border-soft);
-  background: linear-gradient(
-    180deg,
-    color-mix(in srgb, var(--theme-surface-soft) 98%, transparent),
-    color-mix(in srgb, var(--theme-surface-raised) 98%, transparent)
-  );
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--theme-border);
+  background: var(--theme-surface-soft);
 }
 
 .vehicle-notification-head strong {
-  color: var(--app-primary);
+  color: var(--theme-text-primary);
   font-size: 13px;
   font-weight: 900;
   letter-spacing: -0.01em;
@@ -87,21 +83,21 @@
 
 .vehicle-notification-close {
   display: grid;
-  width: 30px;
-  height: 30px;
-  flex: 0 0 30px;
+  width: 28px;
+  height: 28px;
+  flex: 0 0 28px;
   place-items: center;
-  border: 1px solid var(--app-border-strong);
+  border: 1px solid var(--theme-border);
   border-radius: 8px;
-  background: var(--app-white);
-  color: var(--app-text-muted);
+  background: var(--theme-surface-raised);
+  color: var(--theme-text-muted);
   cursor: pointer;
 }
 
 .vehicle-notification-close:hover {
-  border-color: var(--app-border-mid);
-  background: var(--app-bg-soft);
-  color: var(--app-primary);
+  border-color: var(--theme-border-strong);
+  background: var(--theme-surface);
+  color: var(--theme-primary-hover);
 }
 
 .vehicle-notification-close svg {
@@ -110,12 +106,12 @@
 }
 
 .vehicle-notification-list {
-  max-height: min(540px, calc(100vh - 165px));
+  max-height: min(480px, calc(100vh - 165px));
   overflow: auto;
 }
 
 .vehicle-notification-item {
-  padding: 12px 15px;
+  padding: 10px 14px;
   border-bottom: 1px solid var(--theme-border);
   background: var(--theme-surface-raised);
 }
@@ -125,21 +121,21 @@
 }
 
 .vehicle-notification-item.is-danger {
-  background: linear-gradient(
-    90deg,
-    rgb(254 242 242 / 0.78),
-    var(--theme-surface-raised) 58%
+  background: color-mix(
+    in srgb,
+    var(--theme-danger) 7%,
+    var(--theme-surface-raised)
   );
-  box-shadow: inset 3px 0 0 #ef4444;
+  box-shadow: inset 3px 0 0 var(--theme-danger);
 }
 
 .vehicle-notification-item.is-warning {
-  background: linear-gradient(
-    90deg,
-    rgb(255 247 237 / 0.85),
-    var(--theme-surface-raised) 58%
+  background: color-mix(
+    in srgb,
+    var(--theme-warning) 7%,
+    var(--theme-surface-raised)
   );
-  box-shadow: inset 3px 0 0 #f59e0b;
+  box-shadow: inset 3px 0 0 var(--theme-warning);
 }
 
 .vehicle-notification-item-top {
@@ -151,7 +147,7 @@
 
 .vehicle-notification-item-top strong {
   display: inline-flex;
-  min-height: 20px;
+  min-height: 19px;
   align-items: center;
   padding: 0 7px;
   border-radius: 999px;
@@ -161,13 +157,13 @@
 }
 
 .vehicle-notification-item.is-danger .vehicle-notification-item-top strong {
-  background: #fee2e2;
-  color: #b91c1c;
+  background: var(--theme-danger-soft);
+  color: var(--theme-danger);
 }
 
 .vehicle-notification-item.is-warning .vehicle-notification-item-top strong {
-  background: #fef3c7;
-  color: #b45309;
+  background: var(--theme-warning-soft);
+  color: var(--theme-warning);
 }
 
 .vehicle-notification-item-top span {
@@ -178,26 +174,46 @@
 }
 
 .vehicle-notification-item.is-danger .vehicle-notification-item-top span {
-  color: #b91c1c;
+  color: var(--theme-danger);
 }
 
 .vehicle-notification-item.is-warning .vehicle-notification-item-top span {
-  color: #b45309;
+  color: var(--theme-warning);
 }
 
 .vehicle-notification-name {
-  margin-top: 7px;
+  margin-top: 6px;
+  overflow: hidden;
   color: var(--theme-text-primary);
-  font-size: 10px;
-  font-weight: 900;
+  font-size: 11px;
+  font-weight: 800;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.vehicle-notification-item
-  > div:not(.vehicle-notification-item-top):not(.vehicle-notification-name) {
+.vehicle-notification-meta {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
   margin-top: 3px;
   color: var(--theme-text-secondary);
   font-size: 9px;
   line-height: 1.4;
+}
+
+.vehicle-notification-meta-primary {
+  min-width: 0;
+  overflow: hidden;
+  flex: 1 1 auto;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.vehicle-notification-meta-date {
+  flex: 0 0 auto;
+  color: var(--theme-text-muted);
+  white-space: nowrap;
 }
 
 .vehicle-notification-empty {
@@ -218,7 +234,7 @@
     position: fixed;
     top: 66px;
     right: 10px;
-    width: min(420px, calc(100vw - 20px));
+    width: min(360px, calc(100vw - 20px));
   }
 
   .vehicle-notification-list {
@@ -254,13 +270,11 @@
 }
 
 .vehicle-notification-item {
-  transition:
-    background-color var(--app-motion-fast) ease,
-    padding-left var(--app-motion-fast) var(--app-ease);
+  transition: filter var(--app-motion-fast) ease;
 }
 
 .vehicle-notification-item:hover {
-  padding-left: 18px;
+  filter: brightness(1.12);
 }
 
 @keyframes vehicle-notification-in {

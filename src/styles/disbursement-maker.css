@@ -16,7 +16,7 @@
 .maker-list-panel,
 .maker-realize-panel {
   width: 100%;
-  background: var(--theme-surface-raised);
+  background: var(--theme-surface);
   border: 1px solid var(--theme-border);
   border-radius: 16px;
   box-sizing: border-box;
@@ -52,7 +52,7 @@
   font-size: 11px;
   font-weight: 800;
   line-height: 1.2;
-  color: var(--theme-text-secondary);
+  color: var(--theme-text-muted);
   text-transform: uppercase;
   letter-spacing: 0.04em;
 }
@@ -63,9 +63,9 @@
   min-height: 42px;
   box-sizing: border-box;
   padding: 0 13px;
-  border: 1px solid var(--theme-border-strong);
+  border: 1px solid var(--theme-border);
   border-radius: 10px;
-  background: var(--theme-surface-raised);
+  background: var(--theme-surface-soft);
   color: var(--theme-text-primary);
   font: inherit;
   font-size: 13px;
@@ -83,14 +83,13 @@
 .maker-field input:focus,
 .maker-field select:focus {
   border-color: var(--theme-primary);
-  box-shadow: 0 0 0 3px
-    color-mix(in srgb, var(--theme-text-primary) 5%, transparent);
+  box-shadow: var(--theme-focus-ring);
 }
 
 .maker-field input:disabled,
 .maker-field select:disabled {
   cursor: not-allowed;
-  background: var(--theme-surface-soft);
+  background: var(--theme-surface);
   color: var(--theme-text-muted);
 }
 
@@ -112,7 +111,7 @@
   font-size: 11px;
   font-weight: 800;
   line-height: 1.2;
-  color: var(--theme-text-secondary);
+  color: var(--theme-text-muted);
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
@@ -143,14 +142,14 @@
 }
 
 .maker-selected-account span {
-  color: var(--theme-text-secondary);
+  color: var(--theme-text-muted);
   font-size: 12px;
 }
 
 .maker-form-grid {
   margin-top: 18px;
   display: grid;
-  grid-template-columns: minmax(240px, 1.35fr) minmax(180px, 0.8fr) auto;
+  grid-template-columns: minmax(220px, 1.6fr) minmax(120px, 0.55fr) auto;
   align-items: end;
   gap: 12px;
 }
@@ -165,14 +164,15 @@
 }
 
 .maker-form-actions .app-action-button {
-  min-width: 112px;
+  min-width: 96px;
+  white-space: nowrap;
 }
 
 .maker-error {
   margin-top: 14px;
   padding: 11px 13px;
   border: 1px solid
-    color-mix(in srgb, var(--theme-danger) 28%, var(--theme-border));
+    color-mix(in srgb, var(--theme-danger) 40%, var(--theme-border));
   border-radius: 10px;
   background: var(--theme-danger-soft);
   color: var(--theme-danger);
@@ -182,8 +182,20 @@
 
 .maker-summary-grid {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
   gap: 12px;
+}
+
+.maker-summary-card--local {
+  border-color: color-mix(
+    in srgb,
+    var(--theme-primary) 35%,
+    var(--theme-border)
+  );
+}
+
+.maker-summary-card--local span {
+  color: var(--theme-primary-hover);
 }
 
 .maker-summary-card {
@@ -191,14 +203,14 @@
   padding: 16px 18px;
   border: 1px solid var(--theme-border);
   border-radius: 14px;
-  background: var(--theme-surface-raised);
+  background: var(--theme-surface);
   box-sizing: border-box;
 }
 
 .maker-summary-card span {
   display: block;
   margin-bottom: 8px;
-  color: var(--theme-text-secondary);
+  color: var(--theme-text-muted);
   font-size: 11px;
   font-weight: 800;
   line-height: 1.2;
@@ -245,14 +257,21 @@
 }
 
 .maker-list {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 16px;
 }
 
 .maker-item-card {
-  display: block;
-  padding: 18px 0;
-  border-bottom: 1px solid var(--theme-surface-soft);
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  margin: 0;
+  padding: 18px;
+  border: 1px solid var(--theme-border);
+  border-radius: 14px;
+  background: var(--theme-surface-raised);
+  box-sizing: border-box;
 }
 
 .maker-item-top {
@@ -260,10 +279,6 @@
   grid-template-columns: 32px minmax(0, 1fr);
   align-items: start;
   gap: 14px;
-}
-
-.maker-item-card:last-child {
-  border-bottom: 0;
 }
 
 .maker-item-index {
@@ -309,7 +324,7 @@
 }
 
 .maker-item-heading span:not(.maker-status) {
-  color: var(--theme-text-secondary);
+  color: var(--theme-text-muted);
   font-size: 12px;
   line-height: 1.35;
 }
@@ -328,31 +343,19 @@
 }
 
 .maker-status-ready {
-  border-color: color-mix(
-    in srgb,
-    var(--theme-warning) 35%,
-    var(--theme-border)
-  );
+  border-color: color-mix(in srgb, var(--theme-warning) 45%, transparent);
   background: var(--theme-warning-soft);
-  color: var(--theme-warning-hover);
+  color: var(--theme-warning);
 }
 
 .maker-status-processed {
-  border-color: color-mix(
-    in srgb,
-    var(--theme-success) 30%,
-    var(--theme-border)
-  );
+  border-color: color-mix(in srgb, var(--theme-success) 45%, transparent);
   background: var(--theme-success-soft);
-  color: var(--theme-success-hover);
+  color: var(--theme-success);
 }
 
 .maker-status-realized {
-  border-color: color-mix(
-    in srgb,
-    var(--theme-primary) 28%,
-    var(--theme-border)
-  );
+  border-color: color-mix(in srgb, var(--theme-primary) 45%, transparent);
   background: var(--theme-primary-soft);
   color: var(--theme-primary-hover);
 }
@@ -369,20 +372,20 @@
 }
 
 .maker-item-meta span:first-child {
-  color: var(--theme-primary);
+  color: var(--theme-primary-hover);
 }
 
 .maker-copy-grid {
   margin-top: 14px;
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 10px;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 8px;
 }
 
 .maker-copy-box {
   min-width: 0;
   position: relative;
-  padding: 13px 48px 13px 13px;
+  padding: 11px 44px 11px 13px;
   border: 1px solid var(--theme-border);
   border-radius: 10px;
   background: var(--theme-surface-soft);
@@ -391,7 +394,7 @@
 
 .maker-copy-box > span {
   display: block;
-  margin-bottom: 6px;
+  margin-bottom: 5px;
   color: var(--theme-text-muted);
   font-size: 10px;
   font-weight: 800;
@@ -415,13 +418,13 @@
   position: absolute;
   top: 50%;
   right: 10px;
-  width: 32px;
-  height: 32px;
+  width: 30px;
+  height: 30px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   transform: translateY(-50%);
-  border: 1px solid var(--theme-border-strong);
+  border: 1px solid var(--theme-border);
   border-radius: 8px;
   background: var(--theme-surface-raised);
   color: var(--theme-text-secondary);
@@ -434,7 +437,7 @@
 
 .maker-copy-box button:hover {
   border-color: var(--theme-border-strong);
-  background: var(--theme-surface-soft);
+  background: var(--theme-surface);
 }
 
 .maker-copy-box button:active {
@@ -463,6 +466,106 @@
   gap: 8px;
 }
 
+/* =========================================================
+   ITEM ACTION BUTTONS
+   Same visual language as .app-action-button (component-surfaces.css):
+   compact height, 9px radius, lucide icons, translateY hover.
+   ========================================================= */
+
+.maker-item-button {
+  display: inline-flex;
+  min-height: 34px;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 0 12px;
+  border: 1px solid var(--theme-border);
+  border-radius: 9px;
+  background: var(--theme-surface-soft);
+  color: var(--theme-text-secondary);
+  cursor: pointer;
+  font: inherit;
+  font-size: 11px;
+  font-weight: 800;
+  line-height: 1;
+  text-decoration: none;
+  transition:
+    transform 150ms ease,
+    box-shadow 150ms ease,
+    border-color 150ms ease,
+    background-color 150ms ease,
+    color 150ms ease,
+    opacity 150ms ease;
+}
+
+.maker-item-button svg {
+  width: 14px;
+  height: 14px;
+  flex: 0 0 14px;
+  stroke-width: 2;
+}
+
+.maker-item-button:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: var(--theme-shadow-hover);
+}
+
+.maker-item-button:active:not(:disabled) {
+  transform: translateY(0) scale(0.985);
+}
+
+.maker-item-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.52;
+}
+
+.maker-item-button--success {
+  border-color: color-mix(
+    in srgb,
+    var(--theme-success) 40%,
+    var(--theme-border)
+  );
+  background: var(--theme-success-soft);
+  color: var(--theme-success);
+}
+
+.maker-item-button--success:hover:not(:disabled) {
+  border-color: var(--theme-success);
+  background: color-mix(
+    in srgb,
+    var(--theme-success) 18%,
+    var(--theme-surface-soft)
+  );
+}
+
+.maker-item-button--secondary {
+  border-color: var(--theme-border);
+  background: var(--theme-surface-soft);
+  color: var(--theme-text-secondary);
+}
+
+.maker-item-button--secondary:hover:not(:disabled) {
+  border-color: var(--theme-border-strong);
+  background: var(--theme-surface-raised);
+  box-shadow: none;
+}
+
+.maker-item-button--danger {
+  border-color: color-mix(
+    in srgb,
+    var(--theme-danger) 30%,
+    var(--theme-border)
+  );
+  background: var(--theme-surface-raised);
+  color: var(--theme-danger);
+}
+
+.maker-item-button--danger:hover:not(:disabled) {
+  border-color: var(--theme-danger);
+  background: var(--theme-danger-soft);
+  box-shadow: none;
+}
+
 .maker-realize-panel {
   padding: 20px 22px;
 }
@@ -470,7 +573,7 @@
 .maker-realize-panel > div:first-child p {
   margin: 8px 0 0;
   max-width: 700px;
-  color: var(--theme-text-secondary);
+  color: var(--theme-text-muted);
   font-size: 12px;
   line-height: 1.55;
 }
@@ -492,7 +595,7 @@
 .maker-realize-summary > div span {
   display: block;
   margin-bottom: 4px;
-  color: var(--theme-text-secondary);
+  color: var(--theme-text-muted);
   font-size: 11px;
   font-weight: 700;
 }
@@ -626,276 +729,48 @@
 }
 
 /* =========================================================
-   THEME FINALIZATION
-   Maker-specific surfaces that need explicit dark contrast.
+   LOCAL-ONLY DISBURSEMENT NOTES
    ========================================================= */
 
-[data-theme='dark'] .maker-toolbar,
-[data-theme='dark'] .maker-form-panel,
-[data-theme='dark'] .maker-list-panel,
-[data-theme='dark'] .maker-realize-panel,
-[data-theme='dark'] .maker-summary-card,
-[data-theme='dark'] .maker-item-card {
-  background: var(--theme-surface);
-  border-color: var(--theme-border);
+.maker-local-note--full {
+  grid-column: 1 / -1;
+  display: flex;
+  min-width: 0;
+  align-items: baseline;
+  gap: 8px;
+  padding: 10px 12px;
+  border: 1px solid var(--theme-border);
+  border-radius: 10px;
+  background: var(--theme-surface-soft);
+  color: var(--theme-text-secondary);
+  font-size: 12px;
+  line-height: 1.45;
+  box-sizing: border-box;
 }
 
-[data-theme='dark'] .maker-field input,
-[data-theme='dark'] .maker-field select,
-[data-theme='dark'] .maker-copy-box,
-[data-theme='dark'] .maker-list-meta,
-[data-theme='dark'] .maker-item-index {
-  background: var(--theme-surface-soft);
-  border-color: var(--theme-border);
+.maker-local-note--full strong {
+  flex: 0 0 auto;
   color: var(--theme-text-primary);
+  font-weight: 800;
 }
 
-[data-theme='dark'] .maker-field input:disabled,
-[data-theme='dark'] .maker-field select:disabled {
-  background: var(--theme-surface-soft);
-  color: var(--theme-text-muted);
-}
-
-[data-theme='dark'] .maker-copy-box button,
-[data-theme='dark'] .maker-item-button--secondary {
-  background: var(--theme-surface-raised);
-  border-color: var(--theme-border-strong);
-  color: var(--theme-text-primary);
-}
-
-[data-theme='dark'] .maker-copy-box button:hover,
-[data-theme='dark'] .maker-item-button--secondary:hover {
-  background: var(--theme-surface-soft);
-}
-
-[data-theme='dark'] .maker-summary-card--amount {
-  background: color-mix(
-    in srgb,
-    var(--theme-primary) 10%,
-    var(--theme-surface)
-  );
-  border-color: color-mix(
-    in srgb,
-    var(--theme-primary) 30%,
-    var(--theme-border)
-  );
-}
-
-[data-theme='dark'] .maker-summary-card--ready {
-  background: color-mix(
-    in srgb,
-    var(--theme-warning) 10%,
-    var(--theme-surface)
-  );
-  border-color: color-mix(
-    in srgb,
-    var(--theme-warning) 30%,
-    var(--theme-border)
-  );
-}
-
-[data-theme='dark'] .maker-summary-card--processed {
-  background: color-mix(
-    in srgb,
-    var(--theme-success) 10%,
-    var(--theme-surface)
-  );
-  border-color: color-mix(
-    in srgb,
-    var(--theme-success) 30%,
-    var(--theme-border)
-  );
-}
-
-[data-theme='dark'] .maker-error {
-  background: var(--theme-danger-soft);
-  border-color: color-mix(
-    in srgb,
-    var(--theme-danger) 28%,
-    var(--theme-border)
-  );
-  color: var(--theme-danger);
-}
-
-[data-theme='dark'] .maker-status-ready {
-  background: var(--theme-warning-soft);
-  border-color: color-mix(
-    in srgb,
-    var(--theme-warning) 30%,
-    var(--theme-border)
-  );
-}
-
-[data-theme='dark'] .maker-status-processed {
-  background: var(--theme-success-soft);
-  border-color: color-mix(
-    in srgb,
-    var(--theme-success) 30%,
-    var(--theme-border)
-  );
-}
-
-[data-theme='dark'] .maker-status-realized {
-  background: var(--theme-primary-soft);
-  border-color: color-mix(
-    in srgb,
-    var(--theme-primary) 30%,
-    var(--theme-border)
-  );
-}
-
-[data-theme='dark'] .maker-item-button--primary {
-  background: var(--theme-text-primary);
-  border-color: var(--theme-text-primary);
-  color: var(--theme-page-bg);
-}
-
-[data-theme='dark'] .maker-item-button--success {
-  background: var(--theme-success);
-  border-color: var(--theme-success);
-  color: #ffffff;
-}
-
-[data-theme='dark'] .maker-item-button--danger {
-  background: transparent;
-  border-color: color-mix(
-    in srgb,
-    var(--theme-danger) 40%,
-    var(--theme-border)
-  );
-  color: var(--theme-danger);
-}
-
-[data-theme='dark'] .maker-item-button--danger:hover {
-  background: var(--theme-danger-soft);
-}
-
-[data-theme='dark'] .maker-list-header,
-[data-theme='dark'] .maker-realize-summary {
-  border-color: var(--theme-border);
-}
-
-/* =========================================================
-   MAKER ITEM STRUCTURE FIX
-   The page renders .maker-item-top around the index + heading.
-   Keep the item body full-width below it.
-   ========================================================= */
-
-.maker-item-top > .maker-item-heading {
+.maker-local-note--full span {
   min-width: 0;
 }
 
-.maker-item-meta,
-.maker-copy-grid,
-.maker-item-actions {
-  width: 100%;
-}
-
 @media (max-width: 760px) {
-  .maker-item-top {
-    grid-template-columns: 32px minmax(0, 1fr);
-    gap: 10px;
+  .maker-local-grid {
+    grid-template-columns: 1fr;
   }
-}
 
-/* =========================================================
-   MAKER ITEM ACTION BUTTONS
-   These buttons use dedicated classes in DisbursementMakerPage.
-   ========================================================= */
+  .maker-list {
+    grid-template-columns: 1fr;
+  }
 
-.maker-item-button {
-  display: inline-flex;
-  min-height: 34px;
-  height: 34px;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  padding: 0 11px;
-  border: 1px solid transparent;
-  border-radius: 8px;
-  background: transparent;
-  color: var(--theme-text-primary);
-  cursor: pointer;
-  font: inherit;
-  font-size: 10px;
-  font-weight: 800;
-  line-height: 1;
-  transition:
-    transform 150ms ease,
-    box-shadow 150ms ease,
-    border-color 150ms ease,
-    background-color 150ms ease,
-    color 150ms ease;
-}
-
-.maker-item-button svg {
-  width: 15px;
-  height: 15px;
-  flex: 0 0 15px;
-  stroke-width: 2;
-}
-
-.maker-item-button:hover:not(:disabled) {
-  transform: translateY(-1px);
-}
-
-.maker-item-button:active:not(:disabled) {
-  transform: translateY(0) scale(0.98);
-}
-
-.maker-item-button:focus-visible {
-  outline: none;
-  box-shadow: var(--theme-focus-ring);
-}
-
-.maker-item-button:disabled {
-  cursor: not-allowed;
-  opacity: 0.52;
-}
-
-.maker-item-button--success {
-  border-color: var(--theme-success);
-  background: var(--theme-success);
-  color: var(--theme-primary-foreground);
-  box-shadow: 0 6px 16px
-    color-mix(in srgb, var(--theme-success) 16%, transparent);
-}
-
-.maker-item-button--success:hover:not(:disabled) {
-  border-color: var(--theme-success-hover);
-  background: var(--theme-success-hover);
-  box-shadow: var(--theme-shadow-hover);
-}
-
-.maker-item-button--secondary {
-  border-color: var(--theme-border-strong);
-  background: var(--theme-surface-raised);
-  color: var(--theme-text-secondary);
-}
-
-.maker-item-button--secondary:hover:not(:disabled) {
-  border-color: var(--theme-primary);
-  background: var(--theme-primary-soft);
-  color: var(--theme-primary);
-  box-shadow: none;
-}
-
-.maker-item-button--danger {
-  border-color: color-mix(
-    in srgb,
-    var(--theme-danger) 34%,
-    var(--theme-border)
-  );
-  background: transparent;
-  color: var(--theme-danger);
-}
-
-.maker-item-button--danger:hover:not(:disabled) {
-  border-color: var(--theme-danger);
-  background: var(--theme-danger-soft);
-  box-shadow: none;
-}
-
-.maker-item-actions {
-  min-height: 34px;
+  .maker-local-note--full {
+    grid-column: 1 / -1;
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 3px;
+  }
 }

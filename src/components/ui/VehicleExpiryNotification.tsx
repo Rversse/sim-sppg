@@ -173,12 +173,16 @@ export function VehicleExpiryNotification() {
                       {item.vehicle.vehicle_name || item.vehicle.plate_number}
                     </div>
 
-                    <div>
-                      {item.vehicle.plate_number} •{' '}
-                      {item.vehicle.kitchen?.name || 'Dapur tidak diketahui'}
-                    </div>
+                    <div className="vehicle-notification-meta">
+                      <span className="vehicle-notification-meta-primary">
+                        {item.vehicle.plate_number} •{' '}
+                        {item.vehicle.kitchen?.name || 'Dapur tidak diketahui'}
+                      </span>
 
-                    <div>{formatVehicleDate(item.date)}</div>
+                      <span className="vehicle-notification-meta-date">
+                        {formatVehicleDate(item.date)}
+                      </span>
+                    </div>
                   </div>
                 )
               })

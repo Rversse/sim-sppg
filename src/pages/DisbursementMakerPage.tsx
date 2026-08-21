@@ -183,6 +183,13 @@ const DEFAULT_FORM: MakerFormState = {
   amount: ''
 }
 
+function getAccountLabel(account: MakerAccountOption) {
+  const business = account.supplierName ?? account.accountName
+  const owner = account.supplierOwnerName ?? '-'
+
+  return `${business} - ${owner} - ${account.bank} / ${account.accountNumber}`
+}
+
 function formatCurrency(value: number) {
   return new Intl.NumberFormat('id-ID', {
     style: 'currency',
@@ -1133,49 +1140,55 @@ export function DisbursementMakerPage() {
 
           {selectedAccount ? (
             <div className="maker-selected-account">
-              <strong>{selectedAccount.accountName}</strong>
+              <strong>
+                {selectedAccount.supplierName ?? selectedAccount.accountName}
+              </strong>
 
               <span>
-                {selectedAccount.bank} • {selectedAccount.accountNumber}
+                {selectedAccount.supplierOwnerName ?? '-'} •{' '}
+                {selectedAccount.bank} / {selectedAccount.accountNumber}
               </span>
             </div>
           ) : null}
         </div>
 
         <div className="maker-form-grid">
-          <label className="maker-field maker-field--wide">
-            <span>Rekening Tujuan</span>
+          {!isLocalFlow ? (
+            <label className="maker-field maker-field--wide">
+              <span>Rekening Tujuan</span>
 
-            <select
-              ref={accountSelectRef}
-              value={form.accountId}
-              onChange={(event) => updateField('accountId', event.target.value)}
-              disabled={!flowReady || isLocalFlow || loadingAccounts}
-            >
-              <option value="">
-                {!flowReady
-                  ? 'Pilih jenis pencairan terlebih dahulu'
-                  : loadingAccounts
-                    ? 'Memuat rekening...'
-                    : 'Pilih rekening tujuan'}
-              </option>
-
-              {accounts.map((account) => (
-                <option key={account.accountId} value={account.accountId}>
-                  {account.accountName} — {account.bank} —{' '}
-                  {account.accountNumber}
+              <select
+                ref={accountSelectRef}
+                value={form.accountId}
+                onChange={(event) =>
+                  updateField('accountId', event.target.value)
+                }
+                disabled={!flowReady || loadingAccounts}
+              >
+                <option value="">
+                  {!flowReady
+                    ? 'Pilih jenis pencairan terlebih dahulu'
+                    : loadingAccounts
+                      ? 'Memuat rekening...'
+                      : 'Pilih rekening tujuan'}
                 </option>
-              ))}
-            </select>
-          </label>
+
+                {accounts.map((account) => (
+                  <option key={account.accountId} value={account.accountId}>
+                    {getAccountLabel(account)}
+                  </option>
+                ))}
+              </select>
+            </label>
+          ) : null}
 
           {isLocalFlow ? (
             <div className="maker-local-note maker-local-note--full">
+              <strong>
+                {form.flowType === 'ops_harian' ? 'Ops Harian' : 'Lainnya'}
+              </strong>
               <span>
-                <strong>
-                  {form.flowType === 'ops_harian' ? 'Ops Harian' : 'Lainnya'}
-                </strong>{' '}
-                — catatan lokal saja, tidak masuk database, transaksi, saldo,
+                Catatan lokal saja — tidak masuk database, transaksi, saldo,
                 atau realisasi.
               </span>
             </div>
@@ -1238,16 +1251,14 @@ export function DisbursementMakerPage() {
           <span>Sudah Diproses</span>
           <strong>{formatCurrency(totals.processed)}</strong>
         </div>
-      </section>
 
-      {isLocalFlow ? (
-        <section className="maker-summary-grid">
-          <div className="maker-summary-card maker-summary-card--amount">
+        {isLocalFlow ? (
+          <div className="maker-summary-card maker-summary-card--local">
             <span>Catatan Lokal</span>
             <strong>{formatCurrency(localTotal)}</strong>
           </div>
-        </section>
-      ) : null}
+        ) : null}
+      </section>
 
       <section className="maker-list-panel">
         <div className="maker-list-header">
