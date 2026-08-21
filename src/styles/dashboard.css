@@ -598,7 +598,7 @@
 .dashboard-history-heading > strong {
   min-width: 0;
   overflow: hidden;
-  color: var(--app-primary);
+  color: var(--theme-text-primary);
   font-size: 12px;
   font-weight: 900;
   line-height: 1.3;
