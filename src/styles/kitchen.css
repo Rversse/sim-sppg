@@ -109,7 +109,7 @@
 
 .kitchen-table {
   width: 100%;
-  min-width: 900px;
+  min-width: 760px;
   border-collapse: collapse;
   color: var(--theme-text-primary);
   font-size: 12px;
@@ -119,7 +119,7 @@
 .kitchen-table td {
   padding: 13px 12px;
   border-bottom: 1px solid var(--theme-border);
-  text-align: center;
+  text-align: left;
   vertical-align: middle;
 }
 
@@ -131,7 +131,7 @@
   font-size: 10px;
   font-weight: 900;
   letter-spacing: 0.055em;
-  text-align: center;
+  text-align: left;
   text-transform: uppercase;
 }
 
@@ -154,6 +154,8 @@
   font-weight: inherit;
 }
 
+.kitchen-table th:nth-child(5),
+.kitchen-table td:nth-child(5),
 .kitchen-action-column,
 .kitchen-action-cell {
   width: 96px;
@@ -304,10 +306,12 @@
   .kitchen-toolbar {
     align-items: stretch;
     flex-direction: column;
+    gap: 8px;
   }
 
   .kitchen-input {
     width: 100%;
+    min-height: 38px;
   }
 
   .kitchen-count {
@@ -323,11 +327,51 @@
   }
 
   .kitchen-modal-actions {
-    flex-direction: column-reverse;
+    grid-column: 1;
+    align-items: stretch;
+    flex-direction: row;
   }
 
   .kitchen-modal-actions .app-action-button {
-    width: 100%;
+    flex: 1;
+    width: auto;
+  }
+}
+
+@media (max-width: 480px) {
+  .kitchen-panel {
+    border-radius: 13px;
+  }
+
+  .kitchen-table {
+    min-width: 720px;
+    font-size: 11px;
+  }
+
+  .kitchen-table th,
+  .kitchen-table td {
+    padding: 11px 10px;
+  }
+
+  .kitchen-table th {
+    font-size: 9px;
+  }
+
+  .kitchen-table td {
+    font-size: 11px;
+  }
+
+  .kitchen-modal {
+    width: min(100%, calc(100vw - 20px)) !important;
+    max-width: none !important;
+  }
+
+  .kitchen-modal-head {
+    padding: 10px 12px;
+  }
+
+  .kitchen-modal-body {
+    padding: 11px 12px 12px;
   }
 }
 
@@ -421,22 +465,4 @@
 .kitchen-modal-head .app-action-button svg {
   width: 13px;
   height: 13px;
-}
-
-@media (max-width: 700px) {
-  .kitchen-modal {
-    width: min(100%, calc(100vw - 20px)) !important;
-    max-width: none !important;
-  }
-
-  .kitchen-modal-actions {
-    grid-column: 1;
-    align-items: stretch;
-    flex-direction: row;
-  }
-
-  .kitchen-modal-actions .app-action-button {
-    flex: 1;
-    width: auto;
-  }
 }

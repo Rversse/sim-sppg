@@ -124,8 +124,9 @@ export function KitchenPage() {
       }, 150)
     }
 
+    const channelName = `kitchen-page-live-${Date.now()}-${Math.random().toString(36).slice(2)}`
     const channel = supabase
-      .channel('kitchen-page-live')
+      .channel(channelName)
       .on(
         'postgres_changes',
         {
@@ -136,11 +137,9 @@ export function KitchenPage() {
         scheduleRealtimeRefresh
       )
       .subscribe((status) => {
-        if (
-          status === 'CHANNEL_ERROR' ||
-          status === 'TIMED_OUT' ||
-          status === 'CLOSED'
-        ) {
+        if (cancelled) return
+
+        if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
           console.warn(`[Kitchen Realtime] ${status}`)
         }
       })

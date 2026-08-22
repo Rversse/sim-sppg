@@ -932,29 +932,6 @@
   align-self: start;
 }
 
-.dashboard-transaction-modal-backdrop {
-  position: fixed;
-  inset: 0;
-  z-index: 100;
-  display: grid;
-  place-items: center;
-  padding: 20px;
-  background: var(--theme-overlay);
-  backdrop-filter: blur(8px);
-  transition: opacity 180ms ease;
-}
-
-.dashboard-transaction-modal {
-  width: min(620px, 100%);
-  max-height: calc(100vh - 40px);
-  overflow: auto;
-  border: 1px solid var(--app-border);
-  border-radius: 18px;
-  background: var(--app-surface);
-  box-shadow: 0 24px 70px rgb(15 23 42 / 0.25);
-  animation: dashboard-modal-in 220ms var(--motion-smooth) both;
-}
-
 .dashboard-transaction-modal-header {
   display: flex;
   align-items: flex-start;
@@ -1145,25 +1122,13 @@
   opacity: 0.55;
 }
 
-@keyframes dashboard-modal-in {
-  from {
-    opacity: 0;
-    transform: translateY(8px) scale(0.985);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
-
 /* =========================================================
    RESPONSIVE — DASHBOARD ONLY
    ========================================================= */
 
 @media (max-width: 1100px) {
   .dashboard-filter-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .dashboard-kpi-grid {
@@ -1174,26 +1139,124 @@
     grid-template-columns: 1fr;
   }
 
+  .dashboard-status-panel,
+  .dashboard-history-panel {
+    height: auto;
+  }
+
   .dashboard-status-panel {
-    max-width: none;
-    height: 420px;
-    justify-self: stretch;
+    min-height: 360px;
   }
 
   .dashboard-history-panel {
-    height: 480px;
+    min-height: 420px;
   }
 }
 
 @media (max-width: 760px) {
   .dashboard-hero {
-    align-items: flex-start;
-    flex-direction: column;
+    align-items: stretch;
+    justify-content: stretch;
   }
 
   .dashboard-hero-actions {
     width: 100%;
     align-items: stretch;
+    justify-content: stretch;
+  }
+
+  .dashboard-date-chip,
+  .dashboard-transaction-action {
+    width: auto;
+  }
+
+  .dashboard-date-chip {
+    flex: 1 1 auto;
+    min-width: 0;
+    justify-content: flex-start;
+  }
+
+  .dashboard-transaction-action {
+    flex: 0 0 auto;
+  }
+
+  .dashboard-filter-card,
+  .dashboard-panel {
+    border-radius: 14px;
+  }
+
+  .dashboard-filter-card {
+    padding: 14px;
+  }
+
+  .dashboard-filter-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 9px;
+  }
+
+  .dashboard-kpi {
+    min-height: 112px;
+    padding: 13px;
+  }
+
+  .dashboard-kpi > strong {
+    margin-top: 9px;
+    font-size: 18px;
+  }
+
+  .dashboard-kpi > small {
+    font-size: 8px;
+  }
+
+  .dashboard-status-panel,
+  .dashboard-history-panel {
+    min-height: 0;
+  }
+
+  .dashboard-status-list {
+    max-height: 360px;
+  }
+
+  .dashboard-history {
+    max-height: 560px;
+  }
+
+  .dashboard-history-row {
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 10px;
+    padding: 10px 4px;
+  }
+
+  .dashboard-history-side {
+    min-width: 92px;
+  }
+
+  .dashboard-pagination {
+    width: 100%;
+  }
+
+  .dashboard-transaction-modal {
+    width: min(100%, calc(100vw - 20px));
+    max-height: calc(100dvh - 20px);
+    border-radius: 14px;
+  }
+
+  .dashboard-transaction-modal-header {
+    padding: 15px;
+  }
+
+  .dashboard-transaction-form-grid {
+    gap: 10px;
+    padding: 15px;
+  }
+
+  .dashboard-transaction-modal-actions {
+    padding: 12px 15px;
+  }
+}
+
+@media (max-width: 560px) {
+  .dashboard-hero-actions {
     flex-direction: column;
   }
 
@@ -1202,107 +1265,29 @@
     width: 100%;
   }
 
-  .dashboard-filter-grid {
-    grid-template-columns: 1fr 1fr;
+  .dashboard-date-chip {
+    justify-content: center;
   }
 
   .dashboard-filter-heading {
     align-items: flex-start;
   }
 
-  .dashboard-kpi-grid {
-    grid-template-columns: 1fr 1fr;
-  }
-
-  .dashboard-kpi {
-    min-height: 130px;
-    padding: 14px;
-  }
-
-  .dashboard-kpi > strong {
-    margin-top: 13px;
-    font-size: 18px;
-  }
-
-  .dashboard-history-row {
-    grid-template-columns: minmax(0, 1fr) auto;
-    gap: 8px 14px;
-    padding-inline: 8px;
-  }
-
-  .dashboard-history-side {
-    min-width: 142px;
-  }
-
-  .dashboard-transaction-modal-backdrop {
-    padding: 10px;
-  }
-
-  .dashboard-transaction-modal {
-    max-height: calc(100vh - 20px);
-    border-radius: 14px;
-  }
-}
-
-@media (max-width: 640px) {
-  .dashboard-kpi-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .dashboard-history-row {
-    grid-template-columns: 1fr;
-  }
-
-  .dashboard-history-side {
-    width: 100%;
-    min-width: 0;
-    align-items: flex-start;
-  }
-
-  .dashboard-history-actions {
-    width: 100%;
-  }
-
-  .dashboard-history-actions button {
-    flex: 1;
-  }
-
-  .dashboard-pagination {
-    flex-wrap: wrap;
-  }
-
-  .dashboard-pagination-summary {
-    order: 3;
-    width: 100%;
-  }
-
-  .dashboard-pagination-controls {
-    justify-content: center;
-  }
-}
-
-@media (max-width: 470px) {
   .dashboard-filter-grid,
   .dashboard-kpi-grid {
     grid-template-columns: 1fr;
   }
 
-  .dashboard-filter-heading {
-    flex-direction: column;
-  }
-
-  .dashboard-reset {
-    padding: 0;
-  }
-
-  .dashboard-filter-card,
-  .dashboard-panel {
-    padding: 14px;
-    border-radius: 13px;
+  .dashboard-kpi {
+    min-height: 96px;
   }
 
   .dashboard-status-summary {
-    gap: 5px;
+    gap: 6px;
+  }
+
+  .dashboard-status-summary span {
+    padding: 8px 5px;
   }
 
   .dashboard-panel-header {
@@ -1323,6 +1308,42 @@
     font-size: 8px;
   }
 
+  .dashboard-history-row {
+    grid-template-columns: 1fr;
+  }
+
+  .dashboard-history-side {
+    width: 100%;
+    min-width: 0;
+    align-items: flex-start;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-between;
+  }
+
+  .dashboard-history-actions {
+    width: auto;
+  }
+
+  .dashboard-history-actions button {
+    min-height: 28px;
+    padding-inline: 9px;
+  }
+
+  .dashboard-pagination {
+    flex-wrap: wrap;
+  }
+
+  .dashboard-pagination-summary {
+    order: 3;
+    width: 100%;
+  }
+
+  .dashboard-pagination-controls {
+    width: 100%;
+    justify-content: center;
+  }
+
   .dashboard-transaction-form-grid {
     grid-template-columns: 1fr;
   }
@@ -1333,10 +1354,22 @@
   }
 
   .dashboard-transaction-modal-actions {
-    padding: 12px;
+    gap: 7px;
   }
 
   .dashboard-transaction-modal-actions > button {
     flex: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dashboard-kpi,
+  .dashboard-history-row,
+  .dashboard-status-row,
+  .dashboard-transaction-action,
+  .dashboard-history-actions button,
+  .dashboard-pagination-button,
+  .dashboard-pagination-page {
+    transition: none;
   }
 }

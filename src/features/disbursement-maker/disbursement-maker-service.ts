@@ -622,19 +622,13 @@ export async function deleteMakerItem(
     throw new Error('Maker item tidak ditemukan')
   }
 
-  const { data, error } = await client
+  const { error } = await client
     .from('disbursement_maker_items')
     .delete()
     .eq('id', makerItemId)
-    .select('id')
-    .maybeSingle()
 
   if (error) {
     throw error
-  }
-
-  if (!data) {
-    throw new Error('Maker item tidak ditemukan atau sudah dihapus')
   }
 }
 

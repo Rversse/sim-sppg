@@ -26,18 +26,46 @@
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
-  gap: 16px;
+  gap: 20px;
   padding: 18px;
+}
+
+.maker-toolbar-main {
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.maker-toolbar-heading {
+  display: grid;
+  min-width: 0;
+  gap: 3px;
+  margin-bottom: 13px;
+}
+
+.maker-toolbar-heading h2 {
+  margin: 0;
+  color: var(--theme-text-primary);
+  font-size: 17px;
+  line-height: 1.25;
+  font-weight: 800;
+}
+
+.maker-toolbar-heading p {
+  margin: 0;
+  max-width: 720px;
+  color: var(--theme-text-muted);
+  font-size: 11px;
+  line-height: 1.45;
 }
 
 .maker-toolbar-fields {
   min-width: 0;
   flex: 1;
   display: grid;
-  grid-template-columns: minmax(180px, 0.8fr) minmax(220px, 1fr) minmax(
-      180px,
-      0.8fr
-    );
+  grid-template-columns:
+    minmax(180px, 0.8fr)
+    minmax(220px, 1fr)
+    minmax(180px, 0.8fr);
   gap: 12px;
 }
 
@@ -105,6 +133,18 @@
   gap: 16px;
 }
 
+.maker-form-copy {
+  min-width: 0;
+}
+
+.maker-form-copy p {
+  margin: 6px 0 0;
+  max-width: 720px;
+  color: var(--theme-text-muted);
+  font-size: 11px;
+  line-height: 1.45;
+}
+
 .maker-eyebrow {
   display: block;
   margin-bottom: 6px;
@@ -127,7 +167,8 @@
 }
 
 .maker-selected-account {
-  min-width: 220px;
+  min-width: 240px;
+  max-width: 360px;
   display: flex;
   flex-direction: column;
   align-items: flex-end;
@@ -143,13 +184,25 @@
 
 .maker-selected-account span {
   color: var(--theme-text-muted);
-  font-size: 12px;
+  font-size: 11px;
+  line-height: 1.35;
+}
+
+.maker-selected-account span:first-child {
+  color: var(--theme-primary-hover);
+  font-size: 9px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
 }
 
 .maker-form-grid {
   margin-top: 18px;
   display: grid;
-  grid-template-columns: minmax(220px, 1.6fr) minmax(120px, 0.55fr) auto;
+  grid-template-columns:
+    minmax(220px, 1.6fr)
+    minmax(120px, 0.55fr)
+    auto;
   align-items: end;
   gap: 12px;
 }
@@ -164,8 +217,13 @@
 }
 
 .maker-form-actions .app-action-button {
-  min-width: 96px;
+  min-width: 108px;
   white-space: nowrap;
+}
+
+.maker-refresh-button {
+  flex: 0 0 auto;
+  min-width: 94px;
 }
 
 .maker-error {
@@ -180,38 +238,44 @@
   line-height: 1.45;
 }
 
+/* =========================================================
+   SUMMARY
+   ========================================================= */
+
 .maker-summary-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 12px;
 }
 
-.maker-summary-card--local {
-  border-color: color-mix(
-    in srgb,
-    var(--theme-primary) 35%,
-    var(--theme-border)
-  );
-}
-
-.maker-summary-card--local span {
-  color: var(--theme-primary-hover);
-}
-
 .maker-summary-card {
+  position: relative;
   min-width: 0;
+  min-height: 96px;
   padding: 16px 18px;
+  overflow: hidden;
   border: 1px solid var(--theme-border);
   border-radius: 14px;
   background: var(--theme-surface);
   box-sizing: border-box;
 }
 
+.maker-summary-card::before {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 3px;
+  border-radius: 14px 0 0 14px;
+  background: var(--theme-border);
+  content: '';
+}
+
 .maker-summary-card span {
   display: block;
-  margin-bottom: 8px;
+  margin-bottom: 9px;
   color: var(--theme-text-muted);
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 800;
   line-height: 1.2;
   text-transform: uppercase;
@@ -222,12 +286,90 @@
   display: block;
   overflow: hidden;
   color: var(--theme-text-primary);
-  font-size: 19px;
-  font-weight: 800;
-  line-height: 1.2;
+  font-size: 20px;
+  font-weight: 900;
+  line-height: 1.15;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
+.maker-summary-card--total::before {
+  background: var(--theme-border-strong);
+}
+
+.maker-summary-card--amount {
+  border-color: color-mix(
+    in srgb,
+    var(--theme-primary) 28%,
+    var(--theme-border)
+  );
+  background: color-mix(in srgb, var(--theme-primary) 5%, var(--theme-surface));
+}
+
+.maker-summary-card--amount::before {
+  background: var(--theme-primary);
+}
+
+.maker-summary-card--amount span {
+  color: var(--theme-primary-hover);
+}
+
+.maker-summary-card--ready {
+  border-color: color-mix(
+    in srgb,
+    var(--theme-warning) 28%,
+    var(--theme-border)
+  );
+  background: color-mix(in srgb, var(--theme-warning) 5%, var(--theme-surface));
+}
+
+.maker-summary-card--ready::before {
+  background: var(--theme-warning);
+}
+
+.maker-summary-card--ready span,
+.maker-summary-card--ready strong {
+  color: var(--theme-warning);
+}
+
+.maker-summary-card--processed {
+  border-color: color-mix(
+    in srgb,
+    var(--theme-success) 28%,
+    var(--theme-border)
+  );
+  background: color-mix(in srgb, var(--theme-success) 5%, var(--theme-surface));
+}
+
+.maker-summary-card--processed::before {
+  background: var(--theme-success);
+}
+
+.maker-summary-card--processed span,
+.maker-summary-card--processed strong {
+  color: var(--theme-success);
+}
+
+.maker-summary-card--local {
+  border-color: color-mix(
+    in srgb,
+    var(--theme-primary) 35%,
+    var(--theme-border)
+  );
+}
+
+.maker-summary-card--local::before {
+  background: var(--theme-primary);
+}
+
+.maker-summary-card--local span,
+.maker-summary-card--local strong {
+  color: var(--theme-primary-hover);
+}
+
+/* =========================================================
+   LIST
+   ========================================================= */
 
 .maker-list-panel {
   padding: 22px;
@@ -272,6 +414,16 @@
   border-radius: 14px;
   background: var(--theme-surface-raised);
   box-sizing: border-box;
+  transition:
+    border-color 180ms ease,
+    box-shadow 180ms ease,
+    transform 180ms ease;
+}
+
+.maker-item-card:hover {
+  border-color: var(--theme-border-strong);
+  box-shadow: var(--theme-shadow-card);
+  transform: translateY(-1px);
 }
 
 .maker-item-top {
@@ -333,29 +485,42 @@
   flex-shrink: 0;
   display: inline-flex;
   align-items: center;
-  min-height: 28px;
-  padding: 0 9px;
+  min-height: 30px;
+  padding: 0 10px;
   border: 1px solid transparent;
   border-radius: 999px;
-  font-size: 11px;
-  font-weight: 800;
+  font-size: 10px;
+  font-weight: 900;
+  line-height: 1;
   white-space: nowrap;
 }
 
 .maker-status-ready {
-  border-color: color-mix(in srgb, var(--theme-warning) 45%, transparent);
+  border-color: color-mix(
+    in srgb,
+    var(--theme-warning) 48%,
+    var(--theme-border)
+  );
   background: var(--theme-warning-soft);
   color: var(--theme-warning);
 }
 
 .maker-status-processed {
-  border-color: color-mix(in srgb, var(--theme-success) 45%, transparent);
+  border-color: color-mix(
+    in srgb,
+    var(--theme-success) 48%,
+    var(--theme-border)
+  );
   background: var(--theme-success-soft);
   color: var(--theme-success);
 }
 
 .maker-status-realized {
-  border-color: color-mix(in srgb, var(--theme-primary) 45%, transparent);
+  border-color: color-mix(
+    in srgb,
+    var(--theme-primary) 48%,
+    var(--theme-border)
+  );
   background: var(--theme-primary-soft);
   color: var(--theme-primary-hover);
 }
@@ -468,8 +633,6 @@
 
 /* =========================================================
    ITEM ACTION BUTTONS
-   Same visual language as .app-action-button (component-surfaces.css):
-   compact height, 9px radius, lucide icons, translateY hover.
    ========================================================= */
 
 .maker-item-button {
@@ -566,6 +729,10 @@
   box-shadow: none;
 }
 
+/* =========================================================
+   REALIZATION
+   ========================================================= */
+
 .maker-realize-panel {
   padding: 20px 22px;
 }
@@ -621,6 +788,36 @@
 }
 
 /* =========================================================
+   LOCAL-ONLY DISBURSEMENT NOTES
+   ========================================================= */
+
+.maker-local-note--full {
+  grid-column: 1 / -1;
+  display: flex;
+  min-width: 0;
+  align-items: baseline;
+  gap: 8px;
+  padding: 10px 12px;
+  border: 1px solid var(--theme-border);
+  border-radius: 10px;
+  background: var(--theme-surface-soft);
+  color: var(--theme-text-secondary);
+  font-size: 12px;
+  line-height: 1.45;
+  box-sizing: border-box;
+}
+
+.maker-local-note--full strong {
+  flex: 0 0 auto;
+  color: var(--theme-text-primary);
+  font-weight: 800;
+}
+
+.maker-local-note--full span {
+  min-width: 0;
+}
+
+/* =========================================================
    RESPONSIVE
    ========================================================= */
 
@@ -652,8 +849,30 @@
 }
 
 @media (max-width: 760px) {
+  .maker-toolbar {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .maker-toolbar-heading {
+    margin-bottom: 11px;
+  }
+
+  .maker-toolbar-heading h2 {
+    font-size: 15px;
+  }
+
+  .maker-toolbar-heading p {
+    font-size: 10px;
+  }
+
   .maker-toolbar-fields {
     grid-template-columns: 1fr;
+  }
+
+  .maker-refresh-button {
+    align-self: flex-start;
   }
 
   .maker-form-heading,
@@ -662,8 +881,13 @@
     flex-direction: column;
   }
 
+  .maker-form-copy p {
+    font-size: 10px;
+  }
+
   .maker-selected-account {
     width: 100%;
+    max-width: none;
     align-items: flex-start;
     text-align: left;
   }
@@ -694,6 +918,40 @@
   .maker-realize-summary .app-action-button {
     width: 100%;
   }
+
+  .maker-list {
+    grid-template-columns: 1fr;
+  }
+
+  .maker-local-note--full {
+    grid-column: 1 / -1;
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 3px;
+  }
+
+  .maker-summary-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .maker-summary-card {
+    min-height: 82px;
+    padding: 13px 14px;
+  }
+
+  .maker-summary-card::before {
+    width: 3px;
+  }
+
+  .maker-summary-card span {
+    margin-bottom: 7px;
+    font-size: 9px;
+  }
+
+  .maker-summary-card strong {
+    font-size: 16px;
+  }
 }
 
 @media (max-width: 520px) {
@@ -710,15 +968,24 @@
   }
 
   .maker-summary-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .maker-summary-card {
+    min-height: 78px;
+    padding: 12px 13px;
+  }
+
+  .maker-summary-card span {
+    font-size: 8px;
   }
 
   .maker-summary-card strong {
-    font-size: 17px;
+    font-size: 15px;
   }
 
   .maker-item-card {
-    grid-template-columns: 28px minmax(0, 1fr);
     gap: 10px;
   }
 
@@ -726,51 +993,18 @@
     width: 26px;
     height: 26px;
   }
-}
 
-/* =========================================================
-   LOCAL-ONLY DISBURSEMENT NOTES
-   ========================================================= */
-
-.maker-local-note--full {
-  grid-column: 1 / -1;
-  display: flex;
-  min-width: 0;
-  align-items: baseline;
-  gap: 8px;
-  padding: 10px 12px;
-  border: 1px solid var(--theme-border);
-  border-radius: 10px;
-  background: var(--theme-surface-soft);
-  color: var(--theme-text-secondary);
-  font-size: 12px;
-  line-height: 1.45;
-  box-sizing: border-box;
-}
-
-.maker-local-note--full strong {
-  flex: 0 0 auto;
-  color: var(--theme-text-primary);
-  font-weight: 800;
-}
-
-.maker-local-note--full span {
-  min-width: 0;
-}
-
-@media (max-width: 760px) {
-  .maker-local-grid {
-    grid-template-columns: 1fr;
+  .maker-status {
+    min-height: 28px;
+    padding: 0 9px;
+    font-size: 9px;
   }
+}
 
-  .maker-list {
-    grid-template-columns: 1fr;
-  }
-
-  .maker-local-note--full {
-    grid-column: 1 / -1;
-    align-items: flex-start;
-    flex-direction: column;
-    gap: 3px;
+@media (prefers-reduced-motion: reduce) {
+  .maker-item-card,
+  .maker-item-button,
+  .maker-copy-box button {
+    transition: none;
   }
 }
