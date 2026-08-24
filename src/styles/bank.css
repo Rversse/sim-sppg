@@ -380,7 +380,7 @@
 }
 
 .bank-account-table col.bank-account-col--name {
-  width: 22%;
+  width: 26%;
 }
 
 .bank-account-table col.bank-account-col--number {
@@ -388,7 +388,7 @@
 }
 
 .bank-account-table col.bank-account-col--action {
-  width: 7%;
+  width: 11.5%;
 }
 
 .bank-account-table thead th {
@@ -425,6 +425,11 @@
   color: var(--theme-text-primary);
   font-size: 10px;
   vertical-align: middle;
+}
+
+.bank-account-table thead th + th,
+.bank-account-table tbody td + td {
+  border-left: 1px solid var(--theme-border);
 }
 
 .bank-account-table tbody tr:last-child td {
@@ -1372,11 +1377,15 @@ section.bank-history-modal {
   }
 
   .bank-summary-grid {
-    grid-template-columns: 1fr;
+    width: 100%;
+    gap: 8px;
   }
 
-  .bank-summary-grid {
-    width: calc(100vw - 20px);
+  .bank-summary-card {
+    flex: 1 1 calc(50% - 4px);
+    min-width: 0;
+    min-height: 92px;
+    padding: 12px 13px;
   }
 
   section.bank-form-modal {
@@ -1454,6 +1463,37 @@ section.bank-history-modal {
   .bank-account-table thead th {
     position: static;
     box-shadow: none;
+  }
+}
+
+@media (max-width: 520px) {
+  .bank-hero > div:last-child {
+    flex-wrap: wrap;
+  }
+
+  .bank-primary-button {
+    width: 100%;
+  }
+
+  .bank-summary-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .bank-summary-card {
+    flex: 1 1 100%;
+  }
+
+  .bank-summary-card strong {
+    font-size: 16px;
+  }
+
+  .bank-panel-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .bank-count {
+    align-self: flex-start;
   }
 }
 

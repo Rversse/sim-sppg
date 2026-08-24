@@ -181,7 +181,7 @@ export function VehiclePage() {
     }
 
     const channel = supabase
-      .channel('vehicle-page-live')
+      .channel(`vehicle-page-live-${Math.random().toString(36).slice(2)}`)
       .on(
         'postgres_changes',
         {
@@ -192,11 +192,9 @@ export function VehiclePage() {
         scheduleRealtimeRefresh
       )
       .subscribe((status) => {
-        if (
-          status === 'CHANNEL_ERROR' ||
-          status === 'TIMED_OUT' ||
-          status === 'CLOSED'
-        ) {
+        if (cancelled) return
+
+        if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
           console.warn(`[Vehicle Realtime] ${status}`)
         }
       })

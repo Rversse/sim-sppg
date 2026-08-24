@@ -379,8 +379,9 @@
 
 .disbursement-table th,
 .disbursement-table td {
-  padding: 8px 10px;
-  border-bottom: 1px solid var(--theme-surface-soft);
+  padding: 9px 10px;
+  border-right: 1px solid var(--theme-border);
+  border-bottom: 1px solid var(--theme-border);
   text-align: left;
   vertical-align: middle;
 }
@@ -404,8 +405,17 @@
   background: var(--theme-surface-soft);
 }
 
+.disbursement-table tbody tr:hover td:first-child {
+  background: var(--theme-surface-soft);
+}
+
 .disbursement-table tbody tr:last-child td {
   border-bottom: 0;
+}
+
+.disbursement-table th:last-child,
+.disbursement-table td:last-child {
+  border-right: 0;
 }
 
 .disbursement-table th:first-child,
@@ -419,6 +429,12 @@
 .disbursement-table th:first-child {
   z-index: 3;
   background: var(--theme-surface-soft);
+  box-shadow: 2px 0 0 var(--theme-border);
+}
+
+.disbursement-table td:first-child {
+  background: var(--theme-surface-raised);
+  box-shadow: 2px 0 0 var(--theme-border);
 }
 
 .disbursement-table td:not(:first-child),
@@ -602,6 +618,20 @@
    RESPONSIVE
    ========================================================= */
 
+@media (max-width: 900px) {
+  .disbursement-header {
+    gap: 16px;
+  }
+
+  .disbursement-date-card {
+    min-width: 220px;
+  }
+
+  .disbursement-summary-card {
+    grid-template-columns: minmax(0, 1fr) minmax(280px, 0.85fr);
+  }
+}
+
 @media (max-width: 1100px) {
   .disbursement-summary-card {
     grid-template-columns: minmax(0, 1fr);
@@ -747,6 +777,82 @@
   }
 }
 
+@media (max-width: 480px) {
+  .disbursement-page {
+    gap: 12px;
+  }
+
+  .disbursement-date-card {
+    display: grid;
+    gap: 5px;
+    padding: 9px 10px;
+  }
+
+  .disbursement-date-card label {
+    gap: 6px;
+  }
+
+  .disbursement-date-card label span {
+    font-size: 8px;
+  }
+
+  .disbursement-date-card input {
+    min-height: 32px;
+    font-size: 10px;
+  }
+
+  .disbursement-date-card > strong {
+    display: block;
+    color: var(--theme-text-primary);
+    font-size: 10px;
+    font-weight: 800;
+  }
+
+  .disbursement-summary-card {
+    padding: 12px;
+    border-radius: 13px;
+  }
+
+  .disbursement-summary-value > strong {
+    font-size: 20px;
+  }
+
+  .disbursement-status-summary {
+    gap: 5px;
+  }
+
+  .disbursement-status-summary > span {
+    min-height: 48px;
+    padding-inline: 2px;
+  }
+
+  .disbursement-status-summary > span b {
+    font-size: 12px;
+  }
+
+  .disbursement-status-summary > span small {
+    font-size: 6.5px;
+  }
+
+  .disbursement-panel {
+    padding: 11px;
+  }
+
+  .disbursement-table {
+    min-width: 760px;
+  }
+
+  .disbursement-table th,
+  .disbursement-table td {
+    padding: 8px 9px;
+  }
+
+  .disbursement-table th:first-child,
+  .disbursement-table td:first-child {
+    min-width: 135px;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .disbursement-panel,
   .disbursement-progress-track > span,
@@ -786,6 +892,10 @@
 }
 
 [data-theme='dark'] .disbursement-table tbody tr:hover {
+  background: var(--theme-surface-soft);
+}
+
+.disbursement-table tbody tr:hover td:first-child {
   background: var(--theme-surface-soft);
 }
 

@@ -402,8 +402,12 @@ export function BankPage() {
 
     void refreshOverview(true)
 
+    let channelDisposed = false
+
     const channel = supabase
-      .channel('bank-page-live')
+      .channel(
+        `bank-page-live-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`
+      )
       .on(
         'postgres_changes',
         {
@@ -432,6 +436,10 @@ export function BankPage() {
         scheduleOverviewRefresh
       )
       .subscribe((status) => {
+        if (cancelled || channelDisposed) {
+          return
+        }
+
         if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
           console.warn(`Bank realtime subscription status: ${status}`)
         }
@@ -439,6 +447,7 @@ export function BankPage() {
 
     return () => {
       cancelled = true
+      channelDisposed = true
 
       if (refreshTimer !== null) {
         window.clearTimeout(refreshTimer)

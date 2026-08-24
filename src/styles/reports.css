@@ -502,9 +502,13 @@
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .reports-filter-panel > .reports-date-range-field,
+  .reports-filter-panel > .reports-date-range-field {
+    grid-column: 1 / -1;
+  }
+
   .reports-filter-panel > button {
     grid-column: auto;
+    width: 100%;
   }
 }
 

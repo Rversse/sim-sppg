@@ -161,8 +161,9 @@ export function SupplierPage() {
       }, 150)
     }
 
+    const channelName = `supplier-page-live-${Date.now()}-${Math.random().toString(36).slice(2)}`
     const channel = supabase
-      .channel('supplier-page-live')
+      .channel(channelName)
       .on(
         'postgres_changes',
         {
@@ -191,11 +192,9 @@ export function SupplierPage() {
         scheduleRealtimeRefresh
       )
       .subscribe((status) => {
-        if (
-          status === 'CHANNEL_ERROR' ||
-          status === 'TIMED_OUT' ||
-          status === 'CLOSED'
-        ) {
+        if (cancelled) return
+
+        if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
           console.warn(`[Supplier Realtime] ${status}`)
         }
       })

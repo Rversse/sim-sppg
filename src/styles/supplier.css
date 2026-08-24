@@ -118,7 +118,7 @@
 
 .supplier-table {
   width: 100%;
-  min-width: 1050px;
+  min-width: 980px;
   border-collapse: collapse;
   font-size: 12px;
 }
@@ -428,10 +428,11 @@
    RESPONSIVE — SUPPLIER ONLY
    ========================================================= */
 
-@media (max-width: 700px) {
+@media (max-width: 760px) {
   .supplier-header {
     align-items: stretch;
     flex-direction: column;
+    gap: 10px;
   }
 
   .supplier-header > .app-action-button {
@@ -441,6 +442,7 @@
   .supplier-toolbar {
     align-items: stretch;
     flex-direction: column;
+    gap: 8px;
   }
 
   .supplier-input {
@@ -449,6 +451,15 @@
 
   .supplier-count {
     align-self: flex-start;
+  }
+
+  .supplier-panel {
+    border-radius: 12px;
+  }
+
+  .supplier-table th,
+  .supplier-table td {
+    padding: 11px 10px;
   }
 
   .supplier-form-grid,
@@ -474,6 +485,14 @@
 
   .supplier-modal-actions .app-action-button {
     width: 100%;
+  }
+
+  .supplier-modal {
+    width: min(100%, calc(100vw - 20px));
+  }
+
+  .supplier-modal-body {
+    padding: 14px;
   }
 }
 
@@ -579,4 +598,26 @@
       var(--theme-surface-raised),
       var(--theme-surface-soft)
     );
+}
+
+@media (max-width: 480px) {
+  .supplier-table {
+    min-width: 900px;
+  }
+
+  .supplier-modal-head {
+    padding: 12px 13px;
+  }
+
+  .supplier-modal-head h2 {
+    font-size: 15px;
+  }
+
+  .supplier-account-card {
+    padding: 10px;
+  }
+
+  .supplier-account-actions {
+    gap: 4px;
+  }
 }

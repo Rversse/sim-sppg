@@ -131,7 +131,9 @@ export function DisbursementPage() {
     }
 
     const channel = supabase
-      .channel('disbursement-checklist-live')
+      .channel(
+        `disbursement-checklist-live-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
+      )
       .on(
         'postgres_changes',
         {
@@ -151,12 +153,10 @@ export function DisbursementPage() {
         scheduleRealtimeRefresh
       )
       .subscribe((status) => {
-        if (
-          status === 'CHANNEL_ERROR' ||
-          status === 'TIMED_OUT' ||
-          status === 'CLOSED'
-        ) {
-          console.warn(`[Disbursement Realtime] ${status}`)
+        if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
+          if (!cancelled) {
+            console.warn(`[Disbursement Realtime] ${status}`)
+          }
         }
       })
 

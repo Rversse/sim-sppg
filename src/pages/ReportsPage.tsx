@@ -135,7 +135,9 @@ function useReportData<T>(
     }
 
     const channel = supabase
-      .channel('reports-page-live')
+      .channel(
+        `reports-page-live-${Date.now()}-${Math.random().toString(36).slice(2)}`
+      )
       .on(
         'postgres_changes',
         {
@@ -182,11 +184,9 @@ function useReportData<T>(
         scheduleRealtimeRefresh
       )
       .subscribe((status) => {
-        if (
-          status === 'CHANNEL_ERROR' ||
-          status === 'TIMED_OUT' ||
-          status === 'CLOSED'
-        ) {
+        if (cancelled) return
+
+        if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
           console.warn(`[Reports Realtime] ${status}`)
         }
       })
