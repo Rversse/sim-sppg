@@ -9,59 +9,38 @@ import type {
   MakerStatus
 } from './disbursement-maker-types'
 
-type KitchenAccountRuleRow = {
-  account_id: string
-  accounts:
-    | {
-        id: string
-        name: string
-        bank: string
-        account_number: string
-        income_suppliers:
-          | {
-              business_name: string | null
-              owner_name: string | null
-            }
-          | {
-              business_name: string | null
-              owner_name: string | null
-            }[]
-          | null
-      }
-    | {
-        id: string
-        name: string
-        bank: string
-        account_number: string
-        income_suppliers:
-          | {
-              business_name: string | null
-              owner_name: string | null
-            }
-          | {
-              business_name: string | null
-              owner_name: string | null
-            }[]
-          | null
-      }[]
-    | null
+type SupplierRow = {
+  id: string
+  business_name: string | null
+  owner_name: string | null
+  product_type: string | null
 }
 
-type AccountRow = {
+type AccountWithSupplier = {
   id: string
   name: string
   bank: string
   account_number: string
-  income_suppliers:
-    | {
-        business_name: string | null
-        owner_name: string | null
-      }
-    | {
-        business_name: string | null
-        owner_name: string | null
-      }[]
-    | null
+  supplier_id: string | null
+  income_suppliers: SupplierRow | SupplierRow[] | null
+}
+
+type KitchenAccountRuleRow = {
+  account_id: string
+  accounts: AccountWithSupplier | AccountWithSupplier[] | null
+}
+
+type AccountRow = AccountWithSupplier
+
+function parseSupplierProducts(value: string | null): string[] {
+  return [
+    ...new Set(
+      (value ?? '')
+        .split(',')
+        .map((item) => item.trim())
+        .filter(Boolean)
+    )
+  ]
 }
 
 function mapAccountOption(account: AccountRow): MakerAccountOption {
@@ -74,8 +53,10 @@ function mapAccountOption(account: AccountRow): MakerAccountOption {
     accountName: account.name,
     bank: account.bank,
     accountNumber: account.account_number,
+    supplierId: account.supplier_id,
     supplierName: supplier?.business_name ?? null,
-    supplierOwnerName: supplier?.owner_name ?? null
+    supplierOwnerName: supplier?.owner_name ?? null,
+    supplierProducts: parseSupplierProducts(supplier?.product_type ?? null)
   }
 }
 
@@ -153,9 +134,12 @@ export async function getMakerAccountOptions(
         name,
         bank,
         account_number,
+        supplier_id,
         income_suppliers!accounts_supplier_id_fkey(
+          id,
           business_name,
-          owner_name
+          owner_name,
+          product_type
         )
       `
       )
@@ -181,9 +165,12 @@ export async function getMakerAccountOptions(
         name,
         bank,
         account_number,
+        supplier_id,
         income_suppliers!accounts_supplier_id_fkey(
+          id,
           business_name,
-          owner_name
+          owner_name,
+          product_type
         )
       )
     `
@@ -245,9 +232,18 @@ export function normalizeMakerAmount(value: string | number): number {
   return amount
 }
 
+export function normalizeMakerProducts(
+  values: string[] | null | undefined
+): string[] {
+  return [
+    ...new Set((values ?? []).map((value) => value.trim()).filter(Boolean))
+  ]
+}
+
 export function buildMakerDescription(
   transactionDate: string,
-  flowType: MakerFlow
+  flowType: MakerFlow,
+  selectedProducts: string[] = []
 ): string {
   if (!transactionDate) {
     throw new Error('Tanggal wajib diisi')
@@ -263,8 +259,11 @@ export function buildMakerDescription(
     throw new Error('Format tanggal tidak valid')
   }
 
+  const products = normalizeMakerProducts(selectedProducts)
   const description =
-    flowType === 'income' ? 'Belanja Bahan Baku' : 'Pembayaran Gas'
+    flowType === 'income'
+      ? `Belanja ${products.length ? products.join(', ') : 'Bahan Baku'}`
+      : 'Pembayaran Gas'
 
   return `${description}, ${day}-${month}-${year}`
 }
@@ -323,6 +322,7 @@ export function validateMakerItem(input: {
   accountId: string
   amount: number
   flowType: MakerFlow
+  selectedProducts?: string[]
 }): string | null {
   if (!input.transactionDate) {
     return 'Tanggal wajib diisi'
@@ -342,6 +342,12 @@ export function validateMakerItem(input: {
 
   if (input.flowType !== 'income' && input.flowType !== 'neutral') {
     return 'Jenis pencairan tidak valid'
+  }
+
+  const selectedProducts = normalizeMakerProducts(input.selectedProducts)
+
+  if (input.flowType === 'neutral' && selectedProducts.length > 0) {
+    return 'Gas tidak menggunakan pilihan produk'
   }
 
   return null
@@ -364,6 +370,7 @@ export async function getMakerItems(
       account_id,
       amount,
       flow_type,
+      selected_products,
       status,
       realized_transaction_id,
       created_at,
@@ -402,6 +409,9 @@ export async function getMakerItems(
     accountId: item.account_id,
     amount: item.amount,
     flowType: item.flow_type,
+    selectedProducts: Array.isArray(item.selected_products)
+      ? item.selected_products
+      : [],
     status: item.status,
     realizedTransactionId: item.realized_transaction_id,
     createdAt: item.created_at,
@@ -416,18 +426,21 @@ export async function createMakerItem(
     accountId: string
     amount: string | number
     flowType: MakerFlow
+    selectedProducts?: string[]
     createdBy?: string | null
   },
   client: SupabaseClient = supabase
 ): Promise<MakerItem> {
   const amount = normalizeMakerAmount(input.amount)
+  const selectedProducts = normalizeMakerProducts(input.selectedProducts)
 
   const validationError = validateMakerItem({
     kitchenId: input.kitchenId,
     transactionDate: input.transactionDate,
     accountId: input.accountId,
     amount,
-    flowType: input.flowType
+    flowType: input.flowType,
+    selectedProducts
   })
 
   if (validationError) {
@@ -447,6 +460,31 @@ export async function createMakerItem(
     )
   }
 
+  if (input.flowType === 'income' && selectedProducts.length > 0) {
+    const accountOptions = await getMakerAccountOptions(
+      input.kitchenId,
+      'income',
+      client
+    )
+    const account = accountOptions.find(
+      (option) => option.accountId === input.accountId
+    )
+
+    if (!account) {
+      throw new Error('Rekening RAB tidak ditemukan untuk dapur ini')
+    }
+
+    const invalidProduct = selectedProducts.find(
+      (product) => !account.supplierProducts.includes(product)
+    )
+
+    if (invalidProduct) {
+      throw new Error(
+        `Produk ${invalidProduct} tidak terdaftar pada supplier rekening yang dipilih`
+      )
+    }
+  }
+
   const { data, error } = await client
     .from('disbursement_maker_items')
     .insert({
@@ -455,6 +493,7 @@ export async function createMakerItem(
       account_id: input.accountId,
       amount,
       flow_type: input.flowType,
+      selected_products: selectedProducts,
       status: 'READY',
       created_by: input.createdBy ?? null,
       updated_by: input.createdBy ?? null
@@ -467,6 +506,7 @@ export async function createMakerItem(
       account_id,
       amount,
       flow_type,
+      selected_products,
       status,
       realized_transaction_id,
       created_at,
@@ -486,6 +526,9 @@ export async function createMakerItem(
     accountId: data.account_id,
     amount: data.amount,
     flowType: data.flow_type,
+    selectedProducts: Array.isArray(data.selected_products)
+      ? data.selected_products
+      : [],
     status: data.status,
     realizedTransactionId: data.realized_transaction_id,
     createdAt: data.created_at,
@@ -513,6 +556,7 @@ export async function updateMakerStatus(
       account_id,
       amount,
       flow_type,
+      selected_products,
       status,
       realized_transaction_id,
       created_at,
@@ -588,6 +632,7 @@ export async function updateMakerStatus(
       account_id,
       amount,
       flow_type,
+      selected_products,
       status,
       realized_transaction_id,
       created_at,
@@ -607,6 +652,9 @@ export async function updateMakerStatus(
     accountId: data.account_id,
     amount: data.amount,
     flowType: data.flow_type,
+    selectedProducts: Array.isArray(data.selected_products)
+      ? data.selected_products
+      : [],
     status: data.status,
     realizedTransactionId: data.realized_transaction_id,
     createdAt: data.created_at,
