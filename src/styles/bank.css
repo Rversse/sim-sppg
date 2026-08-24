@@ -959,11 +959,13 @@ section.bank-form-modal {
    ========================================================= */
 
 section.bank-history-modal {
+  position: relative;
+  z-index: 2;
   display: flex;
   width: min(860px, calc(100vw - 28px));
   max-width: 860px;
-  height: min(760px, calc(100dvh - 28px));
-  max-height: calc(100dvh - 28px);
+  height: min(720px, calc(100dvh - 36px));
+  max-height: calc(100dvh - 36px);
   flex-direction: column;
   margin: auto;
   overflow: hidden;
@@ -1011,7 +1013,7 @@ section.bank-history-modal {
 }
 
 .bank-history-current span {
-  color: var(--theme-border-strong);
+  color: var(--theme-text-muted);
   font-size: 8px;
   font-weight: 800;
   letter-spacing: 0.04em;
@@ -1019,7 +1021,7 @@ section.bank-history-modal {
 }
 
 .bank-history-current strong {
-  color: var(--theme-surface);
+  color: var(--theme-text-primary);
   font-size: 28px;
   font-weight: 900;
   letter-spacing: -0.03em;
@@ -1059,7 +1061,7 @@ section.bank-history-modal {
 }
 
 .bank-history-stat span {
-  color: var(--theme-border-strong);
+  color: var(--theme-text-muted);
   font-size: 7.5px;
   font-weight: 800;
   letter-spacing: 0.035em;
@@ -1069,7 +1071,7 @@ section.bank-history-modal {
 .bank-history-stat strong {
   min-width: 0;
   overflow: hidden;
-  color: var(--theme-surface);
+  color: var(--theme-text-primary);
   font-size: clamp(11px, 1.1vw, 13.5px);
   line-height: 1.15;
   text-overflow: ellipsis;

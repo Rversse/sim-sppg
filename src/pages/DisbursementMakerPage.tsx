@@ -86,6 +86,13 @@ function getFlowLabel(flowType: MakerFormFlow | MakerFlow) {
   return 'Pilih jenis pencairan'
 }
 
+function formatSupplierAccountLabel(account: MakerAccountOption) {
+  const owner = account.supplierOwnerName?.trim()
+  const businessName = account.supplierName?.trim() ?? account.accountName
+  const ownerPart = owner ? ` — ${owner}` : ''
+  return `${businessName}${ownerPart} — ${account.bank} (${account.accountNumber})`
+}
+
 function getStatusLabel(status: MakerItem['status']) {
   switch (status) {
     case 'READY':
@@ -227,58 +234,36 @@ export function DisbursementMakerPage() {
     [localOperationalItems, form.transactionDate, form.kitchenId]
   )
 
-  const supplierOptions = useMemo(() => {
-    const map = new Map<
-      string,
-      {
-        supplierId: string
-        supplierName: string
-        ownerName: string | null
-        products: string[]
-      }
-    >()
-
-    for (const account of accounts) {
-      if (!account.supplierId || !account.supplierName) {
-        continue
-      }
-
-      const existing = map.get(account.supplierId)
-
-      if (existing) {
-        existing.products = normalizeMakerProducts([
-          ...existing.products,
-          ...account.supplierProducts
-        ])
-        continue
-      }
-
-      map.set(account.supplierId, {
-        supplierId: account.supplierId,
-        supplierName: account.supplierName,
-        ownerName: account.supplierOwnerName,
-        products: account.supplierProducts
-      })
-    }
-
-    return [...map.values()].sort((a, b) =>
-      a.supplierName.localeCompare(b.supplierName, 'id', {
-        sensitivity: 'base'
-      })
-    )
-  }, [accounts])
-
-  const selectedSupplier = useMemo(
+  const supplierAccountOptions = useMemo(
     () =>
-      supplierOptions.find(
-        (supplier) => supplier.supplierId === form.supplierId
-      ) ?? null,
-    [supplierOptions, form.supplierId]
+      accounts
+        .filter((account) =>
+          Boolean(account.supplierId && account.supplierName)
+        )
+        .sort((a, b) => {
+          const supplierCompare = (a.supplierName ?? '').localeCompare(
+            b.supplierName ?? '',
+            'id',
+            { sensitivity: 'base' }
+          )
+
+          if (supplierCompare !== 0) {
+            return supplierCompare
+          }
+
+          return a.accountNumber.localeCompare(b.accountNumber, 'id')
+        }),
+    [accounts]
   )
 
-  const supplierAccounts = useMemo(
-    () => accounts.filter((account) => account.supplierId === form.supplierId),
-    [accounts, form.supplierId]
+  const selectedSupplierAccount = useMemo(
+    () =>
+      accounts.find(
+        (account) =>
+          account.accountId === form.accountId &&
+          account.supplierId === form.supplierId
+      ) ?? null,
+    [accounts, form.accountId, form.supplierId]
   )
 
   const selectedAccount = useMemo(
@@ -356,14 +341,16 @@ export function DisbursementMakerPage() {
       }
 
       try {
-        const [makerItems, incomeAccounts, neutralAccounts] = await Promise.all([
-          getMakerItems({
-            transactionDate: form.transactionDate,
-            kitchenId: form.kitchenId
-          }),
-          getMakerAccountOptions(form.kitchenId, 'income'),
-          getMakerAccountOptions(form.kitchenId, 'neutral')
-        ])
+        const [makerItems, incomeAccounts, neutralAccounts] = await Promise.all(
+          [
+            getMakerItems({
+              transactionDate: form.transactionDate,
+              kitchenId: form.kitchenId
+            }),
+            getMakerAccountOptions(form.kitchenId, 'income'),
+            getMakerAccountOptions(form.kitchenId, 'neutral')
+          ]
+        )
 
         setItems(makerItems)
         setItemAccounts([...incomeAccounts, ...neutralAccounts])
@@ -659,28 +646,26 @@ export function DisbursementMakerPage() {
     }
 
     if (key === 'supplierId') {
-      const supplierId = value as string
-      const supplier = supplierOptions.find(
-        (item) => item.supplierId === supplierId
-      )
-      const supplierAccountsForSelection = accounts.filter(
-        (account) => account.supplierId === supplierId
-      )
+      const accountId = value as string
+      const selectedSupplierAccount =
+        supplierAccountOptions.find(
+          (account) => account.accountId === accountId
+        ) ?? null
+      const supplierId = selectedSupplierAccount?.supplierId ?? ''
       const autoProducts =
-        supplier?.products.length === 1 ? supplier.products : []
+        selectedSupplierAccount?.supplierProducts.length === 1
+          ? selectedSupplierAccount.supplierProducts
+          : []
 
       setForm((current) => ({
         ...current,
         supplierId,
+        accountId,
         selectedProducts: autoProducts,
-        accountId:
-          supplierAccountsForSelection.length === 1
-            ? supplierAccountsForSelection[0].accountId
-            : '',
         amount: ''
       }))
 
-      if (supplierAccountsForSelection.length === 1 && autoProducts.length === 1) {
+      if (autoProducts.length === 1) {
         window.setTimeout(() => {
           amountInputRef.current?.focus()
         }, 0)
@@ -834,9 +819,19 @@ export function DisbursementMakerPage() {
     if (item.status !== 'READY') return
 
     try {
-      await updateMakerStatus(item.id, 'PROCESSED', undefined, user?.id)
+      const updatedItem = await updateMakerStatus(
+        item.id,
+        'PROCESSED',
+        undefined,
+        user?.id
+      )
+
+      setItems((current) =>
+        current.map((candidate) =>
+          candidate.id === updatedItem.id ? updatedItem : candidate
+        )
+      )
       success('Pencairan selesai', 'Item berhasil ditandai sudah diproses.')
-      await reloadItems()
     } catch (error) {
       console.error(error)
       toastError(
@@ -850,9 +845,19 @@ export function DisbursementMakerPage() {
     if (item.status !== 'PROCESSED') return
 
     try {
-      await updateMakerStatus(item.id, 'READY', undefined, user?.id)
+      const updatedItem = await updateMakerStatus(
+        item.id,
+        'READY',
+        undefined,
+        user?.id
+      )
+
+      setItems((current) =>
+        current.map((candidate) =>
+          candidate.id === updatedItem.id ? updatedItem : candidate
+        )
+      )
       success('Status dikembalikan', 'Item kembali ke status siap diproses.')
-      await reloadItems()
     } catch (error) {
       console.error(error)
       toastError(
@@ -875,8 +880,10 @@ export function DisbursementMakerPage() {
 
     try {
       await deleteMakerItem(item.id)
+      setItems((current) =>
+        current.filter((candidate) => candidate.id !== item.id)
+      )
       success('Pencairan dihapus', 'Item Maker berhasil dihapus.')
-      await reloadItems()
     } catch (error) {
       console.error(error)
       toastError(
@@ -887,7 +894,9 @@ export function DisbursementMakerPage() {
   }
 
   function deleteLocalOperationalItem(item: LocalOperationalItem) {
-    if (!window.confirm(`Hapus operasional lokal ${formatCurrency(item.amount)}?`)) {
+    if (
+      !window.confirm(`Hapus operasional lokal ${formatCurrency(item.amount)}?`)
+    ) {
       return
     }
 
@@ -961,8 +970,6 @@ export function DisbursementMakerPage() {
       itemAccounts.find((account) => account.accountId === accountId) ?? null
     )
   }
-
-  const displayLocalItems = filteredLocalOperationalItems
 
   return (
     <div className="maker-page">
@@ -1046,10 +1053,12 @@ export function DisbursementMakerPage() {
         <div className="maker-form-heading">
           <div className="maker-form-copy">
             <span className="maker-eyebrow">Tambah Item</span>
-            <h2>{form.flowType ? getFlowLabel(form.flowType) : 'Tambah pencairan'}</h2>
+            <h2>
+              {form.flowType ? getFlowLabel(form.flowType) : 'Tambah pencairan'}
+            </h2>
             <p>
               {form.flowType === 'income'
-                ? 'Pilih supplier, produk, rekening tujuan, dan nominal.'
+                ? 'Pilih supplier, produk, dan nominal.'
                 : form.flowType === 'operational'
                   ? 'Operasional hanya disimpan di browser ini.'
                   : form.flowType === 'neutral'
@@ -1073,18 +1082,18 @@ export function DisbursementMakerPage() {
             <label className="maker-field">
               <span>Supplier</span>
               <select
-                value={form.supplierId}
+                value={form.accountId}
                 onChange={(event) =>
                   updateField('supplierId', event.target.value)
                 }
-                disabled={loadingAccounts || !accounts.length}
+                disabled={loadingAccounts || !supplierAccountOptions.length}
               >
                 <option value="">
                   {loadingAccounts ? 'Memuat supplier...' : 'Pilih supplier'}
                 </option>
-                {supplierOptions.map((supplier) => (
-                  <option key={supplier.supplierId} value={supplier.supplierId}>
-                    {supplier.supplierName}
+                {supplierAccountOptions.map((account) => (
+                  <option key={account.accountId} value={account.accountId}>
+                    {formatSupplierAccountLabel(account)}
                   </option>
                 ))}
               </select>
@@ -1092,9 +1101,9 @@ export function DisbursementMakerPage() {
 
             <div className="maker-field maker-products-field">
               <span>Bahan Baku</span>
-              {selectedSupplier?.products.length ? (
+              {selectedSupplierAccount?.supplierProducts.length ? (
                 <div className="maker-product-list">
-                  {selectedSupplier.products.map((product) => {
+                  {selectedSupplierAccount.supplierProducts.map((product) => {
                     const selected = form.selectedProducts.includes(product)
                     return (
                       <button
@@ -1111,79 +1120,74 @@ export function DisbursementMakerPage() {
                 </div>
               ) : (
                 <div className="maker-product-empty">
-                  Tidak ada produk supplier. Output tetap “Belanja Bahan Baku”.
+                  {form.accountId
+                    ? 'Tidak ada produk supplier. Output tetap “Belanja Bahan Baku”.'
+                    : 'Pilih supplier terlebih dahulu.'}
                 </div>
               )}
             </div>
 
+            <div className="maker-rab-amount">
+              <label className="maker-field">
+                <span>Nominal</span>
+                <input
+                  ref={amountInputRef}
+                  type="text"
+                  inputMode="numeric"
+                  placeholder="Contoh: 2.315.000"
+                  value={form.amount}
+                  onChange={(event) =>
+                    updateField('amount', event.target.value)
+                  }
+                  onKeyDown={handleAmountKeyDown}
+                  disabled={!amountReady}
+                />
+              </label>
+
+              <div className="maker-form-actions">
+                <button
+                  type="button"
+                  className="app-action-button"
+                  onClick={() => void addMakerItem()}
+                  disabled={saving || !form.amount || !amountReady}
+                >
+                  <Plus aria-hidden="true" />
+                  <span>Tambah</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        ) : null}
+
+        {form.flowType === 'operational' || form.flowType === 'neutral' ? (
+          <div className="maker-form-grid maker-form-grid--entry">
             <label className="maker-field">
-              <span>Rekening Tujuan</span>
-              <select
-                value={form.accountId}
-                onChange={(event) =>
-                  updateField('accountId', event.target.value)
-                }
-                disabled={
-                  !form.supplierId ||
-                  loadingAccounts ||
-                  supplierAccounts.length === 0
-                }
-              >
-                <option value="">
-                  {!form.supplierId
-                    ? 'Pilih supplier terlebih dahulu'
-                    : loadingAccounts
-                      ? 'Memuat rekening...'
-                      : 'Pilih rekening tujuan'}
-                </option>
-                {supplierAccounts.map((account) => (
-                  <option key={account.accountId} value={account.accountId}>
-                    {account.bank} — {account.accountNumber}
-                  </option>
-                ))}
-              </select>
+              <span>Nominal</span>
+              <input
+                ref={amountInputRef}
+                type="text"
+                inputMode="numeric"
+                placeholder="Contoh: 2.315.000"
+                value={form.amount}
+                onChange={(event) => updateField('amount', event.target.value)}
+                onKeyDown={handleAmountKeyDown}
+                disabled={!amountReady}
+              />
             </label>
+
+            <div className="maker-form-actions">
+              <button
+                type="button"
+                className="app-action-button"
+                onClick={() => void addMakerItem()}
+                disabled={saving || !form.amount || !amountReady}
+              >
+                <Plus aria-hidden="true" />
+                <span>Tambah</span>
+              </button>
+            </div>
           </div>
         ) : null}
-
-        {form.flowType === 'neutral' ? (
-          <div className="maker-fixed-account">
-            <span className="maker-fixed-account-label">Rekening Gas</span>
-            <strong>{selectedAccount?.accountName ?? 'ARUTALA'}</strong>
-            <span>
-              {selectedAccount?.bank ?? 'BNI'} •{' '}
-              {selectedAccount?.accountNumber ?? '1985322260'}
-            </span>
-          </div>
-        ) : null}
-
-        <div className="maker-form-grid maker-form-grid--entry">
-          <label className="maker-field">
-            <span>Nominal</span>
-            <input
-              ref={amountInputRef}
-              type="text"
-              inputMode="numeric"
-              placeholder="Contoh: 2.315.000"
-              value={form.amount}
-              onChange={(event) => updateField('amount', event.target.value)}
-              onKeyDown={handleAmountKeyDown}
-              disabled={!amountReady}
-            />
-          </label>
-
-          <div className="maker-form-actions">
-            <button
-              type="button"
-              className="app-action-button"
-              onClick={() => void addMakerItem()}
-              disabled={saving || !form.amount || !amountReady}
-            >
-              <Plus aria-hidden="true" />
-              <span>Tambah</span>
-            </button>
-          </div>
-        </div>
 
         {form.flowType === 'income' ? (
           <p className="maker-helper-text">
@@ -1240,157 +1244,191 @@ export function DisbursementMakerPage() {
 
         {loadingItems ? (
           <div className="maker-empty">Memuat data pencairan...</div>
-        ) : filteredItems.length === 0 && filteredLocalOperationalItems.length === 0 ? (
+        ) : filteredItems.length === 0 &&
+          filteredLocalOperationalItems.length === 0 ? (
           <div className="maker-empty">
             Belum ada pencairan untuk tanggal dan dapur ini.
           </div>
         ) : (
-          <div className="maker-list">
-            {filteredItems.map((item, index) => {
-              const description = buildMakerDescription(
-                item.transactionDate,
-                item.flowType,
-                item.selectedProducts
-              )
-              const account = getItemAccount(item.accountId)
+          <div className="maker-table-wrap">
+            <div
+              className="maker-table"
+              role="table"
+              aria-label="Daftar pencairan"
+            >
+              <div className="maker-table-row maker-table-row--head" role="row">
+                <span role="columnheader">#</span>
+                <span role="columnheader">Supplier / Rekening</span>
+                <span role="columnheader">Jenis</span>
+                <span role="columnheader">Nominal</span>
+                <span role="columnheader">Output</span>
+                <span role="columnheader">Status</span>
+                <span role="columnheader">Aksi</span>
+              </div>
 
-              return (
-                <article className="maker-item-card" key={item.id}>
-                  <div className="maker-item-top">
-                    <div className="maker-item-index">{index + 1}</div>
-                    <div className="maker-item-heading">
-                      <div>
-                        <strong>{account?.accountName ?? item.accountId}</strong>
-                        <span>
-                          {account?.bank ?? '-'} • {account?.accountNumber ?? '-'}
-                        </span>
-                      </div>
-                      <span className={getStatusClass(item.status)}>
-                        {getStatusLabel(item.status)}
+              {filteredItems.map((item, index) => {
+                const description = buildMakerDescription(
+                  item.transactionDate,
+                  item.flowType,
+                  item.selectedProducts
+                )
+                const account = getItemAccount(item.accountId)
+
+                return (
+                  <div
+                    className={`maker-table-row ${
+                      item.status === 'PROCESSED'
+                        ? 'maker-table-row--processed'
+                        : item.status === 'REALIZED'
+                          ? 'maker-table-row--realized'
+                          : ''
+                    }`}
+                    role="row"
+                    key={item.id}
+                  >
+                    <span className="maker-table-index" role="cell">
+                      {index + 1}
+                    </span>
+
+                    <div className="maker-table-supplier" role="cell">
+                      <strong>
+                        {account?.supplierName ??
+                          account?.accountName ??
+                          item.accountId}
+                      </strong>
+                      <span>
+                        {account?.supplierOwnerName
+                          ? `${account.supplierOwnerName} · `
+                          : ''}
+                        {account?.bank ?? '-'} · {account?.accountNumber ?? '-'}
                       </span>
                     </div>
-                  </div>
 
-                  <div className="maker-item-meta">
-                    <span>{getFlowLabel(item.flowType)}</span>
-                    <span>•</span>
-                    <span>{formatCurrency(item.amount)}</span>
-                  </div>
+                    <span className="maker-table-flow" role="cell">
+                      {getFlowLabel(item.flowType)}
+                    </span>
 
-                  <div className="maker-copy-grid">
                     <button
                       type="button"
-                      className="maker-copy-box"
+                      className="maker-table-copy"
                       onClick={() => void handleCopyNominal(item.amount)}
                       title="Klik untuk copy nominal"
+                      role="cell"
                     >
-                      <span>Nominal</span>
-                      <strong>{formatNumber(item.amount)}</strong>
+                      <span>{formatNumber(item.amount)}</span>
                       <Copy aria-hidden="true" />
                     </button>
 
                     <button
                       type="button"
-                      className="maker-copy-box"
+                      className="maker-table-copy maker-table-copy--output"
                       onClick={() => void handleCopyDescription(description)}
-                      title="Klik untuk copy keterangan"
+                      title="Klik untuk copy output"
+                      role="cell"
                     >
-                      <span>Output</span>
-                      <strong>{description}</strong>
+                      <span>{description}</span>
                       <Copy aria-hidden="true" />
                     </button>
+
+                    <span className={getStatusClass(item.status)} role="cell">
+                      {getStatusLabel(item.status)}
+                    </span>
+
+                    <div className="maker-table-actions" role="cell">
+                      {item.status !== 'REALIZED' ? (
+                        <>
+                          {item.status === 'READY' ? (
+                            <button
+                              type="button"
+                              className="maker-item-button maker-item-button--success"
+                              onClick={() => void setProcessed(item)}
+                              title="Tandai sudah diproses"
+                            >
+                              <Check aria-hidden="true" />
+                            </button>
+                          ) : (
+                            <button
+                              type="button"
+                              className="maker-item-button maker-item-button--secondary"
+                              onClick={() => void setReady(item)}
+                              title="Kembalikan ke siap diproses"
+                            >
+                              <RefreshCw aria-hidden="true" />
+                            </button>
+                          )}
+                          <button
+                            type="button"
+                            className="maker-item-button maker-item-button--danger"
+                            onClick={() => void deleteMaker(item)}
+                            title="Hapus"
+                          >
+                            <Trash2 aria-hidden="true" />
+                          </button>
+                        </>
+                      ) : null}
+                    </div>
+                  </div>
+                )
+              })}
+
+              {filteredLocalOperationalItems.map((item, index) => (
+                <div
+                  className="maker-table-row maker-table-row--local"
+                  role="row"
+                  key={item.id}
+                >
+                  <span className="maker-table-index" role="cell">
+                    L{index + 1}
+                  </span>
+
+                  <div className="maker-table-supplier" role="cell">
+                    <strong>Biaya Operasional</strong>
+                    <span>Disimpan lokal · tidak masuk database Maker</span>
                   </div>
 
-                  {item.status !== 'REALIZED' ? (
-                    <div className="maker-item-actions">
-                      {item.status === 'READY' ? (
-                        <button
-                          type="button"
-                          className="maker-item-button maker-item-button--success"
-                          onClick={() => void setProcessed(item)}
-                        >
-                          <Check aria-hidden="true" />
-                          <span>Selesai</span>
-                        </button>
-                      ) : (
-                        <button
-                          type="button"
-                          className="maker-item-button maker-item-button--secondary"
-                          onClick={() => void setReady(item)}
-                        >
-                          <RefreshCw aria-hidden="true" />
-                          <span>Kembalikan</span>
-                        </button>
-                      )}
-                      <button
-                        type="button"
-                        className="maker-item-button maker-item-button--danger"
-                        onClick={() => void deleteMaker(item)}
-                      >
-                        <Trash2 aria-hidden="true" />
-                        <span>Hapus</span>
-                      </button>
-                    </div>
-                  ) : null}
-                </article>
-              )
-            })}
+                  <span className="maker-table-flow" role="cell">
+                    Biaya Ops
+                  </span>
 
-            {filteredLocalOperationalItems.map((item, index) => (
-              <article className="maker-item-card maker-item-card--local" key={item.id}>
-                <div className="maker-item-top">
-                  <div className="maker-item-index">L{index + 1}</div>
-                  <div className="maker-item-heading">
-                    <div>
-                      <strong>Biaya Operasional</strong>
-                      <span>Disimpan lokal • tidak masuk database Maker</span>
-                    </div>
-                    <span className="maker-status maker-status-local">Lokal</span>
-                  </div>
-                </div>
-
-                <div className="maker-item-meta">
-                  <span>Biaya Ops</span>
-                  <span>•</span>
-                  <span>{formatCurrency(item.amount)}</span>
-                </div>
-
-                <div className="maker-copy-grid">
                   <button
                     type="button"
-                    className="maker-copy-box"
+                    className="maker-table-copy"
                     onClick={() => void handleCopyNominal(item.amount)}
                     title="Klik untuk copy nominal"
+                    role="cell"
                   >
-                    <span>Nominal</span>
-                    <strong>{formatNumber(item.amount)}</strong>
+                    <span>{formatNumber(item.amount)}</span>
                     <Copy aria-hidden="true" />
                   </button>
 
                   <button
                     type="button"
-                    className="maker-copy-box"
+                    className="maker-table-copy maker-table-copy--output"
                     onClick={() => void handleCopyDescription(item.description)}
-                    title="Klik untuk copy keterangan"
+                    title="Klik untuk copy output"
+                    role="cell"
                   >
-                    <span>Output</span>
-                    <strong>{item.description}</strong>
+                    <span>{item.description}</span>
                     <Copy aria-hidden="true" />
                   </button>
-                </div>
 
-                <div className="maker-item-actions">
-                  <button
-                    type="button"
-                    className="maker-item-button maker-item-button--danger"
-                    onClick={() => deleteLocalOperationalItem(item)}
-                  >
-                    <Trash2 aria-hidden="true" />
-                    <span>Hapus</span>
-                  </button>
+                  <span className="maker-status maker-status-local" role="cell">
+                    Lokal
+                  </span>
+
+                  <div className="maker-table-actions" role="cell">
+                    <button
+                      type="button"
+                      className="maker-item-button maker-item-button--danger"
+                      onClick={() => deleteLocalOperationalItem(item)}
+                      title="Hapus"
+                    >
+                      <Trash2 aria-hidden="true" />
+                    </button>
+                  </div>
                 </div>
-              </article>
-            ))}
+              ))}
+            </div>
           </div>
         )}
 
