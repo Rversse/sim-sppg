@@ -680,7 +680,7 @@ export function DisbursementMakerPage() {
         amount: ''
       }))
 
-      if (supplierAccountsForSelection.length === 1) {
+      if (supplierAccountsForSelection.length === 1 && autoProducts.length === 1) {
         window.setTimeout(() => {
           amountInputRef.current?.focus()
         }, 0)
