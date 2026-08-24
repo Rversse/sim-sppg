@@ -39,6 +39,8 @@ import {
   getTodayLocal
 } from '@/lib/formatters'
 
+const DASHBOARD_HISTORY_PAGE_SIZE = 6
+
 const FLOW_OPTIONS: { value: DashboardFlow | ''; label: string }[] = [
   { value: '', label: 'Semua transaksi' },
   { value: 'income', label: 'RAB' },
@@ -226,7 +228,11 @@ export function DashboardPage() {
       getDashboardSummary(filters),
       getDailyStatus(filters.startDate),
       kitchens.length ? Promise.resolve(kitchens) : getActiveKitchens(),
-      getDashboardTransactionPage(filters, transactionPage, 10),
+      getDashboardTransactionPage(
+        filters,
+        transactionPage,
+        DASHBOARD_HISTORY_PAGE_SIZE
+      ),
       getSupplierOptions(filters)
     ])
 
@@ -1052,7 +1058,10 @@ export function DashboardPage() {
 
   const transactionDetailsUnlocked = modalMode === 'edit' || formEntryUnlocked
 
-  const totalTransactionPages = Math.max(1, Math.ceil(totalTransactions / 10))
+  const totalTransactionPages = Math.max(
+    1,
+    Math.ceil(totalTransactions / DASHBOARD_HISTORY_PAGE_SIZE)
+  )
   const transactionPaginationPages = getDashboardPaginationPages(
     transactionPage,
     totalTransactionPages
@@ -1400,9 +1409,13 @@ export function DashboardPage() {
               aria-label="Pagination riwayat transaksi"
             >
               <span className="dashboard-pagination-summary">
-                Menampilkan {(transactionPage - 1) * 10 + 1}–
-                {Math.min(transactionPage * 10, totalTransactions)} dari{' '}
-                {totalTransactions}
+                Menampilkan{' '}
+                {(transactionPage - 1) * DASHBOARD_HISTORY_PAGE_SIZE + 1}–
+                {Math.min(
+                  transactionPage * DASHBOARD_HISTORY_PAGE_SIZE,
+                  totalTransactions
+                )}{' '}
+                dari {totalTransactions}
               </span>
 
               <div className="dashboard-pagination-controls">

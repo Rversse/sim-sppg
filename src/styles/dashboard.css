@@ -403,7 +403,7 @@
 .dashboard-status-panel {
   width: 100%;
   max-width: none;
-  height: 540px;
+  min-height: 0;
   justify-self: stretch;
 }
 
@@ -556,8 +556,9 @@
 .dashboard-history-panel {
   width: 100%;
   max-width: none;
+  min-height: 0;
+  height: 100%;
   margin: 0;
-  height: 540px;
   overflow: hidden;
 }
 
