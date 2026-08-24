@@ -31,6 +31,7 @@ import {
   type TransactionOption
 } from '@/features/transactions/transaction-options-service'
 import { DateRangePicker } from '@/components/ui/date-range-picker'
+import { AnimatedSelect } from '@/components/ui/animated-select'
 
 import {
   formatCurrency,
@@ -1067,6 +1068,40 @@ export function DashboardPage() {
     totalTransactionPages
   )
 
+  const kitchenFilterOptions = [
+    { value: '', label: 'Semua dapur' },
+    ...kitchens.map((kitchen) => ({
+      value: kitchen.id,
+      label: kitchen.name
+    }))
+  ]
+
+  const flowFilterOptions = FLOW_OPTIONS.filter(
+    (option) =>
+      option.value === '' ||
+      availableFilterFlows.includes(option.value as DashboardFlow)
+  )
+
+  const supplierFilterOptions = [
+    {
+      value: '',
+      label: supplierPlaceholder
+    },
+    ...supplierOptions
+      .filter(
+        (option) =>
+          !supplierLockedToArutala || option.value === 'Koperasi Arutala'
+      )
+      .map((option) => ({
+        value: option.value,
+        label: option.label
+      }))
+  ]
+
+  const supplierFilterValue = supplierLockedToArutala
+    ? 'Koperasi Arutala'
+    : filters.supplierFilter
+
   return (
     <div className="dashboard-page">
       <section className="dashboard-hero">
@@ -1120,77 +1155,40 @@ export function DashboardPage() {
         </div>
 
         <div className="dashboard-filter-grid">
-          <DateRangePicker
-            className="dashboard-date-range-field"
-            value={{
-              startDate: filters.startDate,
-              endDate: filters.endDate
-            }}
-            onChange={handleDateRangeChange}
+          <div className="dashboard-date-range-field">
+            <DateRangePicker
+              value={{
+                startDate: filters.startDate,
+                endDate: filters.endDate
+              }}
+              onChange={handleDateRangeChange}
+            />
+          </div>
+
+          <AnimatedSelect
+            label="Dapur"
+            value={filters.kitchenId}
+            options={kitchenFilterOptions}
+            placeholder="Semua dapur"
+            onChange={handleKitchen}
           />
 
-          <label>
-            <span>Dapur</span>
-            <select
-              value={filters.kitchenId}
-              onChange={(event) => handleKitchen(event.target.value)}
-            >
-              <option value="">Semua dapur</option>
-              {kitchens.map((kitchen) => (
-                <option key={kitchen.id} value={kitchen.id}>
-                  {kitchen.name}
-                </option>
-              ))}
-            </select>
-          </label>
+          <AnimatedSelect
+            label="Jenis transaksi"
+            value={filters.flowType}
+            options={flowFilterOptions}
+            placeholder="Semua transaksi"
+            onChange={(value) => void handleFlow(value as DashboardFlow | '')}
+          />
 
-          <label>
-            <span>Jenis transaksi</span>
-            <select
-              value={filters.flowType}
-              onChange={(event) =>
-                handleFlow(event.target.value as DashboardFlow | '')
-              }
-            >
-              {FLOW_OPTIONS.filter(
-                (option) =>
-                  option.value === '' ||
-                  availableFilterFlows.includes(option.value as DashboardFlow)
-              ).map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
-          </label>
-
-          <label>
-            <span>{supplierFilterLabel}</span>
-            <select
-              value={
-                supplierLockedToArutala
-                  ? 'Koperasi Arutala'
-                  : filters.supplierFilter
-              }
-              disabled={supplierDisabled}
-              onChange={(event) =>
-                updateFilter('supplierFilter', event.target.value)
-              }
-            >
-              <option value="">{supplierPlaceholder}</option>
-              {supplierOptions
-                .filter(
-                  (option) =>
-                    !supplierLockedToArutala ||
-                    option.value === 'Koperasi Arutala'
-                )
-                .map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-            </select>
-          </label>
+          <AnimatedSelect
+            label={supplierFilterLabel}
+            value={supplierFilterValue}
+            options={supplierFilterOptions}
+            placeholder={supplierPlaceholder}
+            disabled={supplierDisabled}
+            onChange={(value) => updateFilter('supplierFilter', value)}
+          />
         </div>
       </section>
 

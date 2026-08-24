@@ -100,70 +100,145 @@
 
 .dashboard-filter-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1.35fr) repeat(3, minmax(0, 1fr));
-  align-items: end;
-  gap: 12px;
-  margin-top: 10px;
+  grid-template-columns: minmax(230px, 1.35fr) repeat(3, minmax(0, 1fr));
+  align-items: stretch;
+  gap: 10px;
+  margin-top: 12px;
 }
 
 .dashboard-date-range-field {
-  min-width: 0;
-  align-self: end;
-}
-
-.dashboard-filter-grid label {
+  position: relative;
   display: grid;
   min-width: 0;
-}
-
-.dashboard-filter-grid label > span {
-  display: none;
-}
-
-.dashboard-filter-grid input,
-.dashboard-filter-grid select {
   width: 100%;
-  min-width: 0;
-  min-height: 36px;
-  height: 36px;
-  padding: 0 10px;
-  border: 1px solid var(--app-border-strong);
-  border-radius: 9px;
-  outline: 0;
-  background: var(--app-white);
-  color: var(--read-text);
-  font-size: 12px;
-  transition:
-    border-color 150ms ease,
-    box-shadow 150ms ease,
-    background-color 150ms ease;
+  align-self: stretch;
 }
 
-.dashboard-filter-grid input:hover,
-.dashboard-filter-grid select:hover {
-  border-color: var(--app-border-mid);
+.dashboard-date-range-field .date-range-picker {
+  width: 100%;
+  max-width: none;
+  height: 40px;
 }
 
-.dashboard-filter-grid input:focus,
-.dashboard-filter-grid select:focus {
-  border-color: var(--theme-primary);
-  box-shadow: var(--app-focus-ring);
+.dashboard-date-range-field::after {
+  position: absolute;
+  right: 10px;
+  bottom: 8px;
+  left: 10px;
+  height: 1px;
+  border-radius: 999px;
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--theme-primary) 38%, transparent),
+    transparent 70%
+  );
+  content: '';
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 150ms ease;
 }
 
-.dashboard-filter-grid select:disabled {
-  cursor: not-allowed;
-  border-color: var(--app-border);
+.dashboard-date-range-field:focus-within::after {
+  opacity: 1;
+}
+
+.dashboard-date-range-field .date-range-trigger {
+  position: relative;
+  min-height: 40px;
+  height: 40px;
+  align-items: flex-end;
+  padding: 15px 30px 7px 34px;
+  border-color: var(--theme-border-strong);
+  border-radius: 10px;
   background: var(--theme-surface-soft);
+  color: var(--theme-text-primary);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.02);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.dashboard-date-range-field .date-range-trigger::before {
+  position: absolute;
+  top: 5px;
+  left: 11px;
+  max-width: calc(100% - 42px);
+  overflow: hidden;
   color: var(--theme-text-muted);
+  content: 'PERIODE';
+  font-size: 8px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  line-height: 1;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.dashboard-date-range-field:focus-within .date-range-trigger::before,
+.dashboard-date-range-field .date-range-trigger:hover:not(:disabled)::before {
+  color: var(--theme-primary-hover);
+}
+
+.dashboard-date-range-field .date-range-trigger:hover:not(:disabled) {
+  border-color: var(--theme-border-strong);
+  background: var(--theme-surface-raised);
+}
+
+.dashboard-date-range-field .date-range-trigger:focus-visible {
+  border-color: var(--theme-primary);
+  background: var(--theme-surface-raised);
+  box-shadow: var(--theme-focus-ring);
+}
+
+.dashboard-date-range-field .date-range-trigger-text {
+  overflow: hidden;
+  min-width: 0;
+  text-overflow: ellipsis;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.dashboard-date-range-field .date-range-trigger > svg {
+  align-self: flex-end;
+  margin-bottom: 1px;
+  color: var(--theme-primary-hover);
+}
+
+.dashboard-date-range-field .date-range-trigger-caret {
+  align-self: flex-end;
+  margin-bottom: 2px;
 }
 
 .dashboard-reset {
-  border: 0;
+  border: 1px solid transparent;
+  border-radius: 8px;
   background: transparent;
-  color: var(--theme-text-primary);
+  color: var(--theme-text-secondary);
   cursor: pointer;
-  font-size: 11px;
-  font-weight: 800;
+  font-size: 10px;
+  font-weight: 900;
+  line-height: 1;
+  padding: 6px 8px;
+  transition:
+    border-color 150ms ease,
+    background-color 150ms ease,
+    color 150ms ease;
+}
+
+.dashboard-reset:hover {
+  border-color: var(--theme-border);
+  background: var(--theme-surface-soft);
+  color: var(--theme-primary-hover);
+}
+
+/* =========================================================
+   FILTER CONTROLS — SHARED ANIMATED SELECT
+   ========================================================= */
+
+.dashboard-filter-grid > .animated-select {
+  min-width: 0;
+  align-self: stretch;
 }
 
 /* =========================================================
@@ -1203,7 +1278,14 @@
 
   .dashboard-filter-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 9px;
+    gap: 10px;
+  }
+
+  .dashboard-date-range-field .date-range-picker,
+  .dashboard-date-range-field .date-range-trigger,
+  .animated-select__trigger {
+    min-height: 40px;
+    height: 40px;
   }
 
   .dashboard-kpi {
@@ -1285,7 +1367,11 @@
     align-items: flex-start;
   }
 
-  .dashboard-filter-grid,
+  .dashboard-filter-grid {
+    grid-template-columns: 1fr;
+    gap: 9px;
+  }
+
   .dashboard-kpi-grid {
     grid-template-columns: 1fr;
   }
