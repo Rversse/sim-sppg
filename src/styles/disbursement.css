@@ -863,35 +863,36 @@
 }
 
 /* =========================================================
-   THEME FINALIZATION
+   DARK THEME SURFACES
+   Single-theme overrides kept with each page.
    ========================================================= */
 
-[data-theme='dark'] .disbursement-summary-card,
-[data-theme='dark'] .disbursement-panel {
+.disbursement-summary-card,
+.disbursement-panel {
   background: var(--theme-surface);
 }
 
-[data-theme='dark'] .disbursement-date-card,
-[data-theme='dark'] .disbursement-table-wrap {
+.disbursement-date-card,
+.disbursement-table-wrap {
   background: var(--theme-surface-raised);
 }
 
-[data-theme='dark'] .disbursement-status-summary > span {
+.disbursement-status-summary > span {
   background: var(--theme-surface-soft);
   border-color: var(--theme-border);
 }
 
-[data-theme='dark'] .disbursement-table th {
+.disbursement-table th {
   background: var(--theme-surface-soft);
 }
 
-[data-theme='dark'] .disbursement-table td {
+.disbursement-table td {
   background: var(--theme-surface);
   border-color: var(--theme-border);
   color: var(--theme-text-secondary);
 }
 
-[data-theme='dark'] .disbursement-table tbody tr:hover {
+.disbursement-table tbody tr:hover {
   background: var(--theme-surface-soft);
 }
 
@@ -899,16 +900,16 @@
   background: var(--theme-surface-soft);
 }
 
-[data-theme='dark'] .disbursement-checkbox span {
+.disbursement-checkbox span {
   background: var(--theme-surface-raised);
   border-color: var(--theme-border-strong);
 }
 
-[data-theme='dark'] .disbursement-progress-track {
+.disbursement-progress-track {
   background: var(--theme-border);
 }
 
-[data-theme='dark'] .disbursement-skeleton {
+.disbursement-skeleton {
   background: linear-gradient(
     90deg,
     var(--theme-surface-soft) 25%,
@@ -917,7 +918,7 @@
   );
 }
 
-[data-theme='dark'] .disbursement-lock {
+.disbursement-lock {
   border-color: color-mix(
     in srgb,
     var(--theme-warning) 32%,

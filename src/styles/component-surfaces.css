@@ -9,6 +9,17 @@
    ========================================================= */
 
 /* =========================================================
+   SHARED COMPONENT TOKENS
+   ========================================================= */
+
+/* Shared primary action tokens */
+:root {
+  --app-action-primary-bg: var(--theme-primary);
+  --app-action-primary-border: var(--theme-primary);
+  --app-action-primary-text: var(--theme-primary-foreground);
+}
+
+/* =========================================================
    SHARED BUTTON FOUNDATION
    ========================================================= */
 
@@ -202,7 +213,7 @@
   border: 1px solid var(--app-primary);
   border-radius: 9px;
   background: var(--app-primary);
-  color: var(--app-white);
+  color: var(--theme-primary-foreground);
   cursor: pointer;
   font-size: 10px;
   font-weight: 800;

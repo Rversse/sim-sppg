@@ -394,49 +394,50 @@
 }
 
 /* =========================================================
-   THEME FINALIZATION
+   DARK THEME SURFACES
+   Single-theme overrides kept with each page.
    ========================================================= */
 
-[data-theme='dark'] .kitchen-panel {
+.kitchen-panel {
   background: var(--theme-surface);
 }
 
-[data-theme='dark'] .kitchen-table th {
+.kitchen-table th {
   background: var(--theme-surface-soft);
   color: var(--theme-text-secondary);
 }
 
-[data-theme='dark'] .kitchen-table td {
+.kitchen-table td {
   background: var(--theme-surface);
   border-color: var(--theme-border);
   color: var(--theme-text-secondary);
 }
 
-[data-theme='dark'] .kitchen-table tbody strong {
+.kitchen-table tbody strong {
   color: var(--theme-text-primary);
 }
 
-[data-theme='dark'] .kitchen-count {
+.kitchen-count {
   background: var(--theme-surface-soft);
 }
 
-[data-theme='dark'] .kitchen-field input,
-[data-theme='dark'] .kitchen-field select {
+.kitchen-field input,
+.kitchen-field select {
   background: var(--theme-surface-raised);
   color: var(--theme-text-primary);
 }
 
-[data-theme='dark'] .kitchen-field input:disabled,
-[data-theme='dark'] .kitchen-field select:disabled {
+.kitchen-field input:disabled,
+.kitchen-field select:disabled {
   background: var(--theme-surface-soft);
 }
 
-[data-theme='dark'] .kitchen-badge-active {
+.kitchen-badge-active {
   background: var(--theme-success-soft);
   color: var(--theme-success);
 }
 
-[data-theme='dark'] .kitchen-badge-off {
+.kitchen-badge-off {
   background: var(--theme-danger-soft);
   color: var(--theme-danger);
 }

@@ -4,6 +4,17 @@
    Desktop + responsive + CRUD live here.
    ========================================================= */
 
+.dashboard-page {
+  --dashboard-emphasis-border: color-mix(
+    in srgb,
+    var(--theme-primary) 28%,
+    var(--theme-border)
+  );
+  --dashboard-emphasis-surface: var(--theme-primary-soft);
+  --dashboard-emphasis-muted: var(--theme-text-secondary);
+  --dashboard-emphasis-value: var(--theme-primary);
+}
+
 .dashboard-hero {
   display: flex;
   align-items: center;
@@ -254,13 +265,13 @@
 }
 
 .dashboard-kpi-primary {
-  border-color: var(--theme-emphasis-border);
-  background: var(--theme-emphasis-surface);
+  border-color: var(--dashboard-emphasis-border);
+  background: var(--dashboard-emphasis-surface);
   box-shadow: var(--theme-shadow-card);
 }
 
 .dashboard-kpi-primary:hover {
-  border-color: var(--theme-emphasis-border);
+  border-color: var(--dashboard-emphasis-border);
   box-shadow: var(--theme-shadow-hover);
 }
 
@@ -269,15 +280,15 @@
 }
 
 .dashboard-kpi-primary > span {
-  color: var(--theme-emphasis-muted);
+  color: var(--dashboard-emphasis-muted);
 }
 
 .dashboard-kpi-primary > small {
-  color: var(--theme-emphasis-muted);
+  color: var(--dashboard-emphasis-muted);
 }
 
 .dashboard-kpi-primary > strong {
-  color: var(--theme-emphasis-value);
+  color: var(--dashboard-emphasis-value);
 }
 
 .dashboard-kpi-grid > .dashboard-kpi:nth-child(1) {
@@ -335,13 +346,13 @@
 }
 
 .dashboard-kpi-grid > .dashboard-kpi:nth-child(4) {
-  border-color: var(--theme-emphasis-border);
-  background: var(--theme-emphasis-surface);
+  border-color: var(--dashboard-emphasis-border);
+  background: var(--dashboard-emphasis-surface);
   box-shadow: var(--theme-shadow-card);
 }
 
 .dashboard-kpi-grid > .dashboard-kpi:nth-child(4):hover {
-  border-color: var(--theme-emphasis-border);
+  border-color: var(--dashboard-emphasis-border);
   box-shadow: var(--theme-shadow-hover);
 }
 
@@ -350,15 +361,15 @@
 }
 
 .dashboard-kpi-grid > .dashboard-kpi:nth-child(4) > span {
-  color: var(--theme-emphasis-muted);
+  color: var(--dashboard-emphasis-muted);
 }
 
 .dashboard-kpi-grid > .dashboard-kpi:nth-child(4) > strong {
-  color: var(--theme-emphasis-value);
+  color: var(--dashboard-emphasis-value);
 }
 
 .dashboard-kpi-grid > .dashboard-kpi:nth-child(4) > small {
-  color: var(--theme-emphasis-muted);
+  color: var(--dashboard-emphasis-muted);
 }
 
 .dashboard-kpi-grid > .dashboard-kpi.is-selected {
@@ -872,7 +883,7 @@
     background-color 160ms ease,
     border-color 160ms ease,
     color 160ms ease,
-    transform 160ms var(--motion-smooth),
+    transform 160ms var(--theme-ease),
     box-shadow 160ms ease;
 }
 

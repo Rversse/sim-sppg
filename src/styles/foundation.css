@@ -1,7 +1,7 @@
 /* =========================================================
    SIM SPPG — FOUNDATION + APP SHELL
    Single owner for:
-   - global theme tokens
+   - dark theme tokens
    - document baseline
    - app shell geometry
    - sidebar / navigation
@@ -12,6 +12,86 @@
    Page-specific styles belong to their page stylesheet.
    Shared component behavior belongs to component-surfaces.css.
    ========================================================= */
+
+/* =========================================================
+   DARK THEME TOKENS
+   Single theme: dark.
+   ========================================================= */
+
+:root {
+  color-scheme: dark;
+
+  --theme-page-bg: #0b1120;
+  --theme-surface: #111827;
+  --theme-surface-soft: #172033;
+  --theme-surface-raised: #1b2434;
+
+  --theme-text-primary: #f8fafc;
+  --theme-text-secondary: #c1cad7;
+  --theme-text-muted: #94a3b8;
+
+  --theme-border: #29374b;
+  --theme-border-strong: #3b4a61;
+
+  --theme-primary: #3b82f6;
+  --theme-primary-hover: #60a5fa;
+  --theme-primary-soft: rgb(59 130 246 / 0.14);
+  --theme-primary-foreground: #ffffff;
+
+  --theme-success: #22c55e;
+  --theme-success-hover: #16a34a;
+  --theme-success-soft: rgb(34 197 94 / 0.13);
+
+  --theme-warning: #f59e0b;
+  --theme-warning-hover: #d97706;
+  --theme-warning-soft: rgb(245 158 11 / 0.13);
+
+  --theme-danger: #f87171;
+  --theme-danger-soft: rgb(248 113 113 / 0.13);
+
+  --theme-focus-ring: 0 0 0 3px rgb(96 165 250 / 0.18);
+
+  --theme-shadow-card: 0 1px 3px rgb(0 0 0 / 0.25), 0 1px 2px rgb(0 0 0 / 0.18);
+
+  --theme-shadow-hover:
+    0 12px 28px rgb(0 0 0 / 0.3), 0 3px 8px rgb(0 0 0 / 0.18);
+
+  --theme-shadow-modal:
+    0 32px 90px rgb(0 0 0 / 0.46), 0 10px 30px rgb(0 0 0 / 0.24);
+
+  --theme-sidebar-bg: #080e1b;
+  --theme-sidebar-text: #c6d0df;
+  --theme-sidebar-text-muted: #8fa0b7;
+  --theme-sidebar-text-active: #ffffff;
+  --theme-sidebar-hover: rgb(255 255 255 / 0.05);
+  --theme-sidebar-active: #2563eb;
+
+  --theme-header-bg: rgb(11 17 32 / 0.9);
+  --theme-header-shadow: 0 10px 28px rgb(0 0 0 / 0.16);
+  --theme-overlay: rgb(0 0 0 / 0.68);
+
+  --theme-motion-fast: 150ms;
+  --theme-motion: 220ms;
+  --theme-motion-slow: 320ms;
+  --theme-ease: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+html {
+  color-scheme: dark;
+}
+
+html.theme-transitioning,
+html.theme-transitioning *,
+html.theme-transitioning *::before,
+html.theme-transitioning *::after {
+  transition:
+    background-color 180ms ease,
+    border-color 180ms ease,
+    color 180ms ease,
+    box-shadow 180ms ease,
+    fill 180ms ease,
+    stroke 180ms ease !important;
+}
 
 @theme {
   --color-background: var(--theme-page-bg);
@@ -28,6 +108,7 @@
 }
 
 :root {
+  --app-header-height: 68px;
   --app-background: var(--theme-page-bg);
   --app-surface: var(--theme-surface);
   --app-primary: var(--theme-primary);
@@ -55,11 +136,6 @@
   --app-focus-ring: var(--theme-focus-ring);
   --app-shadow-card: var(--theme-shadow-card);
   --app-shadow-premium: var(--theme-shadow-hover);
-
-  --app-radius-sm: 8px;
-  --app-radius-md: 12px;
-  --app-radius-lg: 16px;
-  --app-radius-xl: 18px;
 
   --app-motion-fast: var(--theme-motion-fast);
   --app-motion: var(--theme-motion);
@@ -141,7 +217,7 @@ textarea {
 
   overflow: hidden;
 
-  background: var(--theme-sidebar-bg);
+  background: var(--theme-sidebar-bg) !important;
   color: var(--theme-text-primary);
 
   will-change: width, flex-basis;
@@ -314,7 +390,7 @@ textarea {
 
 .app-nav-link:hover {
   background: var(--theme-sidebar-hover);
-  color: var(--theme-text-primary);
+  color: var(--theme-sidebar-text-active);
   transform: translateX(2px);
 }
 
@@ -406,8 +482,8 @@ textarea {
   height: 7px;
   flex: 0 0 7px;
   border-radius: 999px;
-  background: var(--theme-sidebar-active);
-  box-shadow: 0 0 0 4px color-mix(in srgb, var(--theme-primary) 8%, transparent);
+  background: #34d399;
+  box-shadow: 0 0 0 4px rgb(52 211 153 / 0.09);
 }
 
 /* =========================================================
@@ -426,7 +502,7 @@ textarea {
   z-index: 20;
 
   display: flex;
-  height: 68px;
+  height: var(--app-header-height);
   align-items: center;
   justify-content: space-between;
   gap: 16px;
@@ -626,7 +702,7 @@ textarea {
 }
 
 .app-shell.sidebar-collapsed .app-nav-label {
-  display: block;
+  display: none;
   max-width: 0;
   overflow: hidden;
   opacity: 0;
@@ -655,6 +731,7 @@ textarea {
 
 .app-shell.sidebar-collapsed .app-nav-link {
   justify-content: center;
+  gap: 0;
   padding-inline: 0;
 
   transition:
@@ -668,6 +745,7 @@ textarea {
 }
 
 .app-shell.sidebar-collapsed .app-nav-icon {
+  margin-inline: auto;
   transition:
     transform var(--app-motion) var(--app-ease),
     background-color 170ms ease;

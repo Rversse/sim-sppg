@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/features/auth/use-auth'
@@ -202,6 +202,15 @@ export function DashboardPage() {
   const [formAccounts, setFormAccounts] = useState<TransactionOption[]>([])
   const [formSuppliers, setFormSuppliers] = useState<TransactionOption[]>([])
   const [formEntryUnlocked, setFormEntryUnlocked] = useState(false)
+  const nominalInputRef = useRef<HTMLInputElement | null>(null)
+
+  function focusNominalInput() {
+    window.requestAnimationFrame(() => {
+      window.requestAnimationFrame(() => {
+        nominalInputRef.current?.focus()
+      })
+    })
+  }
   const [historyMeta, setHistoryMeta] = useState<
     Record<string, DashboardHistoryMeta>
   >({})
@@ -777,6 +786,8 @@ export function DashboardPage() {
   }
 
   async function handleFormKitchenChange(value: string) {
+    const preserveSupplierFlow = formFlowType === 'expense'
+
     setFormKitchenId(value)
     setFormAccountId('')
     setFormSupplierId('')
@@ -796,9 +807,24 @@ export function DashboardPage() {
 
     try {
       const availableFlows = await getAvailableTransactionFlows(value)
+      const nextFlowType =
+        preserveSupplierFlow && availableFlows.includes('expense')
+          ? 'expense'
+          : ''
 
       setAvailableFormFlows(availableFlows)
-      setFormFlowType('')
+      setFormFlowType(nextFlowType)
+
+      if (nextFlowType === 'expense') {
+        await loadFormOptions(value, nextFlowType)
+
+        const selectedKitchen = kitchens.find((kitchen) => kitchen.id === value)
+        const isSukaraja = selectedKitchen?.name?.includes('Sukaraja') ?? false
+
+        if (!isSukaraja) {
+          focusNominalInput()
+        }
+      }
     } catch (loadError) {
       console.error(loadError)
       setAvailableFormFlows([])
@@ -824,6 +850,22 @@ export function DashboardPage() {
 
     try {
       await loadFormOptions(formKitchenId, value)
+
+      if (value === 'expense') {
+        const selectedKitchen = kitchens.find(
+          (kitchen) => kitchen.id === formKitchenId
+        )
+        const isSukaraja = selectedKitchen?.name?.includes('Sukaraja') ?? false
+
+        // Non-Sukaraja supplier payments use the fixed/default supplier,
+        // so jump directly to the amount field for rapid entry.
+        if (!isSukaraja) {
+          focusNominalInput()
+        }
+      } else if (value === 'neutral') {
+        // Operational account is selected automatically, so go directly to amount.
+        focusNominalInput()
+      }
     } catch (loadError) {
       console.error(loadError)
       setFormError('Gagal memuat rekening atau supplier transaksi.')
@@ -1542,6 +1584,10 @@ export function DashboardPage() {
                       const value = event.target.value
                       setFormSupplierId(value)
                       setFormEntryUnlocked(Boolean(value))
+
+                      if (value) {
+                        focusNominalInput()
+                      }
                     }}
                   >
                     <option value="">
@@ -1569,6 +1615,10 @@ export function DashboardPage() {
                       const value = event.target.value
                       setFormAccountId(value)
                       setFormEntryUnlocked(Boolean(value))
+
+                      if (value) {
+                        focusNominalInput()
+                      }
                     }}
                   >
                     <option value="">
@@ -1593,6 +1643,7 @@ export function DashboardPage() {
               <label>
                 <span>Nominal</span>
                 <input
+                  ref={nominalInputRef}
                   type="text"
                   inputMode="numeric"
                   value={formAmount}
@@ -1611,6 +1662,17 @@ export function DashboardPage() {
                   value={formNote}
                   disabled={!transactionDetailsUnlocked}
                   onChange={(event) => setFormNote(event.target.value)}
+                  onKeyDown={(event) => {
+                    if (
+                      event.key !== 'Enter' ||
+                      event.nativeEvent.isComposing
+                    ) {
+                      return
+                    }
+
+                    event.preventDefault()
+                    void handleTransactionSubmit()
+                  }}
                   placeholder="Pilih dapur, jenis transaksi, dan tujuan terlebih dahulu"
                 />
               </label>

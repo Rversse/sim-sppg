@@ -173,7 +173,7 @@
   border: 1px solid var(--app-accent);
   border-radius: 10px;
   background: var(--app-accent);
-  color: var(--app-primary);
+  color: var(--theme-primary-foreground);
   font-size: 10px;
   font-weight: 900;
   white-space: nowrap;
@@ -186,7 +186,8 @@
 
 .reports-filter-panel > button:hover:not(:disabled) {
   transform: translateY(-1px);
-  box-shadow: 0 8px 22px rgb(57 255 136 / 0.18);
+  box-shadow: 0 8px 22px
+    color-mix(in srgb, var(--theme-primary) 18%, transparent);
 }
 
 .reports-filter-panel > button:disabled {

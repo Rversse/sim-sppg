@@ -4,21 +4,19 @@
  * SIM SPPG stylesheet entrypoint.
  *
  * Ownership order:
- * 1. foundation.css      -> shell, design tokens, header structure
- * 2. theme.css           -> Dark-only theme tokens
- * 3. system.css          -> generic typography, controls, shared surfaces
- * 4. responsive.css      -> global breakpoints
- * 5. page-shared.css     -> tiny shared utilities/accessibility
- * 6. page styles         -> page-specific layout/content
- * 8. auth-notifications  -> notification-specific component
- * 9. component-surfaces  -> shared modal/button behavior only
+ * 1. foundation.css      -> dark theme tokens + app shell
+ * 2. system.css          -> generic typography, controls, geometry, utilities
+ * 3. responsive.css      -> global shell breakpoints
+ * 4. date-range-picker   -> shared date-range component
+ * 5. page styles         -> page-specific layout/content
+ * 6. auth-notifications  -> notification-specific component
+ * 7. toast               -> shared toast component
+ * 8. component-surfaces  -> shared modal/button behavior
  */
 
 @import './styles/foundation.css';
-@import './styles/theme.css';
 @import './styles/system.css';
 @import './styles/responsive.css';
-@import './styles/page-shared.css';
 @import './styles/date-range-picker.css';
 
 @import './styles/dashboard.css';
@@ -28,7 +26,9 @@
 @import './styles/vehicle.css';
 @import './styles/bank.css';
 @import './styles/disbursement.css';
+@import './styles/disbursement-maker.css';
 @import './styles/login.css';
 @import './styles/auth-notifications.css';
+@import './styles/toast.css';
 
 @import './styles/component-surfaces.css';

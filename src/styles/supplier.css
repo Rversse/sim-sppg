@@ -84,7 +84,7 @@
   transition:
     border-color 220ms ease,
     box-shadow 220ms ease,
-    transform 220ms var(--motion-smooth);
+    transform 220ms var(--theme-ease);
 }
 
 .supplier-panel::before {
@@ -520,39 +520,40 @@
 }
 
 /* =========================================================
-   SUPPLIER THEME FINALIZATION
+   DARK THEME SURFACES
+   Single-theme overrides kept with the page.
    ========================================================= */
 
-[data-theme='dark'] .supplier-panel {
+.supplier-panel {
   background: var(--theme-surface);
 }
 
-[data-theme='dark'] .supplier-table th {
+.supplier-table th {
   background: var(--theme-surface-soft);
   color: var(--theme-text-secondary);
 }
 
-[data-theme='dark'] .supplier-table td {
+.supplier-table td {
   background: var(--theme-surface);
   border-color: var(--theme-border);
   color: var(--theme-text-secondary);
 }
 
-[data-theme='dark'] .supplier-table tbody strong,
-[data-theme='dark'] .supplier-account-bank {
+.supplier-table tbody strong,
+.supplier-account-bank {
   color: var(--theme-text-primary);
 }
 
-[data-theme='dark'] .supplier-count {
+.supplier-count {
   background: var(--theme-surface-soft);
 }
 
-[data-theme='dark'] .supplier-account-count-button {
+.supplier-account-count-button {
   background: var(--theme-primary-soft);
   color: var(--theme-primary);
 }
 
-[data-theme='dark'] .supplier-account-count-button:hover {
+.supplier-account-count-button:hover {
   background: color-mix(
     in srgb,
     var(--theme-primary) 18%,
@@ -560,33 +561,33 @@
   );
 }
 
-[data-theme='dark'] .supplier-field input,
-[data-theme='dark'] .supplier-field select {
+.supplier-field input,
+.supplier-field select {
   background: var(--theme-surface-raised);
   color: var(--theme-text-primary);
   border-color: var(--theme-border-strong);
 }
 
-[data-theme='dark'] .supplier-account-card,
-[data-theme='dark'] .supplier-mapping-item {
+.supplier-account-card,
+.supplier-mapping-item {
   background: var(--theme-surface);
   border-color: var(--theme-border);
 }
 
-[data-theme='dark'] .supplier-account-editor {
+.supplier-account-editor {
   border-color: var(--theme-border);
 }
 
-[data-theme='dark'] .supplier-account-readonly-meta {
+.supplier-account-readonly-meta {
   border-color: var(--theme-border);
   color: var(--theme-text-secondary);
 }
 
-[data-theme='dark'] .supplier-account-readonly-meta strong {
+.supplier-account-readonly-meta strong {
   color: var(--theme-text-primary);
 }
 
-[data-theme='dark'] .supplier-account-modal.is-readonly .supplier-account-card {
+.supplier-account-modal.is-readonly .supplier-account-card {
   background:
     radial-gradient(
       circle at 95% 0%,

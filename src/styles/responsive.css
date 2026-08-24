@@ -16,8 +16,12 @@
     display: none;
   }
 
+  :root {
+    --app-header-height: 60px;
+  }
+
   .app-header {
-    height: 60px;
+    height: var(--app-header-height);
     padding: 0 16px;
   }
 
