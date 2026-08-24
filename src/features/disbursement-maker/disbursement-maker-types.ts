@@ -12,8 +12,10 @@ export type MakerAccountOption = {
   accountName: string
   bank: string
   accountNumber: string
+  supplierId: string | null
   supplierName: string | null
   supplierOwnerName: string | null
+  supplierProducts: string[]
 }
 
 export type MakerItem = {
@@ -23,6 +25,7 @@ export type MakerItem = {
   accountId: string
   amount: number
   flowType: MakerFlow
+  selectedProducts: string[]
   status: MakerStatus
   realizedTransactionId: string | null
   createdAt: string
