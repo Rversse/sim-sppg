@@ -28,6 +28,8 @@ import type {
   MakerItem,
   MakerKitchen
 } from '@/features/disbursement-maker/disbursement-maker-types'
+import { AnimatedSelect } from '@/components/ui/animated-select'
+import { SingleDatePicker } from '@/components/ui/date-picker'
 import { getTodayLocal } from '@/lib/formatters'
 import { supabase } from '@/lib/supabase'
 
@@ -985,56 +987,54 @@ export function DisbursementMakerPage() {
           </div>
 
           <div className="maker-toolbar-fields">
-            <label className="maker-field">
-              <span>Tanggal</span>
-              <input
-                type="date"
-                value={form.transactionDate}
-                onChange={(event) =>
-                  updateField('transactionDate', event.target.value)
-                }
-              />
-            </label>
+            <SingleDatePicker
+              label="Tanggal"
+              value={form.transactionDate}
+              onChange={(value) => updateField('transactionDate', value)}
+            />
 
-            <label className="maker-field">
-              <span>Dapur</span>
-              <select
-                value={form.kitchenId}
-                onChange={(event) =>
-                  updateField('kitchenId', event.target.value)
-                }
-                disabled={loadingKitchens}
-              >
-                <option value="">
-                  {loadingKitchens ? 'Memuat dapur...' : 'Pilih dapur'}
-                </option>
-                {kitchens.map((kitchen) => (
-                  <option key={kitchen.id} value={kitchen.id}>
-                    {kitchen.name}
-                  </option>
-                ))}
-              </select>
-            </label>
+            <AnimatedSelect
+              label="Dapur"
+              value={form.kitchenId}
+              options={[
+                {
+                  value: '',
+                  label: loadingKitchens ? 'Memuat dapur...' : 'Pilih dapur'
+                },
+                ...kitchens.map((kitchen) => ({
+                  value: kitchen.id,
+                  label: kitchen.name
+                }))
+              ]}
+              placeholder={loadingKitchens ? 'Memuat dapur...' : 'Pilih dapur'}
+              disabled={loadingKitchens}
+              onChange={(value) => updateField('kitchenId', value)}
+            />
 
-            <label className="maker-field">
-              <span>Jenis Pencairan</span>
-              <select
-                value={form.flowType}
-                onChange={(event) =>
-                  updateField('flowType', event.target.value as MakerFormFlow)
-                }
-                disabled={!dateAndKitchenReady}
-              >
-                <option value="">
-                  {dateAndKitchenReady
+            <AnimatedSelect
+              label="Jenis pencairan"
+              value={form.flowType}
+              options={[
+                {
+                  value: '',
+                  label: dateAndKitchenReady
                     ? 'Pilih jenis pencairan'
-                    : 'Pilih tanggal dan dapur terlebih dahulu'}
-                </option>
-                <option value="income">RAB</option>
-                <option value="operational">Biaya Operasional</option>
-                <option value="neutral">Gas</option>
-              </select>
-            </label>
+                    : 'Pilih tanggal dan dapur terlebih dahulu'
+                },
+                { value: 'income', label: 'RAB' },
+                { value: 'operational', label: 'Biaya Operasional' },
+                { value: 'neutral', label: 'Gas' }
+              ]}
+              placeholder={
+                dateAndKitchenReady
+                  ? 'Pilih jenis pencairan'
+                  : 'Pilih tanggal dan dapur terlebih dahulu'
+              }
+              disabled={!dateAndKitchenReady}
+              onChange={(value) =>
+                updateField('flowType', value as MakerFormFlow)
+              }
+            />
           </div>
         </div>
 
@@ -1079,25 +1079,29 @@ export function DisbursementMakerPage() {
 
         {form.flowType === 'income' ? (
           <div className="maker-rab-grid">
-            <label className="maker-field">
-              <span>Supplier</span>
-              <select
+            <div className="maker-field maker-field--select">
+              <AnimatedSelect
+                label="Supplier"
                 value={form.accountId}
-                onChange={(event) =>
-                  updateField('supplierId', event.target.value)
+                options={[
+                  {
+                    value: '',
+                    label: loadingAccounts
+                      ? 'Memuat supplier...'
+                      : 'Pilih supplier'
+                  },
+                  ...supplierAccountOptions.map((account) => ({
+                    value: account.accountId,
+                    label: formatSupplierAccountLabel(account)
+                  }))
+                ]}
+                placeholder={
+                  loadingAccounts ? 'Memuat supplier...' : 'Pilih supplier'
                 }
                 disabled={loadingAccounts || !supplierAccountOptions.length}
-              >
-                <option value="">
-                  {loadingAccounts ? 'Memuat supplier...' : 'Pilih supplier'}
-                </option>
-                {supplierAccountOptions.map((account) => (
-                  <option key={account.accountId} value={account.accountId}>
-                    {formatSupplierAccountLabel(account)}
-                  </option>
-                ))}
-              </select>
-            </label>
+                onChange={(value) => updateField('supplierId', value)}
+              />
+            </div>
 
             <div className="maker-field maker-products-field">
               <span>Bahan Baku</span>

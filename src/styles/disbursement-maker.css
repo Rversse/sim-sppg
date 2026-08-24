@@ -69,6 +69,80 @@
   gap: 12px;
 }
 
+.maker-toolbar-fields > .animated-select,
+.maker-toolbar-fields > .single-date-picker {
+  min-width: 0;
+  align-self: stretch;
+}
+
+.maker-field--select {
+  gap: 0;
+}
+
+.maker-field--select .animated-select {
+  width: 100%;
+}
+
+.maker-toolbar-fields .animated-select__trigger,
+.maker-toolbar-fields .single-date-picker__trigger {
+  min-height: 56px;
+  height: 56px;
+  padding: 20px 40px 10px 13px;
+}
+
+.maker-field--select .animated-select__trigger {
+  width: 100%;
+}
+
+/* RAB supplier uses the same 56px / 14px field geometry as the toolbar controls. */
+.maker-rab-grid .maker-field--select .animated-select__trigger {
+  min-height: 56px;
+  height: 56px;
+  padding: 20px 40px 10px 13px;
+}
+
+.maker-rab-grid .maker-field--select .animated-select__label {
+  top: 7px;
+  left: 13px;
+  font-size: 10px;
+}
+
+.maker-rab-grid .maker-field--select .animated-select__value {
+  font-size: 14px;
+  font-weight: 750;
+}
+
+.maker-rab-grid .maker-field--select .animated-select__chevron {
+  right: 13px;
+  width: 17px;
+  height: 17px;
+}
+
+.maker-toolbar-fields .animated-select__label,
+.maker-toolbar-fields .single-date-picker__label {
+  top: 7px;
+  left: 13px;
+  font-size: 10px;
+}
+
+.maker-toolbar-fields .animated-select__value,
+.maker-toolbar-fields .single-date-picker__value {
+  font-size: 14px;
+  font-weight: 750;
+}
+
+.maker-toolbar-fields .animated-select__chevron,
+.maker-toolbar-fields .single-date-picker__caret {
+  right: 13px;
+  width: 17px;
+  height: 17px;
+}
+
+.maker-toolbar-fields .single-date-picker__icon {
+  width: 16px;
+  height: 16px;
+}
+
 .maker-field {
   min-width: 0;
   display: flex;
@@ -202,9 +276,9 @@
 .maker-rab-grid {
   margin-top: 18px;
   display: grid;
-  grid-template-columns: minmax(260px, 1fr) minmax(320px, 1.25fr) minmax(
-      260px,
-      0.9fr
+  grid-template-columns: minmax(220px, 0.9fr) minmax(300px, 1.25fr) minmax(
+      280px,
+      0.95fr
     );
   align-items: end;
   gap: 12px;
@@ -261,35 +335,144 @@
 }
 
 .maker-products-field {
+  position: relative;
   min-width: 0;
 }
 
+/* Match the Material-style field used by AnimatedSelect.
+   The semantic label stays in the DOM; it is visually floated inside the field. */
+.maker-products-field > span {
+  position: absolute;
+  top: 7px;
+  left: 13px;
+  z-index: 1;
+  max-width: calc(100% - 22px);
+  overflow: hidden;
+  color: var(--theme-text-muted);
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  line-height: 1;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
 .maker-product-list {
-  min-height: 42px;
+  position: relative;
+  min-height: 56px;
+  height: 56px;
   display: flex;
   align-items: center;
-  flex-wrap: wrap;
+  justify-content: center;
+  flex-wrap: nowrap;
   gap: 7px;
-  padding: 6px;
-  border: 1px solid var(--theme-border);
+  padding: 20px 9px 9px;
+  border: 1px solid var(--theme-border-strong);
   border-radius: 10px;
   background: var(--theme-surface-soft);
   box-sizing: border-box;
+  transition:
+    border-color var(--theme-motion-fast) ease,
+    background-color var(--theme-motion-fast) ease,
+    box-shadow var(--theme-motion-fast) ease;
+}
+
+.maker-product-list:hover {
+  border-color: var(--theme-border-strong);
+  background: var(--theme-surface-raised);
+}
+
+.maker-product-list:focus-within {
+  border-color: var(--theme-primary);
+  background: var(--theme-surface-raised);
+  box-shadow: var(--theme-focus-ring);
+}
+
+.maker-product-empty {
+  position: relative;
+  min-height: 40px;
+  display: flex;
+  align-items: flex-end;
+  padding: 15px 12px 7px;
+  border: 1px dashed var(--theme-border-strong);
+  border-radius: 10px;
+  background: var(--theme-surface-soft);
+  color: var(--theme-text-muted);
+  font-size: 11px;
+  line-height: 1.4;
+  box-sizing: border-box;
+}
+
+/* Nominal fields use the same floating-label geometry. */
+.maker-rab-amount .maker-field,
+.maker-form-grid .maker-field {
+  position: relative;
+  gap: 0;
+}
+
+.maker-rab-amount .maker-field > span,
+.maker-form-grid .maker-field > span {
+  position: absolute;
+  top: 7px;
+  left: 13px;
+  z-index: 1;
+  max-width: calc(100% - 22px);
+  overflow: hidden;
+  color: var(--theme-text-muted);
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  line-height: 1;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.maker-rab-amount .maker-field input,
+.maker-form-grid .maker-field input {
+  min-height: 56px;
+  height: 56px;
+  padding: 20px 13px 10px;
+  border-color: var(--theme-border-strong);
+  background: var(--theme-surface-soft);
+  color: var(--theme-text-primary);
+  font-size: 14px;
+  font-weight: 750;
+  text-align: center;
+}
+
+.maker-rab-amount .maker-field input:hover:not(:disabled),
+.maker-form-grid .maker-field input:hover:not(:disabled) {
+  border-color: var(--theme-border-strong);
+  background: var(--theme-surface-raised);
+}
+
+.maker-rab-amount .maker-field input:focus,
+.maker-form-grid .maker-field input:focus {
+  border-color: var(--theme-primary);
+  background: var(--theme-surface-raised);
+  box-shadow: var(--theme-focus-ring);
 }
 
 .maker-product-chip {
-  min-height: 30px;
+  min-height: 34px;
+  height: 34px;
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 0 10px;
+  gap: 7px;
+  padding: 0 14px;
   border: 1px solid var(--theme-border);
   border-radius: 999px;
   background: var(--theme-surface);
   color: var(--theme-text-secondary);
   font: inherit;
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 800;
+  line-height: 1.1;
+  white-space: nowrap;
   cursor: pointer;
   transition:
     border-color 0.18s ease,
@@ -309,8 +492,8 @@
 }
 
 .maker-product-chip svg {
-  width: 13px;
-  height: 13px;
+  width: 14px;
+  height: 14px;
 }
 
 .maker-product-empty {

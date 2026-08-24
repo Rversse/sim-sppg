@@ -117,7 +117,7 @@
 .dashboard-date-range-field .date-range-picker {
   width: 100%;
   max-width: none;
-  height: 40px;
+  height: 56px;
 }
 
 .dashboard-date-range-field::after {
@@ -144,28 +144,28 @@
 
 .dashboard-date-range-field .date-range-trigger {
   position: relative;
-  min-height: 40px;
-  height: 40px;
+  min-height: 56px;
+  height: 56px;
   align-items: flex-end;
-  padding: 15px 30px 7px 34px;
+  padding: 20px 36px 10px 40px;
   border-color: var(--theme-border-strong);
   border-radius: 10px;
   background: var(--theme-surface-soft);
   color: var(--theme-text-primary);
   box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.02);
-  font-size: 11px;
-  font-weight: 700;
+  font-size: 14px;
+  font-weight: 750;
 }
 
 .dashboard-date-range-field .date-range-trigger::before {
   position: absolute;
-  top: 5px;
-  left: 11px;
+  top: 7px;
+  left: 13px;
   max-width: calc(100% - 42px);
   overflow: hidden;
   color: var(--theme-text-muted);
   content: 'PERIODE';
-  font-size: 8px;
+  font-size: 10px;
   font-weight: 900;
   letter-spacing: 0.08em;
   line-height: 1;
@@ -200,6 +200,8 @@
 }
 
 .dashboard-date-range-field .date-range-trigger > svg {
+  width: 16px;
+  height: 16px;
   align-self: flex-end;
   margin-bottom: 1px;
   color: var(--theme-primary-hover);
@@ -239,6 +241,29 @@
 .dashboard-filter-grid > .animated-select {
   min-width: 0;
   align-self: stretch;
+}
+
+.dashboard-filter-grid > .animated-select .animated-select__trigger {
+  min-height: 56px;
+  height: 56px;
+  padding: 20px 40px 10px 13px;
+}
+
+.dashboard-filter-grid > .animated-select .animated-select__label {
+  top: 7px;
+  left: 13px;
+  font-size: 10px;
+}
+
+.dashboard-filter-grid > .animated-select .animated-select__value {
+  font-size: 14px;
+  font-weight: 750;
+}
+
+.dashboard-filter-grid > .animated-select .animated-select__chevron {
+  right: 13px;
+  width: 17px;
+  height: 17px;
 }
 
 /* =========================================================
@@ -1284,8 +1309,13 @@
   .dashboard-date-range-field .date-range-picker,
   .dashboard-date-range-field .date-range-trigger,
   .animated-select__trigger {
-    min-height: 40px;
-    height: 40px;
+    min-height: 52px;
+    height: 52px;
+  }
+
+  .dashboard-filter-grid > .animated-select .animated-select__value,
+  .dashboard-date-range-field .date-range-trigger {
+    font-size: 13px;
   }
 
   .dashboard-kpi {
