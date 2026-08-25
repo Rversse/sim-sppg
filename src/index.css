@@ -3,22 +3,19 @@
 /*
  * SIM SPPG stylesheet entrypoint.
  *
- * Ownership order:
- * 1. foundation.css      -> dark theme tokens + app shell
- * 2. system.css          -> generic typography, controls, geometry, utilities
- * 3. responsive.css      -> global shell breakpoints
- * 4. date-range-picker   -> shared date-range component
- * 5. date-picker         -> shared single-date component
- * 6. page styles         -> page-specific layout/content
- * 7. auth-notifications  -> notification-specific component
- * 8. toast               -> shared toast component
- * 9. animated-select     -> shared animated select component
- * 10. component-surfaces -> shared modal/button behavior
+ * Core global UI foundation is consolidated into one stylesheet:
+ * - theme tokens
+ * - document/system baseline
+ * - app shell + sidebar/header
+ * - global responsive shell
+ * - shared modal/button surfaces
+ *
+ * Shared date/select components and page styles remain separate because
+ * they own component/page-specific geometry and behavior.
  */
 
-@import './styles/foundation.css';
-@import './styles/system.css';
-@import './styles/responsive.css';
+@import './styles/core.css';
+
 @import './styles/date-range-picker.css';
 @import './styles/date-picker.css';
 
@@ -34,5 +31,3 @@
 @import './styles/auth-notifications.css';
 @import './styles/toast.css';
 @import './styles/animated-select.css';
-
-@import './styles/component-surfaces.css';

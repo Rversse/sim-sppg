@@ -1,0 +1,1374 @@
+/* =========================================================
+   SIM SPPG — CORE UI FOUNDATION
+   Single owner for:
+   - dark theme tokens
+   - document baseline
+   - app shell geometry
+   - sidebar / navigation
+   - top header
+   - app page container
+   - shell-only responsive behavior
+   - merged system + responsive + shared component layers
+
+   Page-specific styles belong to their page stylesheet.
+   Shared component behavior belongs to component-surfaces.css.
+   ========================================================= */
+
+/* =========================================================
+   COOL BREEZE — LIGHT THEME TOKENS
+   Single light theme.
+   ========================================================= */
+
+:root {
+  color-scheme: light;
+
+  --theme-page-bg: #f4f8fc;
+  --theme-surface: #ffffff;
+  --theme-surface-soft: #eef4fa;
+  --theme-surface-raised: #ffffff;
+
+  --theme-text-primary: #172033;
+  --theme-text-secondary: #526176;
+  --theme-text-muted: #7d8a9d;
+
+  --theme-border: #d7e0ea;
+  --theme-border-strong: #c3d0de;
+
+  --theme-primary: #3b82f6;
+  --theme-primary-hover: #2563eb;
+  --theme-primary-soft: #e8f1ff;
+  --theme-primary-foreground: #ffffff;
+
+  --theme-success: #16a34a;
+  --theme-success-hover: #15803d;
+  --theme-success-soft: #e9f8ef;
+
+  --theme-warning: #d97706;
+  --theme-warning-hover: #b45309;
+  --theme-warning-soft: #fff5e6;
+
+  --theme-danger: #dc4545;
+  --theme-danger-soft: #fff0f0;
+
+  --theme-focus-ring: 0 0 0 3px rgb(59 130 246 / 0.16);
+
+  --theme-shadow-card: 0 2px 8px rgb(31 56 85 / 0.05);
+
+  --theme-shadow-hover:
+    0 8px 20px rgb(31 56 85 / 0.09), 0 2px 6px rgb(31 56 85 / 0.05);
+
+  --theme-shadow-modal:
+    0 20px 50px rgb(31 56 85 / 0.16), 0 6px 18px rgb(31 56 85 / 0.08);
+
+  --theme-sidebar-bg: #f7fafd;
+  --theme-sidebar-text: #526176;
+  --theme-sidebar-text-muted: #7d8a9d;
+  --theme-sidebar-text-active: #1d4ed8;
+  --theme-sidebar-hover: #edf3f9;
+  --theme-sidebar-active: #e8f1ff;
+
+  --theme-header-bg: rgb(255 255 255 / 0.92);
+  --theme-header-shadow: 0 4px 16px rgb(31 56 85 / 0.05);
+  --theme-overlay: rgb(15 23 42 / 0.28);
+
+  --theme-motion-fast: 150ms;
+  --theme-motion: 220ms;
+  --theme-motion-slow: 320ms;
+  --theme-ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+  /* Merged generic system tokens */
+  --app-control-height: 42px;
+  --app-control-radius: 10px;
+
+  /* Shared page geometry: every route uses the same outer layout. */
+  --app-page-width: 100%;
+  --app-page-max-width: none;
+  --app-page-margin: 0;
+  --app-page-gap: 16px;
+  --app-page-padding: 0;
+
+  --read-text: var(--theme-text-primary);
+  --read-text-muted: var(--theme-text-secondary);
+  --read-border: var(--theme-border);
+}
+
+html {
+  color-scheme: light;
+}
+
+html.theme-transitioning,
+html.theme-transitioning *,
+html.theme-transitioning *::before,
+html.theme-transitioning *::after {
+  transition:
+    background-color 180ms ease,
+    border-color 180ms ease,
+    color 180ms ease,
+    box-shadow 180ms ease,
+    fill 180ms ease,
+    stroke 180ms ease !important;
+}
+
+@theme {
+  --color-background: var(--theme-page-bg);
+  --color-foreground: #172033;
+  --color-primary: #2563eb;
+  --color-primary-foreground: #ffffff;
+  --color-accent: #2563eb;
+  --color-muted: #eef4fa;
+  --color-muted-foreground: #526176;
+  --color-border: var(--theme-border);
+  --color-success: #16a34a;
+  --color-warning: #d97706;
+  --color-danger: #dc4545;
+}
+
+:root {
+  --app-header-height: 68px;
+  --app-background: var(--theme-page-bg);
+  --app-surface: var(--theme-surface);
+  --app-primary: var(--theme-primary);
+  --app-primary-foreground: var(--theme-primary-foreground);
+  --app-accent: var(--theme-primary);
+
+  --app-text: var(--theme-text-primary);
+  --app-text-muted: var(--theme-text-secondary);
+  --app-text-subtle: var(--theme-text-muted);
+  --app-border: var(--theme-border);
+  --app-border-soft: var(--theme-border);
+  --app-border-strong: var(--theme-border-strong);
+  --app-border-mid: var(--theme-border-strong);
+  --app-text-dark: var(--theme-text-secondary);
+
+  --app-success: var(--theme-success);
+  --app-success-bg: var(--theme-success-soft);
+  --app-warning: var(--theme-warning);
+  --app-warning-bg: var(--theme-warning-soft);
+  --app-danger: var(--theme-danger);
+  --app-danger-bg: var(--theme-danger-soft);
+
+  --app-white: var(--theme-surface-raised);
+  --app-bg-soft: var(--theme-surface-soft);
+  --app-focus-ring: var(--theme-focus-ring);
+  --app-shadow-card: var(--theme-shadow-card);
+  --app-shadow-premium: var(--theme-shadow-hover);
+
+  --app-motion-fast: var(--theme-motion-fast);
+  --app-motion: var(--theme-motion);
+  --app-motion-slow: var(--theme-motion-slow);
+  --app-ease: var(--theme-ease);
+
+  font-family:
+    Inter,
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    sans-serif;
+
+  color: var(--app-text);
+  background: var(--app-background);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+}
+
+/* =========================================================
+   DOCUMENT BASELINE
+   ========================================================= */
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  min-width: 320px;
+  min-height: 100vh;
+  margin: 0;
+  overflow-x: hidden;
+  background: var(--app-background);
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+button,
+a,
+input,
+select,
+textarea {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* =========================================================
+   APP SHELL
+   ========================================================= */
+
+.app-shell {
+  --sidebar-width: 252px;
+
+  display: flex;
+  min-height: 100vh;
+  background: var(--app-background);
+}
+
+.app-sidebar {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+
+  display: flex;
+  width: var(--sidebar-width);
+  height: 100vh;
+  flex: 0 0 var(--sidebar-width);
+  flex-direction: column;
+
+  overflow: visible;
+
+  background: var(--theme-sidebar-bg) !important;
+  color: var(--theme-text-primary);
+
+  will-change: width, flex-basis;
+
+  transition:
+    width var(--app-motion-slow) var(--app-ease),
+    flex-basis var(--app-motion-slow) var(--app-ease),
+    box-shadow var(--app-motion) ease;
+}
+
+/* =========================================================
+   SIDEBAR NAVIGATION
+   ========================================================= */
+
+.app-nav {
+  display: grid;
+  gap: 18px;
+  padding: 18px 12px;
+  overflow: visible;
+}
+
+.app-nav-section {
+  display: grid;
+  gap: 6px;
+}
+
+.app-nav-section-label {
+  display: block;
+  padding: 0 11px;
+
+  color: var(--theme-sidebar-text-muted);
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+
+  transition:
+    opacity var(--app-motion) ease,
+    transform var(--app-motion-slow) var(--app-ease),
+    max-height var(--app-motion-slow) var(--app-ease),
+    margin var(--app-motion-slow) var(--app-ease);
+}
+
+.app-nav-section-items {
+  display: grid;
+  gap: 4px;
+}
+
+.app-nav-link {
+  position: relative;
+
+  display: flex;
+  min-height: 44px;
+  align-items: center;
+  gap: 11px;
+
+  padding: 9px 11px;
+  overflow: hidden;
+  border-radius: 10px;
+
+  color: var(--theme-sidebar-text);
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+
+  transition:
+    transform var(--app-motion-fast) var(--app-ease),
+    background-color var(--app-motion-fast) ease,
+    color var(--app-motion-fast) ease,
+    box-shadow var(--app-motion-fast) ease;
+}
+
+.app-nav-link::before {
+  position: absolute;
+  top: 7px;
+  bottom: 7px;
+  left: 0;
+  width: 3px;
+
+  border-radius: 0 3px 3px 0;
+  background: var(--theme-sidebar-active);
+
+  content: '';
+  opacity: 0;
+  transform: scaleY(0.5);
+
+  transition:
+    opacity var(--app-motion-fast) ease,
+    transform var(--app-motion-fast) var(--app-ease);
+}
+
+.app-nav-link[data-tooltip]::after {
+  position: absolute;
+  top: 50%;
+  left: calc(100% + 10px);
+  z-index: 100;
+  display: none;
+  min-height: 34px;
+  align-items: center;
+  padding: 0 11px;
+  border: 1px solid var(--theme-border-strong);
+  border-radius: 9px;
+  background: var(--theme-surface-raised);
+  box-shadow: var(--theme-shadow-hover);
+  color: var(--theme-text-primary);
+  content: attr(data-tooltip);
+  font-size: 11px;
+  font-weight: 800;
+  line-height: 1;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(-50%) translateX(-4px);
+  transition:
+    opacity 120ms ease,
+    transform 160ms var(--app-ease);
+}
+
+.app-nav-link:hover {
+  background: var(--theme-sidebar-hover);
+  color: var(--theme-sidebar-text-active);
+  transform: translateX(2px);
+}
+
+.app-nav-link.is-active {
+  background: var(--theme-sidebar-active);
+  color: var(--theme-primary);
+  box-shadow:
+    0 8px 22px color-mix(in srgb, var(--theme-primary) 12%, transparent),
+    inset 0 0 0 1px rgb(255 255 255 / 0.12);
+}
+
+.app-nav-link.is-active::before {
+  opacity: 1;
+  transform: scaleY(1);
+}
+
+.app-nav-link.is-active:hover {
+  background: var(--theme-sidebar-active);
+  color: var(--theme-primary);
+}
+
+.app-nav-link.is-active .app-nav-icon {
+  background: #dceaff;
+  color: var(--theme-primary);
+}
+
+.app-nav-label {
+  min-width: 0;
+
+  transition:
+    opacity var(--app-motion) ease,
+    transform var(--app-motion-slow) var(--app-ease),
+    max-width var(--app-motion-slow) var(--app-ease),
+    margin var(--app-motion-slow) var(--app-ease);
+}
+
+.app-nav-icon {
+  display: grid;
+  width: 27px;
+  height: 27px;
+  flex: 0 0 27px;
+  place-items: center;
+
+  border-radius: 8px;
+  background: var(--theme-sidebar-hover);
+  color: inherit;
+
+  transition:
+    transform var(--app-motion) var(--app-ease),
+    background-color var(--app-motion-fast) ease;
+}
+
+.app-nav-icon svg {
+  width: 16px;
+  height: 16px;
+  stroke-width: 2;
+}
+
+/* =========================================================
+   CONTENT / HEADER
+   ========================================================= */
+
+.app-content {
+  min-width: 0;
+  flex: 1;
+  overflow-x: clip;
+}
+
+.app-header {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+
+  display: flex;
+  height: var(--app-header-height);
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+
+  padding: 0 28px;
+
+  border-bottom: 1px solid var(--app-border);
+  background: var(--theme-header-bg);
+  box-shadow:
+    0 1px 0 color-mix(in srgb, var(--theme-surface) 70%, transparent),
+    var(--theme-header-shadow);
+  backdrop-filter: blur(14px);
+}
+
+.app-header-left {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 10px;
+}
+
+.app-sidebar-toggle {
+  display: grid;
+  width: 34px;
+  height: 34px;
+  flex: 0 0 34px;
+  place-items: center;
+
+  padding: 0;
+  border: 1px solid var(--app-border-strong);
+  border-radius: 9px;
+  background: var(--app-white);
+  color: var(--app-primary);
+
+  cursor: pointer;
+  box-shadow: var(--theme-shadow-card);
+
+  transition:
+    transform var(--app-motion-fast) var(--app-ease),
+    border-color var(--app-motion-fast) ease,
+    background-color var(--app-motion-fast) ease,
+    box-shadow var(--app-motion-fast) ease;
+}
+
+.app-sidebar-toggle:hover {
+  border-color: var(--app-accent);
+  background: var(--theme-primary-soft);
+  transform: translateY(-1px);
+  box-shadow: var(--theme-shadow-hover);
+}
+
+.app-sidebar-toggle:active {
+  transform: translateY(0) scale(0.98);
+}
+
+.app-sidebar-toggle svg {
+  width: 17px;
+  height: 17px;
+  transition: transform 260ms var(--app-ease);
+}
+
+.app-page-heading {
+  min-width: 0;
+}
+
+.app-header-kicker {
+  display: block;
+  margin-bottom: 2px;
+
+  color: var(--theme-text-secondary);
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.app-page-title {
+  margin: 0;
+  color: var(--app-primary);
+  font-size: 18px;
+  font-weight: 800;
+  line-height: 1.15;
+  letter-spacing: -0.025em;
+}
+
+.app-user {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  flex: 0 0 auto;
+}
+
+.app-user-role {
+  display: inline-flex;
+  min-height: 34px;
+  align-items: center;
+  justify-content: center;
+
+  padding: 0 11px;
+  border: 1px solid var(--app-border-strong);
+  border-radius: 10px;
+  background: var(--theme-surface-raised);
+  color: var(--app-primary);
+
+  font-size: 10px;
+  font-weight: 900;
+
+  box-shadow: var(--theme-shadow-card);
+
+  transition:
+    border-color var(--app-motion-fast) ease,
+    box-shadow var(--app-motion-fast) ease,
+    transform var(--app-motion-fast) var(--app-ease);
+}
+
+.app-user-role:hover {
+  border-color: var(--theme-primary);
+  transform: translateY(-1px);
+  box-shadow: var(--theme-shadow-card);
+}
+
+.app-logout-button {
+  display: grid;
+  width: 34px;
+  height: 34px;
+  place-items: center;
+
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 9px;
+  background: transparent;
+  color: var(--app-text-dark);
+
+  cursor: pointer;
+
+  transition:
+    transform var(--app-motion-fast) var(--app-ease),
+    border-color var(--app-motion-fast) ease,
+    background-color var(--app-motion-fast) ease,
+    color var(--app-motion-fast) ease;
+}
+
+.app-logout-button svg {
+  width: 16px;
+  height: 16px;
+  stroke-width: 2;
+}
+
+.app-logout-button:hover {
+  border-color: var(--app-border-strong);
+  background: var(--app-white);
+  color: var(--app-danger);
+  transform: translateY(-1px);
+}
+
+.app-logout-button:active {
+  transform: translateY(0) scale(0.98);
+}
+
+/* =========================================================
+   MAIN / MOBILE NAV
+   ========================================================= */
+
+.app-main {
+  width: min(1500px, 100%);
+  margin: 0 auto;
+  padding: 16px 2px;
+  animation: app-page-in 300ms var(--app-ease) both;
+}
+
+.app-mobile-nav {
+  display: none;
+}
+
+/* =========================================================
+   COLLAPSED DESKTOP SIDEBAR
+   ========================================================= */
+
+.app-shell.sidebar-collapsed {
+  --sidebar-width: 78px;
+}
+
+.app-shell.sidebar-collapsed .app-nav-label {
+  display: none;
+  max-width: 0;
+  overflow: hidden;
+  opacity: 0;
+  transform: translateX(-7px);
+  pointer-events: none;
+}
+
+.app-shell.sidebar-collapsed .app-nav-section-label {
+  display: block;
+  max-height: 0;
+  margin-block: -3px;
+  overflow: hidden;
+  opacity: 0;
+  transform: translateX(-6px);
+  pointer-events: none;
+}
+
+.app-shell.sidebar-collapsed .app-nav-link {
+  justify-content: center;
+  gap: 0;
+  padding-inline: 0;
+
+  transition:
+    background-color 170ms ease,
+    color 170ms ease,
+    transform 170ms var(--app-ease);
+}
+
+.app-shell.sidebar-collapsed .app-nav-link::before {
+  display: none;
+}
+
+.app-shell.sidebar-collapsed .app-nav-link[data-tooltip]:hover::after,
+.app-shell.sidebar-collapsed .app-nav-link[data-tooltip]:focus-visible::after {
+  display: inline-flex;
+  opacity: 1;
+  transform: translateY(-50%) translateX(0);
+}
+
+.app-shell.sidebar-collapsed .app-nav-icon {
+  margin-inline: auto;
+  transition:
+    transform var(--app-motion) var(--app-ease),
+    background-color 170ms ease;
+}
+
+.app-shell.sidebar-collapsed .app-nav-link:hover .app-nav-icon {
+  transform: scale(1.05);
+}
+
+.app-shell.sidebar-collapsed .app-sidebar-toggle svg {
+  transform: rotate(180deg);
+}
+
+/* =========================================================
+   SHELL ANIMATION
+   ========================================================= */
+
+@keyframes app-page-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+/* =========================================================
+   REDUCED MOTION
+   ========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .app-page-in {
+    animation: none;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* =========================================================
+   COLLAPSED SIDEBAR TOOLTIP SAFETY
+   ========================================================= */
+
+.app-shell.sidebar-collapsed .app-sidebar {
+  overflow: visible;
+}
+
+.app-shell.sidebar-collapsed .app-nav {
+  overflow: visible;
+}
+
+.app-shell.sidebar-collapsed .app-nav-link {
+  position: relative;
+}
+
+@media (hover: none), (pointer: coarse) {
+  .app-shell.sidebar-collapsed .app-nav-link[data-tooltip]::after {
+    display: none !important;
+  }
+}
+
+/* =========================================================
+   MERGED SYSTEM LAYER
+   Former file: system.css
+   ========================================================= */
+
+/* =========================================================
+   MERGED SYSTEM LAYER — FORMER system.css
+   Owner:
+   - design tokens
+   - generic typography
+   - generic control baselines
+   - generic focus treatment
+   No page-specific selectors belong here.
+   ========================================================= */
+
+/* =========================================================
+   TYPOGRAPHY BASE
+   ========================================================= */
+
+body {
+  color: var(--read-text);
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+/* =========================================================
+   GENERIC CONTROLS
+   Page styles own width, height and spacing where needed.
+   This block only establishes safe common geometry.
+   ========================================================= */
+
+input,
+select,
+textarea {
+  box-sizing: border-box;
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--theme-primary) 62%, transparent);
+  outline-offset: 1px;
+}
+
+/* =========================================================
+   GENERIC PAGE GEOMETRY
+   One source of truth for page width, margin, padding and vertical gap.
+   Page styles own only page-specific fields and surfaces.
+   ========================================================= */
+
+:where(
+  .dashboard-page,
+  .bank-page,
+  .kitchen-page,
+  .supplier-page,
+  .vehicle-page,
+  .reports-page,
+  .disbursement-page
+) {
+  display: grid;
+  width: var(--app-page-width);
+  max-width: var(--app-page-max-width);
+  margin: var(--app-page-margin);
+  gap: var(--app-page-gap);
+  padding: var(--app-page-padding);
+}
+
+/* =========================================================
+   GLOBAL BUTTON INTERACTION
+   ========================================================= */
+
+button {
+  -webkit-tap-highlight-color: transparent;
+}
+
+button:not(:disabled):active {
+  transform: translateY(1px);
+}
+
+[data-slot='button'] {
+  transition:
+    transform var(--app-motion-fast)
+      var(--app-ease, cubic-bezier(0.22, 1, 0.36, 1)),
+    box-shadow var(--app-motion-fast) ease,
+    background-color var(--app-motion-fast) ease,
+    border-color var(--app-motion-fast) ease,
+    color var(--app-motion-fast) ease;
+}
+
+[data-slot='button']:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: var(--theme-shadow-hover);
+}
+
+[data-slot='button']:active:not(:disabled) {
+  transform: translateY(0) scale(0.985);
+}
+
+button:disabled,
+select:disabled,
+input:disabled,
+textarea:disabled {
+  cursor: not-allowed;
+}
+
+/* =========================================================
+   ACCESSIBILITY / APP UTILITIES
+   ========================================================= */
+
+.app-access-denied {
+  padding: 24px;
+}
+
+.app-sr-only {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
+/* =========================================================
+   MERGED RESPONSIVE LAYER
+   Former file: responsive.css
+   ========================================================= */
+
+/* =========================================================
+   MERGED RESPONSIVE LAYER — FORMER responsive.css
+   Owner:
+   - app shell
+   - header
+   - mobile navigation
+   No page-specific selectors belong here.
+   ========================================================= */
+
+@media (max-width: 760px) {
+  .app-shell {
+    display: block;
+  }
+
+  .app-sidebar {
+    display: none;
+  }
+
+  :root {
+    --app-header-height: 60px;
+  }
+
+  .app-header {
+    height: var(--app-header-height);
+    padding: 0 16px;
+  }
+
+  .app-header-kicker {
+    font-size: 7px;
+  }
+
+  .app-header strong {
+    font-size: 11px;
+  }
+
+  .app-user-role {
+    display: none;
+  }
+
+  .app-page-title {
+    font-size: 15px;
+  }
+
+  .app-sidebar-toggle {
+    display: none;
+  }
+
+  .app-user-avatar {
+    width: 32px;
+    height: 32px;
+  }
+
+  .app-main {
+    padding: 17px 14px 124px;
+  }
+
+  .app-mobile-nav {
+    position: fixed;
+    right: 10px;
+    bottom: 10px;
+    left: 10px;
+    z-index: 30;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(48px, 1fr));
+    gap: 2px;
+    padding: 6px;
+    border: 1px solid var(--app-border-strong);
+    border-radius: 16px;
+    background: color-mix(in srgb, var(--theme-sidebar-bg) 96%, transparent);
+    box-shadow: var(--theme-shadow-hover);
+    backdrop-filter: blur(12px);
+  }
+
+  .app-mobile-link {
+    display: grid;
+    min-width: 0;
+    place-items: center;
+    gap: 2px;
+    padding: 7px 2px;
+    border-radius: 11px;
+    color: var(--theme-sidebar-text);
+    text-decoration: none;
+  }
+
+  .app-mobile-link.is-active {
+    background: var(--theme-sidebar-active);
+    color: var(--theme-primary);
+  }
+
+  .app-mobile-link span {
+    font-size: 8px;
+    font-weight: 900;
+  }
+
+  .app-mobile-link small {
+    overflow: hidden;
+    max-width: 100%;
+    font-size: 7px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+/* =========================================================
+   MERGED COMPONENT SURFACES LAYER
+   Former file: component-surfaces.css
+   ========================================================= */
+
+/* =========================================================
+   MERGED COMPONENT SURFACES — FORMER component-surfaces.css
+   Owner:
+   - shared button interaction
+   - shared modal/backdrop shell
+   - shared motion keyframes
+   - shared master-data action button
+   Page-specific fields/layout stay in page CSS.
+   ========================================================= */
+
+/* =========================================================
+   SHARED COMPONENT TOKENS
+   ========================================================= */
+
+/* Shared primary action tokens */
+:root {
+  --app-action-primary-bg: var(--theme-primary);
+  --app-action-primary-border: var(--theme-primary);
+  --app-action-primary-text: var(--theme-primary-foreground);
+}
+
+/* =========================================================
+   SHARED BUTTON FOUNDATION
+   ========================================================= */
+
+:where([data-slot='button'], .app-action-button) {
+  -webkit-tap-highlight-color: transparent;
+  outline: none;
+}
+
+:where([data-slot='button'], .app-action-button):focus-visible {
+  box-shadow: var(--app-focus-ring);
+}
+
+[data-slot='button']:disabled,
+.app-action-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.52;
+}
+
+/* Page-specific selectors do not belong in this file. */
+
+/* =========================================================
+   SHARED MODAL SHELL
+   Page CSS owns modal dimensions, headers, fields and body.
+   ========================================================= */
+
+:where(
+  .bank-modal-backdrop,
+  .bank-history-modal-backdrop,
+  .dashboard-transaction-modal-backdrop,
+  .kitchen-modal-backdrop,
+  .supplier-modal-backdrop,
+  .vehicle-modal-backdrop,
+  .disbursement-modal-backdrop,
+  .modal-backdrop
+) {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  display: grid;
+  min-height: 100dvh;
+  place-items: center;
+  padding: 18px;
+  overflow: auto;
+  background: var(--theme-overlay);
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+  isolation: isolate;
+}
+
+:where(
+  .bank-modal,
+  .bank-form-modal,
+  .bank-history-modal,
+  .dashboard-transaction-modal,
+  .kitchen-modal,
+  .supplier-modal,
+  .vehicle-modal,
+  .disbursement-modal,
+  .modal
+) {
+  position: relative;
+  z-index: 2;
+  margin: auto;
+  max-height: calc(100dvh - 36px);
+  overflow: hidden;
+  border: 1px solid var(--theme-border-strong);
+  border-radius: 18px;
+  background: var(--theme-surface-raised);
+  box-shadow: var(--theme-shadow-modal);
+  animation: app-modal-enter 220ms var(--app-ease) both;
+}
+
+:where(
+  .bank-modal,
+  .bank-form-modal,
+  .bank-history-modal,
+  .dashboard-transaction-modal,
+  .kitchen-modal,
+  .supplier-modal,
+  .vehicle-modal,
+  .disbursement-modal,
+  .modal
+)::before {
+  position: absolute;
+  top: 0;
+  right: 18%;
+  left: 18%;
+  z-index: 3;
+  height: 2px;
+  border-radius: 0 0 999px 999px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--app-accent),
+    transparent
+  );
+  content: '';
+  pointer-events: none;
+}
+
+@keyframes app-modal-enter {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.985);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+:where(
+  .modal,
+  .bank-form-modal,
+  .kitchen-modal,
+  .supplier-modal,
+  .vehicle-modal,
+  .disbursement-modal
+) {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+:where(
+  .modal > .modal-body,
+  .bank-form-content,
+  .kitchen-modal-body,
+  .supplier-modal-body,
+  .vehicle-modal-body,
+  .disbursement-modal-body
+) {
+  min-height: 0;
+  flex: 1 1 auto;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: var(--app-border-mid) transparent;
+}
+
+:where(.modal > .modal-body) {
+  padding-bottom: 16px;
+}
+
+:where(.modal > .modal-body)::-webkit-scrollbar,
+:where(
+  .bank-form-content,
+  .kitchen-modal-body,
+  .supplier-modal-body,
+  .vehicle-modal-body,
+  .disbursement-modal-body
+)::-webkit-scrollbar {
+  width: 7px;
+}
+
+:where(.modal > .modal-body)::-webkit-scrollbar-track,
+:where(
+  .bank-form-content,
+  .kitchen-modal-body,
+  .supplier-modal-body,
+  .vehicle-modal-body,
+  .disbursement-modal-body
+)::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+:where(.modal > .modal-body)::-webkit-scrollbar-thumb,
+:where(
+  .bank-form-content,
+  .kitchen-modal-body,
+  .supplier-modal-body,
+  .vehicle-modal-body,
+  .disbursement-modal-body
+)::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: var(--app-border-mid);
+}
+
+/* =========================================================
+   SHARED MASTER-DATA ACTION BUTTON
+   ========================================================= */
+
+.app-action-button {
+  display: inline-flex;
+  min-height: 38px;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 0 13px;
+  border: 1px solid var(--app-primary);
+  border-radius: 9px;
+  background: var(--app-primary);
+  color: var(--theme-primary-foreground);
+  cursor: pointer;
+  font-size: 10px;
+  font-weight: 800;
+  line-height: 1;
+  text-decoration: none;
+  transition:
+    transform 150ms ease,
+    box-shadow 150ms ease,
+    border-color 150ms ease,
+    background-color 150ms ease,
+    color 150ms ease,
+    opacity 150ms ease;
+}
+
+.app-action-button svg {
+  width: 15px;
+  height: 15px;
+  flex: 0 0 15px;
+  stroke-width: 2;
+}
+
+.app-action-button:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: var(--theme-shadow-hover);
+}
+
+.app-action-button--secondary {
+  border-color: var(--app-border-strong);
+  background: var(--app-white);
+  color: var(--app-text-dark);
+}
+
+.app-action-button--secondary:hover:not(:disabled) {
+  border-color: var(--app-border-mid);
+  background: var(--app-bg-soft);
+  box-shadow: none;
+}
+
+.app-action-button--danger {
+  border-color: color-mix(
+    in srgb,
+    var(--theme-danger) 30%,
+    var(--theme-border)
+  );
+  background: var(--theme-surface-raised);
+  color: var(--theme-danger);
+}
+
+.app-action-button--danger:hover:not(:disabled) {
+  border-color: var(--theme-danger);
+  background: var(--theme-danger-soft);
+  box-shadow: none;
+}
+
+.app-action-button--icon {
+  width: 32px;
+  min-width: 32px;
+  height: 32px;
+  min-height: 32px;
+  padding: 0;
+  border-radius: 8px;
+}
+
+.app-action-button--icon svg {
+  width: 14px;
+  height: 14px;
+}
+
+.app-action-row {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 5px;
+  flex-wrap: nowrap;
+}
+
+.app-action-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.52;
+}
+
+/* =========================================================
+   SHARED ACCENT ACTION BUTTON
+   Primary "add" buttons across master-data/CRUD pages.
+   Consolidated here so hover/box-shadow stay in one place.
+   ========================================================= */
+
+:where(
+  .kitchen-header > .app-action-button,
+  .supplier-header > .app-action-button,
+  .vehicle-header > .app-action-button,
+  .dashboard-transaction-action,
+  .kitchen-modal-actions
+    > .app-action-button:not(.app-action-button--secondary),
+  .supplier-modal-actions
+    > .app-action-button:not(.app-action-button--secondary),
+  .vehicle-actions > .app-action-button:not(.app-action-button--secondary)
+) {
+  border-color: var(--app-action-primary-border);
+  background: var(--app-action-primary-bg);
+  color: var(--app-action-primary-text);
+  box-shadow: 0 7px 20px
+    color-mix(in srgb, var(--theme-primary) 14%, transparent);
+}
+
+:where(
+    .kitchen-header > .app-action-button,
+    .supplier-header > .app-action-button,
+    .vehicle-header > .app-action-button,
+    .dashboard-transaction-action,
+    .kitchen-modal-actions
+      > .app-action-button:not(.app-action-button--secondary),
+    .supplier-modal-actions
+      > .app-action-button:not(.app-action-button--secondary),
+    .vehicle-actions > .app-action-button:not(.app-action-button--secondary)
+  ):hover:not(:disabled) {
+  border-color: var(--theme-primary-hover);
+  background: var(--theme-primary-hover);
+}
+
+/* =========================================================
+   RESPONSIVE MODAL SHELL
+   ========================================================= */
+
+@media (max-width: 760px) {
+  :where(
+    .bank-modal,
+    .bank-form-modal,
+    .bank-history-modal,
+    .dashboard-transaction-modal,
+    .kitchen-modal,
+    .supplier-modal,
+    .vehicle-modal,
+    .disbursement-modal,
+    .modal
+  ) {
+    width: min(100%, calc(100vw - 20px));
+    max-width: none;
+    max-height: calc(100dvh - 20px);
+  }
+}
+
+/* =========================================================
+   MODERN MODAL MICRO-SURFACE
+   ========================================================= */
+
+:where(
+  .kitchen-modal-head,
+  .supplier-modal-head,
+  .bank-history-modal-header,
+  .dashboard-transaction-modal-header
+) {
+  background: var(--theme-surface-soft);
+}
+
+:where(
+  .kitchen-modal-head h2,
+  .supplier-modal-head h2,
+  .bank-history-modal-header h2,
+  .dashboard-transaction-modal-header h2
+) {
+  letter-spacing: -0.025em;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :where(
+    .bank-modal,
+    .bank-form-modal,
+    .bank-history-modal,
+    .dashboard-transaction-modal,
+    .kitchen-modal,
+    .supplier-modal,
+    .vehicle-modal,
+    .disbursement-modal,
+    .modal
+  ) {
+    animation: none;
+  }
+}
