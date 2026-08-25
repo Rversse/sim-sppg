@@ -719,3 +719,64 @@
     justify-content: center;
   }
 }
+/* =========================================================
+   VEHICLE MODAL SELECTS — STANDARD FORM SELECT
+   The toolbar filter remains 56px; modal fields use the
+   normal shared form/select geometry.
+   ========================================================= */
+
+.vehicle-field > .animated-select .animated-select__trigger {
+  min-height: 40px;
+  height: 40px;
+  align-items: flex-end;
+  gap: 8px;
+  padding: 15px 34px 7px 11px;
+  border: 1px solid var(--theme-border-strong);
+  border-radius: 10px;
+  background: var(--theme-surface-raised);
+  color: var(--theme-text-primary);
+  font-size: 11px;
+  font-weight: 700;
+  box-shadow: none;
+}
+
+.vehicle-field > .animated-select .animated-select__label {
+  top: 5px;
+  left: 11px;
+  max-width: calc(100% - 42px);
+  font-size: 8px;
+}
+
+.vehicle-field > .animated-select .animated-select__value {
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.vehicle-field > .animated-select .animated-select__chevron {
+  top: 50%;
+  right: 11px;
+  width: 15px;
+  height: 15px;
+  transform: translateY(-35%);
+}
+
+.vehicle-field
+  > .animated-select:hover
+  .animated-select__trigger:not(:disabled) {
+  border-color: var(--theme-border-strong);
+  background: var(--theme-surface-raised);
+}
+
+.vehicle-field > .animated-select.is-open .animated-select__trigger,
+.vehicle-field > .animated-select .animated-select__trigger:focus-visible {
+  border-color: var(--theme-primary);
+  background: var(--theme-surface-raised);
+  box-shadow: var(--theme-focus-ring);
+}
+
+@media (max-width: 560px) {
+  .vehicle-field > .animated-select .animated-select__trigger {
+    min-height: 40px;
+    height: 40px;
+  }
+}

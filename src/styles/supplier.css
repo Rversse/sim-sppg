@@ -881,3 +881,51 @@
     justify-content: center;
   }
 }
+/* =========================================================
+   SUPPLIER MODAL ACTIONS — STANDARD FORM GRID
+   Buttons share the same row as Alamat and align to the
+   bottom of the form field, keeping the modal grid clean.
+   ========================================================= */
+
+.supplier-modal-actions {
+  display: flex;
+  align-self: end;
+  align-items: flex-end;
+  justify-content: flex-end;
+  gap: 8px;
+  min-height: 40px;
+}
+
+.supplier-modal-actions .app-action-button {
+  display: inline-flex;
+  min-height: 38px;
+  height: 38px;
+  box-sizing: border-box;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 0 13px;
+  border-radius: 9px;
+  font-size: 10px;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.supplier-modal-actions .app-action-button svg {
+  width: 15px;
+  height: 15px;
+  flex: 0 0 15px;
+}
+
+@media (max-width: 760px) {
+  .supplier-modal-actions {
+    align-self: stretch;
+    align-items: stretch;
+  }
+
+  .supplier-modal-actions .app-action-button {
+    min-height: 38px;
+    height: 38px;
+    width: 100%;
+  }
+}
