@@ -14,7 +14,6 @@ import {
   type LucideIcon
 } from 'lucide-react'
 
-import logo from '@/assets/logo.png'
 import { VehicleExpiryNotification } from '@/components/ui/VehicleExpiryNotification'
 import { supabase } from '@/lib/supabase'
 import { canAccess, type Permission } from '@/features/auth/role-policy'
@@ -194,17 +193,6 @@ export function AppLayout() {
   return (
     <div className={`app-shell${sidebarCollapsed ? ' sidebar-collapsed' : ''}`}>
       <aside className="app-sidebar">
-        <div className="app-brand">
-          <span className="app-brand-mark" aria-hidden="true">
-            <img src={logo} alt="" />
-          </span>
-
-          <div className="app-brand-copy">
-            <strong>SIM SPPG</strong>
-            <span>Management System</span>
-          </div>
-        </div>
-
         <nav className="app-nav" aria-label="Navigasi utama">
           {visibleSections.map((section) => (
             <div className="app-nav-section" key={section.label}>
@@ -221,6 +209,9 @@ export function AppLayout() {
                       className={({ isActive }) =>
                         `app-nav-link${isActive ? ' is-active' : ''}`
                       }
+                      aria-label={item.label}
+                      title={sidebarCollapsed ? item.label : undefined}
+                      data-tooltip={item.label}
                     >
                       <span className="app-nav-icon" aria-hidden="true">
                         <Icon />

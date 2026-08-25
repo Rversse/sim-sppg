@@ -215,7 +215,7 @@ textarea {
   flex: 0 0 var(--sidebar-width);
   flex-direction: column;
 
-  overflow: hidden;
+  overflow: visible;
 
   background: var(--theme-sidebar-bg) !important;
   color: var(--theme-text-primary);
@@ -229,85 +229,6 @@ textarea {
 }
 
 /* =========================================================
-   BRAND
-   ========================================================= */
-
-.app-brand {
-  display: flex;
-  min-height: 80px;
-  align-items: center;
-  gap: 14px;
-  padding: 16px 20px;
-
-  overflow: hidden;
-  border-bottom: 1px solid rgb(255 255 255 / 0.08);
-}
-
-.app-brand-mark {
-  display: grid;
-  width: 48px;
-  height: 48px;
-  flex: 0 0 48px;
-  place-items: center;
-
-  overflow: hidden;
-  border: 1px solid color-mix(in srgb, var(--theme-primary) 24%, transparent);
-  border-radius: 14px;
-
-  background: color-mix(in srgb, var(--theme-primary) 10%, transparent);
-  box-shadow:
-    0 10px 25px rgb(0 0 0 / 0.14),
-    inset 0 0 0 1px rgb(255 255 255 / 0.04);
-
-  transition:
-    transform var(--app-motion) var(--app-ease),
-    box-shadow var(--app-motion) ease;
-}
-
-.app-brand-mark:hover {
-  transform: translateY(-1px) scale(1.02);
-  box-shadow:
-    0 14px 30px rgb(0 0 0 / 0.18),
-    0 0 0 4px color-mix(in srgb, var(--theme-primary) 8%, transparent);
-}
-
-.app-brand-mark img {
-  display: block;
-  width: 42px;
-  height: 42px;
-  object-fit: contain;
-  transform: scale(1.08);
-  transform-origin: center;
-}
-
-.app-brand-copy {
-  min-width: 0;
-
-  transition:
-    opacity var(--app-motion) ease,
-    transform var(--app-motion-slow) var(--app-ease),
-    max-width var(--app-motion-slow) var(--app-ease),
-    margin var(--app-motion-slow) var(--app-ease);
-}
-
-.app-brand strong,
-.app-brand span {
-  display: block;
-}
-
-.app-brand strong {
-  color: var(--theme-text-primary);
-  font-size: 15px;
-  letter-spacing: 0.02em;
-}
-
-.app-brand span {
-  margin-top: 2px;
-  color: var(--theme-sidebar-text-muted);
-  font-size: 10px;
-}
-
-/* =========================================================
    SIDEBAR NAVIGATION
    ========================================================= */
 
@@ -315,7 +236,7 @@ textarea {
   display: grid;
   gap: 18px;
   padding: 18px 12px;
-  overflow-y: auto;
+  overflow: visible;
 }
 
 .app-nav-section {
@@ -388,6 +309,33 @@ textarea {
     transform var(--app-motion-fast) var(--app-ease);
 }
 
+.app-nav-link[data-tooltip]::after {
+  position: absolute;
+  top: 50%;
+  left: calc(100% + 10px);
+  z-index: 100;
+  display: none;
+  min-height: 34px;
+  align-items: center;
+  padding: 0 11px;
+  border: 1px solid var(--theme-border-strong);
+  border-radius: 9px;
+  background: var(--theme-surface-raised);
+  box-shadow: var(--theme-shadow-hover);
+  color: var(--theme-text-primary);
+  content: attr(data-tooltip);
+  font-size: 11px;
+  font-weight: 800;
+  line-height: 1;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(-50%) translateX(-4px);
+  transition:
+    opacity 120ms ease,
+    transform 160ms var(--app-ease);
+}
+
 .app-nav-link:hover {
   background: var(--theme-sidebar-hover);
   color: var(--theme-sidebar-text-active);
@@ -447,43 +395,6 @@ textarea {
   width: 16px;
   height: 16px;
   stroke-width: 2;
-}
-
-/* =========================================================
-   SIDEBAR FOOTER
-   ========================================================= */
-
-.app-sidebar-footer {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-
-  margin-top: auto;
-  padding: 18px;
-
-  color: var(--theme-sidebar-text-muted);
-  font-size: 11px;
-}
-
-.app-sidebar-footer span:last-child {
-  color: var(--theme-sidebar-text-muted);
-  font-size: 10px;
-  font-weight: 700;
-
-  transition:
-    opacity var(--app-motion) ease,
-    transform var(--app-motion-slow) var(--app-ease),
-    max-width var(--app-motion-slow) var(--app-ease),
-    margin var(--app-motion-slow) var(--app-ease);
-}
-
-.app-online-dot {
-  width: 7px;
-  height: 7px;
-  flex: 0 0 7px;
-  border-radius: 999px;
-  background: #34d399;
-  box-shadow: 0 0 0 4px rgb(52 211 153 / 0.09);
 }
 
 /* =========================================================
@@ -686,21 +597,6 @@ textarea {
   --sidebar-width: 78px;
 }
 
-.app-shell.sidebar-collapsed .app-brand {
-  justify-content: center;
-  padding-inline: 10px;
-}
-
-.app-shell.sidebar-collapsed .app-brand-copy {
-  display: block;
-  max-width: 0;
-  margin: 0;
-  overflow: hidden;
-  opacity: 0;
-  transform: translateX(-8px);
-  pointer-events: none;
-}
-
 .app-shell.sidebar-collapsed .app-nav-label {
   display: none;
   max-width: 0;
@@ -714,15 +610,6 @@ textarea {
   display: block;
   max-height: 0;
   margin-block: -3px;
-  overflow: hidden;
-  opacity: 0;
-  transform: translateX(-6px);
-  pointer-events: none;
-}
-
-.app-shell.sidebar-collapsed .app-sidebar-footer span:last-child {
-  display: block;
-  max-width: 0;
   overflow: hidden;
   opacity: 0;
   transform: translateX(-6px);
@@ -744,6 +631,13 @@ textarea {
   display: none;
 }
 
+.app-shell.sidebar-collapsed .app-nav-link[data-tooltip]:hover::after,
+.app-shell.sidebar-collapsed .app-nav-link[data-tooltip]:focus-visible::after {
+  display: inline-flex;
+  opacity: 1;
+  transform: translateY(-50%) translateX(0);
+}
+
 .app-shell.sidebar-collapsed .app-nav-icon {
   margin-inline: auto;
   transition:
@@ -753,11 +647,6 @@ textarea {
 
 .app-shell.sidebar-collapsed .app-nav-link:hover .app-nav-icon {
   transform: scale(1.05);
-}
-
-.app-shell.sidebar-collapsed .app-sidebar-footer {
-  justify-content: center;
-  padding-inline: 10px;
 }
 
 .app-shell.sidebar-collapsed .app-sidebar-toggle svg {
@@ -798,5 +687,27 @@ textarea {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
+  }
+}
+
+/* =========================================================
+   COLLAPSED SIDEBAR TOOLTIP SAFETY
+   ========================================================= */
+
+.app-shell.sidebar-collapsed .app-sidebar {
+  overflow: visible;
+}
+
+.app-shell.sidebar-collapsed .app-nav {
+  overflow: visible;
+}
+
+.app-shell.sidebar-collapsed .app-nav-link {
+  position: relative;
+}
+
+@media (hover: none), (pointer: coarse) {
+  .app-shell.sidebar-collapsed .app-nav-link[data-tooltip]::after {
+    display: none !important;
   }
 }
