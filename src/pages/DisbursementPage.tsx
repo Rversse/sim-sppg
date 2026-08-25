@@ -3,6 +3,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { canAccess } from '@/features/auth/role-policy'
 import { useAuth } from '@/features/auth/use-auth'
 import { useToast } from '@/features/ui/toast-context'
+import { SingleDatePicker } from '@/components/ui/date-picker'
 import {
   calculateDisbursementProgress,
   DISBURSEMENT_ITEMS,
@@ -16,7 +17,6 @@ import {
   type DisbursementRow
 } from '@/features/disbursement/disbursement-service'
 
-import { formatDateLong } from '@/lib/formatters'
 import { supabase } from '@/lib/supabase'
 
 const DISBURSEMENT_DATE_KEY = 'disbursement_selected_date'
@@ -250,16 +250,12 @@ export function DisbursementPage() {
           </p>
         </div>
 
-        <div className="disbursement-date-card">
-          <label>
-            <span>Periode Checklist</span>
-            <input
-              type="date"
-              value={selectedDate}
-              onChange={(event) => handleDateChange(event.target.value)}
-            />
-          </label>
-          <strong>{formatDateLong(selectedDate)}</strong>
+        <div className="disbursement-date-picker">
+          <SingleDatePicker
+            label="Periode Checklist"
+            value={selectedDate}
+            onChange={handleDateChange}
+          />
         </div>
       </section>
 

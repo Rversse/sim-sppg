@@ -10,12 +10,12 @@
 
 .reports-tabs {
   display: flex;
-  width: 100%;
-  max-width: none;
+  width: fit-content;
+  max-width: 100%;
   align-items: center;
   justify-content: center;
   gap: 6px;
-  margin-inline: 0;
+  margin-inline: auto;
   padding: 5px;
   box-sizing: border-box;
   overflow-x: auto;
@@ -69,23 +69,23 @@
 
 .reports-filter-panel {
   display: grid;
-  width: 100%;
-  max-width: none;
-  grid-template-columns: minmax(0, 1fr) auto auto;
+  width: fit-content;
+  max-width: 100%;
+  grid-template-columns: auto auto auto;
   align-items: center;
   gap: 10px;
-  margin-inline: 0;
-  padding: 20px;
+  margin-inline: auto;
+  padding: 12px;
   box-sizing: border-box;
   border: 1px solid var(--app-border);
-  border-radius: 16px;
+  border-radius: 14px;
   background: var(--app-surface);
   box-shadow: var(--app-shadow-card);
 }
 
 .reports-date-range-field {
-  width: 100%;
-  min-width: 0;
+  width: 240px;
+  min-width: 240px;
   align-self: center;
 }
 
@@ -169,7 +169,7 @@
 .reports-filter-panel > button {
   min-height: 40px;
   align-self: center;
-  padding: 0 14px;
+  padding: 0 12px;
   border: 1px solid var(--app-accent);
   border-radius: 10px;
   background: var(--app-accent);
@@ -489,27 +489,25 @@
   }
 
   .reports-table-wrapper,
-  .reports-tabs,
-  .reports-filter-panel,
   .reports-empty,
   .reports-error {
     width: min(100%, calc(100vw - 32px));
     max-width: none;
   }
+
+  .reports-tabs,
+  .reports-filter-panel {
+    max-width: calc(100vw - 32px);
+  }
 }
 
 @media (max-width: 1100px) {
   .reports-filter-panel {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .reports-filter-panel > .reports-date-range-field {
-    grid-column: 1 / -1;
+    grid-template-columns: auto auto auto;
   }
 
   .reports-filter-panel > button {
-    grid-column: auto;
-    width: 100%;
+    width: auto;
   }
 }
 
@@ -522,9 +520,15 @@
 @media (max-width: 760px) {
   .reports-filter-panel {
     grid-template-columns: 1fr;
-    width: min(100%, calc(100vw - 20px));
-    padding: 14px;
+    width: calc(100vw - 20px);
+    max-width: none;
+    padding: 12px;
     border-radius: 13px;
+  }
+
+  .reports-date-range-field {
+    width: 100%;
+    min-width: 0;
   }
 
   .reports-filter-panel > .reports-date-range-field,
@@ -534,6 +538,12 @@
 
   .reports-filter-panel > button {
     width: 100%;
+  }
+
+  .reports-tabs {
+    width: calc(100vw - 20px);
+    max-width: none;
+    margin-inline: auto;
   }
 
   .reports-summary-grid,

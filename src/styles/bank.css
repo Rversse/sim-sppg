@@ -333,6 +333,8 @@
   justify-content: space-between;
   gap: 12px;
   margin-bottom: 12px;
+  padding: 14px 16px 0;
+  box-sizing: border-box;
 }
 
 .bank-panel-header h2 {
@@ -411,6 +413,8 @@
 }
 
 .bank-account-table thead th:first-child {
+  padding-left: 18px;
+  padding-right: 18px;
   text-align: center;
 }
 
@@ -425,6 +429,11 @@
   color: var(--theme-text-primary);
   font-size: 10px;
   vertical-align: middle;
+}
+
+.bank-account-table tbody td:first-child {
+  padding-left: 18px;
+  padding-right: 18px;
 }
 
 .bank-account-table thead th + th,

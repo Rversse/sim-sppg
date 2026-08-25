@@ -54,26 +54,65 @@
   flex: 1;
 }
 
-.vehicle-select {
-  min-height: var(--app-control-height);
-  padding: 0 11px;
-  border: 1px solid var(--app-border-strong);
-  border-radius: var(--app-control-radius);
-  background: var(--app-white);
-  color: var(--read-text);
-  box-shadow: 0 3px 12px rgb(15 23 42 / 0.025);
-  font-size: 13px;
-  outline: none;
+/* Shared AnimatedSelect — match Dashboard filter geometry. */
+.vehicle-toolbar > .animated-select {
+  flex: 0 0 190px;
+  min-width: 190px;
+  width: 190px;
 }
 
-.vehicle-select:hover {
-  border-color: var(--app-border-mid);
+.vehicle-toolbar > .animated-select .animated-select__trigger,
+.vehicle-field > .animated-select .animated-select__trigger {
+  min-height: 56px;
+  height: 56px;
+  align-items: flex-end;
+  padding: 20px 40px 10px 13px;
+  border-radius: 10px;
+  background: var(--theme-surface-soft);
+  color: var(--theme-text-primary);
+  font-size: 14px;
+  font-weight: 750;
 }
 
-.vehicle-select:focus {
-  border-color: var(--app-accent);
-  box-shadow: var(--app-focus-ring);
-  outline: none;
+.vehicle-toolbar > .animated-select .animated-select__label,
+.vehicle-field > .animated-select .animated-select__label {
+  top: 7px;
+  left: 13px;
+  max-width: calc(100% - 46px);
+  font-size: 10px;
+}
+
+.vehicle-toolbar > .animated-select .animated-select__value,
+.vehicle-field > .animated-select .animated-select__value {
+  font-size: 14px;
+  font-weight: 750;
+}
+
+.vehicle-toolbar > .animated-select .animated-select__chevron,
+.vehicle-field > .animated-select .animated-select__chevron {
+  right: 13px;
+  width: 17px;
+  height: 17px;
+}
+
+.vehicle-toolbar > .animated-select .animated-select__menu,
+.vehicle-field > .animated-select .animated-select__menu {
+  border-radius: 10px;
+}
+
+.vehicle-field > .animated-select {
+  width: 100%;
+  min-width: 0;
+}
+
+.vehicle-toolbar
+  > .animated-select:hover
+  .animated-select__trigger:not(:disabled),
+.vehicle-field
+  > .animated-select:hover
+  .animated-select__trigger:not(:disabled) {
+  border-color: var(--theme-border-strong);
+  background: var(--theme-surface-raised);
 }
 
 .vehicle-control-grow {
@@ -311,8 +350,7 @@
   font-weight: 800;
 }
 
-.vehicle-field input,
-.vehicle-field select {
+.vehicle-field input {
   min-height: 40px;
   padding: 0 11px;
   border: 1px solid var(--app-border-strong);
@@ -323,8 +361,7 @@
   font-size: 11px;
 }
 
-.vehicle-field input:focus,
-.vehicle-field select:focus {
+.vehicle-field input:focus {
   border-color: var(--app-accent);
   box-shadow: var(--app-focus-ring);
 }
@@ -355,8 +392,13 @@
   }
 
   .vehicle-input,
-  .vehicle-select {
+  .vehicle-toolbar > .animated-select {
     width: 100%;
+    min-width: 0;
+  }
+
+  .vehicle-toolbar > .animated-select {
+    flex-basis: auto;
   }
 
   .vehicle-count {
@@ -383,13 +425,19 @@
 @media (prefers-reduced-motion: reduce) {
   .vehicle-panel,
   .vehicle-input,
-  .vehicle-select,
   .vehicle-reminder,
   .vehicle-header > .app-action-button {
     transition: none;
   }
 
   .vehicle-panel::before {
+    transition: none;
+  }
+
+  .vehicle-toolbar > .animated-select .animated-select__trigger,
+  .vehicle-field > .animated-select .animated-select__trigger,
+  .vehicle-toolbar > .animated-select .animated-select__chevron,
+  .vehicle-field > .animated-select .animated-select__chevron {
     transition: none;
   }
 }
@@ -402,4 +450,13 @@
 .vehicle-header {
   justify-content: flex-end;
   align-items: center;
+}
+
+/* Keep Vehicle dropdowns at the same desktop/mobile field height as Dashboard. */
+@media (max-width: 560px) {
+  .vehicle-toolbar > .animated-select .animated-select__trigger,
+  .vehicle-field > .animated-select .animated-select__trigger {
+    min-height: 52px;
+    height: 52px;
+  }
 }

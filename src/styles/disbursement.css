@@ -47,54 +47,53 @@
   line-height: 1.45;
 }
 
-.disbursement-date-card {
-  display: flex;
-  min-width: 250px;
-  min-height: 54px;
-  align-items: center;
-  gap: 10px;
-  padding: 8px 11px;
-  border: 1px solid var(--app-border-strong);
-  border-radius: 12px;
-  background: var(--theme-surface-raised);
-  box-shadow: 0 5px 18px
-    color-mix(in srgb, var(--theme-text-primary) 4%, transparent);
-}
+/* =========================================================
+   PERIOD DATE PICKER
+   Shared single-date picker; page-specific sizing matches
+   Dashboard / Disbursement Maker controls.
+   ========================================================= */
 
-.disbursement-date-card label {
-  display: flex;
+.disbursement-date-picker {
+  width: min(390px, 100%);
   min-width: 0;
-  flex: 1 1 auto;
-  align-items: center;
-  gap: 8px;
 }
 
-.disbursement-date-card label span {
-  color: var(--theme-text-muted);
-  font-size: 9px;
-  font-weight: 800;
-  white-space: nowrap;
+.disbursement-date-picker .single-date-picker {
+  width: 100%;
 }
 
-.disbursement-date-card label span::after {
-  margin-left: 1px;
-  content: ':';
+.disbursement-date-picker .single-date-picker__trigger {
+  min-height: 56px;
+  height: 56px;
+  padding: 20px 40px 10px 13px;
+  border-radius: 10px;
+  font-size: 14px;
 }
 
-.disbursement-date-card input {
-  width: 130px;
-  min-height: 34px;
-  padding: 0 7px;
-  border: 0;
-  background: transparent;
-  box-shadow: none;
-  color: var(--theme-text-primary);
-  font-size: 11px;
-  font-weight: 700;
+.disbursement-date-picker .single-date-picker__label {
+  top: 7px;
+  left: 13px;
+  max-width: calc(100% - 48px);
+  font-size: 10px;
 }
 
-.disbursement-date-card > strong {
-  display: none;
+.disbursement-date-picker .single-date-picker__icon {
+  width: 17px;
+  height: 17px;
+  flex: 0 0 17px;
+  margin-bottom: 0;
+}
+
+.disbursement-date-picker .single-date-picker__value {
+  font-size: 14px;
+  font-weight: 750;
+}
+
+.disbursement-date-picker .single-date-picker__caret {
+  right: 13px;
+  bottom: 10px;
+  width: 17px;
+  height: 17px;
 }
 
 /* =========================================================
@@ -623,8 +622,8 @@
     gap: 16px;
   }
 
-  .disbursement-date-card {
-    min-width: 220px;
+  .disbursement-date-picker {
+    width: min(330px, 100%);
   }
 
   .disbursement-summary-card {
@@ -672,16 +671,8 @@
     font-size: 9px;
   }
 
-  .disbursement-date-card {
+  .disbursement-date-picker {
     width: 100%;
-    min-width: 0;
-    justify-content: space-between;
-  }
-
-  .disbursement-date-card input {
-    width: auto;
-    flex: 1 1 auto;
-    min-width: 0;
   }
 
   .disbursement-summary-card {
@@ -782,30 +773,33 @@
     gap: 12px;
   }
 
-  .disbursement-date-card {
-    display: grid;
-    gap: 5px;
-    padding: 9px 10px;
+  .disbursement-date-picker .single-date-picker__trigger {
+    min-height: 52px;
+    height: 52px;
+    padding: 18px 38px 9px 12px;
   }
 
-  .disbursement-date-card label {
-    gap: 6px;
+  .disbursement-date-picker .single-date-picker__label {
+    top: 6px;
+    left: 12px;
+    font-size: 9px;
   }
 
-  .disbursement-date-card label span {
-    font-size: 8px;
+  .disbursement-date-picker .single-date-picker__value {
+    font-size: 13px;
   }
 
-  .disbursement-date-card input {
-    min-height: 32px;
-    font-size: 10px;
+  .disbursement-date-picker .single-date-picker__icon {
+    width: 16px;
+    height: 16px;
+    flex-basis: 16px;
   }
 
-  .disbursement-date-card > strong {
-    display: block;
-    color: var(--theme-text-primary);
-    font-size: 10px;
-    font-weight: 800;
+  .disbursement-date-picker .single-date-picker__caret {
+    right: 12px;
+    bottom: 9px;
+    width: 16px;
+    height: 16px;
   }
 
   .disbursement-summary-card {
@@ -872,7 +866,7 @@
   background: var(--theme-surface);
 }
 
-.disbursement-date-card,
+.disbursement-date-picker,
 .disbursement-table-wrap {
   background: var(--theme-surface-raised);
 }

@@ -5,6 +5,7 @@ import { canAccess } from '@/features/auth/role-policy'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/features/auth/use-auth'
 import { useToast } from '@/features/ui/toast-context'
+import { AnimatedSelect } from '@/components/ui/animated-select'
 import { getActiveKitchens } from '@/features/kitchen/kitchen-service'
 import {
   createVehicle,
@@ -372,23 +373,23 @@ export function VehiclePage() {
           onChange={(event) => setSearch(event.target.value)}
         />
 
-        <select
-          className="vehicle-select"
+        <AnimatedSelect
+          label="Dapur"
           value={kitchenFilter}
-          onChange={(event) => setKitchenFilter(event.target.value)}
-        >
-          <option value="">Semua Dapur</option>
-          {kitchens
-            .slice()
-            .sort((a, b) =>
-              a.name.localeCompare(b.name, 'id', { sensitivity: 'base' })
-            )
-            .map((kitchen) => (
-              <option key={kitchen.id} value={kitchen.id}>
-                {kitchen.name}
-              </option>
-            ))}
-        </select>
+          options={[
+            { value: '', label: 'Semua Dapur' },
+            ...kitchens
+              .slice()
+              .sort((a, b) =>
+                a.name.localeCompare(b.name, 'id', { sensitivity: 'base' })
+              )
+              .map((kitchen) => ({
+                value: kitchen.id,
+                label: kitchen.name
+              }))
+          ]}
+          onChange={setKitchenFilter}
+        />
 
         <span className="vehicle-count">{filtered.length} kendaraan</span>
       </div>
@@ -512,44 +513,45 @@ export function VehiclePage() {
             <div className="vehicle-modal-body">
               <div className="vehicle-grid">
                 <div className="vehicle-field">
-                  <label htmlFor="vehicle-kitchen">Dapur</label>
-                  <select
-                    id="vehicle-kitchen"
+                  <AnimatedSelect
+                    label="Dapur"
                     value={form.kitchen_id}
-                    onChange={(event) =>
+                    options={[
+                      { value: '', label: 'Pilih dapur' },
+                      ...kitchens.map((kitchen) => ({
+                        value: kitchen.id,
+                        label: kitchen.name
+                      }))
+                    ]}
+                    onChange={(value) =>
                       setForm((current) => ({
                         ...current,
-                        kitchen_id: event.target.value
+                        kitchen_id: value
                       }))
                     }
-                  >
-                    <option value="">Pilih dapur</option>
-                    {kitchens.map((kitchen) => (
-                      <option key={kitchen.id} value={kitchen.id}>
-                        {kitchen.name}
-                      </option>
-                    ))}
-                  </select>
+                  />
                 </div>
 
                 <div className="vehicle-field">
-                  <label htmlFor="vehicle-type">Jenis Kendaraan</label>
-                  <select
-                    id="vehicle-type"
+                  <AnimatedSelect
+                    label="Jenis Kendaraan"
                     value={form.vehicle_type}
-                    onChange={(event) =>
+                    options={[
+                      {
+                        value: '',
+                        label: 'Pilih Kendaraan',
+                        disabled: true
+                      },
+                      { value: 'car', label: 'Mobil' },
+                      { value: 'motorcycle', label: 'Motor' }
+                    ]}
+                    onChange={(value) =>
                       setForm((current) => ({
                         ...current,
-                        vehicle_type: event.target.value as VehicleType
+                        vehicle_type: value as VehicleType
                       }))
                     }
-                  >
-                    <option value="" disabled>
-                      Pilih Kendaraan
-                    </option>
-                    <option value="car">Mobil</option>
-                    <option value="motorcycle">Motor</option>
-                  </select>
+                  />
                 </div>
 
                 <div className="vehicle-field">
