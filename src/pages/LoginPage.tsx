@@ -107,7 +107,7 @@ export function LoginPage() {
           <div className="login-brand-mark" aria-hidden="true">
             <Building2 size={26} strokeWidth={1.9} />
           </div>
-          <h1>SIM SPPG</h1>
+          <h1>SISTEM INFORMASI SPPG</h1>
           <p>Pilih akun untuk masuk</p>
         </div>
 

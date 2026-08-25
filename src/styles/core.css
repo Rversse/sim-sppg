@@ -1,7 +1,7 @@
 /* =========================================================
    SIM SPPG — CORE UI FOUNDATION
    Single owner for:
-   - dark theme tokens
+   - light theme tokens
    - document baseline
    - app shell geometry
    - sidebar / navigation
@@ -76,7 +76,8 @@
   --theme-motion-slow: 320ms;
   --theme-ease: cubic-bezier(0.22, 1, 0.36, 1);
 
-  /* Merged generic system tokens */
+  /* Compact baseline for modal/form controls.
+   * Page-level primary controls intentionally override to 56px. */
   --app-control-height: 42px;
   --app-control-radius: 10px;
 
