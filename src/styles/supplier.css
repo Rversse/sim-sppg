@@ -374,7 +374,7 @@
   min-height: 40px;
   padding: 0 11px;
   border: 1px solid var(--app-border-strong);
-  border-radius: 9px;
+  border-radius: var(--app-control-radius);
   background: var(--app-white);
   color: var(--read-text);
   outline: none;
@@ -905,7 +905,7 @@
   justify-content: center;
   gap: 7px;
   padding: 0 13px;
-  border-radius: 9px;
+  border-radius: var(--app-control-radius);
   font-size: 10px;
   font-weight: 800;
   line-height: 1;

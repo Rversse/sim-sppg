@@ -456,7 +456,7 @@
   min-height: 40px;
   padding: 0 11px;
   border: 1px solid var(--app-border-strong);
-  border-radius: 9px;
+  border-radius: var(--app-control-radius);
   background: var(--app-white);
   color: var(--read-text);
   outline: none;
@@ -472,6 +472,10 @@
   display: flex;
   justify-content: flex-end;
   gap: 8px;
+}
+
+.vehicle-actions .app-action-button {
+  border-radius: var(--app-control-radius);
 }
 
 /* =========================================================

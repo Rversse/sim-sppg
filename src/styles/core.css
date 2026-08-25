@@ -80,6 +80,7 @@
    * Page-level primary controls intentionally override to 56px. */
   --app-control-height: 42px;
   --app-control-radius: 10px;
+  --app-modal-radius: 18px;
 
   /* Shared page geometry: every route uses the same outer layout. */
   --app-page-width: 100%;
@@ -1066,7 +1067,7 @@ textarea:disabled {
   max-height: calc(100dvh - 36px);
   overflow: hidden;
   border: 1px solid var(--theme-border-strong);
-  border-radius: 18px;
+  border-radius: var(--app-modal-radius);
   background: var(--theme-surface-raised);
   box-shadow: var(--theme-shadow-modal);
   animation: app-modal-enter 220ms var(--app-ease) both;

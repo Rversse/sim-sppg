@@ -1088,12 +1088,85 @@
    TRANSACTION MODAL
    ========================================================= */
 
+.dashboard-transaction-modal {
+  width: 820px;
+  max-width: calc(100vw - 36px);
+}
+
 .dashboard-transaction-form-note {
   grid-column: 2;
   grid-row: 3;
   min-width: 0;
   min-height: 0;
   align-self: start;
+}
+
+.dashboard-transaction-form-date,
+.dashboard-transaction-form-select {
+  position: relative;
+  width: 100%;
+  min-width: 0;
+  align-self: stretch;
+}
+
+.dashboard-transaction-form-date {
+  z-index: 60;
+}
+
+.dashboard-transaction-form-select {
+  z-index: 10;
+}
+
+.dashboard-transaction-form-date:focus-within,
+.dashboard-transaction-form-select.is-open {
+  z-index: 100;
+}
+
+.dashboard-transaction-form-date .single-date-picker,
+.dashboard-transaction-form-select.animated-select {
+  width: 100%;
+  min-width: 0;
+}
+
+.dashboard-transaction-form-date .single-date-picker__trigger,
+.dashboard-transaction-form-select .animated-select__trigger {
+  width: 100%;
+  min-width: 0;
+  height: 42px;
+  min-height: 42px;
+}
+
+.dashboard-transaction-form-date .single-date-picker__trigger {
+  padding-top: 15px;
+  padding-bottom: 7px;
+}
+
+.dashboard-transaction-form-date .single-date-picker__value,
+.dashboard-transaction-form-select .animated-select__value {
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.dashboard-transaction-form-select .animated-select__label {
+  font-size: 8px;
+}
+
+.dashboard-transaction-form-date .single-date-picker__popover,
+.dashboard-transaction-form-select .animated-select__menu {
+  z-index: 120;
+}
+
+.dashboard-transaction-form-grid > label {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+  align-self: stretch;
+}
+
+.dashboard-transaction-form-grid > label > span {
+  color: var(--theme-text-secondary);
+  font-size: 11px;
+  font-weight: 700;
 }
 
 .dashboard-transaction-modal-header {
@@ -1157,26 +1230,13 @@
   padding: 19px;
 }
 
-.dashboard-transaction-form-grid label {
-  display: grid;
-  gap: 6px;
-  min-width: 0;
-}
-
-.dashboard-transaction-form-grid label > span {
-  color: var(--theme-text-secondary);
-  font-size: 11px;
-  font-weight: 700;
-}
-
 .dashboard-transaction-form-grid input,
-.dashboard-transaction-form-grid select,
 .dashboard-transaction-form-grid textarea {
   width: 100%;
   min-width: 0;
-  height: 38px;
-  min-height: 38px;
-  max-height: 38px;
+  height: 42px;
+  min-height: 42px;
+  max-height: 42px;
   padding: 0 10px;
   border: 1px solid var(--app-border-strong);
   border-radius: 9px;
@@ -1185,7 +1245,7 @@
   color: var(--app-text);
   font: inherit;
   font-size: 11px;
-  line-height: 36px;
+  line-height: 40px;
   text-align: left;
   resize: none;
   overflow: hidden;
@@ -1195,34 +1255,10 @@
     background-color 150ms ease;
 }
 
-.dashboard-transaction-form-grid input,
-.dashboard-transaction-form-grid select {
-  height: 38px;
-  padding: 0 10px;
-}
-
 .dashboard-transaction-form-grid textarea {
-  width: 100%;
-  min-width: 0;
-  height: 38px;
-  min-height: 38px;
-  max-height: 38px;
-  padding: 0 10px;
-  border: 1px solid var(--app-border-strong);
-  border-radius: 9px;
-  outline: 0;
-  background: var(--app-surface);
-  color: var(--app-text);
-  font: inherit;
-  font-size: 11px;
-  line-height: 36px;
-  text-align: left;
-  resize: none;
-  overflow: hidden;
-  transition:
-    border-color 150ms ease,
-    box-shadow 150ms ease,
-    background-color 150ms ease;
+  height: 42px;
+  min-height: 42px;
+  max-height: 42px;
 }
 
 .dashboard-transaction-form-grid textarea::placeholder {
@@ -1231,24 +1267,37 @@
 }
 
 .dashboard-transaction-form-grid input:hover,
-.dashboard-transaction-form-grid select:hover,
 .dashboard-transaction-form-grid textarea:hover {
   border-color: var(--app-border-mid);
 }
 
 .dashboard-transaction-form-grid input:focus,
-.dashboard-transaction-form-grid select:focus,
 .dashboard-transaction-form-grid textarea:focus {
   border-color: var(--app-accent);
   box-shadow: var(--app-focus-ring);
 }
 
 .dashboard-transaction-form-grid input:disabled,
-.dashboard-transaction-form-grid select:disabled {
+.dashboard-transaction-form-grid textarea:disabled {
   cursor: not-allowed;
   border-color: var(--app-border);
   background: var(--theme-surface-soft);
   color: var(--app-text-subtle);
+}
+
+.dashboard-transaction-modal {
+  overflow: visible;
+  border-radius: var(--app-modal-radius, 18px);
+}
+
+.dashboard-transaction-modal-header {
+  border-top-left-radius: calc(var(--app-modal-radius, 18px) - 1px);
+  border-top-right-radius: calc(var(--app-modal-radius, 18px) - 1px);
+}
+
+.dashboard-transaction-modal-actions {
+  border-bottom-left-radius: calc(var(--app-modal-radius, 18px) - 1px);
+  border-bottom-right-radius: calc(var(--app-modal-radius, 18px) - 1px);
 }
 
 .dashboard-transaction-modal-actions {
@@ -1424,6 +1473,14 @@
   .dashboard-transaction-form-grid {
     gap: 10px;
     padding: 15px;
+  }
+
+  .dashboard-transaction-form-date .single-date-picker__trigger,
+  .dashboard-transaction-form-select .animated-select__trigger,
+  .dashboard-transaction-form-grid input,
+  .dashboard-transaction-form-grid textarea {
+    height: 42px;
+    min-height: 42px;
   }
 
   .dashboard-transaction-modal-actions {
