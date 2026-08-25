@@ -346,15 +346,6 @@ export function VehiclePage() {
 
   return (
     <div className="vehicle-page">
-      <div className="vehicle-header">
-        {canManage ? (
-          <button type="button" className="app-action-button" onClick={openAdd}>
-            <Plus aria-hidden="true" />
-            <span>Tambah Kendaraan</span>
-          </button>
-        ) : null}
-      </div>
-
       {reminderCount > 0 ? (
         <div className="vehicle-reminder">
           <Bell aria-hidden="true" />
@@ -392,6 +383,17 @@ export function VehiclePage() {
         />
 
         <span className="vehicle-count">{filtered.length} kendaraan</span>
+
+        {canManage ? (
+          <button
+            type="button"
+            className="app-action-button vehicle-toolbar-action"
+            onClick={openAdd}
+          >
+            <Plus aria-hidden="true" />
+            <span>Tambah Kendaraan</span>
+          </button>
+        ) : null}
       </div>
 
       <div className="vehicle-panel">

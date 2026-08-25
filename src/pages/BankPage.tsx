@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { History, Pencil, Trash2, X } from 'lucide-react'
+import { History, Pencil, Search, Trash2, X } from 'lucide-react'
 
 import {
   createBankTransaction,
@@ -302,6 +302,7 @@ export function BankPage() {
   const [overview, setOverview] = useState<BankOverview | null>(null)
   const [loading, setLoading] = useState(true)
   const [errorMessage, setErrorMessage] = useState('')
+  const [accountSearch, setAccountSearch] = useState('')
 
   const [historyAccountId, setHistoryAccountId] = useState<string | null>(null)
   const [historyPage, setHistoryPage] = useState(1)
@@ -917,25 +918,6 @@ export function BankPage() {
   return (
     <>
       <div className="bank-page">
-        <section className="bank-hero">
-          <div>
-            <p className="bank-period-label">
-              Periode Pencairan: 20 Juli 2026 – H+2 Hari
-            </p>
-
-            {canCreateTransaction ? (
-              <button
-                type="button"
-                className="bank-primary-button"
-                onClick={openCreateModal}
-                disabled={!overview?.accounts.length}
-              >
-                + Transfer
-              </button>
-            ) : null}
-          </div>
-        </section>
-
         {loading ? (
           <section className="bank-accounts-panel">
             <div className="bank-empty">Memuat data rekening...</div>
@@ -976,19 +958,69 @@ export function BankPage() {
 
             <section className="bank-accounts-panel">
               <div className="bank-panel-header">
-                <div>
+                <div className="bank-panel-heading">
                   <h2>Rekening</h2>
                   <p>Klik Riwayat untuk melihat detail per rekening.</p>
                 </div>
 
-                <span className="bank-count">
-                  {overview?.summaries.length ?? 0} rekening
-                </span>
+                <div className="bank-account-tools">
+                  <label
+                    className="bank-account-search"
+                    htmlFor="bank-account-search"
+                  >
+                    <Search aria-hidden="true" />
+                    <input
+                      id="bank-account-search"
+                      type="search"
+                      value={accountSearch}
+                      onChange={(event) => setAccountSearch(event.target.value)}
+                      placeholder="Cari rekening..."
+                      aria-label="Cari rekening"
+                      autoComplete="off"
+                    />
+                  </label>
+
+                  <span className="bank-count">
+                    {overview?.summaries.length ?? 0} rekening
+                  </span>
+
+                  <span className="bank-period-label">
+                    Periode Pencairan: 20 Juli 2026 – H+2 Hari
+                  </span>
+
+                  {canCreateTransaction ? (
+                    <button
+                      type="button"
+                      className="bank-primary-button"
+                      onClick={openCreateModal}
+                      disabled={!overview?.accounts.length}
+                    >
+                      + Transfer
+                    </button>
+                  ) : null}
+                </div>
               </div>
 
               {overview?.summaries.length ? (
                 (() => {
-                  const groups = getAccountGroups(overview.summaries)
+                  const query = accountSearch.trim().toLowerCase()
+                  const filteredSummaries = query
+                    ? overview.summaries.filter((summary) => {
+                        const account = summary.account
+                        const searchable = [
+                          account.name,
+                          getAccountDisplayName(account),
+                          account.bank,
+                          account.account_number ?? ''
+                        ]
+                          .join(' ')
+                          .toLowerCase()
+
+                        return searchable.includes(query)
+                      })
+                    : overview.summaries
+
+                  const groups = getAccountGroups(filteredSummaries)
                   const renderGroupRows = (
                     title: string,
                     items: BankAccountSummary[],
@@ -1020,6 +1052,14 @@ export function BankPage() {
                           />
                         ))}
                       </>
+                    )
+                  }
+
+                  if (!filteredSummaries.length) {
+                    return (
+                      <div className="bank-account-search-empty">
+                        Tidak ada rekening yang cocok dengan pencarian.
+                      </div>
                     )
                   }
 

@@ -242,15 +242,6 @@ export function KitchenPage() {
 
   return (
     <div className="kitchen-page">
-      <div className="kitchen-header">
-        {canManage ? (
-          <button type="button" className="app-action-button" onClick={openAdd}>
-            <Plus aria-hidden="true" />
-            <span>Tambah Dapur</span>
-          </button>
-        ) : null}
-      </div>
-
       <div className="kitchen-toolbar">
         <input
           className="kitchen-input kitchen-control-grow"
@@ -259,6 +250,17 @@ export function KitchenPage() {
           onChange={(event) => setSearch(event.target.value)}
         />
         <span className="kitchen-count">{filtered.length} dapur</span>
+
+        {canManage ? (
+          <button
+            type="button"
+            className="app-action-button kitchen-toolbar-action"
+            onClick={openAdd}
+          >
+            <Plus aria-hidden="true" />
+            <span>Tambah Dapur</span>
+          </button>
+        ) : null}
       </div>
 
       <div className="kitchen-panel">

@@ -2,48 +2,9 @@
    SIM SPPG — BANK PAGE
    Single-owner stylesheet.
    Desktop + responsive + transfer form + history live here.
-   Shared generic modal/button behavior lives in
-   component-surfaces.css; Bank-specific geometry owns this file.
+   Global theme, motion, modal, and button tokens live in
+   core.css; Bank-specific geometry owns this file.
    ========================================================= */
-
-/* =========================================================
-   HERO
-   ========================================================= */
-
-.bank-hero {
-  display: flex;
-  min-height: 54px;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 16px;
-  padding: 0;
-}
-
-.bank-hero > div {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 8px;
-  flex: 0 0 auto;
-}
-
-.bank-period-label {
-  display: inline-flex;
-  min-height: 34px;
-  align-items: center;
-  gap: 4px;
-  margin: 0;
-  padding: 0 10px;
-  border: 1px solid var(--app-border-strong);
-  border-radius: 9px;
-  background: var(--app-white);
-  box-shadow: 0 5px 16px
-    color-mix(in srgb, var(--theme-text-primary) 3.5%, transparent);
-  color: var(--theme-text-secondary);
-  font-size: 9px;
-  font-weight: 800;
-  white-space: nowrap;
-}
 
 /* =========================================================
    BUTTONS
@@ -62,30 +23,29 @@
 .bank-primary-button,
 .bank-secondary-button {
   display: inline-flex;
-  min-height: 34px;
+  min-height: 38px;
   align-items: center;
   justify-content: center;
-  gap: 5px;
-  padding-inline: 10px;
-  border-radius: 8px;
-  font-size: 11px;
+  gap: 6px;
+  padding-inline: 12px;
+  border-radius: 9px;
+  font-size: 12px;
   font-weight: 900;
   line-height: 1;
   transition:
-    transform 150ms ease,
-    box-shadow 150ms ease,
-    border-color 150ms ease,
-    background-color 150ms ease,
-    color 150ms ease,
-    opacity 150ms ease;
+    transform var(--theme-motion-fast) var(--theme-ease),
+    box-shadow var(--theme-motion-fast) ease,
+    border-color var(--theme-motion-fast) ease,
+    background-color var(--theme-motion-fast) ease,
+    color var(--theme-motion-fast) ease,
+    opacity var(--theme-motion-fast) ease;
 }
 
 .bank-primary-button {
   border: 1px solid var(--theme-primary);
   background: var(--theme-primary);
-  color: var(--theme-text-primary);
-  box-shadow: 0 6px 16px
-    color-mix(in srgb, var(--theme-primary) 10%, transparent);
+  color: var(--theme-primary-foreground);
+  box-shadow: var(--theme-shadow-card);
 }
 
 .bank-primary-button:hover:not(:disabled),
@@ -94,7 +54,7 @@
 }
 
 .bank-primary-button:hover:not(:disabled) {
-  box-shadow: 0 10px 24px rgb(11 19 43 / 0.14);
+  box-shadow: var(--theme-shadow-hover);
 }
 
 .bank-primary-button:disabled,
@@ -133,40 +93,25 @@
   display: grid;
   grid-template-rows: auto auto 1fr;
   flex: 1 1 170px;
-  gap: 5px;
+  gap: 7px;
   min-width: 150px;
-  min-height: 96px;
-  padding: 14px 16px;
+  min-height: 100px;
+  padding: 16px 18px;
   overflow: hidden;
-  border: 1px solid var(--app-border-strong);
+  border: 1px solid var(--theme-border-strong);
   border-radius: 15px;
-  box-shadow:
-    0 7px 22px color-mix(in srgb, var(--theme-text-primary) 4.5%, transparent),
-    inset 0 0 0 1px color-mix(in srgb, var(--theme-surface) 48%, transparent);
-  background-image:
-    radial-gradient(
-      circle at 86% 18%,
-      color-mix(in srgb, var(--theme-surface) 60%, transparent),
-      transparent 34%
-    ),
-    linear-gradient(
-      145deg,
-      color-mix(in srgb, var(--theme-surface) 4%, transparent),
-      transparent
-    );
+  box-shadow: var(--theme-shadow-card);
+  background: var(--theme-surface-raised);
   transition:
-    transform 240ms var(--app-ease),
-    box-shadow 240ms ease,
-    border-color 200ms ease,
-    filter 240ms ease;
+    transform var(--theme-motion-fast) var(--theme-ease),
+    box-shadow var(--theme-motion-fast) ease,
+    border-color var(--theme-motion-fast) ease,
+    background-color var(--theme-motion-fast) ease;
 }
 
 .bank-summary-card:hover {
   transform: translateY(-3px);
-  filter: saturate(1.02);
-  box-shadow:
-    0 12px 28px color-mix(in srgb, var(--theme-text-primary) 8%, transparent),
-    inset 0 0 0 1px color-mix(in srgb, var(--theme-surface) 60%, transparent);
+  box-shadow: var(--theme-shadow-hover);
 }
 
 .bank-summary-card::after {
@@ -176,7 +121,8 @@
   width: 95px;
   height: 95px;
   border-radius: 50%;
-  background: color-mix(in srgb, var(--theme-surface) 30%, transparent);
+  background: color-mix(in srgb, var(--theme-primary) 6%, transparent);
+  animation: bank-summary-pulse 6s ease-in-out infinite;
   content: '';
   pointer-events: none;
   transition: transform 420ms var(--app-ease);
@@ -194,23 +140,27 @@
 .bank-summary-card span,
 .bank-summary-card strong,
 .bank-summary-card small {
-  position: relative;
-  z-index: 1;
+  display: block;
+  align-self: end;
+  color: var(--theme-text-secondary);
+  font-size: 10px;
+  line-height: 1.4;
 }
 
 .bank-summary-card span {
   display: block;
   color: var(--theme-text-secondary);
-  font-size: 8px;
+  font-size: 10px;
   font-weight: 800;
   letter-spacing: 0.05em;
+  line-height: 1.2;
   text-transform: uppercase;
 }
 
 .bank-summary-card strong {
   display: block;
   color: var(--theme-text-primary);
-  font-size: 17px;
+  font-size: 20px;
   font-weight: 900;
   line-height: 1.1;
 }
@@ -229,70 +179,30 @@
     var(--theme-success) 32%,
     var(--theme-border)
   );
-  background:
-    radial-gradient(
-      circle at 86% 18%,
-      color-mix(in srgb, var(--theme-surface) 60%, transparent),
-      transparent 34%
-    ),
-    linear-gradient(
-      135deg,
-      var(--theme-success-soft) 0%,
-      var(--theme-success-soft) 100%
-    );
+  background: var(--theme-success-soft);
 }
 
 .bank-summary-card.transfer-in {
   border-color: color-mix(
     in srgb,
-    var(--theme-danger) 32%,
+    var(--theme-success) 32%,
     var(--theme-border)
   );
-  background:
-    radial-gradient(
-      circle at 86% 18%,
-      color-mix(in srgb, var(--theme-surface) 60%, transparent),
-      transparent 34%
-    ),
-    linear-gradient(
-      135deg,
-      var(--theme-danger-soft) 0%,
-      var(--theme-danger-soft) 100%
-    );
+  background: var(--theme-success-soft);
 }
 
 .bank-summary-card.expense {
   border-color: color-mix(
     in srgb,
-    var(--theme-warning) 32%,
+    var(--theme-danger) 32%,
     var(--theme-border)
   );
-  background:
-    radial-gradient(
-      circle at 86% 18%,
-      color-mix(in srgb, var(--theme-surface) 60%, transparent),
-      transparent 34%
-    ),
-    linear-gradient(
-      135deg,
-      var(--theme-warning-soft) 0%,
-      var(--theme-warning-soft) 100%
-    );
+  background: var(--theme-danger-soft);
 }
 
 .bank-summary-card.balance {
   border-color: var(--theme-border);
-  background:
-    radial-gradient(
-      circle at 86% 18%,
-      color-mix(in srgb, var(--theme-surface) 60%, transparent),
-      transparent 34%
-    ),
-    linear-gradient(
-      135deg,
-      var(--theme-surface-soft) 0%,
-      var(--theme-surface) 100%
-    );
+  background: var(--theme-surface-soft);
 }
 
 .bank-summary-card.income strong {
@@ -300,11 +210,11 @@
 }
 
 .bank-summary-card.transfer-in strong {
-  color: var(--theme-danger);
+  color: var(--theme-success);
 }
 
 .bank-summary-card.expense strong {
-  color: var(--theme-warning-hover);
+  color: var(--theme-danger);
 }
 
 .bank-summary-card.balance strong {
@@ -329,40 +239,44 @@
 
 .bank-panel-header {
   display: flex;
+  min-width: 0;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
+  gap: 18px;
   margin-bottom: 12px;
-  padding: 14px 16px 0;
-  box-sizing: border-box;
+  padding: 10px 16px 0;
 }
 
 .bank-panel-header h2 {
   margin: 0;
   color: var(--theme-text-primary);
-  font-size: 14px;
+  font-size: 18px;
   font-weight: 800;
+  line-height: 1.2;
 }
 
 .bank-panel-header p {
-  margin: 4px 0 0;
+  margin: 5px 0 0;
   color: var(--theme-text-secondary);
-  font-size: 11px;
+  font-size: 13px;
+  line-height: 1.4;
 }
 
 .bank-count {
   display: inline-flex;
-  min-height: 28px;
+  min-height: 32px;
   align-items: center;
   justify-content: center;
   flex: 0 0 auto;
-  padding: 0 9px;
-  border: 1px solid var(--app-border);
-  border-radius: 8px;
-  background: var(--app-bg-soft);
+  padding: 0 12px;
+  border: 1px solid var(--theme-border);
+  border-radius: 9px;
+  background: var(--theme-surface-soft);
   color: var(--theme-text-secondary);
-  font-size: 9px;
+  font-size: 11px;
   font-weight: 800;
+  line-height: 1;
+  white-space: nowrap;
 }
 
 .bank-account-table-wrap {
@@ -397,15 +311,15 @@
   position: sticky;
   top: var(--app-header-height, 60px);
   z-index: 20;
-  height: 36px;
-  padding: 0 10px;
+  height: 40px;
+  padding: 0 12px;
   border-bottom: 1px solid var(--theme-border);
   background: var(--theme-surface-soft);
-  box-shadow: 0 2px 6px rgb(15 23 42 / 0.06);
+  box-shadow: 0 2px 6px rgb(31 56 85 / 0.06);
   color: var(--theme-text-primary);
-  font-size: 9px;
+  font-size: 10px;
   font-weight: 900;
-  line-height: 1;
+  line-height: 1.1;
   text-align: center;
   text-transform: uppercase;
   letter-spacing: 0.01em;
@@ -423,11 +337,11 @@
 }
 
 .bank-account-table tbody td {
-  height: 50px;
-  padding: 8px 10px;
+  height: 54px;
+  padding: 9px 12px;
   border-bottom: 1px solid var(--theme-border);
   color: var(--theme-text-primary);
-  font-size: 10px;
+  font-size: 11.5px;
   vertical-align: middle;
 }
 
@@ -453,7 +367,7 @@
 .bank-account-name {
   overflow: hidden;
   color: var(--theme-text-primary);
-  font-size: 10.5px;
+  font-size: 12px;
   font-weight: 900;
   line-height: 1.25;
   text-overflow: ellipsis;
@@ -465,12 +379,12 @@
   max-width: 100%;
   min-width: 0;
   align-items: center;
-  gap: 4px;
-  margin-top: 3px;
+  gap: 5px;
+  margin-top: 4px;
   overflow: hidden;
   color: var(--theme-text-secondary);
-  font-size: 10px;
-  line-height: 1.25;
+  font-size: 10.5px;
+  line-height: 1.3;
   white-space: nowrap;
 }
 
@@ -502,7 +416,7 @@
 
 .bank-number-cell {
   color: var(--theme-text-primary);
-  font-size: 10px;
+  font-size: 11.5px;
   font-weight: 850;
   line-height: 1.2;
   white-space: nowrap;
@@ -520,7 +434,7 @@
 .bank-amount-prefix {
   justify-self: start;
   color: currentColor;
-  font-size: 9px;
+  font-size: 10px;
   font-weight: 750;
 }
 
@@ -529,6 +443,7 @@
   min-width: 0;
   overflow: hidden;
   color: currentColor;
+  font-size: 11.5px;
   font-weight: 850;
   text-overflow: ellipsis;
 }
@@ -552,31 +467,28 @@
 
 .bank-history-button {
   display: inline-flex;
-  min-width: 66px;
-  min-height: 32px;
+  min-width: 74px;
+  min-height: 34px;
   align-items: center;
   justify-content: center;
   gap: 5px;
-  padding: 0 8px;
+  padding: 0 10px;
   border: 1px solid var(--theme-border);
   border-radius: 8px;
-  background: linear-gradient(
-    180deg,
-    var(--theme-surface),
-    var(--theme-surface-soft)
-  );
+  background: var(--theme-surface-raised);
   color: var(--theme-text-secondary);
   cursor: pointer;
   font-family: inherit;
-  font-size: 9px;
+  font-size: 10px;
   font-weight: 850;
-  line-height: 1;
+  line-height: 1.1;
   white-space: nowrap;
   transition:
-    transform 150ms ease,
-    border-color 150ms ease,
-    background-color 150ms ease,
-    box-shadow 150ms ease;
+    transform var(--theme-motion-fast) var(--theme-ease),
+    border-color var(--theme-motion-fast) ease,
+    background-color var(--theme-motion-fast) ease,
+    box-shadow var(--theme-motion-fast) ease,
+    color var(--theme-motion-fast) ease;
 }
 
 .bank-history-button svg {
@@ -614,7 +526,7 @@
 
 .bank-account-group-title span {
   color: var(--theme-text-secondary);
-  font-size: 9px;
+  font-size: 10px;
   font-weight: 900;
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -622,7 +534,7 @@
 
 .bank-account-group-title small {
   color: var(--theme-text-secondary);
-  font-size: 8px;
+  font-size: 9.5px;
   font-weight: 800;
 }
 
@@ -682,6 +594,115 @@
 }
 
 /* =========================================================
+   ACCOUNT SEARCH
+   ========================================================= */
+
+.bank-panel-heading {
+  min-width: 220px;
+  flex: 0 1 auto;
+}
+
+.bank-account-tools {
+  display: flex;
+  min-width: 0;
+  flex: 1 1 auto;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.bank-period-label {
+  display: inline-flex;
+  min-height: 38px;
+  align-items: center;
+  flex: 0 0 auto;
+  padding: 0 12px;
+  border: 1px solid var(--theme-border-strong);
+  border-radius: 9px;
+  background: var(--theme-surface-raised);
+  box-shadow: var(--theme-shadow-card);
+  color: var(--theme-text-secondary);
+  font-size: 11px;
+  font-weight: 800;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.bank-account-search {
+  display: flex;
+  width: min(330px, 28vw);
+  min-width: 210px;
+  height: 38px;
+  min-height: 38px;
+  align-items: center;
+  gap: 8px;
+  padding: 0 11px;
+  border: 1px solid var(--theme-border-strong);
+  border-radius: 9px;
+  background: var(--theme-surface-soft);
+  color: var(--theme-text-muted);
+  box-sizing: border-box;
+  transition:
+    border-color var(--theme-motion-fast) ease,
+    background-color var(--theme-motion-fast) ease,
+    box-shadow var(--theme-motion-fast) ease;
+}
+
+.bank-account-search:focus-within {
+  border-color: var(--theme-primary);
+  background: var(--theme-surface-raised);
+  box-shadow: var(--theme-focus-ring);
+}
+
+.bank-account-search svg {
+  width: 17px;
+  height: 17px;
+  flex: 0 0 17px;
+}
+
+.bank-account-search input {
+  width: 100%;
+  min-width: 0;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: var(--theme-text-primary);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.bank-account-search input::placeholder {
+  color: var(--theme-text-muted);
+  opacity: 1;
+}
+
+.bank-account-search input::-webkit-search-cancel-button {
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  margin-inline-start: 6px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--theme-text-muted) 16%, transparent);
+  cursor: pointer;
+}
+
+.bank-account-search-empty {
+  display: grid;
+  min-height: 150px;
+  place-items: center;
+  padding: 28px 20px;
+  border: 1px dashed var(--theme-border-strong);
+  border-top: 0;
+  color: var(--theme-text-muted);
+  font-size: 12px;
+  font-weight: 700;
+  text-align: center;
+}
+
+/* =========================================================
    TRANSFER MODAL
    ========================================================= */
 
@@ -720,16 +741,16 @@ section.bank-form-modal {
 .bank-history-modal-header h2 {
   margin: 0;
   color: var(--theme-text-primary);
-  font-size: 16px;
+  font-size: 18px;
   font-weight: 900;
   line-height: 1.2;
 }
 
 .bank-history-modal-header p {
-  margin: 5px 0 0;
+  margin: 6px 0 0;
   color: var(--theme-text-muted);
-  font-size: 9px;
-  line-height: 1.35;
+  font-size: 10px;
+  line-height: 1.4;
 }
 
 .bank-form-content {
@@ -769,7 +790,7 @@ section.bank-form-modal {
   min-width: 0;
   margin: 0;
   color: var(--theme-text-secondary);
-  font-size: 9px;
+  font-size: 10px;
   font-weight: 800;
   line-height: 1.2;
 }
@@ -780,20 +801,20 @@ section.bank-form-modal {
   width: 100%;
   min-width: 0;
   max-width: 100%;
-  height: 40px;
-  min-height: 40px;
-  max-height: 40px;
+  height: 42px;
+  min-height: 42px;
+  max-height: 42px;
   margin: 0;
   box-sizing: border-box;
-  padding: 0 11px;
+  padding: 0 12px;
   border: 1px solid var(--theme-border-strong);
   border-radius: 9px;
-  background: var(--theme-surface);
+  background: var(--theme-surface-raised);
   color: var(--theme-text-primary);
   outline: none;
   box-shadow: none;
   font-family: inherit;
-  font-size: 11px;
+  font-size: 12px;
 }
 
 .bank-form-grid > label > input:focus,
@@ -1023,7 +1044,7 @@ section.bank-history-modal {
 
 .bank-history-current span {
   color: var(--theme-text-muted);
-  font-size: 8px;
+  font-size: 10px;
   font-weight: 800;
   letter-spacing: 0.04em;
   text-transform: uppercase;
@@ -1031,7 +1052,7 @@ section.bank-history-modal {
 
 .bank-history-current strong {
   color: var(--theme-text-primary);
-  font-size: 28px;
+  font-size: 30px;
   font-weight: 900;
   letter-spacing: -0.03em;
   line-height: 1;
@@ -1071,7 +1092,7 @@ section.bank-history-modal {
 
 .bank-history-stat span {
   color: var(--theme-text-muted);
-  font-size: 7.5px;
+  font-size: 9px;
   font-weight: 800;
   letter-spacing: 0.035em;
   text-transform: uppercase;
@@ -1081,7 +1102,7 @@ section.bank-history-modal {
   min-width: 0;
   overflow: hidden;
   color: var(--theme-text-primary);
-  font-size: clamp(11px, 1.1vw, 13.5px);
+  font-size: clamp(13px, 1.2vw, 15px);
   line-height: 1.15;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -1164,7 +1185,7 @@ section.bank-history-modal {
   min-width: 0;
   overflow: hidden;
   color: var(--theme-text-primary);
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 900;
   line-height: 1.25;
   text-overflow: ellipsis;
@@ -1173,13 +1194,13 @@ section.bank-history-modal {
 
 .bank-history-badge {
   display: inline-flex;
-  min-height: 20px;
+  min-height: 22px;
   align-items: center;
   justify-content: center;
   flex: 0 0 auto;
-  padding: 0 7px;
+  padding: 0 8px;
   border-radius: 999px;
-  font-size: 7px;
+  font-size: 8.5px;
   font-weight: 900;
   letter-spacing: 0.03em;
   white-space: nowrap;
@@ -1198,16 +1219,16 @@ section.bank-history-modal {
 .bank-history-meta {
   margin-top: 1px;
   color: var(--theme-text-muted);
-  font-size: 10px;
-  line-height: 1.35;
+  font-size: 11px;
+  line-height: 1.4;
 }
 
 .bank-history-purpose {
   margin-top: 1px;
   overflow: visible;
   color: var(--theme-text-secondary);
-  font-size: 9px;
-  line-height: 1.35;
+  font-size: 10px;
+  line-height: 1.4;
 }
 
 .bank-history-values {
@@ -1221,7 +1242,7 @@ section.bank-history-modal {
 
 .bank-history-values > strong {
   color: var(--theme-text-primary);
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 900;
   line-height: 1.15;
   white-space: nowrap;
@@ -1231,8 +1252,8 @@ section.bank-history-modal {
 .bank-history-values > p {
   margin: 0;
   color: var(--theme-text-muted);
-  font-size: 8px;
-  line-height: 1.25;
+  font-size: 9px;
+  line-height: 1.3;
 }
 
 .bank-history-values .bank-history-balance {
@@ -1293,7 +1314,7 @@ section.bank-history-modal {
 
 .bank-history-pagination-info {
   color: var(--theme-text-secondary);
-  font-size: 8px;
+  font-size: 10px;
 }
 
 .bank-history-pagination-buttons {
@@ -1304,23 +1325,23 @@ section.bank-history-modal {
 
 .bank-history-page {
   display: grid;
-  width: 29px;
-  height: 29px;
+  width: 31px;
+  height: 31px;
   place-items: center;
   padding: 0;
   border: 1px solid var(--theme-border);
   border-radius: 8px;
-  background: var(--theme-surface);
+  background: var(--theme-surface-raised);
   color: var(--theme-text-secondary);
   cursor: pointer;
-  font-size: 9px;
+  font-size: 10px;
   font-weight: 800;
 }
 
 .bank-history-page.active {
-  border-color: var(--theme-text-primary);
-  background: var(--theme-text-primary);
-  color: var(--theme-surface);
+  border-color: var(--theme-primary);
+  background: var(--theme-primary);
+  color: var(--theme-primary-foreground);
 }
 
 .bank-history-page:disabled {
@@ -1333,9 +1354,10 @@ section.bank-history-modal {
    ========================================================= */
 
 .bank-empty {
-  padding: 28px;
+  padding: 32px;
   color: var(--theme-text-muted);
-  font-size: 11px;
+  font-size: 13px;
+  line-height: 1.5;
   text-align: center;
 }
 
@@ -1377,16 +1399,6 @@ section.bank-history-modal {
 }
 
 @media (max-width: 760px) {
-  .bank-hero {
-    align-items: stretch;
-    flex-direction: column;
-    gap: 9px;
-  }
-
-  .bank-hero > div:last-child {
-    justify-content: flex-end;
-  }
-
   .bank-summary-grid {
     width: 100%;
     gap: 8px;
@@ -1478,12 +1490,17 @@ section.bank-history-modal {
 }
 
 @media (max-width: 520px) {
-  .bank-hero > div:last-child {
+  .bank-account-tools {
     flex-wrap: wrap;
   }
 
+  .bank-account-search {
+    flex: 1 1 240px;
+  }
+
+  .bank-period-label,
   .bank-primary-button {
-    width: 100%;
+    flex: 0 0 auto;
   }
 
   .bank-summary-grid {
@@ -1495,16 +1512,29 @@ section.bank-history-modal {
   }
 
   .bank-summary-card strong {
-    font-size: 16px;
+    font-size: 18px;
   }
 
   .bank-panel-header {
-    align-items: flex-start;
+    align-items: stretch;
     flex-direction: column;
   }
 
+  .bank-account-tools {
+    width: 100%;
+  }
+
   .bank-count {
-    align-self: flex-start;
+    align-self: center;
+  }
+
+  .bank-period-label {
+    flex: 1 1 auto;
+    justify-content: center;
+  }
+
+  .bank-primary-button {
+    flex: 1 1 auto;
   }
 }
 
@@ -1514,14 +1544,49 @@ section.bank-history-modal {
   }
 }
 
+@media (max-width: 760px) {
+  .bank-panel-header {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .bank-panel-heading {
+    min-width: 0;
+  }
+
+  .bank-account-tools {
+    width: 100%;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .bank-account-search {
+    width: 100%;
+    min-width: 0;
+    flex: 1 1 100%;
+  }
+
+  .bank-period-label,
+  .bank-primary-button,
+  .bank-count {
+    min-height: 38px;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .bank-summary-card,
   .bank-history-row,
   .bank-primary-button,
   .bank-secondary-button,
   .bank-form-modal,
-  .bank-history-button {
+  .bank-history-button,
+  .bank-history-action {
     transition: none;
+  }
+
+  .bank-summary-card::after {
+    animation: none;
   }
 }
 
@@ -1537,215 +1602,15 @@ section.bank-history-modal {
   }
 }
 
-/* =========================================================
-   THEME REFINEMENT — BANK
-   Visual-only overrides. Layout and behavior remain unchanged.
-   ========================================================= */
+@keyframes bank-summary-pulse {
+  0%,
+  100% {
+    opacity: 0.72;
+    transform: scale(1);
+  }
 
-.bank-primary-button {
-  border-color: var(--theme-primary);
-  background: var(--theme-primary);
-  color: var(--theme-primary-foreground);
-  box-shadow: 0 6px 16px
-    color-mix(in srgb, var(--theme-primary) 12%, transparent);
-}
-
-.bank-primary-button:hover:not(:disabled) {
-  border-color: var(--theme-primary-hover);
-  background: var(--theme-primary-hover);
-  color: var(--theme-primary-foreground);
-  box-shadow: var(--theme-shadow-hover);
-}
-
-.bank-secondary-button {
-  border-color: var(--theme-border);
-  background: var(--theme-surface);
-  color: var(--theme-text-secondary);
-}
-
-.bank-secondary-button:hover:not(:disabled) {
-  border-color: var(--theme-border-strong);
-  background: var(--theme-surface-soft);
-  color: var(--theme-text-primary);
-}
-
-.bank-summary-card {
-  border-color: var(--theme-border);
-  background-image:
-    radial-gradient(
-      circle at 86% 18%,
-      color-mix(in srgb, var(--theme-surface) 42%, transparent),
-      transparent 34%
-    ),
-    linear-gradient(
-      145deg,
-      color-mix(in srgb, var(--theme-surface) 6%, transparent),
-      transparent
-    );
-  box-shadow: var(--theme-shadow-card);
-}
-
-.bank-summary-card:hover {
-  box-shadow: var(--theme-shadow-hover);
-}
-
-.bank-summary-card span {
-  color: var(--theme-text-secondary);
-}
-
-.bank-summary-card strong {
-  color: var(--theme-text-primary);
-}
-
-.bank-summary-card small {
-  color: var(--theme-text-secondary);
-}
-
-.bank-summary-card.income {
-  border-color: color-mix(
-    in srgb,
-    var(--theme-success) 32%,
-    var(--theme-border)
-  );
-  background:
-    radial-gradient(
-      circle at 86% 18%,
-      color-mix(in srgb, var(--theme-surface) 48%, transparent),
-      transparent 34%
-    ),
-    var(--theme-success-soft);
-}
-
-.bank-summary-card.transfer-in {
-  border-color: color-mix(
-    in srgb,
-    var(--theme-success) 32%,
-    var(--theme-border)
-  );
-  background:
-    radial-gradient(
-      circle at 86% 18%,
-      color-mix(in srgb, var(--theme-surface) 48%, transparent),
-      transparent 34%
-    ),
-    var(--theme-success-soft);
-}
-
-.bank-summary-card.expense {
-  border-color: color-mix(
-    in srgb,
-    var(--theme-danger) 32%,
-    var(--theme-border)
-  );
-  background:
-    radial-gradient(
-      circle at 86% 18%,
-      color-mix(in srgb, var(--theme-surface) 48%, transparent),
-      transparent 34%
-    ),
-    var(--theme-danger-soft);
-}
-
-.bank-summary-card.balance {
-  border-color: var(--theme-border-strong);
-  background:
-    radial-gradient(
-      circle at 86% 18%,
-      color-mix(in srgb, var(--theme-surface) 52%, transparent),
-      transparent 34%
-    ),
-    var(--theme-surface-soft);
-}
-
-.bank-summary-card.income strong,
-.bank-summary-card.transfer-in strong {
-  color: var(--theme-success);
-}
-
-.bank-summary-card.expense strong {
-  color: var(--theme-danger);
-}
-
-.bank-summary-card.balance strong {
-  color: var(--theme-text-primary);
-}
-
-.bank-account-table-wrap {
-  border-color: var(--theme-border);
-  background: var(--theme-surface);
-}
-
-.bank-account-table thead th {
-  border-bottom-color: var(--theme-border);
-  background: var(--theme-surface-soft);
-  color: var(--theme-text-secondary);
-}
-
-.bank-account-table tbody td {
-  border-bottom-color: var(--theme-border);
-  color: var(--theme-text-primary);
-}
-
-.bank-account-name,
-.bank-number-cell {
-  color: var(--theme-text-primary);
-}
-
-.bank-account-meta,
-.bank-account-meta-bank,
-.bank-account-meta-owner {
-  color: var(--theme-text-secondary);
-}
-
-.bank-account-meta-number {
-  color: var(--theme-text-muted);
-}
-
-.bank-account-group-title span {
-  color: var(--theme-text-secondary);
-}
-
-.bank-account-group-title small {
-  color: var(--theme-text-muted);
-}
-
-.bank-history-button {
-  border-color: var(--theme-border);
-  background: var(--theme-surface);
-  color: var(--theme-text-secondary);
-  box-shadow: var(--theme-shadow-card);
-}
-
-.bank-history-button:hover {
-  border-color: var(--theme-primary);
-  background: var(--theme-primary-soft);
-  color: var(--theme-primary);
-  box-shadow: var(--theme-shadow-hover);
-}
-
-.bank-number-cell--income {
-  color: var(--theme-success);
-}
-
-.bank-number-cell--expense {
-  color: var(--theme-danger);
-}
-
-.bank-number-cell--balance {
-  color: var(--theme-primary);
-}
-
-.bank-panel-header h2,
-.bank-panel-header p,
-.bank-period-label,
-.bank-count {
-  color: var(--theme-text-secondary);
-}
-
-.bank-error {
-  color: var(--theme-danger);
-}
-
-.bank-empty {
-  color: var(--theme-text-muted);
+  50% {
+    opacity: 1;
+    transform: scale(1.035);
+  }
 }

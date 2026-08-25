@@ -449,19 +449,6 @@ export function SupplierPage() {
 
   return (
     <div className="supplier-page">
-      <div className="supplier-header">
-        {canManage ? (
-          <button
-            type="button"
-            className="app-action-button"
-            onClick={openAddSupplier}
-          >
-            <Plus aria-hidden="true" />
-            <span>Tambah Supplier</span>
-          </button>
-        ) : null}
-      </div>
-
       <div className="supplier-toolbar">
         <input
           className="supplier-input supplier-control-grow"
@@ -470,6 +457,17 @@ export function SupplierPage() {
           onChange={(event) => setSearch(event.target.value)}
         />
         <span className="supplier-count">{filtered.length} supplier</span>
+
+        {canManage ? (
+          <button
+            type="button"
+            className="app-action-button supplier-toolbar-action"
+            onClick={openAddSupplier}
+          >
+            <Plus aria-hidden="true" />
+            <span>Tambah Supplier</span>
+          </button>
+        ) : null}
       </div>
 
       <div className="supplier-panel">
