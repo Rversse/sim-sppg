@@ -31,6 +31,7 @@ import {
   type TransactionOption
 } from '@/features/transactions/transaction-options-service'
 import { DateRangePicker } from '@/components/ui/date-range-picker'
+import { SingleDatePicker } from '@/components/ui/date-picker'
 import { AnimatedSelect } from '@/components/ui/animated-select'
 
 import {
@@ -1506,14 +1507,14 @@ export function DashboardPage() {
             ) : null}
 
             <div className="dashboard-transaction-form-grid">
-              <label>
-                <span>Tanggal</span>
-                <input
-                  type="date"
+              <div className="dashboard-transaction-form-date">
+                <SingleDatePicker
+                  label="Tanggal"
                   value={formDate}
-                  onChange={(event) => setFormDate(event.target.value)}
+                  onChange={setFormDate}
+                  disabled={saving}
                 />
-              </label>
+              </div>
 
               <label>
                 <span>Dapur</span>
