@@ -1359,3 +1359,304 @@
     transition: none;
   }
 }
+
+/* =========================================================
+   MAKER ENTRY GRID — COMPACT / CENTERED FLOW LAYOUT
+   Gas and Operational use compact fields instead of stretching
+   across the full panel. RAB keeps its existing dedicated grid.
+   ========================================================= */
+
+/* Gas: Rekening | Nominal | Tambah */
+.maker-form-grid--neutral {
+  width: fit-content;
+  max-width: 100%;
+  margin-inline: auto;
+  grid-template-columns: 360px 320px 108px;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+.maker-form-grid--neutral .maker-entry-account,
+.maker-form-grid--neutral .maker-field input,
+.maker-form-grid--neutral .maker-form-actions,
+.maker-form-grid--neutral .maker-form-actions .app-action-button {
+  width: 100%;
+}
+
+.maker-form-grid--neutral .maker-entry-account,
+.maker-form-grid--neutral .maker-field input,
+.maker-form-grid--neutral .maker-form-actions {
+  min-height: 56px;
+  height: 56px;
+  box-sizing: border-box;
+}
+
+.maker-form-grid--neutral .maker-entry-account {
+  justify-content: center;
+  text-align: center;
+}
+
+.maker-form-grid--neutral .maker-entry-account-copy {
+  justify-content: center;
+}
+
+.maker-form-grid--neutral .maker-form-actions {
+  align-self: center;
+  align-items: center;
+}
+
+.maker-form-grid--neutral .maker-form-actions .app-action-button {
+  min-width: 108px;
+  min-height: 56px;
+  height: 56px;
+}
+
+/* Operational: Nominal | Tambah */
+.maker-form-grid--operational {
+  width: fit-content;
+  max-width: 100%;
+  margin-inline: auto;
+  grid-template-columns: 320px 108px;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+.maker-form-grid--operational .maker-field input,
+.maker-form-grid--operational .maker-form-actions,
+.maker-form-grid--operational .maker-form-actions .app-action-button {
+  width: 100%;
+}
+
+.maker-form-grid--operational .maker-field input,
+.maker-form-grid--operational .maker-form-actions {
+  min-height: 56px;
+  height: 56px;
+  box-sizing: border-box;
+}
+
+.maker-form-grid--operational .maker-form-actions {
+  align-self: center;
+  align-items: center;
+}
+
+.maker-form-grid--operational .maker-form-actions .app-action-button {
+  min-width: 108px;
+  min-height: 56px;
+  height: 56px;
+}
+
+/* Keep field contents visually centered. */
+.maker-form-grid--neutral .maker-field input,
+.maker-form-grid--operational .maker-field input {
+  text-align: center;
+}
+
+/* Responsive: keep the fields usable without horizontal overflow. */
+@media (max-width: 760px) {
+  .maker-form-grid--neutral,
+  .maker-form-grid--operational {
+    width: 100%;
+    max-width: none;
+    margin-inline: 0;
+    grid-template-columns: 1fr;
+  }
+
+  .maker-form-grid--neutral .maker-entry-account,
+  .maker-form-grid--neutral .maker-field,
+  .maker-form-grid--neutral .maker-form-actions,
+  .maker-form-grid--operational .maker-field,
+  .maker-form-grid--operational .maker-form-actions {
+    width: 100%;
+  }
+}
+
+/* =========================================================
+   MAKER FINAL FIELD FIX
+   Gas rekening uses a real field surface; RAB Bahan Baku
+   keeps one stable 56px surface in both empty and selected states.
+   ========================================================= */
+
+/* GAS — rekening must look like a normal field, not bare text. */
+.maker-form-grid--neutral .maker-entry-account {
+  position: relative;
+  min-width: 0;
+  width: 100%;
+  min-height: 56px;
+  height: 56px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0;
+  padding: 20px 13px 9px;
+  border: 1px solid var(--theme-border-strong);
+  border-radius: 10px;
+  background: var(--theme-surface-soft);
+  color: var(--theme-text-primary);
+  text-align: center;
+  transition:
+    border-color var(--theme-motion-fast) ease,
+    background-color var(--theme-motion-fast) ease,
+    box-shadow var(--theme-motion-fast) ease,
+    transform var(--theme-motion-fast) var(--theme-ease);
+}
+
+.maker-form-grid--neutral .maker-entry-account > span {
+  position: absolute;
+  top: 7px;
+  left: 13px;
+  z-index: 1;
+  margin: 0;
+  color: var(--theme-text-muted);
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  line-height: 1;
+  text-transform: uppercase;
+  pointer-events: none;
+}
+
+.maker-form-grid--neutral .maker-entry-account-copy {
+  min-width: 0;
+  width: 100%;
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 8px;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.maker-form-grid--neutral .maker-entry-account-copy strong {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--theme-text-primary);
+  font-size: 14px;
+  font-weight: 800;
+  line-height: 1.15;
+  text-overflow: ellipsis;
+}
+
+.maker-form-grid--neutral .maker-entry-account-copy span {
+  flex: 0 0 auto;
+  color: var(--theme-text-muted);
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.15;
+}
+
+.maker-form-grid--neutral .maker-entry-account:hover {
+  border-color: var(--theme-border-strong);
+  background: var(--theme-surface-raised);
+  box-shadow: var(--theme-shadow-card);
+  transform: translateY(-1px);
+}
+
+.maker-form-grid--neutral .maker-entry-account:focus-within {
+  border-color: var(--theme-primary);
+  background: var(--theme-surface-raised);
+  box-shadow: var(--theme-focus-ring);
+}
+
+/* RAB — empty and selected Bahan Baku must share the exact same box. */
+.maker-rab-grid .maker-products-field .maker-product-list,
+.maker-rab-grid .maker-products-field .maker-product-empty {
+  width: 100%;
+  min-height: 56px;
+  height: 56px;
+  box-sizing: border-box;
+  border: 1px solid var(--theme-border-strong);
+  border-radius: 10px;
+  background: var(--theme-surface-soft);
+  color: var(--theme-text-muted);
+}
+
+.maker-rab-grid .maker-products-field .maker-product-empty {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 20px 12px 9px;
+  border-style: solid;
+  line-height: 1.2;
+}
+
+.maker-rab-grid .maker-products-field .maker-product-list {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 20px 9px 9px;
+}
+
+.maker-rab-grid .maker-products-field .maker-product-empty:hover,
+.maker-rab-grid .maker-products-field .maker-product-list:hover {
+  border-color: var(--theme-border-strong);
+  background: var(--theme-surface-raised);
+  box-shadow: var(--theme-shadow-card);
+}
+
+.maker-rab-grid .maker-products-field .maker-product-empty:focus-within,
+.maker-rab-grid .maker-products-field .maker-product-list:focus-within {
+  border-color: var(--theme-primary);
+  background: var(--theme-surface-raised);
+  box-shadow: var(--theme-focus-ring);
+}
+
+/* Keep the Bahan Baku label floating exactly like the other 56px fields. */
+.maker-rab-grid .maker-products-field > span {
+  top: 7px;
+  left: 13px;
+  z-index: 2;
+  font-size: 10px;
+}
+
+/* The empty-state message should sit where the selected product chips sit,
+   without changing the field height. */
+.maker-rab-grid .maker-products-field .maker-product-empty {
+  color: var(--theme-text-muted);
+  font-size: 11px;
+}
+
+/* =========================================================
+   MAKER ADD BUTTON — UNIFIED 56px CONTROL
+   Matches the established page control/button geometry:
+   56px height, 108px minimum width, 10px radius,
+   12px/900 typography, 16px icon.
+   ========================================================= */
+
+.maker-form-actions .app-action-button {
+  display: inline-flex;
+  min-width: 108px;
+  min-height: 56px;
+  height: 56px;
+  box-sizing: border-box;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 0 14px;
+  border-radius: 10px;
+  font-size: 12px;
+  font-weight: 900;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.maker-form-actions .app-action-button svg {
+  width: 16px;
+  height: 16px;
+  flex: 0 0 16px;
+}
+
+.maker-form-actions .app-action-button:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+@media (max-width: 760px) {
+  .maker-form-actions .app-action-button {
+    width: 100%;
+  }
+}

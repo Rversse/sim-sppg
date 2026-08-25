@@ -1066,15 +1066,6 @@ export function DisbursementMakerPage() {
                     : 'Pilih jenis pencairan terlebih dahulu.'}
             </p>
           </div>
-
-          {selectedAccount && form.flowType === 'neutral' ? (
-            <div className="maker-selected-account">
-              <strong>{selectedAccount.accountName}</strong>
-              <span>
-                {selectedAccount.bank} • {selectedAccount.accountNumber}
-              </span>
-            </div>
-          ) : null}
         </div>
 
         {form.flowType === 'income' ? (
@@ -1164,7 +1155,34 @@ export function DisbursementMakerPage() {
         ) : null}
 
         {form.flowType === 'operational' || form.flowType === 'neutral' ? (
-          <div className="maker-form-grid maker-form-grid--entry">
+          <div
+            className={`maker-form-grid maker-form-grid--entry maker-form-grid--${form.flowType}`}
+          >
+            {form.flowType === 'neutral' ? (
+              <div className="maker-field maker-selected-account maker-entry-account">
+                <span>Rekening</span>
+                {selectedAccount ? (
+                  <div className="maker-entry-account-copy">
+                    <strong>{selectedAccount.accountName}</strong>
+                    <span>
+                      {selectedAccount.bank} • {selectedAccount.accountNumber}
+                    </span>
+                  </div>
+                ) : (
+                  <div className="maker-entry-account-copy">
+                    <strong>
+                      {loadingAccounts ? 'Memuat rekening...' : 'Rekening gas'}
+                    </strong>
+                    <span>
+                      {loadingAccounts
+                        ? 'Menyiapkan rekening tujuan'
+                        : 'Rekening gas otomatis'}
+                    </span>
+                  </div>
+                )}
+              </div>
+            ) : null}
+
             <label className="maker-field">
               <span>Nominal</span>
               <input
