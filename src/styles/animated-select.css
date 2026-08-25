@@ -1,14 +1,14 @@
 /* =========================================================
    SIM SPPG — ANIMATED SELECT
-   Material-style floating-label custom select.
-   Shared component: page layouts remain in their page CSS.
+   Phase 2 — Cool Breeze shared component
+   Layout/width may still be owned by page CSS.
    ========================================================= */
 
 .animated-select {
   position: relative;
-  min-width: 0;
-  width: 100%;
   z-index: 5;
+  width: 100%;
+  min-width: 0;
 }
 
 .animated-select.is-open {
@@ -35,12 +35,14 @@
   transition:
     border-color var(--theme-motion-fast) ease,
     background-color var(--theme-motion-fast) ease,
-    box-shadow var(--theme-motion-fast) ease;
+    box-shadow var(--theme-motion-fast) ease,
+    transform var(--theme-motion-fast) var(--theme-ease);
 }
 
 .animated-select__trigger:hover:not(:disabled) {
   border-color: var(--theme-border-strong);
   background: var(--theme-surface-raised);
+  transform: translateY(-1px);
 }
 
 .animated-select.is-open .animated-select__trigger,
@@ -48,6 +50,7 @@
   border-color: var(--theme-primary);
   background: var(--theme-surface-raised);
   box-shadow: var(--theme-focus-ring);
+  transform: translateY(0);
 }
 
 .animated-select__label {
@@ -65,6 +68,7 @@
   text-transform: uppercase;
   white-space: nowrap;
   pointer-events: none;
+  transition: color var(--theme-motion-fast) ease;
 }
 
 .animated-select.is-open .animated-select__label {
@@ -115,7 +119,7 @@
   border: 1px solid var(--theme-border-strong);
   border-radius: 10px;
   background: var(--theme-surface-raised);
-  box-shadow: var(--theme-shadow-modal);
+  box-shadow: var(--theme-shadow-hover);
   opacity: 0;
   visibility: hidden;
   transform: translateY(-5px) scale(0.985);
@@ -182,6 +186,11 @@
   height: 14px;
   flex: 0 0 14px;
   color: var(--theme-primary);
+  transition: transform var(--theme-motion-fast) var(--theme-ease);
+}
+
+.animated-select__option.is-selected .animated-select__check {
+  transform: scale(1.05);
 }
 
 .animated-select.is-disabled .animated-select__trigger {
@@ -190,6 +199,7 @@
   background: var(--theme-surface);
   color: var(--theme-text-muted);
   opacity: 0.75;
+  transform: none;
 }
 
 .animated-select.is-disabled .animated-select__value,
@@ -213,9 +223,11 @@
 
 @media (prefers-reduced-motion: reduce) {
   .animated-select__trigger,
+  .animated-select__label,
   .animated-select__chevron,
   .animated-select__menu,
-  .animated-select__option {
+  .animated-select__option,
+  .animated-select__check {
     transition: none;
   }
 }

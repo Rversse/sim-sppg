@@ -1,9 +1,11 @@
 /* =========================================================
-   SHARED DATE RANGE PICKER
+   SIM SPPG — DATE RANGE PICKER
+   Phase 2 — Cool Breeze shared component
    ========================================================= */
 
 .date-range-picker {
   position: relative;
+  z-index: 5;
   width: 100%;
   max-width: 220px;
   min-width: 0;
@@ -26,31 +28,35 @@
   font: inherit;
   font-size: 12px;
   transition:
-    border-color 150ms ease,
-    box-shadow 150ms ease,
-    background-color 150ms ease;
+    border-color var(--theme-motion-fast) ease,
+    box-shadow var(--theme-motion-fast) ease,
+    background-color var(--theme-motion-fast) ease,
+    transform var(--theme-motion-fast) var(--theme-ease);
 }
 
 .date-range-trigger:hover:not(:disabled) {
   border-color: var(--theme-border-strong);
   background: var(--theme-surface-raised);
+  transform: translateY(-1px);
 }
 
 .date-range-trigger:focus-visible {
   border-color: var(--theme-primary);
   box-shadow: var(--theme-focus-ring);
+  transform: translateY(0);
 }
 
 .date-range-trigger:disabled {
   cursor: not-allowed;
   opacity: 0.55;
+  transform: none;
 }
 
 .date-range-trigger > svg {
   width: 13px;
   height: 13px;
   flex: 0 0 13px;
-  color: var(--theme-text-muted);
+  color: var(--theme-primary-hover);
 }
 
 .date-range-trigger-text {
@@ -81,7 +87,7 @@
   border-radius: 12px;
   background: var(--theme-surface-raised);
   box-shadow: var(--theme-shadow-modal);
-  animation: date-range-popover-in 160ms ease both;
+  animation: date-range-popover-in 160ms var(--theme-ease) both;
 }
 
 .date-range-popover-toolbar {
@@ -105,18 +111,19 @@
   color: var(--theme-text-muted);
   cursor: pointer;
   transition:
-    border-color 150ms ease,
-    background-color 150ms ease,
-    transform 150ms ease;
+    border-color var(--theme-motion-fast) ease,
+    background-color var(--theme-motion-fast) ease,
+    transform var(--theme-motion-fast) var(--theme-ease);
 }
 
 .date-range-nav:hover {
   border-color: var(--theme-border-strong);
-  background: var(--theme-surface);
+  background: var(--theme-surface-raised);
+  transform: translateY(-1px);
 }
 
 .date-range-nav:active {
-  transform: scale(0.96);
+  transform: translateY(0) scale(0.96);
 }
 
 .date-range-nav svg {
@@ -168,10 +175,10 @@
   font-size: 10px;
   font-weight: 700;
   transition:
-    border-color 120ms ease,
-    background-color 120ms ease,
-    color 120ms ease,
-    transform 120ms ease;
+    border-color var(--theme-motion-fast) ease,
+    background-color var(--theme-motion-fast) ease,
+    color var(--theme-motion-fast) ease,
+    transform var(--theme-motion-fast) var(--theme-ease);
 }
 
 .date-range-day:hover:not(:disabled) {
@@ -193,7 +200,7 @@
   border-color: var(--theme-primary);
   background: var(--theme-primary);
   color: var(--theme-primary-foreground);
-  box-shadow: 0 4px 12px rgb(0 0 0 / 0.3);
+  box-shadow: 0 4px 12px rgb(37 99 235 / 0.16);
 }
 
 .date-range-day.is-disabled {
@@ -230,15 +237,17 @@
   font-size: 8px;
   font-weight: 800;
   transition:
-    border-color 150ms ease,
-    background-color 150ms ease,
-    color 150ms ease;
+    border-color var(--theme-motion-fast) ease,
+    background-color var(--theme-motion-fast) ease,
+    color var(--theme-motion-fast) ease,
+    transform var(--theme-motion-fast) var(--theme-ease);
 }
 
 .date-range-reset-pending:hover {
   border-color: var(--theme-border-strong);
-  background: var(--theme-surface);
+  background: var(--theme-surface-raised);
   color: var(--theme-primary-hover);
+  transform: translateY(-1px);
 }
 
 .date-range-month-year-trigger {
@@ -259,9 +268,9 @@
   font-weight: 900;
   text-transform: capitalize;
   transition:
-    border-color 150ms ease,
-    background-color 150ms ease,
-    transform 150ms ease;
+    border-color var(--theme-motion-fast) ease,
+    background-color var(--theme-motion-fast) ease,
+    transform var(--theme-motion-fast) var(--theme-ease);
 }
 
 .date-range-month-year-trigger:hover {
@@ -288,12 +297,8 @@
 .date-range-month-year-picker {
   padding: 10px 12px;
   border-bottom: 1px solid var(--theme-border);
-  background: linear-gradient(
-    180deg,
-    var(--theme-surface-soft),
-    var(--theme-surface-raised)
-  );
-  animation: date-range-selector-in 140ms ease both;
+  background: var(--theme-surface-soft);
+  animation: date-range-selector-in 140ms var(--theme-ease) both;
 }
 
 .date-range-month-year-fields {
@@ -331,9 +336,9 @@
   font-size: 10px;
   font-weight: 700;
   transition:
-    border-color 150ms ease,
-    box-shadow 150ms ease,
-    background-color 150ms ease;
+    border-color var(--theme-motion-fast) ease,
+    box-shadow var(--theme-motion-fast) ease,
+    background-color var(--theme-motion-fast) ease;
 }
 
 .date-range-month-year-fields select:hover {
@@ -349,12 +354,11 @@
 @keyframes date-range-popover-in {
   from {
     opacity: 0;
-    transform: translateY(-4px);
+    transform: translateY(-4px) scale(0.99);
   }
-
   to {
     opacity: 1;
-    transform: translateY(0);
+    transform: translateY(0) scale(1);
   }
 }
 
@@ -363,7 +367,6 @@
     opacity: 0;
     transform: translateY(-3px);
   }
-
   to {
     opacity: 1;
     transform: translateY(0);
@@ -397,6 +400,7 @@
   .date-range-month-year-picker,
   .date-range-day,
   .date-range-nav,
+  .date-range-reset-pending,
   .date-range-month-year-trigger {
     animation: none;
     transition: none;

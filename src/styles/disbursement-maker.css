@@ -16,10 +16,22 @@
 .maker-list-panel,
 .maker-realize-panel {
   width: 100%;
-  background: var(--theme-surface);
+  background: var(--theme-surface-raised);
   border: 1px solid var(--theme-border);
   border-radius: 16px;
   box-sizing: border-box;
+  box-shadow: var(--theme-shadow-card);
+  transition:
+    border-color var(--theme-motion-fast) ease,
+    box-shadow var(--theme-motion-fast) ease,
+    background-color var(--theme-motion-fast) ease;
+}
+
+.maker-toolbar:hover,
+.maker-form-panel:hover,
+.maker-list-panel:hover,
+.maker-realize-panel:hover {
+  border-color: var(--theme-border-strong);
 }
 
 .maker-toolbar {
@@ -88,6 +100,14 @@
   min-height: 56px;
   height: 56px;
   padding: 20px 40px 10px 13px;
+  border-color: var(--theme-border-strong);
+  background: var(--theme-surface-soft);
+  box-shadow: none;
+  transition:
+    border-color var(--theme-motion-fast) ease,
+    background-color var(--theme-motion-fast) ease,
+    box-shadow var(--theme-motion-fast) ease,
+    transform var(--theme-motion-fast) var(--theme-ease);
 }
 
 .maker-field--select .animated-select__trigger {
@@ -99,6 +119,14 @@
   min-height: 56px;
   height: 56px;
   padding: 20px 40px 10px 13px;
+  border-color: var(--theme-border-strong);
+  background: var(--theme-surface-soft);
+  box-shadow: none;
+  transition:
+    border-color var(--theme-motion-fast) ease,
+    background-color var(--theme-motion-fast) ease,
+    box-shadow var(--theme-motion-fast) ease,
+    transform var(--theme-motion-fast) var(--theme-ease);
 }
 
 .maker-rab-grid .maker-field--select .animated-select__label {
@@ -116,6 +144,25 @@
   right: 13px;
   width: 17px;
   height: 17px;
+}
+
+.maker-toolbar-fields .animated-select__trigger:hover:not(:disabled),
+.maker-toolbar-fields .single-date-picker__trigger:hover:not(:disabled),
+.maker-rab-grid
+  .maker-field--select
+  .animated-select__trigger:hover:not(:disabled) {
+  border-color: var(--theme-border-strong);
+  background: var(--theme-surface-raised);
+  box-shadow: var(--theme-shadow-card);
+  transform: translateY(-1px);
+}
+
+.maker-toolbar-fields .animated-select__trigger:focus-visible,
+.maker-toolbar-fields .single-date-picker__trigger:focus-visible,
+.maker-rab-grid .maker-field--select .animated-select__trigger:focus-visible {
+  border-color: var(--theme-primary);
+  background: var(--theme-surface-raised);
+  box-shadow: var(--theme-focus-ring);
 }
 
 .maker-toolbar-fields .animated-select__label,
@@ -165,7 +212,7 @@
   min-height: 42px;
   box-sizing: border-box;
   padding: 0 13px;
-  border: 1px solid var(--theme-border);
+  border: 1px solid var(--theme-border-strong);
   border-radius: 10px;
   background: var(--theme-surface-soft);
   color: var(--theme-text-primary);
@@ -173,18 +220,25 @@
   font-size: 13px;
   outline: none;
   transition:
-    border-color 0.18s ease,
-    box-shadow 0.18s ease,
-    background-color 0.18s ease;
+    border-color var(--theme-motion-fast) ease,
+    box-shadow var(--theme-motion-fast) ease,
+    background-color var(--theme-motion-fast) ease;
 }
 
 .maker-field input::placeholder {
   color: var(--theme-text-muted);
 }
 
+.maker-field input:hover:not(:disabled),
+.maker-field select:hover:not(:disabled) {
+  border-color: var(--theme-border-strong);
+  background: var(--theme-surface-raised);
+}
+
 .maker-field input:focus,
 .maker-field select:focus {
   border-color: var(--theme-primary);
+  background: var(--theme-surface-raised);
   box-shadow: var(--theme-focus-ring);
 }
 
@@ -466,7 +520,7 @@
   padding: 0 14px;
   border: 1px solid var(--theme-border);
   border-radius: 999px;
-  background: var(--theme-surface);
+  background: var(--theme-surface-raised);
   color: var(--theme-text-secondary);
   font: inherit;
   font-size: 13px;
@@ -475,14 +529,19 @@
   white-space: nowrap;
   cursor: pointer;
   transition:
-    border-color 0.18s ease,
-    background-color 0.18s ease,
-    color 0.18s ease;
+    transform var(--theme-motion-fast) var(--theme-ease),
+    border-color var(--theme-motion-fast) ease,
+    background-color var(--theme-motion-fast) ease,
+    color var(--theme-motion-fast) ease,
+    box-shadow var(--theme-motion-fast) ease;
 }
 
 .maker-product-chip:hover {
   border-color: var(--theme-primary);
+  background: var(--theme-primary-soft);
   color: var(--theme-primary-hover);
+  transform: translateY(-1px);
+  box-shadow: var(--theme-shadow-card);
 }
 
 .maker-product-chip.is-selected {
@@ -531,8 +590,13 @@
   overflow: hidden;
   border: 1px solid var(--theme-border);
   border-radius: 14px;
-  background: var(--theme-surface);
+  background: var(--theme-surface-raised);
   box-sizing: border-box;
+  box-shadow: var(--theme-shadow-card);
+  transition:
+    transform var(--theme-motion-fast) var(--theme-ease),
+    border-color var(--theme-motion-fast) ease,
+    box-shadow var(--theme-motion-fast) ease;
 }
 
 .maker-summary-card::before {
@@ -640,6 +704,36 @@
 .maker-summary-card--local span,
 .maker-summary-card--local strong {
   color: var(--theme-primary-hover);
+}
+
+.maker-summary-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--theme-border-strong);
+  box-shadow: var(--theme-shadow-hover);
+}
+
+.maker-summary-card::after {
+  position: absolute;
+  right: -28px;
+  bottom: -36px;
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--theme-primary) 6%, transparent);
+  content: '';
+  pointer-events: none;
+  animation: maker-summary-accent 6s ease-in-out infinite;
+}
+
+@keyframes maker-summary-accent {
+  0%,
+  100% {
+    opacity: 0.8;
+  }
+
+  50% {
+    opacity: 1;
+  }
 }
 
 /* =========================================================
@@ -849,12 +943,16 @@
   cursor: pointer;
   box-sizing: border-box;
   transition:
-    border-color 180ms ease,
-    background-color 180ms ease;
+    border-color var(--theme-motion-fast) ease,
+    background-color var(--theme-motion-fast) ease,
+    transform var(--theme-motion-fast) var(--theme-ease),
+    box-shadow var(--theme-motion-fast) ease;
 }
 
 .maker-table-copy:hover {
   border-color: var(--theme-primary);
+  transform: translateY(-1px);
+  box-shadow: var(--theme-shadow-card);
   background: color-mix(
     in srgb,
     var(--theme-primary) 4%,
@@ -903,6 +1001,12 @@
   color: var(--theme-text-secondary);
   font: inherit;
   cursor: pointer;
+  transition:
+    transform var(--theme-motion-fast) var(--theme-ease),
+    border-color var(--theme-motion-fast) ease,
+    background-color var(--theme-motion-fast) ease,
+    color var(--theme-motion-fast) ease,
+    box-shadow var(--theme-motion-fast) ease;
 }
 
 .maker-item-button svg {
@@ -1194,9 +1298,25 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .maker-toolbar,
+  .maker-form-panel,
+  .maker-list-panel,
+  .maker-realize-panel,
+  .maker-toolbar-fields .animated-select__trigger,
+  .maker-toolbar-fields .single-date-picker__trigger,
+  .maker-rab-grid .maker-field--select .animated-select__trigger,
+  .maker-field input,
+  .maker-field select,
+  .maker-product-chip,
+  .maker-summary-card,
+  .maker-table-copy,
+  .maker-item-button,
   .maker-item-card,
-  .maker-copy-box,
-  .maker-product-chip {
+  .maker-copy-box {
     transition: none;
+  }
+
+  .maker-summary-card::after {
+    animation: none;
   }
 }
