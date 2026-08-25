@@ -231,3 +231,21 @@
     transition: none;
   }
 }
+
+/* =========================================================
+   COOL BREEZE — SHARED SELECT HEIGHT
+   All AnimatedSelect triggers use the same 56px control height.
+   ========================================================= */
+
+.animated-select__trigger {
+  min-height: 56px;
+  height: 56px;
+  box-sizing: border-box;
+}
+
+@media (max-width: 560px) {
+  .animated-select__trigger {
+    min-height: 56px;
+    height: 56px;
+  }
+}

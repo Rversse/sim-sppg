@@ -365,8 +365,18 @@
 }
 
 .maker-refresh-button {
+  display: inline-flex;
+  min-width: 108px;
+  min-height: 56px;
+  height: 56px;
+  box-sizing: border-box;
+  align-items: center;
+  justify-content: center;
   flex: 0 0 auto;
-  min-width: 94px;
+  gap: 6px;
+  padding: 0 14px;
+  border-radius: 10px;
+  white-space: nowrap;
 }
 
 .maker-error {
@@ -1318,5 +1328,34 @@
 
   .maker-summary-card::after {
     animation: none;
+  }
+}
+
+/* =========================================================
+   REFRESH BUTTON — MATCH 56px MASTER CONTROL HEIGHT
+   ========================================================= */
+
+.maker-refresh-button svg {
+  width: 16px;
+  height: 16px;
+  flex: 0 0 16px;
+}
+
+.maker-refresh-button:hover:not(:disabled) {
+  border-color: var(--theme-border-strong);
+  background: var(--theme-surface-soft);
+  box-shadow: var(--theme-shadow-card);
+  transform: translateY(-1px);
+}
+
+.maker-refresh-button:focus-visible {
+  border-color: var(--theme-primary);
+  background: var(--theme-surface-raised);
+  box-shadow: var(--theme-focus-ring);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .maker-refresh-button {
+    transition: none;
   }
 }

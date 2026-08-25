@@ -1104,30 +1104,6 @@ export function DashboardPage() {
 
   return (
     <div className="dashboard-page">
-      <section className="dashboard-hero">
-        <div className="dashboard-hero-actions">
-          <div className="dashboard-date-chip">
-            <span>Periode : </span>
-            <strong>
-              {formatDate(filters.startDate)}
-              {filters.endDate !== filters.startDate
-                ? ` — ${formatDate(filters.endDate)}`
-                : ''}
-            </strong>
-          </div>
-
-          {user?.role === 'admin' ? (
-            <button
-              type="button"
-              className="dashboard-transaction-action"
-              onClick={openCreateTransactionModal}
-            >
-              + Transaksi
-            </button>
-          ) : null}
-        </div>
-      </section>
-
       <section className="dashboard-filter-card">
         <div className="dashboard-filter-heading">
           <div>
@@ -1189,6 +1165,16 @@ export function DashboardPage() {
             disabled={supplierDisabled}
             onChange={(value) => updateFilter('supplierFilter', value)}
           />
+
+          {user?.role === 'admin' ? (
+            <button
+              type="button"
+              className="dashboard-transaction-action"
+              onClick={openCreateTransactionModal}
+            >
+              + Transaksi
+            </button>
+          ) : null}
         </div>
       </section>
 

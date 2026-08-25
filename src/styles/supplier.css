@@ -799,3 +799,85 @@
 .kitchen-count {
   align-self: center;
 }
+
+/* =========================================================
+   MASTER-DATA COUNT BADGE — MATCH BANK
+   ========================================================= */
+
+.supplier-count,
+.vehicle-count,
+.kitchen-count {
+  display: inline-flex;
+  min-height: 32px;
+  height: 32px;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  padding: 0 12px;
+  border: 1px solid var(--theme-border);
+  border-radius: 9px;
+  background: var(--theme-surface-soft);
+  color: var(--theme-text-secondary);
+  box-shadow: none;
+  font-size: 11px;
+  font-weight: 800;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+/* =========================================================
+   COOL BREEZE — MASTER CONTROL HEIGHT
+   All primary toolbar controls use the same 56px geometry.
+   ========================================================= */
+
+.supplier-count,
+.vehicle-count,
+.kitchen-count,
+.supplier-toolbar-action,
+.vehicle-toolbar-action,
+.kitchen-toolbar-action {
+  min-height: 56px;
+  height: 56px;
+  box-sizing: border-box;
+  border-radius: 10px;
+}
+
+.supplier-count,
+.vehicle-count,
+.kitchen-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  padding: 0 12px;
+  border: 1px solid var(--theme-border);
+  background: var(--theme-surface-soft);
+  color: var(--theme-text-secondary);
+  box-shadow: none;
+  font-size: 11px;
+  font-weight: 800;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.supplier-toolbar-action,
+.vehicle-toolbar-action,
+.kitchen-toolbar-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  gap: 6px;
+  margin-left: 0;
+  padding-inline: 14px;
+  white-space: nowrap;
+}
+
+@media (max-width: 700px) {
+  .supplier-toolbar-action,
+  .vehicle-toolbar-action,
+  .kitchen-toolbar-action {
+    flex: 1 1 auto;
+    justify-content: center;
+  }
+}

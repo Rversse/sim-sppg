@@ -1614,3 +1614,45 @@ section.bank-history-modal {
     transform: scale(1.035);
   }
 }
+
+/* =========================================================
+   COOL BREEZE — BANK TOOLBAR CONTROL HEIGHT
+   Search, count, period, and primary transfer action use 56px.
+   ========================================================= */
+
+.bank-account-search,
+.bank-count,
+.bank-period-label,
+.bank-account-tools > .app-action-button,
+.bank-account-tools > .bank-primary-button,
+.bank-account-tools > .bank-secondary-button {
+  min-height: 56px;
+  height: 56px;
+  box-sizing: border-box;
+  border-radius: 10px;
+}
+
+.bank-account-search {
+  display: flex;
+  align-items: center;
+}
+
+.bank-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.bank-period-label {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.bank-account-tools > .app-action-button,
+.bank-account-tools > .bank-primary-button,
+.bank-account-tools > .bank-secondary-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}

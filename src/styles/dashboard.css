@@ -1576,3 +1576,96 @@
     opacity: 1;
   }
 }
+
+/* =========================================================
+   DASHBOARD FILTER ACTION — SAME GRID AS FILTER CONTROLS
+   Reset remains in the heading; admin action sits in the grid.
+   ========================================================= */
+
+.dashboard-filter-grid {
+  grid-template-columns:
+    minmax(230px, 1.35fr)
+    repeat(3, minmax(0, 1fr))
+    auto;
+}
+
+.dashboard-filter-grid > .dashboard-transaction-action {
+  width: 108px;
+  min-width: 108px;
+  min-height: 56px;
+  height: 56px;
+  box-sizing: border-box;
+  align-self: stretch;
+  justify-self: end;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 0 14px;
+  border: 1px solid var(--theme-primary);
+  border-radius: 10px;
+  background: var(--theme-primary);
+  color: var(--theme-primary-foreground);
+  box-shadow: var(--theme-shadow-card);
+  font-size: 12px;
+  font-weight: 900;
+  line-height: 1;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    transform var(--theme-motion-fast) var(--theme-ease),
+    box-shadow var(--theme-motion-fast) ease,
+    background-color var(--theme-motion-fast) ease,
+    border-color var(--theme-motion-fast) ease,
+    opacity var(--theme-motion-fast) ease;
+}
+
+.dashboard-filter-grid > .dashboard-transaction-action:hover:not(:disabled) {
+  transform: translateY(-1px);
+  border-color: var(--theme-primary-hover);
+  background: var(--theme-primary-hover);
+  box-shadow: var(--theme-shadow-hover);
+}
+
+.dashboard-filter-grid > .dashboard-transaction-action:focus-visible {
+  border-color: var(--theme-primary);
+  background: var(--theme-primary);
+  box-shadow: var(--theme-focus-ring);
+  outline: none;
+}
+
+.dashboard-filter-grid > .dashboard-transaction-action:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+@media (max-width: 1100px) {
+  .dashboard-filter-grid {
+    grid-template-columns:
+      minmax(220px, 1.25fr)
+      repeat(2, minmax(0, 1fr));
+  }
+
+  .dashboard-filter-grid > .dashboard-transaction-action {
+    width: 100%;
+    min-width: 0;
+    justify-self: stretch;
+  }
+}
+
+@media (max-width: 700px) {
+  .dashboard-filter-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .dashboard-filter-grid > .dashboard-transaction-action {
+    width: 100%;
+    justify-self: stretch;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dashboard-filter-grid > .dashboard-transaction-action {
+    transition: none;
+  }
+}
