@@ -315,8 +315,8 @@
   border-color: var(--app-action-primary-border);
   background: var(--app-action-primary-bg);
   color: var(--app-action-primary-text);
-  box-shadow: 0 7px 20px
-    color-mix(in srgb, var(--theme-primary) 14%, transparent);
+  box-shadow: 0 5px 14px
+    color-mix(in srgb, var(--theme-primary) 10%, transparent);
 }
 
 :where(

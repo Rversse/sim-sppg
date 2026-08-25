@@ -10,6 +10,13 @@
 
 :root {
   --app-control-height: 42px;
+  --app-font-xs: 0.75rem;
+  --app-font-sm: 0.8125rem;
+  --app-font-md: 0.875rem;
+  --app-font-lg: 1rem;
+  --app-font-xl: 1.125rem;
+  --app-line-tight: 1.25;
+  --app-line-normal: 1.45;
   --app-control-radius: 10px;
 
   /* Shared page geometry: every route uses the same outer layout. */
@@ -18,6 +25,21 @@
   --app-page-margin: 0;
   --app-page-gap: 16px;
   --app-page-padding: 0;
+
+  --app-table-cell-y: 11px;
+  --app-table-cell-x: 14px;
+
+  --app-space-1: 4px;
+  --app-space-2: 8px;
+  --app-space-3: 12px;
+  --app-space-4: 16px;
+  --app-space-5: 20px;
+  --app-space-6: 24px;
+  --app-space-7: 32px;
+
+  --app-surface-radius: 16px;
+  --app-panel-padding: 20px;
+  --app-section-gap: 20px;
 
   --read-text: var(--theme-text-primary);
   --read-text-muted: var(--theme-text-secondary);
@@ -124,7 +146,6 @@ input:disabled,
 textarea:disabled {
   cursor: not-allowed;
 }
-
 
 /* =========================================================
    ACCESSIBILITY / APP UTILITIES
