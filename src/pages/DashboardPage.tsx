@@ -1103,59 +1103,6 @@ export function DashboardPage() {
     ? 'Koperasi Arutala'
     : filters.supplierFilter
 
-  const formKitchenOptions = kitchens.map((kitchen) => ({
-    value: kitchen.id,
-    label: kitchen.name
-  }))
-
-  const formFlowOptions = FLOW_OPTIONS.filter(
-    (option) =>
-      option.value !== '' &&
-      availableFormFlows.includes(option.value as DashboardFlow)
-  ).map((option) => ({
-    value: option.value,
-    label: option.label
-  }))
-
-  const formPartyLabel = !formFlowType
-    ? 'Supplier / Rekening'
-    : formFlowType === 'expense'
-      ? 'Supplier'
-      : formFlowType === 'neutral'
-        ? 'Rekening Operasional'
-        : 'Rekening'
-
-  const formPartyValue =
-    formFlowType === 'expense' ? formSupplierId : formAccountId
-
-  const formPartyOptions =
-    formFlowType === 'expense'
-      ? formSuppliers.map((supplier) => ({
-          value: supplier.value,
-          label: supplier.label
-        }))
-      : formAccounts.map((account) => ({
-          value: account.value,
-          label: getFormAccountLabel(account, formFlowType)
-        }))
-
-  const formPartyDisabled =
-    !formKitchenId ||
-    !formFlowType ||
-    modalMode === 'edit' ||
-    formFlowType === 'neutral' ||
-    (formFlowType === 'expense' && !isSukarajaFormKitchen)
-
-  const formPartyPlaceholder = !formKitchenId
-    ? 'Pilih dapur terlebih dahulu'
-    : !formFlowType
-      ? 'Pilih jenis transaksi terlebih dahulu'
-      : formFlowType === 'neutral'
-        ? 'Rekening operasional dipilih otomatis'
-        : formFlowType === 'expense'
-          ? 'Pilih supplier'
-          : 'Pilih rekening'
-
   return (
     <div className="dashboard-page">
       <section className="dashboard-filter-card">
@@ -1566,53 +1513,130 @@ export function DashboardPage() {
                   value={formDate}
                   onChange={setFormDate}
                   disabled={saving}
-                  className="dashboard-transaction-form-select"
                 />
               </div>
 
-              <AnimatedSelect
-                label="Dapur"
-                value={formKitchenId}
-                options={formKitchenOptions}
-                placeholder="Pilih dapur"
-                disabled={modalMode === 'edit'}
-                onChange={(value) => void handleFormKitchenChange(value)}
-                className="dashboard-transaction-form-select"
-              />
-
-              <AnimatedSelect
-                label="Jenis transaksi"
-                value={formFlowType}
-                options={formFlowOptions}
-                placeholder="Pilih jenis transaksi"
-                disabled={!formKitchenId || modalMode === 'edit'}
-                onChange={(value) =>
-                  void handleFormFlowChange(value as DashboardFlow | '')
-                }
-                className="dashboard-transaction-form-select"
-              />
-
-              <AnimatedSelect
-                label={formPartyLabel}
-                value={formPartyValue}
-                options={formPartyOptions}
-                placeholder={formPartyPlaceholder}
-                disabled={formPartyDisabled}
-                onChange={(value) => {
-                  if (formFlowType === 'expense') {
-                    setFormSupplierId(value)
-                  } else {
-                    setFormAccountId(value)
+              <label>
+                <span>Dapur</span>
+                <select
+                  value={formKitchenId}
+                  disabled={modalMode === 'edit'}
+                  onChange={(event) =>
+                    void handleFormKitchenChange(event.target.value)
                   }
+                >
+                  <option value="">Pilih dapur</option>
+                  {kitchens.map((kitchen) => (
+                    <option key={kitchen.id} value={kitchen.id}>
+                      {kitchen.name}
+                    </option>
+                  ))}
+                </select>
+              </label>
 
-                  setFormEntryUnlocked(Boolean(value))
-
-                  if (value) {
-                    focusNominalInput()
+              <label>
+                <span>Jenis transaksi</span>
+                <select
+                  value={formFlowType}
+                  disabled={!formKitchenId || modalMode === 'edit'}
+                  onChange={(event) =>
+                    void handleFormFlowChange(
+                      event.target.value as DashboardFlow | ''
+                    )
                   }
-                }}
-                className="dashboard-transaction-form-select"
-              />
+                >
+                  <option value="">Pilih jenis transaksi</option>
+                  {FLOW_OPTIONS.filter(
+                    (option) =>
+                      option.value !== '' &&
+                      availableFormFlows.includes(option.value as DashboardFlow)
+                  ).map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              </label>
+
+              <label>
+                <span>
+                  {!formFlowType
+                    ? 'Supplier / Rekening'
+                    : formFlowType === 'expense'
+                      ? 'Supplier'
+                      : formFlowType === 'neutral'
+                        ? 'Rekening Operasional'
+                        : 'Rekening'}
+                </span>
+
+                {formFlowType === 'expense' ? (
+                  <select
+                    value={formSupplierId}
+                    disabled={
+                      !formKitchenId ||
+                      !formFlowType ||
+                      modalMode === 'edit' ||
+                      !isSukarajaFormKitchen
+                    }
+                    onChange={(event) => {
+                      const value = event.target.value
+                      setFormSupplierId(value)
+                      setFormEntryUnlocked(Boolean(value))
+
+                      if (value) {
+                        focusNominalInput()
+                      }
+                    }}
+                  >
+                    <option value="">
+                      {!formKitchenId
+                        ? 'Pilih dapur terlebih dahulu'
+                        : 'Pilih supplier'}
+                    </option>
+
+                    {formSuppliers.map((supplier) => (
+                      <option key={supplier.value} value={supplier.value}>
+                        {supplier.label}
+                      </option>
+                    ))}
+                  </select>
+                ) : (
+                  <select
+                    value={formAccountId}
+                    disabled={
+                      !formKitchenId ||
+                      !formFlowType ||
+                      modalMode === 'edit' ||
+                      formFlowType === 'neutral'
+                    }
+                    onChange={(event) => {
+                      const value = event.target.value
+                      setFormAccountId(value)
+                      setFormEntryUnlocked(Boolean(value))
+
+                      if (value) {
+                        focusNominalInput()
+                      }
+                    }}
+                  >
+                    <option value="">
+                      {!formKitchenId
+                        ? 'Pilih dapur terlebih dahulu'
+                        : !formFlowType
+                          ? 'Pilih jenis transaksi terlebih dahulu'
+                          : formFlowType === 'neutral'
+                            ? 'Rekening operasional dipilih otomatis'
+                            : 'Pilih rekening'}
+                    </option>
+
+                    {formAccounts.map((account) => (
+                      <option key={account.value} value={account.value}>
+                        {getFormAccountLabel(account, formFlowType)}
+                      </option>
+                    ))}
+                  </select>
+                )}
+              </label>
 
               <label>
                 <span>Nominal</span>
