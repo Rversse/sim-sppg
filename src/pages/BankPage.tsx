@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { History, Pencil, Search, Trash2, X } from 'lucide-react'
 
 import {
@@ -124,6 +124,65 @@ function BankAmountCell({
       <span className="bank-amount-prefix">{formatted.prefix}</span>
       <span className="bank-amount-value">{formatted.value}</span>
     </div>
+  )
+}
+
+function BankHistoryAmount({
+  text,
+  className = ''
+}: {
+  text: string
+  className?: string
+}) {
+  const amountRef = useRef<HTMLElement | null>(null)
+  const [isTruncated, setIsTruncated] = useState(false)
+
+  useEffect(() => {
+    const element = amountRef.current
+
+    if (!element) return
+
+    const checkOverflow = () => {
+      setIsTruncated(element.scrollWidth > element.clientWidth + 1)
+    }
+
+    checkOverflow()
+
+    const frame = window.requestAnimationFrame(checkOverflow)
+    const observer =
+      typeof ResizeObserver !== 'undefined'
+        ? new ResizeObserver(checkOverflow)
+        : null
+
+    observer?.observe(element)
+    if (element.parentElement) {
+      observer?.observe(element.parentElement)
+    }
+
+    return () => {
+      window.cancelAnimationFrame(frame)
+      observer?.disconnect()
+    }
+  }, [text])
+
+  const wrapperClassName = [
+    'bank-history-amount',
+    isTruncated ? 'is-truncated' : ''
+  ]
+    .filter(Boolean)
+    .join(' ')
+
+  return (
+    <span
+      className={wrapperClassName}
+      data-full-amount={isTruncated ? text : undefined}
+      tabIndex={isTruncated ? 0 : undefined}
+      aria-label={isTruncated ? `Nominal lengkap: ${text}` : undefined}
+    >
+      <strong ref={amountRef} className={className}>
+        {text}
+      </strong>
+    </span>
   )
 }
 
@@ -1515,38 +1574,41 @@ export function BankPage() {
                 {Number(historySummary.account.opening_balance) !== 0 ? (
                   <div className="bank-history-stat">
                     <span>Saldo Awal</span>
-                    <strong>
-                      {formatCurrency(
+                    <BankHistoryAmount
+                      text={formatCurrency(
                         Number(historySummary.account.opening_balance)
                       )}
-                    </strong>
+                    />
                   </div>
                 ) : null}
 
                 {historySummary.disbursementIncome !== 0 ? (
                   <div className="bank-history-stat">
                     <span>Pencairan Masuk</span>
-                    <strong className="bank-income">
-                      {formatCurrency(historySummary.disbursementIncome)}
-                    </strong>
+                    <BankHistoryAmount
+                      text={formatCurrency(historySummary.disbursementIncome)}
+                      className="bank-income"
+                    />
                   </div>
                 ) : null}
 
                 {historySummary.transferIncome !== 0 ? (
                   <div className="bank-history-stat">
                     <span>Transfer Masuk</span>
-                    <strong className="bank-income">
-                      {formatCurrency(historySummary.transferIncome)}
-                    </strong>
+                    <BankHistoryAmount
+                      text={formatCurrency(historySummary.transferIncome)}
+                      className="bank-income"
+                    />
                   </div>
                 ) : null}
 
                 {historySummary.transferExpense !== 0 ? (
                   <div className="bank-history-stat">
                     <span>Transfer Keluar</span>
-                    <strong className="bank-expense">
-                      {formatCurrency(historySummary.transferExpense)}
-                    </strong>
+                    <BankHistoryAmount
+                      text={formatCurrency(historySummary.transferExpense)}
+                      className="bank-expense"
+                    />
                   </div>
                 ) : null}
               </div>
@@ -1602,9 +1664,10 @@ export function BankPage() {
                         </div>
 
                         <div className="bank-history-values">
-                          <strong className="bank-income">
-                            +{formatCurrency(transaction.amount)}
-                          </strong>
+                          <BankHistoryAmount
+                            text={`+${formatCurrency(transaction.amount)}`}
+                            className="bank-income"
+                          />
 
                           <p className="bank-history-balance">
                             Saldo akhir: {formatCurrency(item.runningBalance)}
@@ -1655,12 +1718,12 @@ export function BankPage() {
                       </div>
 
                       <div className="bank-history-values">
-                        <strong
+                        <BankHistoryAmount
+                          text={`${incoming ? '+' : '-'}${formatCurrency(
+                            incoming ? transferAmount : total
+                          )}`}
                           className={incoming ? 'bank-income' : 'bank-expense'}
-                        >
-                          {incoming ? '+' : '-'}
-                          {formatCurrency(incoming ? transferAmount : total)}
-                        </strong>
+                        />
 
                         {!incoming && adminFee > 0 ? (
                           <p>Admin: {formatCurrency(adminFee)}</p>

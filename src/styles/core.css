@@ -195,6 +195,42 @@ body {
   background: var(--app-background);
 }
 
+/* =========================================================
+   GLOBAL SCROLLBAR
+   Theme-aware styling for all scrollable elements.
+   ========================================================= */
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--theme-border-strong) transparent;
+}
+
+*::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: var(--theme-border-strong);
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: var(--theme-text-muted);
+}
+
+*::-webkit-scrollbar-thumb:active {
+  background: var(--theme-text-secondary);
+}
+
+*::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
 button,
 input,
 select,
