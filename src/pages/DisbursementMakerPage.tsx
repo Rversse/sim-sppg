@@ -225,6 +225,9 @@ export function DisbursementMakerPage() {
     selectedProducts: [] as string[],
     amount: ''
   })
+  const [realizedTransactionAmounts, setRealizedTransactionAmounts] = useState<
+    Record<string, number>
+  >({})
 
   const amountInputRef = useRef<HTMLInputElement | null>(null)
 
@@ -356,6 +359,41 @@ export function DisbursementMakerPage() {
             Boolean(form.accountId)
           : false
 
+  const loadRealizedTransactionAmounts = useCallback(
+    async (makerItems: MakerItem[]) => {
+      const transactionIds = [
+        ...new Set(
+          makerItems
+            .map((item) => item.realizedTransactionId)
+            .filter((value): value is string => Boolean(value))
+        )
+      ]
+
+      if (!transactionIds.length) {
+        return {} as Record<string, number>
+      }
+
+      const { data, error } = await supabase
+        .from('transactions')
+        .select('id,amount')
+        .in('id', transactionIds)
+
+      if (error) {
+        throw error
+      }
+
+      return Object.fromEntries(
+        (data ?? [])
+          .filter(
+            (row): row is { id: string; amount: number } =>
+              typeof row.id === 'string' && typeof row.amount === 'number'
+          )
+          .map((row) => [row.id, row.amount])
+      )
+    },
+    []
+  )
+
   const reloadItems = useCallback(
     async (showLoading = true) => {
       if (!form.transactionDate || !form.kitchenId) {
@@ -378,8 +416,12 @@ export function DisbursementMakerPage() {
           ]
         )
 
+        const nextRealizedTransactionAmounts =
+          await loadRealizedTransactionAmounts(makerItems)
+
         setItems(makerItems)
         setItemAccounts([...incomeAccounts, ...neutralAccounts])
+        setRealizedTransactionAmounts(nextRealizedTransactionAmounts)
         setErrorMessage('')
       } catch (error) {
         console.error(error)
@@ -390,7 +432,7 @@ export function DisbursementMakerPage() {
         }
       }
     },
-    [form.transactionDate, form.kitchenId]
+    [form.transactionDate, form.kitchenId, loadRealizedTransactionAmounts]
   )
 
   useEffect(() => {
@@ -564,47 +606,19 @@ export function DisbursementMakerPage() {
 
     let cancelled = false
 
-    void Promise.resolve()
-      .then(() => {
-        if (cancelled) return null
-
-        setLoadingItems(true)
-
-        return Promise.all([
-          getMakerItems({
-            transactionDate: form.transactionDate,
-            kitchenId: form.kitchenId
-          }),
-          getMakerAccountOptions(form.kitchenId, 'income'),
-          getMakerAccountOptions(form.kitchenId, 'neutral')
-        ])
-      })
-      .then((result) => {
-        if (cancelled || !result) return
-
-        const [makerItems, incomeAccounts, neutralAccounts] = result
-        setItems(makerItems)
-        setItemAccounts([...incomeAccounts, ...neutralAccounts])
-        setErrorMessage('')
-      })
-      .catch((error) => {
+    void (async () => {
+      try {
+        await reloadItems(true)
+      } catch (error) {
         if (cancelled) return
-
         console.error(error)
-        setItems([])
-        setItemAccounts([])
-        setErrorMessage('Gagal memuat data Maker.')
-      })
-      .finally(() => {
-        if (!cancelled) {
-          setLoadingItems(false)
-        }
-      })
+      }
+    })()
 
     return () => {
       cancelled = true
     }
-  }, [form.transactionDate, form.kitchenId])
+  }, [form.transactionDate, form.kitchenId, reloadItems])
 
   useEffect(() => {
     if (!form.transactionDate || !form.kitchenId) {
@@ -660,6 +674,15 @@ export function DisbursementMakerPage() {
           event: '*',
           schema: 'public',
           table: 'disbursement_maker_items'
+        },
+        scheduleRealtimeRefresh
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'transactions'
         },
         scheduleRealtimeRefresh
       )
@@ -1194,6 +1217,14 @@ export function DisbursementMakerPage() {
     return (
       itemAccounts.find((account) => account.accountId === accountId) ?? null
     )
+  }
+
+  function getRealizedAmount(item: MakerItem) {
+    if (!item.realizedTransactionId) {
+      return null
+    }
+
+    return realizedTransactionAmounts[item.realizedTransactionId] ?? null
   }
 
   return (
@@ -1743,11 +1774,41 @@ export function DisbursementMakerPage() {
                     <button
                       type="button"
                       className="maker-table-copy"
-                      onClick={() => void handleCopyNominal(item.amount)}
-                      title="Klik untuk copy nominal"
+                      onClick={() =>
+                        void handleCopyNominal(
+                          getRealizedAmount(item) ?? item.amount
+                        )
+                      }
+                      title={
+                        item.status === 'REALIZED'
+                          ? 'Klik untuk copy nominal aktual'
+                          : 'Klik untuk copy nominal request'
+                      }
                       role="cell"
                     >
-                      <span>{formatNumber(item.amount)}</span>
+                      <span
+                        style={{
+                          display: 'flex',
+                          flexDirection: 'column',
+                          alignItems: 'flex-start',
+                          gap: 2
+                        }}
+                      >
+                        <span>
+                          {formatNumber(getRealizedAmount(item) ?? item.amount)}
+                        </span>
+                        {item.status === 'REALIZED' ? (
+                          <small
+                            style={{
+                              fontSize: 10,
+                              opacity: 0.7,
+                              lineHeight: 1.2
+                            }}
+                          >
+                            Request {formatNumber(item.amount)}
+                          </small>
+                        ) : null}
+                      </span>
                       <Copy aria-hidden="true" />
                     </button>
 
