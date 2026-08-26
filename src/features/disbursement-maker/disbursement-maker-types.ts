@@ -1,6 +1,6 @@
 export type MakerFlow = 'income' | 'neutral'
 
-export type MakerStatus = 'READY' | 'PROCESSED' | 'REALIZED'
+export type MakerStatus = 'REQUEST' | 'READY' | 'PROCESSED' | 'REALIZED'
 
 export type MakerKitchen = {
   id: string

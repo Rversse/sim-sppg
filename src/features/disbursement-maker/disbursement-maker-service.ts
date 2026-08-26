@@ -428,6 +428,7 @@ export async function createMakerItem(
     flowType: MakerFlow
     selectedProducts?: string[]
     createdBy?: string | null
+    initialStatus?: MakerStatus
   },
   client: SupabaseClient = supabase
 ): Promise<MakerItem> {
@@ -494,7 +495,7 @@ export async function createMakerItem(
       amount,
       flow_type: input.flowType,
       selected_products: selectedProducts,
-      status: 'READY',
+      status: input.initialStatus ?? 'READY',
       created_by: input.createdBy ?? null,
       updated_by: input.createdBy ?? null
     })
@@ -577,6 +578,7 @@ export async function updateMakerStatus(
   const currentStatus = currentItem.status as MakerStatus
 
   if (
+    currentStatus !== 'REQUEST' &&
     currentStatus !== 'READY' &&
     currentStatus !== 'PROCESSED' &&
     currentStatus !== 'REALIZED'
@@ -589,6 +591,7 @@ export async function updateMakerStatus(
   }
 
   const allowedTransitions: Record<MakerStatus, MakerStatus[]> = {
+    REQUEST: ['REQUEST', 'READY'],
     READY: ['READY', 'PROCESSED'],
     PROCESSED: ['PROCESSED', 'READY'],
     REALIZED: ['REALIZED']
@@ -624,6 +627,152 @@ export async function updateMakerStatus(
       updated_at: new Date().toISOString()
     })
     .eq('id', makerItemId)
+    .select(
+      `
+      id,
+      kitchen_id,
+      transaction_date,
+      account_id,
+      amount,
+      flow_type,
+      selected_products,
+      status,
+      realized_transaction_id,
+      created_at,
+      updated_at
+    `
+    )
+    .single()
+
+  if (error) {
+    throw error
+  }
+
+  return {
+    id: data.id,
+    kitchenId: data.kitchen_id,
+    transactionDate: data.transaction_date,
+    accountId: data.account_id,
+    amount: data.amount,
+    flowType: data.flow_type,
+    selectedProducts: Array.isArray(data.selected_products)
+      ? data.selected_products
+      : [],
+    status: data.status,
+    realizedTransactionId: data.realized_transaction_id,
+    createdAt: data.created_at,
+    updatedAt: data.updated_at
+  }
+}
+
+export async function updateMakerItemDetails(
+  input: {
+    makerItemId: string
+    kitchenId: string
+    transactionDate: string
+    accountId: string
+    amount: string | number
+    flowType: MakerFlow
+    selectedProducts?: string[]
+    updatedBy?: string | null
+  },
+  client: SupabaseClient = supabase
+): Promise<MakerItem> {
+  if (!input.makerItemId) {
+    throw new Error('Maker item tidak ditemukan')
+  }
+
+  const { data: currentItem, error: fetchError } = await client
+    .from('disbursement_maker_items')
+    .select('id,status,realized_transaction_id')
+    .eq('id', input.makerItemId)
+    .maybeSingle()
+
+  if (fetchError) {
+    throw fetchError
+  }
+
+  if (!currentItem) {
+    throw new Error('Maker item tidak ditemukan')
+  }
+
+  const currentStatus = currentItem.status as MakerStatus
+
+  if (currentStatus === 'PROCESSED' || currentStatus === 'REALIZED') {
+    throw new Error('Pencairan yang sudah diproses tidak dapat diedit')
+  }
+
+  if (currentStatus !== 'REQUEST' && currentStatus !== 'READY') {
+    throw new Error(`Status Maker tidak dapat diedit: ${String(currentStatus)}`)
+  }
+
+  const amount = normalizeMakerAmount(input.amount)
+  const selectedProducts = normalizeMakerProducts(input.selectedProducts)
+
+  const validationError = validateMakerItem({
+    kitchenId: input.kitchenId,
+    transactionDate: input.transactionDate,
+    accountId: input.accountId,
+    amount,
+    flowType: input.flowType,
+    selectedProducts
+  })
+
+  if (validationError) {
+    throw new Error(validationError)
+  }
+
+  const validAccount = await validateMakerAccount(
+    input.kitchenId,
+    input.flowType,
+    input.accountId,
+    client
+  )
+
+  if (!validAccount) {
+    throw new Error(
+      'Rekening tidak terdaftar untuk dapur dan jenis pencairan yang dipilih'
+    )
+  }
+
+  if (input.flowType === 'income' && selectedProducts.length > 0) {
+    const accountOptions = await getMakerAccountOptions(
+      input.kitchenId,
+      'income',
+      client
+    )
+    const account = accountOptions.find(
+      (option) => option.accountId === input.accountId
+    )
+
+    if (!account) {
+      throw new Error('Rekening RAB tidak ditemukan untuk dapur ini')
+    }
+
+    const invalidProduct = selectedProducts.find(
+      (product) => !account.supplierProducts.includes(product)
+    )
+
+    if (invalidProduct) {
+      throw new Error(
+        `Produk ${invalidProduct} tidak terdaftar pada supplier rekening yang dipilih`
+      )
+    }
+  }
+
+  const { data, error } = await client
+    .from('disbursement_maker_items')
+    .update({
+      kitchen_id: input.kitchenId,
+      transaction_date: input.transactionDate,
+      account_id: input.accountId,
+      amount,
+      flow_type: input.flowType,
+      selected_products: selectedProducts,
+      updated_by: input.updatedBy ?? null,
+      updated_at: new Date().toISOString()
+    })
+    .eq('id', input.makerItemId)
     .select(
       `
       id,

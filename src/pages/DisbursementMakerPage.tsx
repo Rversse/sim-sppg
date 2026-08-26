@@ -1,4 +1,4 @@
-import { Check, Copy, Plus, RefreshCw, Trash2 } from 'lucide-react'
+import { Check, Copy, Pencil, Plus, RefreshCw, Trash2, X } from 'lucide-react'
 import {
   useCallback,
   useEffect,
@@ -20,7 +20,8 @@ import {
   normalizeMakerAmount,
   normalizeMakerProducts,
   realizeMakerItems,
-  updateMakerStatus
+  updateMakerStatus,
+  updateMakerItemDetails
 } from '@/features/disbursement-maker/disbursement-maker-service'
 import type {
   MakerAccountOption,
@@ -97,6 +98,8 @@ function formatSupplierAccountLabel(account: MakerAccountOption) {
 
 function getStatusLabel(status: MakerItem['status']) {
   switch (status) {
+    case 'REQUEST':
+      return 'Request'
     case 'READY':
       return 'Siap diproses'
     case 'PROCESSED':
@@ -108,6 +111,8 @@ function getStatusLabel(status: MakerItem['status']) {
 
 function getStatusClass(status: MakerItem['status']) {
   switch (status) {
+    case 'REQUEST':
+      return 'maker-status maker-status-request'
     case 'READY':
       return 'maker-status maker-status-ready'
     case 'PROCESSED':
@@ -206,6 +211,20 @@ export function DisbursementMakerPage() {
   const [loadingItems, setLoadingItems] = useState(false)
   const [saving, setSaving] = useState(false)
   const [errorMessage, setErrorMessage] = useState('')
+  const [editingItem, setEditingItem] = useState<MakerItem | null>(null)
+  const [editingAccounts, setEditingAccounts] = useState<MakerAccountOption[]>(
+    []
+  )
+  const [loadingEditAccounts, setLoadingEditAccounts] = useState(false)
+  const [editingSaving, setEditingSaving] = useState(false)
+  const [editingForm, setEditingForm] = useState({
+    transactionDate: '',
+    kitchenId: '',
+    flowType: 'income' as MakerFlow,
+    accountId: '',
+    selectedProducts: [] as string[],
+    amount: ''
+  })
 
   const amountInputRef = useRef<HTMLInputElement | null>(null)
 
@@ -280,6 +299,10 @@ export function DisbursementMakerPage() {
         (result, item) => {
           result.total += item.amount
 
+          if (item.status === 'REQUEST') {
+            result.request += item.amount
+          }
+
           if (item.status === 'READY') {
             result.ready += item.amount
           }
@@ -296,6 +319,7 @@ export function DisbursementMakerPage() {
         },
         {
           total: 0,
+          request: 0,
           ready: 0,
           processed: 0,
           realized: 0
@@ -314,7 +338,7 @@ export function DisbursementMakerPage() {
   )
 
   const pendingItems = filteredItems.filter(
-    (item) => item.status !== 'REALIZED'
+    (item) => item.status === 'READY' || item.status === 'PROCESSED'
   )
 
   const canRealize =
@@ -368,6 +392,72 @@ export function DisbursementMakerPage() {
     },
     [form.transactionDate, form.kitchenId]
   )
+
+  useEffect(() => {
+    if (!editingItem || !editingForm.kitchenId) {
+      return
+    }
+
+    let cancelled = false
+
+    void Promise.resolve()
+      .then(() => {
+        if (cancelled) return null
+        return Promise.all([
+          getMakerAccountOptions(editingForm.kitchenId, 'income'),
+          getMakerAccountOptions(editingForm.kitchenId, 'neutral')
+        ])
+      })
+      .then((result) => {
+        if (!result) return
+
+        const [incomeAccounts, neutralAccounts] = result
+        if (cancelled) return
+
+        const nextAccounts = [...incomeAccounts, ...neutralAccounts]
+        setEditingAccounts(nextAccounts)
+
+        setEditingForm((current) => {
+          const currentAccountValid = nextAccounts.some(
+            (account) => account.accountId === current.accountId
+          )
+
+          if (current.flowType === 'neutral') {
+            return {
+              ...current,
+              accountId: neutralAccounts[0]?.accountId ?? current.accountId,
+              selectedProducts: []
+            }
+          }
+
+          return {
+            ...current,
+            accountId: currentAccountValid ? current.accountId : '',
+            selectedProducts: currentAccountValid
+              ? current.selectedProducts
+              : []
+          }
+        })
+      })
+      .catch((error) => {
+        if (cancelled) return
+        console.error(error)
+        setEditingAccounts([])
+        toastError(
+          'Gagal memuat rekening',
+          'Mapping rekening untuk dapur yang dipilih tidak dapat dimuat.'
+        )
+      })
+      .finally(() => {
+        if (!cancelled) {
+          setLoadingEditAccounts(false)
+        }
+      })
+
+    return () => {
+      cancelled = true
+    }
+  }, [editingItem, editingForm.kitchenId, toastError])
 
   useEffect(() => {
     saveLocalOperationalItems(localOperationalItems)
@@ -817,6 +907,139 @@ export function DisbursementMakerPage() {
     await addMakerItem()
   }
 
+  async function startEditingItem(item: MakerItem) {
+    if (item.status === 'PROCESSED' || item.status === 'REALIZED') {
+      return
+    }
+
+    setEditingItem(item)
+    setLoadingEditAccounts(true)
+    setErrorMessage('')
+
+    try {
+      const incomeAccounts = await getMakerAccountOptions(
+        item.kitchenId,
+        'income'
+      )
+      const neutralAccounts = await getMakerAccountOptions(
+        item.kitchenId,
+        'neutral'
+      )
+      const nextAccounts = [...incomeAccounts, ...neutralAccounts]
+      setEditingAccounts(nextAccounts)
+
+      const selectedAccount = nextAccounts.find(
+        (account) => account.accountId === item.accountId
+      )
+
+      if (!selectedAccount) {
+        throw new Error(
+          'Rekening request tidak lagi tersedia pada mapping dapur.'
+        )
+      }
+
+      setEditingForm({
+        transactionDate: item.transactionDate,
+        kitchenId: item.kitchenId,
+        flowType: item.flowType,
+        accountId: item.accountId,
+        selectedProducts: item.selectedProducts,
+        amount: String(item.amount)
+      })
+    } catch (error) {
+      console.error(error)
+      setEditingItem(null)
+      setEditingAccounts([])
+      toastError(
+        'Gagal membuka editor',
+        error instanceof Error ? error.message : 'Data request gagal dimuat.'
+      )
+    } finally {
+      setLoadingEditAccounts(false)
+    }
+  }
+
+  function cancelEditingItem() {
+    setEditingItem(null)
+    setEditingAccounts([])
+    setEditingSaving(false)
+  }
+
+  function updateEditingForm(
+    key: keyof typeof editingForm,
+    value: string | string[]
+  ) {
+    setEditingForm((current) => ({
+      ...current,
+      [key]: value
+    }))
+  }
+
+  async function saveEditingItem() {
+    if (!editingItem || !user?.id || editingSaving) {
+      return
+    }
+
+    setEditingSaving(true)
+    setErrorMessage('')
+
+    try {
+      const updatedItem = await updateMakerItemDetails({
+        makerItemId: editingItem.id,
+        kitchenId: editingForm.kitchenId,
+        transactionDate: editingForm.transactionDate,
+        accountId: editingForm.accountId,
+        amount: editingForm.amount,
+        flowType: editingForm.flowType,
+        selectedProducts:
+          editingForm.flowType === 'income' ? editingForm.selectedProducts : [],
+        updatedBy: user.id
+      })
+
+      setItems((current) =>
+        current.map((candidate) =>
+          candidate.id === updatedItem.id ? updatedItem : candidate
+        )
+      )
+      success('Request diperbarui', 'Data pencairan berhasil disimpan.')
+      cancelEditingItem()
+    } catch (error) {
+      console.error(error)
+      toastError(
+        'Gagal menyimpan perubahan',
+        error instanceof Error ? error.message : 'Request gagal diperbarui.'
+      )
+    } finally {
+      setEditingSaving(false)
+    }
+  }
+
+  async function acceptRequest(item: MakerItem) {
+    if (item.status !== 'REQUEST') return
+
+    try {
+      const updatedItem = await updateMakerStatus(
+        item.id,
+        'READY',
+        undefined,
+        user?.id
+      )
+
+      setItems((current) =>
+        current.map((candidate) =>
+          candidate.id === updatedItem.id ? updatedItem : candidate
+        )
+      )
+      success('Request diterima', 'Request masuk ke antrean pencairan.')
+    } catch (error) {
+      console.error(error)
+      toastError(
+        'Gagal menerima request',
+        error instanceof Error ? error.message : 'Request gagal diproses.'
+      )
+    }
+  }
+
   async function setProcessed(item: MakerItem) {
     if (item.status !== 'READY') return
 
@@ -870,7 +1093,7 @@ export function DisbursementMakerPage() {
   }
 
   async function deleteMaker(item: MakerItem) {
-    if (item.status === 'REALIZED') return
+    if (item.status === 'PROCESSED' || item.status === 'REALIZED') return
 
     const confirmed = window.confirm(
       `Hapus pencairan ${getFlowLabel(item.flowType)} sebesar ${formatCurrency(
@@ -1236,6 +1459,9 @@ export function DisbursementMakerPage() {
         <div className="maker-summary-card maker-summary-card--total">
           <span>Total Pencairan</span>
           <strong>{filteredItems.length}</strong>
+          {totals.request > 0 ? (
+            <small>Request: {formatCurrency(totals.request)}</small>
+          ) : null}
         </div>
         <div className="maker-summary-card maker-summary-card--amount">
           <span>Total Nominal</span>
@@ -1254,6 +1480,190 @@ export function DisbursementMakerPage() {
           <strong>{formatCurrency(localOperationalTotal)}</strong>
         </div>
       </section>
+
+      {editingItem ? (
+        <section className="maker-form-panel">
+          <div className="maker-form-heading">
+            <div className="maker-form-copy">
+              <span className="maker-eyebrow">Review Request</span>
+              <h2>Edit pencairan</h2>
+              <p>
+                Request dan item yang belum diproses masih dapat dikoreksi.
+                Setelah transfer diproses, data akan dikunci.
+              </p>
+            </div>
+
+            <button
+              type="button"
+              className="maker-item-button maker-item-button--secondary"
+              onClick={cancelEditingItem}
+              disabled={editingSaving}
+              title="Tutup editor"
+            >
+              <X aria-hidden="true" />
+            </button>
+          </div>
+
+          {loadingEditAccounts ? (
+            <div className="maker-empty">Memuat data rekening...</div>
+          ) : (
+            <div className="maker-form-grid maker-form-grid--entry">
+              <SingleDatePicker
+                label="Tanggal"
+                value={editingForm.transactionDate}
+                onChange={(value) =>
+                  updateEditingForm('transactionDate', value)
+                }
+              />
+
+              <AnimatedSelect
+                label="Dapur"
+                value={editingForm.kitchenId}
+                options={kitchens.map((kitchen) => ({
+                  value: kitchen.id,
+                  label: kitchen.name
+                }))}
+                placeholder="Pilih dapur"
+                onChange={(value) => updateEditingForm('kitchenId', value)}
+              />
+
+              <AnimatedSelect
+                label="Jenis pencairan"
+                value={editingForm.flowType}
+                options={[
+                  { value: 'income', label: 'RAB' },
+                  { value: 'neutral', label: 'Gas' }
+                ]}
+                onChange={(value) =>
+                  setEditingForm((current) => ({
+                    ...current,
+                    flowType: value as MakerFlow,
+                    accountId:
+                      value === 'neutral'
+                        ? (editingAccounts.find(
+                            (account) =>
+                              account.accountName === 'ARUTALA' &&
+                              account.bank === 'BNI' &&
+                              account.accountNumber === '1985322260'
+                          )?.accountId ?? current.accountId)
+                        : current.accountId,
+                    selectedProducts:
+                      value === 'neutral' ? [] : current.selectedProducts
+                  }))
+                }
+              />
+
+              {editingForm.flowType === 'income' ? (
+                <div className="maker-field maker-field--select">
+                  <AnimatedSelect
+                    label="Supplier / Rekening"
+                    value={editingForm.accountId}
+                    options={editingAccounts
+                      .filter((account) =>
+                        Boolean(account.supplierId && account.supplierName)
+                      )
+                      .map((account) => ({
+                        value: account.accountId,
+                        label: formatSupplierAccountLabel(account)
+                      }))}
+                    placeholder="Pilih supplier"
+                    onChange={(value) =>
+                      setEditingForm((current) => ({
+                        ...current,
+                        accountId: value,
+                        selectedProducts: []
+                      }))
+                    }
+                  />
+                </div>
+              ) : (
+                <div className="maker-field maker-selected-account">
+                  <span>Rekening</span>
+                  <div className="maker-entry-account-copy">
+                    <strong>ARUTALA</strong>
+                    <span>BNI • 1985322260</span>
+                  </div>
+                </div>
+              )}
+
+              {editingForm.flowType === 'income' ? (
+                <div className="maker-field maker-products-field">
+                  <span>Bahan Baku</span>
+                  <div className="maker-product-list">
+                    {(
+                      editingAccounts.find(
+                        (account) => account.accountId === editingForm.accountId
+                      )?.supplierProducts ?? []
+                    ).map((product) => {
+                      const selected =
+                        editingForm.selectedProducts.includes(product)
+
+                      return (
+                        <button
+                          key={product}
+                          type="button"
+                          className={`maker-product-chip${
+                            selected ? ' is-selected' : ''
+                          }`}
+                          onClick={() =>
+                            updateEditingForm(
+                              'selectedProducts',
+                              selected
+                                ? editingForm.selectedProducts.filter(
+                                    (item) => item !== product
+                                  )
+                                : [...editingForm.selectedProducts, product]
+                            )
+                          }
+                        >
+                          {selected ? <Check aria-hidden="true" /> : null}
+                          <span>{product}</span>
+                        </button>
+                      )
+                    })}
+                  </div>
+                </div>
+              ) : null}
+
+              <label className="maker-field">
+                <span>Nominal</span>
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  value={editingForm.amount}
+                  onChange={(event) =>
+                    updateEditingForm('amount', event.target.value)
+                  }
+                />
+              </label>
+
+              <div className="maker-form-actions">
+                <button
+                  type="button"
+                  className="app-action-button app-action-button--secondary"
+                  onClick={cancelEditingItem}
+                  disabled={editingSaving}
+                >
+                  <X aria-hidden="true" />
+                  <span>Batal</span>
+                </button>
+
+                <button
+                  type="button"
+                  className="app-action-button"
+                  onClick={() => void saveEditingItem()}
+                  disabled={editingSaving}
+                >
+                  <Check aria-hidden="true" />
+                  <span>
+                    {editingSaving ? 'Menyimpan...' : 'Simpan Perubahan'}
+                  </span>
+                </button>
+              </div>
+            </div>
+          )}
+        </section>
+      ) : null}
 
       <section className="maker-list-panel">
         <div className="maker-list-header">
@@ -1357,27 +1767,51 @@ export function DisbursementMakerPage() {
                     </span>
 
                     <div className="maker-table-actions" role="cell">
-                      {item.status !== 'REALIZED' ? (
+                      {item.status === 'REQUEST' ? (
                         <>
-                          {item.status === 'READY' ? (
-                            <button
-                              type="button"
-                              className="maker-item-button maker-item-button--success"
-                              onClick={() => void setProcessed(item)}
-                              title="Tandai sudah diproses"
-                            >
-                              <Check aria-hidden="true" />
-                            </button>
-                          ) : (
-                            <button
-                              type="button"
-                              className="maker-item-button maker-item-button--secondary"
-                              onClick={() => void setReady(item)}
-                              title="Kembalikan ke siap diproses"
-                            >
-                              <RefreshCw aria-hidden="true" />
-                            </button>
-                          )}
+                          <button
+                            type="button"
+                            className="maker-item-button maker-item-button--secondary"
+                            onClick={() => void startEditingItem(item)}
+                            title="Review dan edit request"
+                          >
+                            <Pencil aria-hidden="true" />
+                          </button>
+                          <button
+                            type="button"
+                            className="maker-item-button maker-item-button--success"
+                            onClick={() => void acceptRequest(item)}
+                            title="Terima request"
+                          >
+                            <Check aria-hidden="true" />
+                          </button>
+                          <button
+                            type="button"
+                            className="maker-item-button maker-item-button--danger"
+                            onClick={() => void deleteMaker(item)}
+                            title="Hapus request"
+                          >
+                            <Trash2 aria-hidden="true" />
+                          </button>
+                        </>
+                      ) : item.status === 'READY' ? (
+                        <>
+                          <button
+                            type="button"
+                            className="maker-item-button maker-item-button--secondary"
+                            onClick={() => void startEditingItem(item)}
+                            title="Edit sebelum diproses"
+                          >
+                            <Pencil aria-hidden="true" />
+                          </button>
+                          <button
+                            type="button"
+                            className="maker-item-button maker-item-button--success"
+                            onClick={() => void setProcessed(item)}
+                            title="Tandai sudah diproses"
+                          >
+                            <Check aria-hidden="true" />
+                          </button>
                           <button
                             type="button"
                             className="maker-item-button maker-item-button--danger"
@@ -1387,6 +1821,15 @@ export function DisbursementMakerPage() {
                             <Trash2 aria-hidden="true" />
                           </button>
                         </>
+                      ) : item.status === 'PROCESSED' ? (
+                        <button
+                          type="button"
+                          className="maker-item-button maker-item-button--secondary"
+                          onClick={() => void setReady(item)}
+                          title="Kembalikan ke siap diproses"
+                        >
+                          <RefreshCw aria-hidden="true" />
+                        </button>
                       ) : null}
                     </div>
                   </div>
@@ -1459,8 +1902,9 @@ export function DisbursementMakerPage() {
             <span className="maker-eyebrow">Realisasi</span>
             <h2>Masukkan pencairan ke transaksi</h2>
             <p>
-              Hanya item Maker database yang berstatus PROCESSED yang ikut
-              direalisasikan. Operasional lokal tidak ikut.
+              Request harus diterima menjadi READY lalu diproses menjadi
+              PROCESSED. Hanya item PROCESSED yang masuk ke transaksi.
+              Operasional lokal tidak ikut.
             </p>
           </div>
           <button
