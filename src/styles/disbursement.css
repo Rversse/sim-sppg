@@ -400,11 +400,7 @@
   font-size: 9px;
 }
 
-.disbursement-table tbody tr:hover {
-  background: var(--theme-surface-soft);
-}
-
-.disbursement-table tbody tr:hover td:first-child {
+.disbursement-table tbody tr:hover td {
   background: var(--theme-surface-soft);
 }
 
@@ -886,11 +882,7 @@
   color: var(--theme-text-secondary);
 }
 
-.disbursement-table tbody tr:hover {
-  background: var(--theme-surface-soft);
-}
-
-.disbursement-table tbody tr:hover td:first-child {
+.disbursement-table tbody tr:hover td {
   background: var(--theme-surface-soft);
 }
 

@@ -637,14 +637,11 @@
   gap: 12px;
   padding: 9px 3px;
   border-bottom: 1px solid var(--app-border-soft);
-  transition:
-    background-color var(--theme-motion-fast) ease,
-    transform var(--theme-motion-fast) var(--theme-ease);
+  transition: background-color var(--theme-motion-fast) ease;
 }
 
 .dashboard-status-row:hover {
   background: var(--theme-surface-soft);
-  transform: translateX(1px);
 }
 
 .dashboard-status-row:last-child {
@@ -732,14 +729,11 @@
   gap: 14px;
   padding: 10px 2px;
   border-bottom: 1px solid var(--app-border-soft);
-  transition:
-    background-color var(--theme-motion-fast) ease,
-    transform var(--theme-motion-fast) var(--theme-ease);
+  transition: background-color var(--theme-motion-fast) ease;
 }
 
 .dashboard-history-row:hover {
   background: var(--theme-primary-soft);
-  transform: translateX(1px);
 }
 
 .dashboard-history-row:last-child {

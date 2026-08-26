@@ -251,7 +251,7 @@
   transition:
     border-color 220ms ease,
     box-shadow 220ms ease,
-    transform 220ms var(--theme-ease);
+    background-color 220ms ease;
 }
 
 .vehicle-panel::before {
@@ -275,7 +275,8 @@
 }
 
 .vehicle-panel:hover {
-  transform: translateY(-1px);
+  border-color: var(--theme-border-strong);
+  box-shadow: var(--theme-shadow-hover);
 }
 
 .vehicle-panel:hover::before {
@@ -320,6 +321,14 @@
 
 .vehicle-table tbody tr:last-child td {
   border-bottom: 0;
+}
+
+.vehicle-table tbody tr {
+  transition: background-color var(--theme-motion-fast) ease;
+}
+
+.vehicle-table tbody tr:hover td {
+  background: var(--theme-surface-soft);
 }
 
 .vehicle-table tbody tr:hover td:first-child {

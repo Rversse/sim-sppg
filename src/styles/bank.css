@@ -1224,8 +1224,8 @@ section.bank-history-modal {
 }
 
 .bank-history-row:hover {
-  transform: translateY(-1px);
   border-color: var(--theme-border-strong);
+  background: var(--theme-surface-soft);
   box-shadow: 0 8px 20px rgb(15 23 42 / 0.07);
 }
 
