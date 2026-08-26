@@ -6,6 +6,7 @@ import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/features/auth/use-auth'
 import { useToast } from '@/features/ui/toast-context'
 import { AnimatedSelect } from '@/components/ui/animated-select'
+import { SingleDatePicker } from '@/components/ui/date-picker'
 import { getActiveKitchens } from '@/features/kitchen/kitchen-service'
 import {
   createVehicle,
@@ -584,31 +585,27 @@ export function VehiclePage() {
                   />
                 </div>
 
-                <div className="vehicle-field">
-                  <label htmlFor="vehicle-stnk">Masa Berlaku STNK</label>
-                  <input
-                    id="vehicle-stnk"
-                    type="date"
+                <div className="vehicle-field vehicle-date-field">
+                  <SingleDatePicker
+                    label="Masa Berlaku STNK"
                     value={form.stnk_expiry}
-                    onChange={(event) =>
+                    onChange={(value) =>
                       setForm((current) => ({
                         ...current,
-                        stnk_expiry: event.target.value
+                        stnk_expiry: value
                       }))
                     }
                   />
                 </div>
 
-                <div className="vehicle-field">
-                  <label htmlFor="vehicle-pkb">Jatuh Tempo PKB</label>
-                  <input
-                    id="vehicle-pkb"
-                    type="date"
+                <div className="vehicle-field vehicle-date-field">
+                  <SingleDatePicker
+                    label="Jatuh Tempo PKB"
                     value={form.pkb_expiry}
-                    onChange={(event) =>
+                    onChange={(value) =>
                       setForm((current) => ({
                         ...current,
-                        pkb_expiry: event.target.value
+                        pkb_expiry: value
                       }))
                     }
                   />

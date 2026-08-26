@@ -26,7 +26,7 @@ const permissions: Record<Permission, readonly UserRole[]> = {
   'kitchen.manage': ['admin'],
 
   'vehicle.view': ['admin', 'operator'],
-  'vehicle.manage': ['admin'],
+  'vehicle.manage': ['admin', 'operator'],
 
   'supplier.view': ['admin', 'operator'],
   'supplier.manage': ['admin'],

@@ -416,7 +416,11 @@
    ========================================================= */
 
 .vehicle-modal {
+  display: flex;
   width: min(650px, calc(100vw - 32px));
+  max-height: calc(100dvh - 32px);
+  flex-direction: column;
+  overflow: visible;
 }
 
 .vehicle-modal-head {
@@ -436,8 +440,12 @@
 
 .vehicle-modal-body {
   display: grid;
+  grid-template-rows: auto auto;
+  align-content: start;
+  min-height: 0;
   gap: 14px;
   padding: 18px;
+  overflow: visible;
 }
 
 .vehicle-grid {
@@ -449,6 +457,57 @@
 .vehicle-field {
   display: grid;
   gap: 6px;
+}
+
+.vehicle-date-field {
+  min-width: 0;
+}
+
+.vehicle-date-field .single-date-picker {
+  width: 100%;
+}
+
+.vehicle-date-field .single-date-picker__trigger {
+  width: 100%;
+  min-height: 40px;
+  height: 40px;
+  box-sizing: border-box;
+  padding: 15px 34px 7px 11px;
+  border-radius: 10px;
+  background: var(--theme-surface-raised);
+  color: var(--theme-text-primary);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.vehicle-date-field .single-date-picker__label {
+  top: 5px;
+  left: 11px;
+  max-width: calc(100% - 42px);
+  font-size: 8px;
+}
+
+.vehicle-date-field .single-date-picker__value {
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.vehicle-date-field .single-date-picker__icon {
+  width: 15px;
+  height: 15px;
+  flex: 0 0 15px;
+  margin-bottom: 0;
+}
+
+.vehicle-date-field .single-date-picker__caret {
+  right: 11px;
+  bottom: 8px;
+  width: 15px;
+  height: 15px;
+}
+
+.vehicle-date-field .single-date-picker__popover {
+  z-index: 100;
 }
 
 .vehicle-field.vehicle-full {
@@ -479,11 +538,15 @@
 
 .vehicle-actions {
   display: flex;
+  align-items: center;
   justify-content: flex-end;
   gap: 8px;
+  min-height: 40px;
 }
 
 .vehicle-actions .app-action-button {
+  min-height: 40px;
+  height: 40px;
   border-radius: var(--app-control-radius);
 }
 
@@ -492,6 +555,14 @@
    ========================================================= */
 
 @media (max-width: 700px) {
+  .vehicle-modal {
+    max-height: calc(100dvh - 24px);
+  }
+
+  .vehicle-modal-body {
+    padding: 14px;
+  }
+
   .vehicle-header {
     align-items: stretch;
     flex-direction: column;
