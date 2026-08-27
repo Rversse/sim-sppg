@@ -1,11 +1,13 @@
 import { supabase } from '@/lib/supabase'
 import type {
+  AccountantAssignmentHistoryRecord,
   AccountantFormInput,
   AccountantRecord
 } from './admin-accountants-types'
 
 type AdminAction =
   | 'list'
+  | 'history'
   | 'create'
   | 'update'
   | 'set_password'
@@ -33,21 +35,30 @@ async function invoke<T>(
 export function getAccountants() {
   return invoke<AccountantRecord[]>('list')
 }
+
+export function getAccountantHistory(userId: string) {
+  return invoke<AccountantAssignmentHistoryRecord[]>('history', { userId })
+}
+
 export function createAccountant(input: AccountantFormInput) {
   return invoke<AccountantRecord>('create', { input })
 }
+
 export function updateAccountant(
   userId: string,
   input: Omit<AccountantFormInput, 'password'>
 ) {
   return invoke<AccountantRecord>('update', { userId, input })
 }
+
 export async function setAccountantPassword(userId: string, password: string) {
   await invoke<null>('set_password', { userId, password })
 }
+
 export async function deactivateAccountant(userId: string) {
   await invoke<null>('deactivate', { userId })
 }
+
 export async function deleteAccountant(userId: string) {
   await invoke<null>('delete', { userId })
 }
