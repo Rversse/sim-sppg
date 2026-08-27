@@ -1,3 +1,21 @@
+export type AccountantAssignmentHistoryRecord = {
+  id: string
+  userId: string
+  kitchenId: string
+  kitchenName: string
+  accountantName: string
+  accountantEmail: string
+  operationalAccount: {
+    id: string | null
+    name: string | null
+    bank: string | null
+    accountNumber: string | null
+  } | null
+  assignedAt: string
+  endedAt: string | null
+  endReason: string | null
+}
+
 export type AccountantRecord = {
   id: string
   email: string
@@ -11,6 +29,8 @@ export type AccountantRecord = {
     bank: string
     accountNumber: string | null
   } | null
+  lastAssignment: AccountantAssignmentHistoryRecord | null
+  historyCount: number
   createdAt: string
   lastSignInAt: string | null
 }
