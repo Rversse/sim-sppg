@@ -1,0 +1,175 @@
+warning: in the working copy of 'src/app/AppLayout.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/app/lazy-pages.ts', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/app/router.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/components/ui/button.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/features/admin/admin-accountants-service.ts', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/features/admin/admin-accountants-types.ts', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/pages/AccountantManagementPage.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'supabase/functions/admin-accountants/index.ts', LF will be replaced by CRLF the next time Git touches it
+[1mdiff --git a/src/features/admin/admin-accountants-service.ts b/src/features/admin/admin-accountants-service.ts[m
+[1mindex c9fa2f5..9fbda28 100644[m
+[1m--- a/src/features/admin/admin-accountants-service.ts[m
+[1m+++ b/src/features/admin/admin-accountants-service.ts[m
+[36m@@ -5,13 +5,7 @@[m [mimport type {[m
+   AccountantRecord[m
+ } from './admin-accountants-types'[m
+ [m
+[31m-type AdminAction =[m
+[31m-  | 'list'[m
+[31m-  | 'create'[m
+[31m-  | 'update'[m
+[31m-  | 'set_password'[m
+[31m-  | 'deactivate'[m
+[31m-  | 'delete'[m
+[32m+[m[32mtype AdminAction = 'list' | 'create' | 'update' | 'set_password' | 'deactivate'[m
+ [m
+ type AdminResponse<T> = { data?: T; error?: string }[m
+ [m
+[36m@@ -151,7 +145,3 @@[m [mexport async function setAccountantPassword(userId: string, password: string) {[m
+ export async function deactivateAccountant(userId: string) {[m
+   await invoke<null>('deactivate', { userId })[m
+ }[m
+[31m-[m
+[31m-export async function deleteAccountant(userId: string) {[m
+[31m-  await invoke<null>('delete', { userId })[m
+[31m-}[m
+[1mdiff --git a/src/pages/AccountantManagementPage.tsx b/src/pages/AccountantManagementPage.tsx[m
+[1mindex 04ed557..862da5c 100644[m
+[1m--- a/src/pages/AccountantManagementPage.tsx[m
+[1m+++ b/src/pages/AccountantManagementPage.tsx[m
+[36m@@ -8,7 +8,6 @@[m [mimport {[m
+   Plus,[m
+   RefreshCw,[m
+   ShieldCheck,[m
+[31m-  Trash2,[m
+   UserCheck,[m
+   UserMinus,[m
+   UserPlus,[m
+[36m@@ -21,7 +20,6 @@[m [mimport { useToast } from '@/features/ui/toast-context'[m
+ import {[m
+   createAccountant,[m
+   deactivateAccountant,[m
+[31m-  deleteAccountant,[m
+   getAccountantHistory,[m
+   getAccountants,[m
+   setAccountantPassword,[m
+[36m@@ -103,8 +101,9 @@[m [mexport function AccountantManagementPage() {[m
+   const [replacementMode, setReplacementMode] = useState(false)[m
+   const [form, setForm] = useState<AccountantFormInput>(EMPTY_FORM)[m
+ [m
+[31m-  const [passwordUser, setPasswordUser] =[m
+[31m-    useState<AccountantRecord | null>(null)[m
+[32m+[m[32m  const [passwordUser, setPasswordUser] = useState<AccountantRecord | null>([m
+[32m+[m[32m    null[m
+[32m+[m[32m  )[m
+   const [password, setPassword] = useState('')[m
+   const [passwordConfirmation, setPasswordConfirmation] = useState('')[m
+   const [passwordVisible, setPasswordVisible] = useState(false)[m
+[36m@@ -112,8 +111,7 @@[m [mexport function AccountantManagementPage() {[m
+   const [createConfirmationVisible, setCreateConfirmationVisible] =[m
+     useState(false)[m
+ [m
+[31m-  const [historyUser, setHistoryUser] =[m
+[31m-    useState<AccountantRecord | null>(null)[m
+[32m+[m[32m  const [historyUser, setHistoryUser] = useState<AccountantRecord | null>(null)[m
+   const [historyRows, setHistoryRows] = useState<[m
+     AccountantAssignmentHistoryRecord[][m
+   >([])[m
+[36m@@ -190,6 +188,30 @@[m [mexport function AccountantManagementPage() {[m
+     [accountants, editing?.id][m
+   )[m
+ [m
+[32m+[m[32m  const replacementEligibleIds = useMemo(() => {[m
+[32m+[m[32m    const latestByKitchen = new Map<string, AccountantRecord>()[m
+[32m+[m
+[32m+[m[32m    for (const accountant of accountants) {[m
+[32m+[m[32m      if (accountant.active || !accountant.kitchenId) continue[m
+[32m+[m
+[32m+[m[32m      const currentLatest = latestByKitchen.get(accountant.kitchenId)[m
+[32m+[m[32m      const currentTime = currentLatest?.lastAssignment?.assignedAt[m
+[32m+[m[32m        ? new Date(currentLatest.lastAssignment.assignedAt).getTime()[m
+[32m+[m[32m        : -Infinity[m
+[32m+[m[32m      const accountantTime = accountant.lastAssignment?.assignedAt[m
+[32m+[m[32m        ? new Date(accountant.lastAssignment.assignedAt).getTime()[m
+[32m+[m[32m        : -Infinity[m
+[32m+[m
+[32m+[m[32m      if (!currentLatest || accountantTime > currentTime) {[m
+[32m+[m[32m        latestByKitchen.set(accountant.kitchenId, accountant)[m
+[32m+[m[32m      }[m
+[32m+[m[32m    }[m
+[32m+[m
+[32m+[m[32m    return new Set([m
+[32m+[m[32m      Array.from(latestByKitchen.values()).map((accountant) => accountant.id)[m
+[32m+[m[32m    )[m
+[32m+[m[32m  }, [accountants])[m
+[32m+[m
+   if (!canManage) {[m
+     return <div className="app-access-denied">Akses ditolak.</div>[m
+   }[m
+[36m@@ -232,18 +254,11 @@[m [mexport function AccountantManagementPage() {[m
+       password: '',[m
+       name: '',[m
+       kitchenId: accountant.kitchenId ?? '',[m
+[31m-      operationalAccountName:[m
+[31m-        accountant.operationalAccount?.name ??[m
+[31m-        accountant.lastAssignment?.operationalAccount?.name ??[m
+[31m-        '',[m
+[31m-      operationalBank:[m
+[31m-        accountant.operationalAccount?.bank ??[m
+[31m-        accountant.lastAssignment?.operationalAccount?.bank ??[m
+[31m-        '',[m
+[31m-      operationalAccountNumber:[m
+[31m-        accountant.operationalAccount?.accountNumber ??[m
+[31m-        accountant.lastAssignment?.operationalAccount?.accountNumber ??[m
+[31m-        ''[m
+[32m+[m[32m      // A replacement accountant must use a new operational account.[m
+[32m+[m[32m      // Keep the kitchen mapping, but never prefill/reuse the old account data.[m
+[32m+[m[32m      operationalAccountName: '',[m
+[32m+[m[32m      operationalBank: '',[m
+[32m+[m[32m      operationalAccountNumber: ''[m
+     })[m
+     setPasswordConfirmation('')[m
+     setCreatePasswordVisible(false)[m
+[36m@@ -334,7 +349,9 @@[m [mexport function AccountantManagementPage() {[m
+       } else {[m
+         await createAccountant(normalized)[m
+         success([m
+[31m-          replacementMode ? 'Akuntan pengganti ditambahkan' : 'Akuntan ditambahkan',[m
+[32m+[m[32m          replacementMode[m
+[32m+[m[32m            ? 'Akuntan pengganti ditambahkan'[m
+[32m+[m[32m            : 'Akuntan ditambahkan',[m
+           replacementMode[m
+             ? 'Akun baru sekarang menjadi akuntan aktif untuk dapur tersebut.'[m
+             : 'Akun akuntan berhasil dibuat.'[m
+[36m@@ -386,46 +403,11 @@[m [mexport function AccountantManagementPage() {[m
+     }[m
+   }[m
+ [m
+[31m-  async function hardDelete(accountant: AccountantRecord) {[m
+[31m-    if (saving) return[m
+[31m-[m
+[31m-    if (accountant.historyCount > 0) {[m
+[31m-      toastError([m
+[31m-        'Akun tidak dapat dihapus',[m
+[31m-        'Akun sudah memiliki riwayat assignment dan harus dipertahankan untuk audit.'[m
+[31m-      )[m
+[31m-      return[m
+[31m-    }[m
+[31m-[m
+[31m-    if ([m
+[31m-      !window.confirm([m
+[31m-        `Hapus permanen ${accountant.email}? Ini hanya boleh untuk akun tanpa histori.`[m
+[31m-      )[m
+[31m-    ) {[m
+[31m-      return[m
+[31m-    }[m
+[31m-[m
+[31m-    try {[m
+[31m-      await deleteAccountant(accountant.id)[m
+[31m-      success('Akuntan dihapus', 'Akun Auth berhasil dihapus.')[m
+[31m-      await load()[m
+[31m-    } catch (error) {[m
+[31m-      console.error(error)[m
+[31m-      toastError([m
+[31m-        'Akun tidak dapat dihapus',[m
+[31m-        error instance
