@@ -1,0 +1,50 @@
+.accountant-admin-kicker {
+  display: block;
+  margin-bottom: 5px;
+  color: var(--app-text-muted);
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.accountant-admin-page { width: 100%; }
+.accountant-admin-card { width: 100%; padding: 20px; border: 1px solid var(--app-border); border-radius: 16px; background: var(--app-white); box-shadow: var(--app-shadow-card); }
+.accountant-admin-header { display:flex; align-items:flex-start; justify-content:space-between; gap:18px; }
+.accountant-admin-header h2 { margin:0; font-size:22px; }
+.accountant-admin-header p { margin:7px 0 0; color:var(--app-text-muted); font-size:13px; line-height:1.5; }
+.accountant-admin-toolbar { display:grid; grid-template-columns:minmax(0,1fr) auto auto; align-items:center; gap:10px; margin-top:18px; }
+.accountant-admin-toolbar input { min-height:var(--app-control-height); padding:0 12px; border:1px solid var(--app-border-strong); border-radius:var(--app-control-radius); background:var(--app-white); color:var(--app-text); outline:none; }
+.accountant-admin-toolbar input:focus,.accountant-admin-form input:focus,.accountant-admin-form select:focus { border-color:var(--app-primary); box-shadow:var(--app-focus-ring); }
+.accountant-admin-toolbar > span { color:var(--app-text-muted); font-size:12px; font-weight:700; }
+.accountant-admin-table-wrap { margin-top:14px; overflow-x:auto; border:1px solid var(--app-border); border-radius:14px; }
+.accountant-admin-table { width:100%; min-width:860px; border-collapse:collapse; }
+.accountant-admin-table th,.accountant-admin-table td { padding:12px 14px; border-bottom:1px solid var(--app-border); text-align:left; vertical-align:middle; font-size:12px; }
+.accountant-admin-table th { background:var(--app-bg-soft); color:var(--app-text-muted); font-size:10px; font-weight:900; letter-spacing:.06em; text-transform:uppercase; }
+.accountant-admin-table tbody tr:last-child td { border-bottom:0; }
+.accountant-admin-table td > strong,.accountant-admin-table td > span { display:block; }
+.accountant-admin-table td > span { margin-top:3px; color:var(--app-text-muted); line-height:1.35; }
+.accountant-admin-badge { display:inline-flex!important; width:fit-content; margin-top:0!important; padding:4px 8px; border-radius:999px; font-size:10px!important; font-weight:900; }
+.accountant-admin-badge.is-active { background:var(--app-success-bg); color:var(--app-success); }
+.accountant-admin-badge.is-inactive { background:var(--app-bg-soft); color:var(--app-text-muted); }
+.accountant-admin-actions { display:flex; align-items:center; gap:6px; }
+.accountant-admin-modal-backdrop { position:fixed; inset:0; z-index:100; display:grid; place-items:center; padding:20px; background:var(--theme-overlay); }
+.accountant-admin-modal { width:min(100%,680px); max-height:min(90vh,760px); overflow:auto; border:1px solid var(--app-border); border-radius:var(--app-modal-radius); background:var(--app-white); box-shadow:var(--theme-shadow-modal); }
+.accountant-admin-modal--password { width:min(100%,500px); }
+.accountant-admin-modal > header { display:flex; align-items:flex-start; justify-content:space-between; gap:14px; padding:20px; border-bottom:1px solid var(--app-border); }
+.accountant-admin-modal h3 { margin:0; font-size:20px; }
+.accountant-admin-modal header p { margin:6px 0 0; color:var(--app-text-muted); font-size:12px; }
+.accountant-admin-form { display:grid; gap:13px; padding:20px; }
+.accountant-admin-form > label,.accountant-admin-form-section label { display:grid; gap:6px; }
+.accountant-admin-form > label > span,.accountant-admin-form-section label > span { color:var(--app-text-muted); font-size:11px; font-weight:800; }
+.accountant-admin-form input,.accountant-admin-form select { width:100%; min-height:42px; padding:0 12px; border:1px solid var(--app-border-strong); border-radius:var(--app-control-radius); background:var(--app-white); color:var(--app-text); outline:none; }
+.accountant-admin-form-section { display:grid; gap:10px; padding:14px; border:1px solid var(--app-border); border-radius:12px; background:var(--app-bg-soft); }
+.accountant-admin-form-section > div:first-child { display:grid; gap:3px; }
+.accountant-admin-form-section > div:first-child strong { font-size:13px; }
+.accountant-admin-form-section > div:first-child span { color:var(--app-text-muted); font-size:11px; line-height:1.4; }
+.accountant-admin-form-note { display:flex; align-items:flex-start; gap:8px; padding:10px 12px; border:1px solid var(--app-primary); border-radius:10px; background:var(--theme-primary-soft); color:var(--app-text-muted); font-size:11px; line-height:1.45; }
+.accountant-admin-form-note svg { width:15px; height:15px; flex:0 0 15px; color:var(--app-primary); }
+.accountant-admin-form footer { display:flex; justify-content:flex-end; gap:8px; margin-top:4px; }
+.accountant-admin-empty { padding:38px 20px; text-align:center; color:var(--app-text-muted); font-size:13px; }
+.accountant-admin-editing { border-color: var(--app-primary); box-shadow: 0 0 0 3px rgb(59 130 246 / 10%); }
+@media (max-width:760px){ .accountant-admin-header{flex-direction:column}.accountant-admin-toolbar{grid-template-columns:minmax(0,1fr) auto}.accountant-admin-toolbar>span{grid-column:1/-1}.accountant-admin-modal-backdrop{padding:10px}.accountant-admin-form footer{flex-direction:column-reverse}.accountant-admin-form footer .app-action-button{width:100%;} }

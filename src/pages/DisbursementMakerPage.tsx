@@ -574,15 +574,6 @@ export function DisbursementMakerPage() {
 
         if (status === 'SUBSCRIBED') {
           scheduleRealtimeRefresh()
-          return
-        }
-
-        if (
-          status === 'CHANNEL_ERROR' ||
-          status === 'TIMED_OUT' ||
-          status === 'CLOSED'
-        ) {
-          console.warn(`[Disbursement Maker Realtime] ${status}`)
         }
       })
 

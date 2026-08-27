@@ -6,6 +6,7 @@ import {
   Car,
   ChefHat,
   FileText,
+  KeyRound,
   LayoutDashboard,
   LogOut,
   Menu,
@@ -13,7 +14,6 @@ import {
   WandSparkles,
   type LucideIcon
 } from 'lucide-react'
-
 import { VehicleExpiryNotification } from '@/components/ui/VehicleExpiryNotification'
 import { supabase } from '@/lib/supabase'
 import { canAccess, type Permission } from '@/features/auth/role-policy'
@@ -27,12 +27,7 @@ type NavigationItem = {
   icon: LucideIcon
   pageTitle: string
 }
-
-type NavigationSection = {
-  label: string
-  items: NavigationItem[]
-}
-
+type NavigationSection = { label: string; items: NavigationItem[] }
 const navigationSections: NavigationSection[] = [
   {
     label: 'Utama',
@@ -109,11 +104,21 @@ const navigationSections: NavigationSection[] = [
         pageTitle: 'Laporan'
       }
     ]
+  },
+  {
+    label: 'Administrasi',
+    items: [
+      {
+        label: 'Manajemen Akuntan',
+        to: '/admin/accountants',
+        permission: 'accountant.manage',
+        icon: KeyRound,
+        pageTitle: 'Manajemen Akuntan'
+      }
+    ]
   }
 ]
-
 const SIDEBAR_STORAGE_KEY = 'sim-sppg.sidebar-collapsed'
-
 function getPageTitle(pathname: string) {
   return (
     navigationSections
@@ -121,7 +126,6 @@ function getPageTitle(pathname: string) {
       .find(({ to }) => pathname === to)?.pageTitle ?? 'SIM SPPG'
   )
 }
-
 function getRoleLabel(role: string | undefined) {
   switch (role) {
     case 'admin':
@@ -139,7 +143,6 @@ export function AppLayout() {
   const { user } = useAuth()
   const { success, error } = useToast()
   const { pathname } = useLocation()
-
   const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
     try {
       return window.localStorage.getItem(SIDEBAR_STORAGE_KEY) === '1'
@@ -147,7 +150,6 @@ export function AppLayout() {
       return false
     }
   })
-
   useEffect(() => {
     try {
       window.localStorage.setItem(
@@ -158,12 +160,10 @@ export function AppLayout() {
       // Sidebar persistence is optional.
     }
   }, [sidebarCollapsed])
-
   useEffect(() => {
     document.documentElement.dataset.theme = 'dark'
     document.documentElement.style.colorScheme = 'dark'
   }, [])
-
   const visibleSections = navigationSections
     .map((section) => ({
       ...section,
@@ -172,24 +172,16 @@ export function AppLayout() {
       )
     }))
     .filter((section) => section.items.length > 0)
-
   const visibleNavigation = visibleSections.flatMap((section) => section.items)
-
-  const pageTitle = getPageTitle(pathname)
-  const roleLabel = getRoleLabel(user?.role)
-
   async function handleLogout() {
     const { error: signOutError } = await supabase.auth.signOut()
-
     if (signOutError) {
       console.error('Logout gagal:', signOutError)
       error('Gagal keluar', signOutError.message)
       return
     }
-
     success('Berhasil keluar', 'Sesi Anda telah diakhiri.')
   }
-
   return (
     <div className={`app-shell${sidebarCollapsed ? ' sidebar-collapsed' : ''}`}>
       <aside className="app-sidebar">
@@ -197,11 +189,9 @@ export function AppLayout() {
           {visibleSections.map((section) => (
             <div className="app-nav-section" key={section.label}>
               <span className="app-nav-section-label">{section.label}</span>
-
               <div className="app-nav-section-items">
                 {section.items.map((item) => {
                   const Icon = item.icon
-
                   return (
                     <NavLink
                       key={item.to}
@@ -225,7 +215,6 @@ export function AppLayout() {
           ))}
         </nav>
       </aside>
-
       <div className="app-content">
         <header className="app-header">
           <div className="app-header-left">
@@ -242,18 +231,14 @@ export function AppLayout() {
             >
               <Menu aria-hidden="true" />
             </button>
-
             <div className="app-page-heading">
               <span className="app-header-kicker">SIM SPPG</span>
-              <h1 className="app-page-title">{pageTitle}</h1>
+              <h1 className="app-page-title">{getPageTitle(pathname)}</h1>
             </div>
           </div>
-
           <div className="app-user">
             <VehicleExpiryNotification />
-
-            <span className="app-user-role">{roleLabel}</span>
-
+            <span className="app-user-role">{getRoleLabel(user?.role)}</span>
             <button
               type="button"
               className="app-logout-button"
@@ -265,16 +250,13 @@ export function AppLayout() {
             </button>
           </div>
         </header>
-
         <main className="app-main">
           <Outlet />
         </main>
       </div>
-
       <nav className="app-mobile-nav" aria-label="Navigasi mobile">
         {visibleNavigation.map((item) => {
           const Icon = item.icon
-
           return (
             <NavLink
               key={item.to}

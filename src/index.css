@@ -1,24 +1,7 @@
 @import 'tailwindcss';
-
-/*
- * SIM SPPG stylesheet entrypoint.
- *
- * Core global UI foundation is consolidated into one stylesheet:
- * - theme tokens
- * - document/system baseline
- * - app shell + sidebar/header
- * - global responsive shell
- * - shared modal/button surfaces
- *
- * Shared date/select components and page styles remain separate because
- * they own component/page-specific geometry and behavior.
- */
-
 @import './styles/core.css';
-
 @import './styles/date-range-picker.css';
 @import './styles/date-picker.css';
-
 @import './styles/dashboard.css';
 @import './styles/reports.css';
 @import './styles/kitchen.css';
@@ -27,6 +10,7 @@
 @import './styles/bank.css';
 @import './styles/disbursement.css';
 @import './styles/disbursement-maker.css';
+@import './styles/accountant-admin.css';
 @import './styles/login.css';
 @import './styles/auth-notifications.css';
 @import './styles/toast.css';

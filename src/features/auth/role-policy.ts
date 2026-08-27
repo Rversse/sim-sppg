@@ -14,41 +14,28 @@ export type Permission =
   | 'disbursement.view'
   | 'reports.view'
   | 'disbursement-maker.view'
+  | 'accountant.manage'
 
 const permissions: Record<Permission, readonly UserRole[]> = {
-  // Dashboard
   'dashboard.view': ['admin', 'operator'],
   'dashboard.transaction.create': ['admin'],
   'disbursement-maker.view': ['admin'],
-
-  // Master Data
   'kitchen.view': ['admin', 'operator'],
   'kitchen.manage': ['admin'],
-
   'vehicle.view': ['admin', 'operator'],
   'vehicle.manage': ['admin', 'operator'],
-
   'supplier.view': ['admin', 'operator'],
   'supplier.manage': ['admin'],
-
-  // Transaksi Bank
   'bank.view': ['admin', 'operator', 'viewer'],
   'bank.transaction.create': ['admin', 'operator'],
-
-  // Pencairan
   'disbursement.view': ['admin'],
-
-  // Laporan
-  'reports.view': ['admin']
+  'reports.view': ['admin'],
+  'accountant.manage': ['admin']
 }
 
 export function canAccess(
   role: UserRole | null | undefined,
   permission: Permission
 ): boolean {
-  if (!role) {
-    return false
-  }
-
-  return permissions[permission].includes(role)
+  return Boolean(role && permissions[permission].includes(role))
 }

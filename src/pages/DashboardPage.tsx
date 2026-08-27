@@ -379,15 +379,7 @@ export function DashboardPage() {
           scheduleRealtimeRefresh()
         }
       )
-      .subscribe((status) => {
-        if (
-          status === 'CHANNEL_ERROR' ||
-          status === 'TIMED_OUT' ||
-          status === 'CLOSED'
-        ) {
-          console.warn(`[Dashboard Realtime] ${status}`)
-        }
-      })
+      .subscribe()
 
     return () => {
       cancelled = true

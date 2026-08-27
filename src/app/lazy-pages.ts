@@ -1,7 +1,6 @@
 import { lazy, type ComponentType, type LazyExoticComponent } from 'react'
 
 type PageModule<T extends ComponentType = ComponentType> = Record<string, T>
-
 function lazyNamed<T extends ComponentType>(
   loader: () => Promise<PageModule<T>>,
   exportName: string
@@ -9,11 +8,8 @@ function lazyNamed<T extends ComponentType>(
   return lazy(async () => {
     const module = await loader()
     const component = module[exportName]
-
-    if (!component) {
+    if (!component)
       throw new Error(`Page export "${exportName}" tidak ditemukan.`)
-    }
-
     return { default: component }
   })
 }
@@ -40,6 +36,10 @@ export const lazyPages = {
   DisbursementPage: lazyNamed(
     () => import('@/pages/DisbursementPage'),
     'DisbursementPage'
+  ),
+  AccountantManagementPage: lazyNamed(
+    () => import('@/pages/AccountantManagementPage'),
+    'AccountantManagementPage'
   ),
   DefaultRoute: lazyNamed(() => import('@/pages/DefaultRoute'), 'DefaultRoute')
 } as const
