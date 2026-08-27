@@ -28,13 +28,7 @@ type AccountantInput = {
   operationalAccountNumber?: string
 }
 
-type Action =
-  | 'list'
-  | 'create'
-  | 'update'
-  | 'set_password'
-  | 'deactivate'
-  | 'delete'
+type Action = 'list' | 'create' | 'update' | 'set_password' | 'deactivate'
 
 function json(body: Record<string, unknown>, status = 200) {
   return new Response(JSON.stringify(body), {
@@ -311,7 +305,7 @@ async function findOperationalAccount(bank: string, accountNumber: string) {
   return data
 }
 
-async function findOrCreateOperationalAccount(input: AccountantInput) {
+async function createNewOperationalAccount(input: AccountantInput) {
   const accountInput = ensureOperationalInput(input)
   const existing = await findOperationalAccount(
     accountInput.bank,
@@ -324,7 +318,10 @@ async function findOrCreateOperationalAccount(input: AccountantInput) {
         'Nomor rekening tersebut sudah digunakan oleh kategori akun lain.'
       )
     }
-    return { account: existing, created: false }
+
+    throw new Error(
+      'Rekening Biaya Operasional tersebut sudah terdaftar. Akuntan baru wajib menggunakan rekening yang belum pernah terdaftar.'
+    )
   }
 
   const { data, error } = await admin
@@ -413,27 +410,37 @@ async function createAccountant(input: AccountantInput) {
 
   await ensureKitchenFree(kitchenId)
 
-  const operational = await findOrCreateOperationalAccount(input)
+  // New accountants must receive a new operational account. An account that
+  // already exists is historical/master data and must never be silently reused.
+  const operational = await createNewOperationalAccount(input)
   await ensureOperationalAccountNotElsewhere(operational.account.id, kitchenId)
 
-  const { data, error } = await admin.auth.admin.createUser({
-    email,
-    password,
-    email_confirm: true,
-    user_metadata: { full_name: name, account_type: 'accountant' }
-  })
-
-  if (error) throw error
-  if (!data.user) throw new Error('User Auth gagal dibuat.')
+  let createdUserId: string | null = null
 
   try {
+    const { data, error } = await admin.auth.admin.createUser({
+      email,
+      password,
+      email_confirm: true,
+      user_metadata: { full_name: name, account_type: 'accountant' }
+    })
+
+    if (error) throw error
+    if (!data.user) throw new Error('User Auth gagal dibuat.')
+
+    createdUserId = data.user.id
+
     await setAssignment(data.user.id, kitchenId, operational.account.id)
     return getRecord(data.user.id)
   } catch (error) {
-    await admin.auth.admin.deleteUser(data.user.id)
+    if (createdUserId) {
+      await admin.auth.admin.deleteUser(createdUserId)
+    }
+
     if (operational.created) {
       await admin.from('accounts').delete().eq('id', operational.account.id)
     }
+
     throw error
   }
 }
@@ -534,7 +541,7 @@ async function updateAccountant(userId: string, input: AccountantInput) {
       targetAccountId = previousAccountId
     }
   } else {
-    const operational = await findOrCreateOperationalAccount(input)
+    const operational = await createNewOperationalAccount(input)
     targetAccountId = operational.account.id
     createdAccount = operational.created
   }
@@ -581,57 +588,6 @@ async function deactivateAccountant(userId: string) {
     .delete()
     .eq('user_id', userId)
 
-  if (error) throw error
-}
-
-async function assertNoHistory(userId: string) {
-  const checks = await Promise.all([
-    admin
-      .from('disbursement_maker_items')
-      .select('id', { count: 'exact', head: true })
-      .eq('created_by', userId),
-    admin
-      .from('disbursement_maker_items')
-      .select('id', { count: 'exact', head: true })
-      .eq('updated_by', userId),
-    admin
-      .from('transactions')
-      .select('id', { count: 'exact', head: true })
-      .eq('created_by', userId),
-    admin
-      .from('bank_transactions')
-      .select('id', { count: 'exact', head: true })
-      .eq('created_by', userId),
-    admin
-      .from('accountant_assignment_history')
-      .select('id', { count: 'exact', head: true })
-      .eq('user_id', userId)
-  ])
-
-  for (const check of checks as Array<{
-    error: unknown
-    count: number | null
-  }>) {
-    if (check.error) throw check.error
-  }
-
-  if (
-    checks.some(
-      (check: { error: unknown; count: number | null }) =>
-        (check.count ?? 0) > 0
-    )
-  ) {
-    throw new Error(
-      'Akun memiliki histori data. Gunakan Nonaktifkan agar histori tetap aman.'
-    )
-  }
-}
-
-async function deleteAccountant(userId: string) {
-  uuid(userId, 'User')
-  await assertNoHistory(userId)
-
-  const { error } = await admin.auth.admin.deleteUser(userId)
   if (error) throw error
 }
 
@@ -695,9 +651,6 @@ Deno.serve(async (request: Request) => {
         return json({ data: null })
       case 'deactivate':
         await deactivateAccountant(text(payload.userId, 'User'))
-        return json({ data: null })
-      case 'delete':
-        await deleteAccountant(text(payload.userId, 'User'))
         return json({ data: null })
       default:
         return json({ error: 'Action tidak valid.' }, 400)

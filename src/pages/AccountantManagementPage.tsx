@@ -8,7 +8,6 @@ import {
   Plus,
   RefreshCw,
   ShieldCheck,
-  Trash2,
   UserCheck,
   UserMinus,
   UserPlus,
@@ -21,7 +20,6 @@ import { useToast } from '@/features/ui/toast-context'
 import {
   createAccountant,
   deactivateAccountant,
-  deleteAccountant,
   getAccountantHistory,
   getAccountants,
   setAccountantPassword,
@@ -103,8 +101,9 @@ export function AccountantManagementPage() {
   const [replacementMode, setReplacementMode] = useState(false)
   const [form, setForm] = useState<AccountantFormInput>(EMPTY_FORM)
 
-  const [passwordUser, setPasswordUser] =
-    useState<AccountantRecord | null>(null)
+  const [passwordUser, setPasswordUser] = useState<AccountantRecord | null>(
+    null
+  )
   const [password, setPassword] = useState('')
   const [passwordConfirmation, setPasswordConfirmation] = useState('')
   const [passwordVisible, setPasswordVisible] = useState(false)
@@ -112,8 +111,7 @@ export function AccountantManagementPage() {
   const [createConfirmationVisible, setCreateConfirmationVisible] =
     useState(false)
 
-  const [historyUser, setHistoryUser] =
-    useState<AccountantRecord | null>(null)
+  const [historyUser, setHistoryUser] = useState<AccountantRecord | null>(null)
   const [historyRows, setHistoryRows] = useState<
     AccountantAssignmentHistoryRecord[]
   >([])
@@ -190,6 +188,30 @@ export function AccountantManagementPage() {
     [accountants, editing?.id]
   )
 
+  const replacementEligibleIds = useMemo(() => {
+    const latestByKitchen = new Map<string, AccountantRecord>()
+
+    for (const accountant of accountants) {
+      if (accountant.active || !accountant.kitchenId) continue
+
+      const currentLatest = latestByKitchen.get(accountant.kitchenId)
+      const currentTime = currentLatest?.lastAssignment?.assignedAt
+        ? new Date(currentLatest.lastAssignment.assignedAt).getTime()
+        : -Infinity
+      const accountantTime = accountant.lastAssignment?.assignedAt
+        ? new Date(accountant.lastAssignment.assignedAt).getTime()
+        : -Infinity
+
+      if (!currentLatest || accountantTime > currentTime) {
+        latestByKitchen.set(accountant.kitchenId, accountant)
+      }
+    }
+
+    return new Set(
+      Array.from(latestByKitchen.values()).map((accountant) => accountant.id)
+    )
+  }, [accountants])
+
   if (!canManage) {
     return <div className="app-access-denied">Akses ditolak.</div>
   }
@@ -232,18 +254,11 @@ export function AccountantManagementPage() {
       password: '',
       name: '',
       kitchenId: accountant.kitchenId ?? '',
-      operationalAccountName:
-        accountant.operationalAccount?.name ??
-        accountant.lastAssignment?.operationalAccount?.name ??
-        '',
-      operationalBank:
-        accountant.operationalAccount?.bank ??
-        accountant.lastAssignment?.operationalAccount?.bank ??
-        '',
-      operationalAccountNumber:
-        accountant.operationalAccount?.accountNumber ??
-        accountant.lastAssignment?.operationalAccount?.accountNumber ??
-        ''
+      // A replacement accountant must use a new operational account.
+      // Keep the kitchen mapping, but never prefill/reuse the old account data.
+      operationalAccountName: '',
+      operationalBank: '',
+      operationalAccountNumber: ''
     })
     setPasswordConfirmation('')
     setCreatePasswordVisible(false)
@@ -334,7 +349,9 @@ export function AccountantManagementPage() {
       } else {
         await createAccountant(normalized)
         success(
-          replacementMode ? 'Akuntan pengganti ditambahkan' : 'Akuntan ditambahkan',
+          replacementMode
+            ? 'Akuntan pengganti ditambahkan'
+            : 'Akuntan ditambahkan',
           replacementMode
             ? 'Akun baru sekarang menjadi akuntan aktif untuk dapur tersebut.'
             : 'Akun akuntan berhasil dibuat.'
@@ -386,46 +403,11 @@ export function AccountantManagementPage() {
     }
   }
 
-  async function hardDelete(accountant: AccountantRecord) {
-    if (saving) return
-
-    if (accountant.historyCount > 0) {
-      toastError(
-        'Akun tidak dapat dihapus',
-        'Akun sudah memiliki riwayat assignment dan harus dipertahankan untuk audit.'
-      )
-      return
-    }
-
-    if (
-      !window.confirm(
-        `Hapus permanen ${accountant.email}? Ini hanya boleh untuk akun tanpa histori.`
-      )
-    ) {
-      return
-    }
-
-    try {
-      await deleteAccountant(accountant.id)
-      success('Akuntan dihapus', 'Akun Auth berhasil dihapus.')
-      await load()
-    } catch (error) {
-      console.error(error)
-      toastError(
-        'Akun tidak dapat dihapus',
-        error instanceof Error ? error.message : 'Akun tidak dapat dihapus.'
-      )
-    }
-  }
-
   async function changePassword() {
     const nextPassword = password.trim()
 
     if (!passwordUser || nextPassword.length < 8) {
-      toastError(
-        'Password belum valid',
-        'Password baru minimal 8 karakter.'
-      )
+      toastError('Password belum valid', 'Password baru minimal 8 karakter.')
       return
     }
 
@@ -560,9 +542,7 @@ export function AccountantManagementPage() {
                       accountant.lastAssignment?.assignedAt ? (
                         <span>
                           Assignment terakhir:{' '}
-                          {formatDateTime(
-                            accountant.lastAssignment.assignedAt
-                          )}
+                          {formatDateTime(accountant.lastAssignment.assignedAt)}
                         </span>
                       ) : null}
                     </td>
@@ -625,7 +605,7 @@ export function AccountantManagementPage() {
                               <UserMinus aria-hidden="true" />
                             </button>
                           </>
-                        ) : (
+                        ) : replacementEligibleIds.has(accountant.id) ? (
                           <button
                             type="button"
                             className="app-action-button app-action-button--secondary"
@@ -635,7 +615,7 @@ export function AccountantManagementPage() {
                             <UserPlus aria-hidden="true" />
                             <span>Akuntan Baru</span>
                           </button>
-                        )}
+                        ) : null}
 
                         <button
                           type="button"
@@ -645,21 +625,6 @@ export function AccountantManagementPage() {
                           title="Riwayat"
                         >
                           <History aria-hidden="true" />
-                        </button>
-
-                        <button
-                          type="button"
-                          className="app-action-button app-action-button--danger app-action-button--icon"
-                          onClick={() => void hardDelete(accountant)}
-                          disabled={accountant.historyCount > 0}
-                          aria-label={`Hapus ${accountant.email}`}
-                          title={
-                            accountant.historyCount > 0
-                              ? 'Tidak dapat dihapus karena memiliki histori'
-                              : 'Hapus permanen'
-                          }
-                        >
-                          <Trash2 aria-hidden="true" />
                         </button>
                       </div>
                     </td>
@@ -696,8 +661,9 @@ export function AccountantManagementPage() {
                 </h3>
                 {replacementMode ? (
                   <p>
-                    Dapur dan rekening diambil dari assignment terakhir.
-                    Buat user baru dengan email dan password baru.
+                    Dapur mengikuti assignment terakhir. Rekening Biaya
+                    Operasional wajib menggunakan rekening baru. Buat user baru
+                    dengan email dan password baru.
                   </p>
                 ) : null}
               </div>
@@ -795,9 +761,7 @@ export function AccountantManagementPage() {
                     <span>Konfirmasi password</span>
                     <div className="accountant-admin-password-field">
                       <input
-                        type={
-                          createConfirmationVisible ? 'text' : 'password'
-                        }
+                        type={createConfirmationVisible ? 'text' : 'password'}
                         value={passwordConfirmation}
                         onChange={(event) =>
                           setPasswordConfirmation(event.target.value)
@@ -869,8 +833,9 @@ export function AccountantManagementPage() {
                 <div>
                   <strong>Rekening Biaya Operasional</strong>
                   <span>
-                    Rekening merupakan master rekening dapur, bukan milik
-                    personal akuntan.
+                    Rekening merupakan master rekening dapur. Saat mengganti
+                    akuntan, rekening lama tetap menjadi histori dan akun baru
+                    wajib memakai rekening yang belum pernah terdaftar.
                   </span>
                 </div>
 
@@ -1015,9 +980,7 @@ export function AccountantManagementPage() {
                   <button
                     type="button"
                     className="accountant-admin-password-toggle"
-                    onClick={() =>
-                      setPasswordVisible((current) => !current)
-                    }
+                    onClick={() => setPasswordVisible((current) => !current)}
                     aria-label={
                       passwordVisible
                         ? 'Sembunyikan password'
@@ -1112,9 +1075,7 @@ export function AccountantManagementPage() {
             <header>
               <div>
                 <span className="accountant-admin-kicker">AUDIT</span>
-                <h3 id="accountant-history-modal-title">
-                  Riwayat Akuntan
-                </h3>
+                <h3 id="accountant-history-modal-title">Riwayat Akuntan</h3>
                 <p>{historyUser.email}</p>
               </div>
               <button
@@ -1131,9 +1092,7 @@ export function AccountantManagementPage() {
 
             <div className="accountant-admin-history-content">
               {historyLoading ? (
-                <div className="accountant-admin-empty">
-                  Memuat riwayat...
-                </div>
+                <div className="accountant-admin-empty">Memuat riwayat...</div>
               ) : !historyRows.length ? (
                 <div className="accountant-admin-empty">
                   Belum ada riwayat assignment tersimpan untuk akun ini.

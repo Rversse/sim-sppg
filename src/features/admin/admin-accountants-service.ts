@@ -5,13 +5,7 @@ import type {
   AccountantRecord
 } from './admin-accountants-types'
 
-type AdminAction =
-  | 'list'
-  | 'create'
-  | 'update'
-  | 'set_password'
-  | 'deactivate'
-  | 'delete'
+type AdminAction = 'list' | 'create' | 'update' | 'set_password' | 'deactivate'
 
 type AdminResponse<T> = { data?: T; error?: string }
 
@@ -150,8 +144,4 @@ export async function setAccountantPassword(userId: string, password: string) {
 
 export async function deactivateAccountant(userId: string) {
   await invoke<null>('deactivate', { userId })
-}
-
-export async function deleteAccountant(userId: string) {
-  await invoke<null>('delete', { userId })
 }
