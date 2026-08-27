@@ -1,5 +1,8 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import {
+  Eye,
+  EyeOff,
+  History,
   KeyRound,
   Pencil,
   Plus,
@@ -8,6 +11,7 @@ import {
   Trash2,
   UserCheck,
   UserMinus,
+  UserPlus,
   X
 } from 'lucide-react'
 
@@ -18,11 +22,13 @@ import {
   createAccountant,
   deactivateAccountant,
   deleteAccountant,
+  getAccountantHistory,
   getAccountants,
   setAccountantPassword,
   updateAccountant
 } from '@/features/admin/admin-accountants-service'
 import type {
+  AccountantAssignmentHistoryRecord,
   AccountantFormInput,
   AccountantRecord
 } from '@/features/admin/admin-accountants-types'
@@ -39,6 +45,49 @@ const EMPTY_FORM: AccountantFormInput = {
   operationalAccountNumber: ''
 }
 
+function titleCaseName(value: string) {
+  const normalized = value.toLocaleLowerCase('id-ID')
+  return normalized
+    .split(/(\s+)/)
+    .map((part) =>
+      /^\s+$/.test(part)
+        ? part
+        : part.charAt(0).toLocaleUpperCase('id-ID') + part.slice(1)
+    )
+    .join('')
+}
+
+function sanitizeBank(value: string) {
+  return value
+    .toLocaleUpperCase('id-ID')
+    .replace(/[^A-Z\s]/g, '')
+    .replace(/\s+/g, ' ')
+}
+
+function sanitizeAccountNumber(value: string) {
+  return value.replace(/\D/g, '')
+}
+
+function formatDateTime(value: string | null) {
+  if (!value) return '-'
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) return '-'
+  return new Intl.DateTimeFormat('id-ID', {
+    dateStyle: 'medium',
+    timeStyle: 'short'
+  }).format(date)
+}
+
+function assignmentAccount(
+  assignment: AccountantAssignmentHistoryRecord | null
+) {
+  if (!assignment?.operationalAccount) return 'Tidak ada snapshot rekening'
+  const account = assignment.operationalAccount
+  return `${account.name ?? '-'} — ${account.bank ?? '-'} — ${
+    account.accountNumber ?? '-'
+  }`
+}
+
 export function AccountantManagementPage() {
   const { user } = useAuth()
   const { success, error: toastError } = useToast()
@@ -51,44 +100,31 @@ export function AccountantManagementPage() {
   const [search, setSearch] = useState('')
   const [editorOpen, setEditorOpen] = useState(false)
   const [editing, setEditing] = useState<AccountantRecord | null>(null)
+  const [replacementMode, setReplacementMode] = useState(false)
   const [form, setForm] = useState<AccountantFormInput>(EMPTY_FORM)
-  const [passwordUser, setPasswordUser] = useState<AccountantRecord | null>(
-    null
-  )
+
+  const [passwordUser, setPasswordUser] =
+    useState<AccountantRecord | null>(null)
   const [password, setPassword] = useState('')
   const [passwordConfirmation, setPasswordConfirmation] = useState('')
+  const [passwordVisible, setPasswordVisible] = useState(false)
+  const [createPasswordVisible, setCreatePasswordVisible] = useState(false)
+  const [createConfirmationVisible, setCreateConfirmationVisible] =
+    useState(false)
 
-  const load = useCallback(
-    async (showLoading = true) => {
-      if (showLoading) setLoading(true)
-      try {
-        const [accountantData, kitchenData] = await Promise.all([
-          getAccountants(),
-          getActiveKitchens()
-        ])
-        setAccountants(accountantData)
-        setKitchens(kitchenData)
-      } catch (error) {
-        console.error(error)
-        toastError(
-          'Gagal memuat manajemen akuntan',
-          error instanceof Error ? error.message : 'Data gagal dimuat.'
-        )
-      } finally {
-        if (showLoading) setLoading(false)
-      }
-    },
-    [toastError]
-  )
+  const [historyUser, setHistoryUser] =
+    useState<AccountantRecord | null>(null)
+  const [historyRows, setHistoryRows] = useState<
+    AccountantAssignmentHistoryRecord[]
+  >([])
+  const [historyLoading, setHistoryLoading] = useState(false)
 
   useEffect(() => {
-    if (!canManage) {
-      return
-    }
+    if (!canManage) return
 
     let cancelled = false
 
-    const loadInitialData = async () => {
+    async function loadInitialData() {
       try {
         const [accountantData, kitchenData] = await Promise.all([
           getAccountants(),
@@ -102,7 +138,6 @@ export function AccountantManagementPage() {
         setLoading(false)
       } catch (error) {
         if (cancelled) return
-
         console.error(error)
         toastError(
           'Gagal memuat manajemen akuntan',
@@ -122,6 +157,7 @@ export function AccountantManagementPage() {
   const filtered = useMemo(() => {
     const keyword = search.trim().toLowerCase()
     if (!keyword) return accountants
+
     return accountants.filter((accountant) =>
       [
         accountant.name,
@@ -129,7 +165,10 @@ export function AccountantManagementPage() {
         accountant.kitchenName,
         accountant.operationalAccount?.name,
         accountant.operationalAccount?.bank,
-        accountant.operationalAccount?.accountNumber
+        accountant.operationalAccount?.accountNumber,
+        accountant.lastAssignment?.accountantName,
+        accountant.lastAssignment?.accountantEmail,
+        accountant.lastAssignment?.kitchenName
       ]
         .filter(Boolean)
         .some((value) => String(value).toLowerCase().includes(keyword))
@@ -151,17 +190,72 @@ export function AccountantManagementPage() {
     [accountants, editing?.id]
   )
 
-  if (!canManage) return <div className="app-access-denied">Akses ditolak.</div>
+  if (!canManage) {
+    return <div className="app-access-denied">Akses ditolak.</div>
+  }
+
+  async function load(showLoading = false) {
+    if (showLoading) setLoading(true)
+    try {
+      const [accountantData, kitchenData] = await Promise.all([
+        getAccountants(),
+        getActiveKitchens()
+      ])
+      setAccountants(accountantData)
+      setKitchens(kitchenData)
+    } catch (error) {
+      console.error(error)
+      toastError(
+        'Gagal memuat manajemen akuntan',
+        error instanceof Error ? error.message : 'Data gagal dimuat.'
+      )
+    } finally {
+      if (showLoading) setLoading(false)
+    }
+  }
 
   function openCreate() {
     setEditing(null)
+    setReplacementMode(false)
     setForm({ ...EMPTY_FORM })
     setPasswordConfirmation('')
+    setCreatePasswordVisible(false)
+    setCreateConfirmationVisible(false)
+    setEditorOpen(true)
+  }
+
+  function openReplacement(accountant: AccountantRecord) {
+    setEditing(null)
+    setReplacementMode(true)
+    setForm({
+      email: '',
+      password: '',
+      name: '',
+      kitchenId: accountant.kitchenId ?? '',
+      operationalAccountName:
+        accountant.operationalAccount?.name ??
+        accountant.lastAssignment?.operationalAccount?.name ??
+        '',
+      operationalBank:
+        accountant.operationalAccount?.bank ??
+        accountant.lastAssignment?.operationalAccount?.bank ??
+        '',
+      operationalAccountNumber:
+        accountant.operationalAccount?.accountNumber ??
+        accountant.lastAssignment?.operationalAccount?.accountNumber ??
+        ''
+    })
+    setPasswordConfirmation('')
+    setCreatePasswordVisible(false)
+    setCreateConfirmationVisible(false)
     setEditorOpen(true)
   }
 
   function openEdit(accountant: AccountantRecord) {
+    if (!accountant.active) return
+
     setEditing(accountant)
+    setReplacementMode(false)
     setForm({
       email: accountant.email,
       name: accountant.name,
@@ -178,25 +272,32 @@ export function AccountantManagementPage() {
     if (saving) return
     setEditorOpen(false)
     setEditing(null)
+    setReplacementMode(false)
   }
 
   async function save() {
     if (saving) return
     setSaving(true)
+
     try {
       const normalized = {
         email: form.email.trim().toLowerCase(),
         password: form.password?.trim() ?? '',
-        name: form.name.trim(),
+        name: titleCaseName(form.name.trim()),
         kitchenId: form.kitchenId,
-        operationalAccountName: form.operationalAccountName.trim(),
-        operationalBank: form.operationalBank.trim().toUpperCase(),
-        operationalAccountNumber: form.operationalAccountNumber.trim()
+        operationalAccountName: titleCaseName(
+          form.operationalAccountName.trim()
+        ),
+        operationalBank: sanitizeBank(form.operationalBank).trim(),
+        operationalAccountNumber: sanitizeAccountNumber(
+          form.operationalAccountNumber
+        )
       }
 
       if (!normalized.email || !normalized.name || !normalized.kitchenId) {
         throw new Error('Nama, email, dan dapur wajib diisi.')
       }
+
       if (
         !normalized.operationalAccountName ||
         !normalized.operationalBank ||
@@ -204,9 +305,15 @@ export function AccountantManagementPage() {
       ) {
         throw new Error('Rekening Biaya Operasional wajib diisi.')
       }
+
       if (!editing && normalized.password.length < 8) {
         throw new Error('Password awal minimal 8 karakter.')
       }
+
+      if (!editing && normalized.password !== passwordConfirmation) {
+        throw new Error('Konfirmasi password tidak cocok.')
+      }
+
       if (assignedKitchenIds.has(normalized.kitchenId)) {
         throw new Error('Dapur tersebut sudah memiliki akuntan aktif.')
       }
@@ -220,14 +327,22 @@ export function AccountantManagementPage() {
           operationalBank: normalized.operationalBank,
           operationalAccountNumber: normalized.operationalAccountNumber
         })
-        success('Akuntan diperbarui', 'Data akuntan berhasil diperbarui.')
+        success(
+          'Akuntan diperbarui',
+          'Data akun dan mapping berhasil diperbarui.'
+        )
       } else {
         await createAccountant(normalized)
-        success('Akuntan ditambahkan', 'Akun akuntan berhasil dibuat.')
+        success(
+          replacementMode ? 'Akuntan pengganti ditambahkan' : 'Akuntan ditambahkan',
+          replacementMode
+            ? 'Akun baru sekarang menjadi akuntan aktif untuk dapur tersebut.'
+            : 'Akun akuntan berhasil dibuat.'
+        )
       }
 
       closeEditor()
-      await load(false)
+      await load()
     } catch (error) {
       console.error(error)
       toastError(
@@ -243,13 +358,13 @@ export function AccountantManagementPage() {
     if (saving) return
 
     if (!accountant.active) {
-      openEdit(accountant)
+      openReplacement(accountant)
       return
     }
 
     if (
       !window.confirm(
-        `Nonaktifkan ${accountant.email}? Assignment dapur akan dilepas dan akun tidak akan bisa memakai Portal Akuntan sampai ditugaskan kembali.`
+        `Nonaktifkan ${accountant.name}? Assignment ${accountant.kitchenName ?? ''} akan dilepas dan riwayat assignment akan disimpan.`
       )
     ) {
       return
@@ -257,22 +372,34 @@ export function AccountantManagementPage() {
 
     try {
       await deactivateAccountant(accountant.id)
-      success('Akuntan dinonaktifkan', 'Assignment dapur berhasil dilepas.')
-      await load(false)
+      success(
+        'Akuntan dinonaktifkan',
+        'Assignment dilepas dan riwayat akun disimpan.'
+      )
+      await load()
     } catch (error) {
       console.error(error)
       toastError(
         'Gagal menonaktifkan akuntan',
-        error instanceof Error ? error.message : 'Status akuntan gagal diubah.'
+        error instanceof Error ? error.message : 'Status akun gagal diubah.'
       )
     }
   }
 
   async function hardDelete(accountant: AccountantRecord) {
     if (saving) return
+
+    if (accountant.historyCount > 0) {
+      toastError(
+        'Akun tidak dapat dihapus',
+        'Akun sudah memiliki riwayat assignment dan harus dipertahankan untuk audit.'
+      )
+      return
+    }
+
     if (
       !window.confirm(
-        `Hapus permanen ${accountant.email}? Sistem hanya mengizinkan ini jika akun tidak memiliki histori.`
+        `Hapus permanen ${accountant.email}? Ini hanya boleh untuk akun tanpa histori.`
       )
     ) {
       return
@@ -281,7 +408,7 @@ export function AccountantManagementPage() {
     try {
       await deleteAccountant(accountant.id)
       success('Akuntan dihapus', 'Akun Auth berhasil dihapus.')
-      await load(false)
+      await load()
     } catch (error) {
       console.error(error)
       toastError(
@@ -293,7 +420,22 @@ export function AccountantManagementPage() {
 
   async function changePassword() {
     const nextPassword = password.trim()
-    if (!passwordUser || nextPassword.length < 8) return
+
+    if (!passwordUser || nextPassword.length < 8) {
+      toastError(
+        'Password belum valid',
+        'Password baru minimal 8 karakter.'
+      )
+      return
+    }
+
+    if (nextPassword !== passwordConfirmation) {
+      toastError(
+        'Password belum cocok',
+        'Konfirmasi password harus sama dengan password baru.'
+      )
+      return
+    }
 
     try {
       setSaving(true)
@@ -302,6 +444,7 @@ export function AccountantManagementPage() {
       setPassword('')
       setPasswordConfirmation('')
       setPasswordUser(null)
+      setPasswordVisible(false)
     } catch (error) {
       console.error(error)
       toastError(
@@ -311,6 +454,31 @@ export function AccountantManagementPage() {
     } finally {
       setSaving(false)
     }
+  }
+
+  async function openHistory(accountant: AccountantRecord) {
+    setHistoryUser(accountant)
+    setHistoryRows([])
+    setHistoryLoading(true)
+
+    try {
+      const rows = await getAccountantHistory(accountant.id)
+      setHistoryRows(rows)
+    } catch (error) {
+      console.error(error)
+      toastError(
+        'Gagal memuat riwayat',
+        error instanceof Error ? error.message : 'Riwayat gagal dimuat.'
+      )
+    } finally {
+      setHistoryLoading(false)
+    }
+  }
+
+  function closeHistory() {
+    if (historyLoading) return
+    setHistoryUser(null)
+    setHistoryRows([])
   }
 
   return (
@@ -345,7 +513,7 @@ export function AccountantManagementPage() {
           <button
             type="button"
             className="app-action-button app-action-button--secondary app-action-button--icon"
-            onClick={() => void load(false)}
+            onClick={() => void load()}
             aria-label="Refresh"
             title="Refresh"
           >
@@ -374,12 +542,30 @@ export function AccountantManagementPage() {
               </thead>
               <tbody>
                 {filtered.map((accountant) => (
-                  <tr key={accountant.id}>
+                  <tr
+                    key={accountant.id}
+                    className={
+                      accountant.active
+                        ? undefined
+                        : 'accountant-admin-row-inactive'
+                    }
+                  >
                     <td>
                       <strong>{accountant.name}</strong>
                       <span>{accountant.email}</span>
                     </td>
-                    <td>{accountant.kitchenName ?? 'Belum ditugaskan'}</td>
+                    <td>
+                      {accountant.kitchenName ?? 'Belum ditugaskan'}
+                      {!accountant.active &&
+                      accountant.lastAssignment?.assignedAt ? (
+                        <span>
+                          Assignment terakhir:{' '}
+                          {formatDateTime(
+                            accountant.lastAssignment.assignedAt
+                          )}
+                        </span>
+                      ) : null}
+                    </td>
                     <td>
                       {accountant.operationalAccount ? (
                         <>
@@ -404,55 +590,74 @@ export function AccountantManagementPage() {
                     </td>
                     <td>
                       <div className="accountant-admin-actions">
+                        {accountant.active ? (
+                          <>
+                            <button
+                              type="button"
+                              className="app-action-button app-action-button--secondary app-action-button--icon"
+                              onClick={() => openEdit(accountant)}
+                              aria-label={`Edit ${accountant.email}`}
+                              title="Edit"
+                            >
+                              <Pencil aria-hidden="true" />
+                            </button>
+                            <button
+                              type="button"
+                              className="app-action-button app-action-button--secondary app-action-button--icon"
+                              onClick={() => {
+                                setPasswordUser(accountant)
+                                setPassword('')
+                                setPasswordConfirmation('')
+                                setPasswordVisible(false)
+                              }}
+                              aria-label={`Ganti password ${accountant.email}`}
+                              title="Ganti password"
+                            >
+                              <KeyRound aria-hidden="true" />
+                            </button>
+                            <button
+                              type="button"
+                              className="app-action-button app-action-button--danger app-action-button--icon"
+                              onClick={() => void toggleActive(accountant)}
+                              aria-label={`Nonaktifkan ${accountant.email}`}
+                              title="Nonaktifkan"
+                            >
+                              <UserMinus aria-hidden="true" />
+                            </button>
+                          </>
+                        ) : (
+                          <button
+                            type="button"
+                            className="app-action-button app-action-button--secondary"
+                            onClick={() => openReplacement(accountant)}
+                            title="Tambah akuntan pengganti"
+                          >
+                            <UserPlus aria-hidden="true" />
+                            <span>Akuntan Baru</span>
+                          </button>
+                        )}
+
                         <button
                           type="button"
                           className="app-action-button app-action-button--secondary app-action-button--icon"
-                          onClick={() => openEdit(accountant)}
-                          aria-label={`Edit ${accountant.email}`}
-                          title="Edit"
+                          onClick={() => void openHistory(accountant)}
+                          aria-label={`Riwayat ${accountant.email}`}
+                          title="Riwayat"
                         >
-                          <Pencil aria-hidden="true" />
+                          <History aria-hidden="true" />
                         </button>
-                        <button
-                          type="button"
-                          className="app-action-button app-action-button--secondary app-action-button--icon"
-                          onClick={() => {
-                            setPasswordUser(accountant)
-                            setPassword('')
-                            setPasswordConfirmation('')
-                          }}
-                          aria-label={`Ganti password ${accountant.email}`}
-                          title="Ganti password"
-                        >
-                          <KeyRound aria-hidden="true" />
-                        </button>
-                        <button
-                          type="button"
-                          className={`app-action-button app-action-button--icon ${
-                            accountant.active
-                              ? 'app-action-button--danger'
-                              : 'app-action-button--secondary'
-                          }`}
-                          onClick={() => void toggleActive(accountant)}
-                          aria-label={
-                            accountant.active
-                              ? `Nonaktifkan ${accountant.email}`
-                              : `Aktifkan ${accountant.email}`
-                          }
-                          title={accountant.active ? 'Nonaktifkan' : 'Aktifkan'}
-                        >
-                          {accountant.active ? (
-                            <UserMinus aria-hidden="true" />
-                          ) : (
-                            <UserCheck aria-hidden="true" />
-                          )}
-                        </button>
+
                         <button
                           type="button"
                           className="app-action-button app-action-button--danger app-action-button--icon"
                           onClick={() => void hardDelete(accountant)}
+                          disabled={accountant.historyCount > 0}
                           aria-label={`Hapus ${accountant.email}`}
-                          title="Hapus permanen"
+                          title={
+                            accountant.historyCount > 0
+                              ? 'Tidak dapat dihapus karena memiliki histori'
+                              : 'Hapus permanen'
+                          }
                         >
                           <Trash2 aria-hidden="true" />
                         </button>
@@ -483,8 +688,18 @@ export function AccountantManagementPage() {
               <div>
                 <span className="accountant-admin-kicker">AKUN AKUNTAN</span>
                 <h3 id="accountant-admin-modal-title">
-                  {editing ? 'Edit Akuntan' : 'Tambah Akuntan'}
+                  {editing
+                    ? 'Edit Akuntan'
+                    : replacementMode
+                      ? 'Tambah Akuntan Pengganti'
+                      : 'Tambah Akuntan'}
                 </h3>
+                {replacementMode ? (
+                  <p>
+                    Dapur dan rekening diambil dari assignment terakhir.
+                    Buat user baru dengan email dan password baru.
+                  </p>
+                ) : null}
               </div>
               <button
                 type="button"
@@ -509,8 +724,15 @@ export function AccountantManagementPage() {
                       name: event.target.value
                     }))
                   }
+                  onBlur={(event) =>
+                    setForm((current) => ({
+                      ...current,
+                      name: titleCaseName(event.target.value)
+                    }))
+                  }
                 />
               </label>
+
               <label>
                 <span>Email</span>
                 <input
@@ -525,39 +747,97 @@ export function AccountantManagementPage() {
                   autoComplete="off"
                 />
               </label>
+
               {!editing ? (
                 <>
                   <label>
                     <span>Password awal</span>
-                    <input
-                      type="password"
-                      value={form.password ?? ''}
-                      onChange={(event) =>
-                        setForm((current) => ({
-                          ...current,
-                          password: event.target.value
-                        }))
-                      }
-                      autoComplete="new-password"
-                    />
+                    <div className="accountant-admin-password-field">
+                      <input
+                        type={createPasswordVisible ? 'text' : 'password'}
+                        value={form.password ?? ''}
+                        onChange={(event) =>
+                          setForm((current) => ({
+                            ...current,
+                            password: event.target.value
+                          }))
+                        }
+                        autoComplete="new-password"
+                        placeholder="Minimal 8 karakter"
+                      />
+                      <button
+                        type="button"
+                        className="accountant-admin-password-toggle"
+                        onClick={() =>
+                          setCreatePasswordVisible((current) => !current)
+                        }
+                        aria-label={
+                          createPasswordVisible
+                            ? 'Sembunyikan password'
+                            : 'Tampilkan password'
+                        }
+                        title={
+                          createPasswordVisible
+                            ? 'Sembunyikan password'
+                            : 'Tampilkan password'
+                        }
+                      >
+                        {createPasswordVisible ? (
+                          <EyeOff aria-hidden="true" />
+                        ) : (
+                          <Eye aria-hidden="true" />
+                        )}
+                      </button>
+                    </div>
                   </label>
+
                   <label>
                     <span>Konfirmasi password</span>
-                    <input
-                      type="password"
-                      value={passwordConfirmation}
-                      onChange={(event) =>
-                        setPasswordConfirmation(event.target.value)
-                      }
-                      autoComplete="new-password"
-                    />
+                    <div className="accountant-admin-password-field">
+                      <input
+                        type={
+                          createConfirmationVisible ? 'text' : 'password'
+                        }
+                        value={passwordConfirmation}
+                        onChange={(event) =>
+                          setPasswordConfirmation(event.target.value)
+                        }
+                        autoComplete="new-password"
+                        placeholder="Ulangi password"
+                      />
+                      <button
+                        type="button"
+                        className="accountant-admin-password-toggle"
+                        onClick={() =>
+                          setCreateConfirmationVisible((current) => !current)
+                        }
+                        aria-label={
+                          createConfirmationVisible
+                            ? 'Sembunyikan konfirmasi password'
+                            : 'Tampilkan konfirmasi password'
+                        }
+                        title={
+                          createConfirmationVisible
+                            ? 'Sembunyikan konfirmasi password'
+                            : 'Tampilkan konfirmasi password'
+                        }
+                      >
+                        {createConfirmationVisible ? (
+                          <EyeOff aria-hidden="true" />
+                        ) : (
+                          <Eye aria-hidden="true" />
+                        )}
+                      </button>
+                    </div>
                   </label>
                 </>
               ) : null}
+
               <label>
                 <span>Dapur</span>
                 <select
                   value={form.kitchenId}
+                  disabled={replacementMode}
                   onChange={(event) =>
                     setForm((current) => ({
                       ...current,
@@ -570,10 +850,14 @@ export function AccountantManagementPage() {
                     <option
                       key={kitchen.id}
                       value={kitchen.id}
-                      disabled={assignedKitchenIds.has(kitchen.id)}
+                      disabled={
+                        assignedKitchenIds.has(kitchen.id) &&
+                        kitchen.id !== form.kitchenId
+                      }
                     >
                       {kitchen.name}
-                      {assignedKitchenIds.has(kitchen.id)
+                      {assignedKitchenIds.has(kitchen.id) &&
+                      kitchen.id !== form.kitchenId
                         ? ' — sudah memiliki akuntan'
                         : ''}
                     </option>
@@ -585,9 +869,11 @@ export function AccountantManagementPage() {
                 <div>
                   <strong>Rekening Biaya Operasional</strong>
                   <span>
-                    Satu rekening operasional aktif untuk setiap dapur.
+                    Rekening merupakan master rekening dapur, bukan milik
+                    personal akuntan.
                   </span>
                 </div>
+
                 <label>
                   <span>Nama Pemilik</span>
                   <input
@@ -598,8 +884,17 @@ export function AccountantManagementPage() {
                         operationalAccountName: event.target.value
                       }))
                     }
+                    onBlur={(event) =>
+                      setForm((current) => ({
+                        ...current,
+                        operationalAccountName: titleCaseName(
+                          event.target.value
+                        )
+                      }))
+                    }
                   />
                 </label>
+
                 <label>
                   <span>Bank</span>
                   <input
@@ -607,11 +902,14 @@ export function AccountantManagementPage() {
                     onChange={(event) =>
                       setForm((current) => ({
                         ...current,
-                        operationalBank: event.target.value
+                        operationalBank: sanitizeBank(event.target.value)
                       }))
                     }
+                    inputMode="text"
+                    autoComplete="off"
                   />
                 </label>
+
                 <label>
                   <span>Nomor Rekening</span>
                   <input
@@ -620,7 +918,9 @@ export function AccountantManagementPage() {
                     onChange={(event) =>
                       setForm((current) => ({
                         ...current,
-                        operationalAccountNumber: event.target.value
+                        operationalAccountNumber: sanitizeAccountNumber(
+                          event.target.value
+                        )
                       }))
                     }
                   />
@@ -630,8 +930,8 @@ export function AccountantManagementPage() {
               <div className="accountant-admin-form-note">
                 <ShieldCheck aria-hidden="true" />
                 <span>
-                  Password tetap dikelola Supabase Auth dan tidak disimpan di
-                  database aplikasi.
+                  Password dikelola Supabase Auth dan tidak disimpan di tabel
+                  aplikasi.
                 </span>
               </div>
 
@@ -704,21 +1004,63 @@ export function AccountantManagementPage() {
             <div className="accountant-admin-form">
               <label>
                 <span>Password baru</span>
-                <input
-                  type="password"
-                  value={password}
-                  onChange={(event) => setPassword(event.target.value)}
-                  autoComplete="new-password"
-                  placeholder="Minimal 8 karakter"
-                />
+                <div className="accountant-admin-password-field">
+                  <input
+                    type={passwordVisible ? 'text' : 'password'}
+                    value={password}
+                    onChange={(event) => setPassword(event.target.value)}
+                    autoComplete="new-password"
+                    placeholder="Minimal 8 karakter"
+                  />
+                  <button
+                    type="button"
+                    className="accountant-admin-password-toggle"
+                    onClick={() =>
+                      setPasswordVisible((current) => !current)
+                    }
+                    aria-label={
+                      passwordVisible
+                        ? 'Sembunyikan password'
+                        : 'Tampilkan password'
+                    }
+                    title={
+                      passwordVisible
+                        ? 'Sembunyikan password'
+                        : 'Tampilkan password'
+                    }
+                  >
+                    {passwordVisible ? (
+                      <EyeOff aria-hidden="true" />
+                    ) : (
+                      <Eye aria-hidden="true" />
+                    )}
+                  </button>
+                </div>
               </label>
+
+              <label>
+                <span>Konfirmasi password</span>
+                <div className="accountant-admin-password-field">
+                  <input
+                    type={passwordVisible ? 'text' : 'password'}
+                    value={passwordConfirmation}
+                    onChange={(event) =>
+                      setPasswordConfirmation(event.target.value)
+                    }
+                    autoComplete="new-password"
+                    placeholder="Ulangi password"
+                  />
+                </div>
+              </label>
+
               <div className="accountant-admin-form-note">
                 <KeyRound aria-hidden="true" />
                 <span>
-                  Admin tidak dapat melihat password lama. Password baru
-                  langsung diterapkan ke akun tersebut.
+                  Admin tidak dapat melihat password lama. Password baru hanya
+                  diterapkan ke akun yang dipilih.
                 </span>
               </div>
+
               <footer>
                 <button
                   type="button"
@@ -727,6 +1069,7 @@ export function AccountantManagementPage() {
                     if (!saving) {
                       setPasswordUser(null)
                       setPassword('')
+                      setPasswordConfirmation('')
                     }
                   }}
                   disabled={saving}
@@ -748,6 +1091,90 @@ export function AccountantManagementPage() {
                   <span>{saving ? 'Menyimpan...' : 'Ganti Password'}</span>
                 </button>
               </footer>
+            </div>
+          </section>
+        </div>
+      ) : null}
+
+      {historyUser ? (
+        <div
+          className="accountant-admin-modal-backdrop"
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget) closeHistory()
+          }}
+        >
+          <section
+            className="accountant-admin-modal accountant-admin-modal--history"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="accountant-history-modal-title"
+          >
+            <header>
+              <div>
+                <span className="accountant-admin-kicker">AUDIT</span>
+                <h3 id="accountant-history-modal-title">
+                  Riwayat Akuntan
+                </h3>
+                <p>{historyUser.email}</p>
+              </div>
+              <button
+                type="button"
+                className="app-action-button app-action-button--secondary app-action-button--icon"
+                onClick={closeHistory}
+                disabled={historyLoading}
+                aria-label="Tutup"
+                title="Tutup"
+              >
+                <X aria-hidden="true" />
+              </button>
+            </header>
+
+            <div className="accountant-admin-history-content">
+              {historyLoading ? (
+                <div className="accountant-admin-empty">
+                  Memuat riwayat...
+                </div>
+              ) : !historyRows.length ? (
+                <div className="accountant-admin-empty">
+                  Belum ada riwayat assignment tersimpan untuk akun ini.
+                </div>
+              ) : (
+                <div className="accountant-admin-history-list">
+                  {historyRows.map((row) => (
+                    <article
+                      className="accountant-admin-history-item"
+                      key={row.id}
+                    >
+                      <div className="accountant-admin-history-item-header">
+                        <div>
+                          <strong>{row.accountantName}</strong>
+                          <span>{row.accountantEmail}</span>
+                        </div>
+                        <span className="accountant-admin-badge is-inactive">
+                          {row.endReason ?? 'Selesai'}
+                        </span>
+                      </div>
+                      <dl>
+                        <div>
+                          <dt>Dapur</dt>
+                          <dd>{row.kitchenName}</dd>
+                        </div>
+                        <div>
+                          <dt>Periode</dt>
+                          <dd>
+                            {formatDateTime(row.assignedAt)} —{' '}
+                            {formatDateTime(row.endedAt)}
+                          </dd>
+                        </div>
+                        <div>
+                          <dt>Rekening</dt>
+                          <dd>{assignmentAccount(row)}</dd>
+                        </div>
+                      </dl>
+                    </article>
+                  ))}
+                </div>
+              )}
             </div>
           </section>
         </div>

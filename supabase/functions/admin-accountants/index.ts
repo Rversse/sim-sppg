@@ -3,6 +3,7 @@ import { createClient } from 'supabase'
 
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL')
 const SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
+
 if (!SUPABASE_URL || !SERVICE_ROLE_KEY)
   throw new Error('Missing required server configuration.')
 
@@ -60,11 +61,37 @@ function uuid(value: unknown, label: string) {
   return valueText
 }
 
+function normalizeName(value: unknown, label: string) {
+  return text(value, label)
+    .toLocaleLowerCase('id-ID')
+    .split(/\s+/)
+    .filter(Boolean)
+    .map((part) => part.charAt(0).toLocaleUpperCase('id-ID') + part.slice(1))
+    .join(' ')
+}
+
+function normalizeBank(value: unknown) {
+  const normalized = text(value, 'Bank')
+    .toLocaleUpperCase('id-ID')
+    .replace(/[^A-Z\s]/g, '')
+    .replace(/\s+/g, ' ')
+    .trim()
+
+  if (!normalized) throw new Error('Bank hanya boleh berisi huruf.')
+  return normalized
+}
+
+function normalizeAccountNumber(value: unknown) {
+  const normalized = text(value, 'Nomor rekening').replace(/\D/g, '')
+  if (!normalized) throw new Error('Nomor rekening harus berisi angka.')
+  return normalized
+}
+
 async function getAdminUser(request: Request) {
   const authorization = request.headers.get('Authorization')
   if (!authorization?.startsWith('Bearer ')) throw new Error('Unauthorized')
-  const token = authorization.slice(7)
-  const { data, error } = await admin.auth.getUser(token)
+
+  const { data, error } = await admin.auth.getUser(authorization.slice(7))
   if (error || !data.user) throw new Error('Unauthorized')
 
   const { data: profile, error: profileError } = await admin
@@ -72,14 +99,17 @@ async function getAdminUser(request: Request) {
     .select('role')
     .eq('id', data.user.id)
     .maybeSingle()
+
   if (profileError) throw profileError
   if (profile?.role !== 'admin') throw new Error('Akses admin diperlukan.')
+
   return data.user
 }
 
 async function getRecord(userId: string) {
   const { data: authData, error: authError } =
     await admin.auth.admin.getUserById(userId)
+
   if (authError || !authData.user) throw new Error('Akun tidak ditemukan.')
 
   const { data: assignment, error: assignmentError } = await admin
@@ -87,6 +117,7 @@ async function getRecord(userId: string) {
     .select('user_id,kitchen_id,created_at,kitchens(id,name)')
     .eq('user_id', userId)
     .maybeSingle()
+
   if (assignmentError) throw assignmentError
 
   let operationalAccount: {
@@ -95,6 +126,7 @@ async function getRecord(userId: string) {
     bank: string
     accountNumber: string | null
   } | null = null
+
   if (assignment?.kitchen_id) {
     const { data: rule, error: ruleError } = await admin
       .from('kitchen_account_rules')
@@ -104,10 +136,13 @@ async function getRecord(userId: string) {
       .eq('kitchen_id', assignment.kitchen_id)
       .eq('flow_type', 'operational')
       .maybeSingle()
+
     if (ruleError) throw ruleError
+
     const account = Array.isArray(rule?.accounts)
       ? rule.accounts[0]
       : rule?.accounts
+
     if (account) {
       operationalAccount = {
         id: account.id,
@@ -123,18 +158,72 @@ async function getRecord(userId: string) {
     typeof metadataName === 'string' && metadataName.trim()
       ? metadataName.trim()
       : (authData.user.email?.split('@')[0] ?? 'Akuntan')
+
   const kitchen = Array.isArray(assignment?.kitchens)
     ? assignment.kitchens[0]
     : assignment?.kitchens
+
+  const { data: history, error: historyError } = await admin
+    .from('accountant_assignment_history')
+    .select(
+      'id,user_id,kitchen_id,kitchen_name,accountant_name,accountant_email,operational_account_id,operational_account_name,operational_bank,operational_account_number,assigned_at,ended_at,end_reason'
+    )
+    .eq('user_id', userId)
+    .order('assigned_at', { ascending: false })
+
+  if (historyError) throw historyError
+
+  const latest = history?.[0]
+  const active = Boolean(assignment?.kitchen_id)
 
   return {
     id: authData.user.id,
     email: authData.user.email ?? '',
     name,
-    kitchenId: assignment?.kitchen_id ?? null,
-    kitchenName: kitchen?.name ?? null,
-    active: Boolean(assignment?.kitchen_id),
-    operationalAccount,
+    kitchenId: assignment?.kitchen_id ?? latest?.kitchen_id ?? null,
+    kitchenName: kitchen?.name ?? latest?.kitchen_name ?? null,
+    active,
+    operationalAccount:
+      operationalAccount ??
+      (latest?.operational_account_id ||
+      latest?.operational_account_name ||
+      latest?.operational_bank ||
+      latest?.operational_account_number
+        ? {
+            id: latest.operational_account_id ?? '',
+            name: latest.operational_account_name ?? '',
+            bank: latest.operational_bank ?? '',
+            accountNumber: latest.operational_account_number
+          }
+        : null),
+    lastAssignment: active
+      ? null
+      : latest
+        ? {
+            id: latest.id,
+            userId: latest.user_id,
+            kitchenId: latest.kitchen_id,
+            kitchenName: latest.kitchen_name,
+            accountantName: latest.accountant_name,
+            accountantEmail: latest.accountant_email,
+            operationalAccount:
+              latest.operational_account_id ||
+              latest.operational_account_name ||
+              latest.operational_bank ||
+              latest.operational_account_number
+                ? {
+                    id: latest.operational_account_id,
+                    name: latest.operational_account_name,
+                    bank: latest.operational_bank,
+                    accountNumber: latest.operational_account_number
+                  }
+                : null,
+            assignedAt: latest.assigned_at,
+            endedAt: latest.ended_at,
+            endReason: latest.end_reason
+          }
+        : null,
+    historyCount: history?.length ?? 0,
     createdAt: authData.user.created_at,
     lastSignInAt: authData.user.last_sign_in_at ?? null
   }
@@ -144,33 +233,42 @@ async function listAccountants(currentAdminId: string) {
   const { data: assignments, error: assignmentError } = await admin
     .from('accountant_profiles')
     .select('user_id')
+
   if (assignmentError) throw assignmentError
 
   const assigned = new Set(
     (assignments ?? []).map((row: { user_id: string }) => row.user_id)
   )
+
+  const { data, error } = await admin.auth.admin.listUsers({
+    page: 1,
+    perPage: 1000
+  })
+
+  if (error) throw error
+
   const records: Awaited<ReturnType<typeof getRecord>>[] = []
 
-  for (const [page, perPage] of [[1, 1000] as const]) {
-    const { data, error } = await admin.auth.admin.listUsers({ page, perPage })
-    if (error) throw error
+  for (const user of data.users) {
+    if (user.id === currentAdminId || !user.email) continue
 
-    for (const user of data.users) {
-      if (user.id === currentAdminId || !user.email) continue
-      const { data: profile, error: profileError } = await admin
-        .from('profiles')
-        .select('role')
-        .eq('id', user.id)
-        .maybeSingle()
-      if (profileError) throw profileError
-      if (profile?.role) continue
-      if (
-        !assigned.has(user.id) &&
-        user.user_metadata?.account_type !== 'accountant'
-      )
-        continue
-      records.push(await getRecord(user.id))
+    const { data: profile, error: profileError } = await admin
+      .from('profiles')
+      .select('role')
+      .eq('id', user.id)
+      .maybeSingle()
+
+    if (profileError) throw profileError
+    if (profile?.role) continue
+
+    if (
+      !assigned.has(user.id) &&
+      user.user_metadata?.account_type !== 'accountant'
+    ) {
+      continue
     }
+
+    records.push(await getRecord(user.id))
   }
 
   return records.sort((a, b) =>
@@ -184,6 +282,7 @@ async function ensureKitchenFree(kitchenId: string, exceptUserId?: string) {
     .select('user_id')
     .eq('kitchen_id', kitchenId)
     .maybeSingle()
+
   if (error) throw error
   if (data && data.user_id !== exceptUserId)
     throw new Error('Dapur tersebut sudah memiliki akuntan aktif.')
@@ -191,21 +290,34 @@ async function ensureKitchenFree(kitchenId: string, exceptUserId?: string) {
 
 function ensureOperationalInput(input: AccountantInput) {
   return {
-    name: text(input.operationalAccountName, 'Nama rekening operasional'),
-    bank: text(input.operationalBank, 'Bank').toUpperCase(),
-    accountNumber: text(input.operationalAccountNumber, 'Nomor rekening')
+    name: normalizeName(
+      input.operationalAccountName,
+      'Nama rekening operasional'
+    ),
+    bank: normalizeBank(input.operationalBank),
+    accountNumber: normalizeAccountNumber(input.operationalAccountNumber)
   }
 }
 
-async function findOrCreateOperationalAccount(input: AccountantInput) {
-  const accountInput = await ensureOperationalInput(input)
-  const { data: existing, error: lookupError } = await admin
+async function findOperationalAccount(bank: string, accountNumber: string) {
+  const { data, error } = await admin
     .from('accounts')
     .select('id,name,bank,account_number,account_category')
-    .eq('bank', accountInput.bank)
-    .eq('account_number', accountInput.accountNumber)
+    .eq('bank', bank)
+    .eq('account_number', accountNumber)
     .maybeSingle()
-  if (lookupError) throw lookupError
+
+  if (error) throw error
+  return data
+}
+
+async function findOrCreateOperationalAccount(input: AccountantInput) {
+  const accountInput = ensureOperationalInput(input)
+  const existing = await findOperationalAccount(
+    accountInput.bank,
+    accountInput.accountNumber
+  )
+
   if (existing) {
     if (existing.account_category !== 'operational') {
       throw new Error(
@@ -230,6 +342,7 @@ async function findOrCreateOperationalAccount(input: AccountantInput) {
     })
     .select('id,name,bank,account_number,account_category')
     .single()
+
   if (error) throw error
   return { account: data, created: true }
 }
@@ -245,11 +358,13 @@ async function ensureOperationalAccountNotElsewhere(
     .eq('account_id', accountId)
     .neq('kitchen_id', kitchenId)
     .maybeSingle()
+
   if (error) throw error
-  if (data)
+  if (data) {
     throw new Error(
       'Rekening Biaya Operasional tersebut sudah dipakai dapur lain.'
     )
+  }
 }
 
 async function setAssignment(
@@ -266,6 +381,7 @@ async function setAssignment(
       { user_id: userId, kitchen_id: kitchenId },
       { onConflict: 'user_id' }
     )
+
   if (profileError) throw profileError
 
   const { error: deleteError } = await admin
@@ -273,6 +389,7 @@ async function setAssignment(
     .delete()
     .eq('kitchen_id', kitchenId)
     .eq('flow_type', 'operational')
+
   if (deleteError) throw deleteError
 
   const { error: insertError } = await admin
@@ -282,17 +399,20 @@ async function setAssignment(
       account_id: accountId,
       flow_type: 'operational'
     })
+
   if (insertError) throw insertError
 }
 
 async function createAccountant(input: AccountantInput) {
   const email = text(input.email, 'Email').toLowerCase()
   const password = text(input.password, 'Password')
-  const name = text(input.name, 'Nama')
+  const name = normalizeName(input.name, 'Nama')
   const kitchenId = uuid(input.kitchenId, 'Dapur')
+
   if (password.length < 8) throw new Error('Password minimal 8 karakter.')
 
   await ensureKitchenFree(kitchenId)
+
   const operational = await findOrCreateOperationalAccount(input)
   await ensureOperationalAccountNotElsewhere(operational.account.id, kitchenId)
 
@@ -302,6 +422,7 @@ async function createAccountant(input: AccountantInput) {
     email_confirm: true,
     user_metadata: { full_name: name, account_type: 'accountant' }
   })
+
   if (error) throw error
   if (!data.user) throw new Error('User Auth gagal dibuat.')
 
@@ -317,51 +438,123 @@ async function createAccountant(input: AccountantInput) {
   }
 }
 
+async function updateOperationalAccount(
+  accountId: string,
+  input: AccountantInput
+) {
+  const accountInput = ensureOperationalInput(input)
+
+  const { data: existing, error: existingError } = await admin
+    .from('accounts')
+    .select('id,account_category')
+    .eq('id', accountId)
+    .maybeSingle()
+
+  if (existingError) throw existingError
+  if (!existing || existing.account_category !== 'operational') {
+    throw new Error('Rekening operasional tidak ditemukan.')
+  }
+
+  const conflicting = await findOperationalAccount(
+    accountInput.bank,
+    accountInput.accountNumber
+  )
+
+  if (conflicting && conflicting.id !== accountId) {
+    throw new Error(
+      'Nomor rekening tersebut sudah terdaftar sebagai rekening operasional lain.'
+    )
+  }
+
+  const { data, error } = await admin
+    .from('accounts')
+    .update({
+      name: accountInput.name,
+      bank: accountInput.bank,
+      account_number: accountInput.accountNumber,
+      updated_at: new Date().toISOString()
+    })
+    .eq('id', accountId)
+    .select('id,name,bank,account_number,account_category')
+    .single()
+
+  if (error) throw error
+  return data
+}
+
 async function updateAccountant(userId: string, input: AccountantInput) {
   uuid(userId, 'User')
+
   const email = text(input.email, 'Email').toLowerCase()
-  const name = text(input.name, 'Nama')
+  const name = normalizeName(input.name, 'Nama')
   const kitchenId = uuid(input.kitchenId, 'Dapur')
+
   await ensureKitchenFree(kitchenId, userId)
-  const operational = await findOrCreateOperationalAccount(input)
-  await ensureOperationalAccountNotElsewhere(operational.account.id, kitchenId)
 
   const { data: previous, error: previousError } = await admin
     .from('accountant_profiles')
     .select('kitchen_id')
     .eq('user_id', userId)
     .maybeSingle()
-  if (previousError) throw previousError
 
-  const previousKitchenId = previous?.kitchen_id ?? null
-  let previousAccountId: string | null = null
-  if (previousKitchenId) {
-    const { data: previousRule, error: previousRuleError } = await admin
-      .from('kitchen_account_rules')
-      .select('account_id')
-      .eq('kitchen_id', previousKitchenId)
-      .eq('flow_type', 'operational')
-      .maybeSingle()
-    if (previousRuleError) throw previousRuleError
-    previousAccountId = previousRule?.account_id ?? null
+  if (previousError) throw previousError
+  if (!previous?.kitchen_id) {
+    throw new Error(
+      'Akun tidak aktif. Gunakan Tambah Akuntan untuk membuat user pengganti.'
+    )
   }
 
-  await setAssignment(userId, kitchenId, operational.account.id)
+  const { data: previousRule, error: previousRuleError } = await admin
+    .from('kitchen_account_rules')
+    .select('account_id')
+    .eq('kitchen_id', previous.kitchen_id)
+    .eq('flow_type', 'operational')
+    .maybeSingle()
+
+  if (previousRuleError) throw previousRuleError
+
+  const previousKitchenId = previous.kitchen_id
+  const previousAccountId = previousRule?.account_id ?? null
+
+  let createdAccount = false
+  let targetAccountId: string
+
+  if (previousAccountId) {
+    const accountInput = ensureOperationalInput(input)
+    const matching = await findOperationalAccount(
+      accountInput.bank,
+      accountInput.accountNumber
+    )
+
+    if (matching && matching.id !== previousAccountId) {
+      await ensureOperationalAccountNotElsewhere(matching.id, kitchenId)
+      targetAccountId = matching.id
+    } else {
+      await updateOperationalAccount(previousAccountId, input)
+      targetAccountId = previousAccountId
+    }
+  } else {
+    const operational = await findOrCreateOperationalAccount(input)
+    targetAccountId = operational.account.id
+    createdAccount = operational.created
+  }
+
+  await ensureOperationalAccountNotElsewhere(targetAccountId, kitchenId)
+  await setAssignment(userId, kitchenId, targetAccountId)
 
   try {
     const { error: authError } = await admin.auth.admin.updateUserById(userId, {
       email,
       user_metadata: { full_name: name, account_type: 'accountant' }
     })
+
     if (authError) throw authError
   } catch (error) {
     if (previousKitchenId && previousAccountId) {
       await setAssignment(userId, previousKitchenId, previousAccountId)
-    } else {
-      await admin.from('accountant_profiles').delete().eq('user_id', userId)
     }
-    if (operational.created) {
-      await admin.from('accounts').delete().eq('id', operational.account.id)
+    if (createdAccount) {
+      await admin.from('accounts').delete().eq('id', targetAccountId)
     }
     throw error
   }
@@ -371,10 +564,23 @@ async function updateAccountant(userId: string, input: AccountantInput) {
 
 async function deactivateAccountant(userId: string) {
   uuid(userId, 'User')
+
+  const { data: assignment, error: assignmentError } = await admin
+    .from('accountant_profiles')
+    .select('user_id')
+    .eq('user_id', userId)
+    .maybeSingle()
+
+  if (assignmentError) throw assignmentError
+  if (!assignment) {
+    throw new Error('Akun tersebut tidak memiliki assignment aktif.')
+  }
+
   const { error } = await admin
     .from('accountant_profiles')
     .delete()
     .eq('user_id', userId)
+
   if (error) throw error
 }
 
@@ -395,10 +601,20 @@ async function assertNoHistory(userId: string) {
     admin
       .from('bank_transactions')
       .select('id', { count: 'exact', head: true })
-      .eq('created_by', userId)
+      .eq('created_by', userId),
+    admin
+      .from('accountant_assignment_history')
+      .select('id', { count: 'exact', head: true })
+      .eq('user_id', userId)
   ])
-  for (const check of checks as Array<{ error: unknown; count: number | null }>)
+
+  for (const check of checks as Array<{
+    error: unknown
+    count: number | null
+  }>) {
     if (check.error) throw check.error
+  }
+
   if (
     checks.some(
       (check: { error: unknown; count: number | null }) =>
@@ -414,6 +630,7 @@ async function assertNoHistory(userId: string) {
 async function deleteAccountant(userId: string) {
   uuid(userId, 'User')
   await assertNoHistory(userId)
+
   const { error } = await admin.auth.admin.deleteUser(userId)
   if (error) throw error
 }
@@ -421,18 +638,26 @@ async function deleteAccountant(userId: string) {
 async function setPassword(userId: string, password: string) {
   uuid(userId, 'User')
   const nextPassword = text(password, 'Password')
-  if (nextPassword.length < 8) throw new Error('Password minimal 8 karakter.')
+
+  if (nextPassword.length < 8) {
+    throw new Error('Password minimal 8 karakter.')
+  }
+
   const { error } = await admin.auth.admin.updateUserById(userId, {
     password: nextPassword
   })
+
   if (error) throw error
 }
 
 Deno.serve(async (request: Request) => {
-  if (request.method === 'OPTIONS')
+  if (request.method === 'OPTIONS') {
     return new Response(null, { status: 204, headers: corsHeaders })
-  if (request.method !== 'POST')
+  }
+
+  if (request.method !== 'POST') {
     return json({ error: 'Method not allowed' }, 405)
+  }
 
   let adminUser
   try {
