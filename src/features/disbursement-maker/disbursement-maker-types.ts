@@ -1,4 +1,4 @@
-export type MakerFlow = 'income' | 'neutral'
+export type MakerFlow = 'income' | 'neutral' | 'operational'
 
 export type MakerStatus = 'REQUEST' | 'READY' | 'PROCESSED' | 'REALIZED'
 

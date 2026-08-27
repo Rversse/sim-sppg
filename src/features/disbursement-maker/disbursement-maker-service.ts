@@ -176,7 +176,7 @@ export async function getMakerAccountOptions(
     `
     )
     .eq('kitchen_id', kitchenId)
-    .eq('flow_type', 'income')
+    .eq('flow_type', flowType)
     .order('account_id')
 
   if (error) {
@@ -184,6 +184,12 @@ export async function getMakerAccountOptions(
   }
 
   const rows = (data ?? []) as unknown as KitchenAccountRuleRow[]
+
+  if (flowType === 'operational' && rows.length > 1) {
+    throw new Error(
+      'Mapping rekening Biaya Operasional harus tepat satu rekening untuk dapur ini'
+    )
+  }
 
   return sortAccountOptions(
     rows
@@ -249,7 +255,11 @@ export function buildMakerDescription(
     throw new Error('Tanggal wajib diisi')
   }
 
-  if (flowType !== 'income' && flowType !== 'neutral') {
+  if (
+    flowType !== 'income' &&
+    flowType !== 'neutral' &&
+    flowType !== 'operational'
+  ) {
     throw new Error('Jenis pencairan tidak valid')
   }
 
@@ -263,7 +273,9 @@ export function buildMakerDescription(
   const description =
     flowType === 'income'
       ? `Belanja ${products.length ? products.join(', ') : 'Bahan Baku'}`
-      : 'Pembayaran Gas'
+      : flowType === 'neutral'
+        ? 'Pembayaran Gas'
+        : 'Biaya Operasional'
 
   return `${description}, ${day}-${month}-${year}`
 }
@@ -305,7 +317,7 @@ export async function validateMakerAccount(
     .from('kitchen_account_rules')
     .select('account_id')
     .eq('kitchen_id', kitchenId)
-    .eq('flow_type', 'income')
+    .eq('flow_type', flowType)
     .eq('account_id', accountId)
     .maybeSingle()
 
@@ -340,7 +352,11 @@ export function validateMakerItem(input: {
     return 'Nominal harus lebih dari 0'
   }
 
-  if (input.flowType !== 'income' && input.flowType !== 'neutral') {
+  if (
+    input.flowType !== 'income' &&
+    input.flowType !== 'neutral' &&
+    input.flowType !== 'operational'
+  ) {
     return 'Jenis pencairan tidak valid'
   }
 
@@ -348,6 +364,10 @@ export function validateMakerItem(input: {
 
   if (input.flowType === 'neutral' && selectedProducts.length > 0) {
     return 'Gas tidak menggunakan pilihan produk'
+  }
+
+  if (input.flowType === 'operational' && selectedProducts.length > 0) {
+    return 'Biaya Operasional tidak menggunakan pilihan produk'
   }
 
   return null
@@ -837,7 +857,7 @@ export async function realizeMakerItems(
 ): Promise<
   {
     makerItemId: string
-    transactionId: string
+    transactionId: string | null
   }[]
 > {
   if (!transactionDate) {
@@ -863,7 +883,7 @@ export async function realizeMakerItems(
   }
 
   return (data ?? []).map(
-    (item: { maker_item_id: string; transaction_id: string }) => ({
+    (item: { maker_item_id: string; transaction_id: string | null }) => ({
       makerItemId: item.maker_item_id,
       transactionId: item.transaction_id
     })

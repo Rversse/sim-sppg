@@ -34,7 +34,7 @@ import { SingleDatePicker } from '@/components/ui/date-picker'
 import { getTodayLocal } from '@/lib/formatters'
 import { supabase } from '@/lib/supabase'
 
-type MakerFormFlow = MakerFlow | 'operational' | ''
+type MakerFormFlow = MakerFlow | ''
 
 type MakerFormState = {
   transactionDate: string
@@ -45,18 +45,6 @@ type MakerFormState = {
   selectedProducts: string[]
   amount: string
 }
-
-type LocalOperationalItem = {
-  id: string
-  transactionDate: string
-  kitchenId: string
-  amount: number
-  description: string
-  createdAt: string
-}
-
-const LOCAL_OPERATIONAL_STORAGE_KEY =
-  'sim-sppg:disbursement-maker-operational:v1'
 
 const DEFAULT_FORM: MakerFormState = {
   transactionDate: getTodayLocal(),
@@ -122,72 +110,6 @@ function getStatusClass(status: MakerItem['status']) {
   }
 }
 
-function buildOperationalDescription(transactionDate: string) {
-  const [year, month, day] = transactionDate.split('-')
-
-  if (!year || !month || !day) {
-    return 'Biaya Ops Harian'
-  }
-
-  return `Biaya Ops Harian, ${day}-${month}-${year}`
-}
-
-function readLocalOperationalItems(): LocalOperationalItem[] {
-  if (typeof window === 'undefined') {
-    return []
-  }
-
-  try {
-    const raw = window.localStorage.getItem(LOCAL_OPERATIONAL_STORAGE_KEY)
-    if (!raw) {
-      return []
-    }
-
-    const parsed: unknown = JSON.parse(raw)
-
-    if (!Array.isArray(parsed)) {
-      return []
-    }
-
-    return parsed.filter((item): item is LocalOperationalItem => {
-      if (!item || typeof item !== 'object') {
-        return false
-      }
-
-      const candidate = item as Record<string, unknown>
-
-      return (
-        typeof candidate.id === 'string' &&
-        typeof candidate.transactionDate === 'string' &&
-        typeof candidate.kitchenId === 'string' &&
-        typeof candidate.amount === 'number' &&
-        Number.isSafeInteger(candidate.amount) &&
-        candidate.amount > 0 &&
-        typeof candidate.description === 'string' &&
-        typeof candidate.createdAt === 'string'
-      )
-    })
-  } catch (error) {
-    console.error(error)
-    return []
-  }
-}
-
-function saveLocalOperationalItems(items: LocalOperationalItem[]) {
-  if (typeof window === 'undefined') {
-    return
-  }
-
-  try {
-    window.localStorage.setItem(
-      LOCAL_OPERATIONAL_STORAGE_KEY,
-      JSON.stringify(items)
-    )
-  } catch (error) {
-    console.error(error)
-  }
-}
-
 async function copyText(value: string) {
   await navigator.clipboard.writeText(value)
 }
@@ -200,10 +122,6 @@ export function DisbursementMakerPage() {
   const [accounts, setAccounts] = useState<MakerAccountOption[]>([])
   const [itemAccounts, setItemAccounts] = useState<MakerAccountOption[]>([])
   const [items, setItems] = useState<MakerItem[]>([])
-  const [localOperationalItems, setLocalOperationalItems] = useState<
-    LocalOperationalItem[]
-  >(() => readLocalOperationalItems())
-
   const [form, setForm] = useState<MakerFormState>(DEFAULT_FORM)
 
   const [loadingKitchens, setLoadingKitchens] = useState(true)
@@ -246,16 +164,6 @@ export function DisbursementMakerPage() {
           item.kitchenId === form.kitchenId
       ),
     [items, form.transactionDate, form.kitchenId]
-  )
-
-  const filteredLocalOperationalItems = useMemo(
-    () =>
-      localOperationalItems.filter(
-        (item) =>
-          item.transactionDate === form.transactionDate &&
-          item.kitchenId === form.kitchenId
-      ),
-    [localOperationalItems, form.transactionDate, form.kitchenId]
   )
 
   const supplierAccountOptions = useMemo(
@@ -331,15 +239,6 @@ export function DisbursementMakerPage() {
     [filteredItems]
   )
 
-  const localOperationalTotal = useMemo(
-    () =>
-      filteredLocalOperationalItems.reduce(
-        (total, item) => total + item.amount,
-        0
-      ),
-    [filteredLocalOperationalItems]
-  )
-
   const pendingItems = filteredItems.filter(
     (item) => item.status === 'READY' || item.status === 'PROCESSED'
   )
@@ -350,7 +249,7 @@ export function DisbursementMakerPage() {
 
   const amountReady =
     form.flowType === 'operational'
-      ? dateAndKitchenReady
+      ? dateAndKitchenReady && Boolean(form.accountId)
       : form.flowType === 'neutral'
         ? dateAndKitchenReady && Boolean(form.accountId)
         : form.flowType === 'income'
@@ -405,22 +304,30 @@ export function DisbursementMakerPage() {
       }
 
       try {
-        const [makerItems, incomeAccounts, neutralAccounts] = await Promise.all(
-          [
-            getMakerItems({
-              transactionDate: form.transactionDate,
-              kitchenId: form.kitchenId
-            }),
-            getMakerAccountOptions(form.kitchenId, 'income'),
-            getMakerAccountOptions(form.kitchenId, 'neutral')
-          ]
-        )
+        const [
+          makerItems,
+          incomeAccounts,
+          neutralAccounts,
+          operationalAccounts
+        ] = await Promise.all([
+          getMakerItems({
+            transactionDate: form.transactionDate,
+            kitchenId: form.kitchenId
+          }),
+          getMakerAccountOptions(form.kitchenId, 'income'),
+          getMakerAccountOptions(form.kitchenId, 'neutral'),
+          getMakerAccountOptions(form.kitchenId, 'operational')
+        ])
 
         const nextRealizedTransactionAmounts =
           await loadRealizedTransactionAmounts(makerItems)
 
         setItems(makerItems)
-        setItemAccounts([...incomeAccounts, ...neutralAccounts])
+        setItemAccounts([
+          ...incomeAccounts,
+          ...neutralAccounts,
+          ...operationalAccounts
+        ])
         setRealizedTransactionAmounts(nextRealizedTransactionAmounts)
         setErrorMessage('')
       } catch (error) {
@@ -434,76 +341,6 @@ export function DisbursementMakerPage() {
     },
     [form.transactionDate, form.kitchenId, loadRealizedTransactionAmounts]
   )
-
-  useEffect(() => {
-    if (!editingItem || !editingForm.kitchenId) {
-      return
-    }
-
-    let cancelled = false
-
-    void Promise.resolve()
-      .then(() => {
-        if (cancelled) return null
-        return Promise.all([
-          getMakerAccountOptions(editingForm.kitchenId, 'income'),
-          getMakerAccountOptions(editingForm.kitchenId, 'neutral')
-        ])
-      })
-      .then((result) => {
-        if (!result) return
-
-        const [incomeAccounts, neutralAccounts] = result
-        if (cancelled) return
-
-        const nextAccounts = [...incomeAccounts, ...neutralAccounts]
-        setEditingAccounts(nextAccounts)
-
-        setEditingForm((current) => {
-          const currentAccountValid = nextAccounts.some(
-            (account) => account.accountId === current.accountId
-          )
-
-          if (current.flowType === 'neutral') {
-            return {
-              ...current,
-              accountId: neutralAccounts[0]?.accountId ?? current.accountId,
-              selectedProducts: []
-            }
-          }
-
-          return {
-            ...current,
-            accountId: currentAccountValid ? current.accountId : '',
-            selectedProducts: currentAccountValid
-              ? current.selectedProducts
-              : []
-          }
-        })
-      })
-      .catch((error) => {
-        if (cancelled) return
-        console.error(error)
-        setEditingAccounts([])
-        toastError(
-          'Gagal memuat rekening',
-          'Mapping rekening untuk dapur yang dipilih tidak dapat dimuat.'
-        )
-      })
-      .finally(() => {
-        if (!cancelled) {
-          setLoadingEditAccounts(false)
-        }
-      })
-
-    return () => {
-      cancelled = true
-    }
-  }, [editingItem, editingForm.kitchenId, toastError])
-
-  useEffect(() => {
-    saveLocalOperationalItems(localOperationalItems)
-  }, [localOperationalItems])
 
   useEffect(() => {
     let cancelled = false
@@ -534,7 +371,11 @@ export function DisbursementMakerPage() {
       return
     }
 
-    if (form.flowType !== 'income' && form.flowType !== 'neutral') {
+    if (
+      form.flowType !== 'income' &&
+      form.flowType !== 'neutral' &&
+      form.flowType !== 'operational'
+    ) {
       return
     }
 
@@ -553,7 +394,7 @@ export function DisbursementMakerPage() {
 
         setAccounts(data)
 
-        if (selectedFlow === 'neutral') {
+        if (selectedFlow === 'neutral' || selectedFlow === 'operational') {
           const defaultAccount = data[0] ?? null
 
           setForm((current) => ({
@@ -671,25 +512,76 @@ export function DisbursementMakerPage() {
       .on(
         'postgres_changes',
         {
-          event: '*',
+          event: 'INSERT',
           schema: 'public',
-          table: 'disbursement_maker_items'
+          table: 'disbursement_maker_items',
+          filter: `kitchen_id=eq.${form.kitchenId}`
         },
         scheduleRealtimeRefresh
       )
       .on(
         'postgres_changes',
         {
-          event: '*',
+          event: 'UPDATE',
           schema: 'public',
-          table: 'transactions'
+          table: 'disbursement_maker_items',
+          filter: `kitchen_id=eq.${form.kitchenId}`
+        },
+        scheduleRealtimeRefresh
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: 'DELETE',
+          schema: 'public',
+          table: 'disbursement_maker_items',
+          filter: `kitchen_id=eq.${form.kitchenId}`
+        },
+        scheduleRealtimeRefresh
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'transactions',
+          filter: `kitchen_id=eq.${form.kitchenId}`
+        },
+        scheduleRealtimeRefresh
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'transactions',
+          filter: `kitchen_id=eq.${form.kitchenId}`
+        },
+        scheduleRealtimeRefresh
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: 'DELETE',
+          schema: 'public',
+          table: 'transactions',
+          filter: `kitchen_id=eq.${form.kitchenId}`
         },
         scheduleRealtimeRefresh
       )
       .subscribe((status) => {
         if (cancelled) return
 
-        if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
+        if (status === 'SUBSCRIBED') {
+          scheduleRealtimeRefresh()
+          return
+        }
+
+        if (
+          status === 'CHANNEL_ERROR' ||
+          status === 'TIMED_OUT' ||
+          status === 'CLOSED'
+        ) {
           console.warn(`[Disbursement Maker Realtime] ${status}`)
         }
       })
@@ -847,31 +739,6 @@ export function DisbursementMakerPage() {
     setErrorMessage('')
 
     try {
-      if (form.flowType === 'operational') {
-        const newItem: LocalOperationalItem = {
-          id: crypto.randomUUID(),
-          transactionDate: form.transactionDate,
-          kitchenId: form.kitchenId,
-          amount,
-          description: buildOperationalDescription(form.transactionDate),
-          createdAt: new Date().toISOString()
-        }
-
-        setLocalOperationalItems((current) => [newItem, ...current])
-        setForm((current) => ({
-          ...current,
-          amount: ''
-        }))
-        success(
-          'Operasional lokal ditambahkan',
-          'Data disimpan di browser ini.'
-        )
-        window.setTimeout(() => {
-          amountInputRef.current?.focus()
-        }, 0)
-        return
-      }
-
       if (!form.flowType) {
         setErrorMessage('Jenis pencairan wajib dipilih.')
         return
@@ -940,15 +807,17 @@ export function DisbursementMakerPage() {
     setErrorMessage('')
 
     try {
-      const incomeAccounts = await getMakerAccountOptions(
-        item.kitchenId,
-        'income'
-      )
-      const neutralAccounts = await getMakerAccountOptions(
-        item.kitchenId,
-        'neutral'
-      )
-      const nextAccounts = [...incomeAccounts, ...neutralAccounts]
+      const [incomeAccounts, neutralAccounts, operationalAccounts] =
+        await Promise.all([
+          getMakerAccountOptions(item.kitchenId, 'income'),
+          getMakerAccountOptions(item.kitchenId, 'neutral'),
+          getMakerAccountOptions(item.kitchenId, 'operational')
+        ])
+      const nextAccounts = [
+        ...incomeAccounts,
+        ...neutralAccounts,
+        ...operationalAccounts
+      ]
       setEditingAccounts(nextAccounts)
 
       const selectedAccount = nextAccounts.find(
@@ -1141,19 +1010,6 @@ export function DisbursementMakerPage() {
     }
   }
 
-  function deleteLocalOperationalItem(item: LocalOperationalItem) {
-    if (
-      !window.confirm(`Hapus operasional lokal ${formatCurrency(item.amount)}?`)
-    ) {
-      return
-    }
-
-    setLocalOperationalItems((current) =>
-      current.filter((candidate) => candidate.id !== item.id)
-    )
-    success('Operasional lokal dihapus', 'Item dihapus dari browser ini.')
-  }
-
   async function realizeItems() {
     if (!user?.id || !form.transactionDate || !form.kitchenId) return
 
@@ -1179,7 +1035,7 @@ export function DisbursementMakerPage() {
       )
       success(
         'Pencairan direalisasikan',
-        `${realizedItems.length} pencairan berhasil dimasukkan ke transaksi.`
+        `${realizedItems.length} pencairan berhasil direalisasikan. Biaya Operasional tidak masuk ke transaksi.`
       )
       await reloadItems()
     } catch (error) {
@@ -1412,7 +1268,7 @@ export function DisbursementMakerPage() {
           <div
             className={`maker-form-grid maker-form-grid--entry maker-form-grid--${form.flowType}`}
           >
-            {form.flowType === 'neutral' ? (
+            {form.flowType === 'neutral' || form.flowType === 'operational' ? (
               <div className="maker-field maker-selected-account maker-entry-account">
                 <span>Rekening</span>
                 {selectedAccount ? (
@@ -1425,12 +1281,18 @@ export function DisbursementMakerPage() {
                 ) : (
                   <div className="maker-entry-account-copy">
                     <strong>
-                      {loadingAccounts ? 'Memuat rekening...' : 'Rekening gas'}
+                      {loadingAccounts
+                        ? 'Memuat rekening...'
+                        : form.flowType === 'operational'
+                          ? 'Rekening operasional'
+                          : 'Rekening gas'}
                     </strong>
                     <span>
                       {loadingAccounts
                         ? 'Menyiapkan rekening tujuan'
-                        : 'Rekening gas otomatis'}
+                        : form.flowType === 'operational'
+                          ? 'Rekening operasional sesuai mapping dapur'
+                          : 'Rekening gas otomatis'}
                     </span>
                   </div>
                 )}
@@ -1471,11 +1333,11 @@ export function DisbursementMakerPage() {
             Bahan Baku, DD-MM-YYYY”.
           </p>
         ) : null}
-
         {form.flowType === 'operational' ? (
           <p className="maker-helper-text">
-            Operasional tidak masuk database Maker. Data hanya tersimpan di
-            localStorage browser ini.
+            Rekening operasional berasal dari mapping dapur. Item tetap masuk
+            workflow Maker dan saat direalisasikan tidak dibuat sebagai
+            transaksi.
           </p>
         ) : null}
 
@@ -1505,10 +1367,6 @@ export function DisbursementMakerPage() {
         <div className="maker-summary-card maker-summary-card--processed">
           <span>Sudah Diproses</span>
           <strong>{formatCurrency(totals.processed)}</strong>
-        </div>
-        <div className="maker-summary-card maker-summary-card--local">
-          <span>Operasional Lokal</span>
-          <strong>{formatCurrency(localOperationalTotal)}</strong>
         </div>
       </section>
 
@@ -1563,6 +1421,7 @@ export function DisbursementMakerPage() {
                 value={editingForm.flowType}
                 options={[
                   { value: 'income', label: 'RAB' },
+                  { value: 'operational', label: 'Biaya Operasional' },
                   { value: 'neutral', label: 'Gas' }
                 ]}
                 onChange={(value) =>
@@ -1577,9 +1436,16 @@ export function DisbursementMakerPage() {
                               account.bank === 'BNI' &&
                               account.accountNumber === '1985322260'
                           )?.accountId ?? current.accountId)
-                        : current.accountId,
+                        : value === 'operational'
+                          ? (editingAccounts.find(
+                              (account) =>
+                                account.accountId === editingItem?.accountId
+                            )?.accountId ?? current.accountId)
+                          : current.accountId,
                     selectedProducts:
-                      value === 'neutral' ? [] : current.selectedProducts
+                      value === 'neutral' || value === 'operational'
+                        ? []
+                        : current.selectedProducts
                   }))
                 }
               />
@@ -1611,8 +1477,32 @@ export function DisbursementMakerPage() {
                 <div className="maker-field maker-selected-account">
                   <span>Rekening</span>
                   <div className="maker-entry-account-copy">
-                    <strong>ARUTALA</strong>
-                    <span>BNI • 1985322260</span>
+                    {editingForm.flowType === 'neutral' ? (
+                      <>
+                        <strong>ARUTALA</strong>
+                        <span>BNI • 1985322260</span>
+                      </>
+                    ) : (
+                      <>
+                        <strong>
+                          {editingAccounts.find(
+                            (account) =>
+                              account.accountId === editingForm.accountId
+                          )?.accountName ?? 'Rekening Operasional'}
+                        </strong>
+                        <span>
+                          {editingAccounts.find(
+                            (account) =>
+                              account.accountId === editingForm.accountId
+                          )?.bank ?? '-'}
+                          {' • '}
+                          {editingAccounts.find(
+                            (account) =>
+                              account.accountId === editingForm.accountId
+                          )?.accountNumber ?? '-'}
+                        </span>
+                      </>
+                    )}
                   </div>
                 </div>
               )}
@@ -1707,8 +1597,7 @@ export function DisbursementMakerPage() {
 
         {loadingItems ? (
           <div className="maker-empty">Memuat data pencairan...</div>
-        ) : filteredItems.length === 0 &&
-          filteredLocalOperationalItems.length === 0 ? (
+        ) : filteredItems.length === 0 ? (
           <div className="maker-empty">
             Belum ada pencairan untuk tanggal dan dapur ini.
           </div>
@@ -1896,64 +1785,6 @@ export function DisbursementMakerPage() {
                   </div>
                 )
               })}
-
-              {filteredLocalOperationalItems.map((item, index) => (
-                <div
-                  className="maker-table-row maker-table-row--local"
-                  role="row"
-                  key={item.id}
-                >
-                  <span className="maker-table-index" role="cell">
-                    L{index + 1}
-                  </span>
-
-                  <div className="maker-table-supplier" role="cell">
-                    <strong>Biaya Operasional</strong>
-                    <span>Disimpan lokal · tidak masuk database Maker</span>
-                  </div>
-
-                  <span className="maker-table-flow" role="cell">
-                    Biaya Ops
-                  </span>
-
-                  <button
-                    type="button"
-                    className="maker-table-copy"
-                    onClick={() => void handleCopyNominal(item.amount)}
-                    title="Klik untuk copy nominal"
-                    role="cell"
-                  >
-                    <span>{formatNumber(item.amount)}</span>
-                    <Copy aria-hidden="true" />
-                  </button>
-
-                  <button
-                    type="button"
-                    className="maker-table-copy maker-table-copy--output"
-                    onClick={() => void handleCopyDescription(item.description)}
-                    title="Klik untuk copy output"
-                    role="cell"
-                  >
-                    <span>{item.description}</span>
-                    <Copy aria-hidden="true" />
-                  </button>
-
-                  <span className="maker-status maker-status-local" role="cell">
-                    Lokal
-                  </span>
-
-                  <div className="maker-table-actions" role="cell">
-                    <button
-                      type="button"
-                      className="maker-item-button maker-item-button--danger"
-                      onClick={() => deleteLocalOperationalItem(item)}
-                      title="Hapus"
-                    >
-                      <Trash2 aria-hidden="true" />
-                    </button>
-                  </div>
-                </div>
-              ))}
             </div>
           </div>
         )}
@@ -1964,8 +1795,8 @@ export function DisbursementMakerPage() {
             <h2>Masukkan pencairan ke transaksi</h2>
             <p>
               Request harus diterima menjadi READY lalu diproses menjadi
-              PROCESSED. Hanya item PROCESSED yang masuk ke transaksi.
-              Operasional lokal tidak ikut.
+              PROCESSED. RAB dan Gas masuk ke transaksi. Biaya Operasional tetap
+              direalisasikan tetapi tidak masuk ke transactions.
             </p>
           </div>
           <button
