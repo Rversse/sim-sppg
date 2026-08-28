@@ -189,10 +189,22 @@ export function AccountantManagementPage() {
   )
 
   const replacementEligibleIds = useMemo(() => {
+    const activeKitchenIds = new Set(
+      accountants
+        .filter((accountant) => accountant.active && accountant.kitchenId)
+        .map((accountant) => accountant.kitchenId as string)
+    )
+
     const latestByKitchen = new Map<string, AccountantRecord>()
 
     for (const accountant of accountants) {
-      if (accountant.active || !accountant.kitchenId) continue
+      if (
+        accountant.active ||
+        !accountant.kitchenId ||
+        activeKitchenIds.has(accountant.kitchenId)
+      ) {
+        continue
+      }
 
       const currentLatest = latestByKitchen.get(accountant.kitchenId)
       const currentTime = currentLatest?.lastAssignment?.assignedAt

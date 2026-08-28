@@ -534,12 +534,13 @@ async function updateAccountant(userId: string, input: AccountantInput) {
     )
 
     if (matching && matching.id !== previousAccountId) {
-      await ensureOperationalAccountNotElsewhere(matching.id, kitchenId)
-      targetAccountId = matching.id
-    } else {
-      await updateOperationalAccount(previousAccountId, input)
-      targetAccountId = previousAccountId
+      throw new Error(
+        'Nomor rekening tersebut sudah terdaftar sebagai rekening operasional lain. Gunakan rekening baru.'
+      )
     }
+
+    await updateOperationalAccount(previousAccountId, input)
+    targetAccountId = previousAccountId
   } else {
     const operational = await createNewOperationalAccount(input)
     targetAccountId = operational.account.id
