@@ -1097,6 +1097,38 @@ export function DashboardPage() {
 
   return (
     <div className="dashboard-page">
+      <style>{`
+        .dashboard-page .dashboard-transaction-modal {
+          overflow: visible;
+        }
+
+        .dashboard-page .dashboard-transaction-form-date {
+          display: grid;
+          gap: 6px;
+          min-width: 0;
+          min-height: 0;
+          align-self: start;
+        }
+
+        .dashboard-page .dashboard-transaction-form-date > span {
+          color: var(--theme-text-secondary);
+          font-size: 11px;
+          font-weight: 700;
+        }
+
+        .dashboard-page .dashboard-transaction-form-date .single-date-picker {
+          width: 100%;
+        }
+
+        .dashboard-page .dashboard-transaction-form-date .single-date-picker__label {
+          display: none;
+        }
+
+        .dashboard-page .dashboard-transaction-form-date .single-date-picker__trigger {
+          height: 38px;
+          min-height: 38px;
+        }
+      `}</style>
       <section className="dashboard-filter-card">
         <div className="dashboard-filter-heading">
           <div>
@@ -1500,6 +1532,7 @@ export function DashboardPage() {
 
             <div className="dashboard-transaction-form-grid">
               <div className="dashboard-transaction-form-date">
+                <span>Tanggal</span>
                 <SingleDatePicker
                   label="Tanggal"
                   value={formDate}
