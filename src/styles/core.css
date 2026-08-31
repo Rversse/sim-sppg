@@ -251,7 +251,7 @@ textarea {
    ========================================================= */
 
 .app-shell {
-  --sidebar-width: 252px;
+  --sidebar-width: 200px;
 
   display: flex;
   min-height: 100vh;
@@ -273,13 +273,6 @@ textarea {
 
   background: var(--theme-sidebar-bg) !important;
   color: var(--theme-text-primary);
-
-  will-change: width, flex-basis;
-
-  transition:
-    width var(--app-motion-slow) var(--app-ease),
-    flex-basis var(--app-motion-slow) var(--app-ease),
-    box-shadow var(--app-motion) ease;
 }
 
 /* =========================================================
@@ -361,33 +354,6 @@ textarea {
   transition:
     opacity var(--app-motion-fast) ease,
     transform var(--app-motion-fast) var(--app-ease);
-}
-
-.app-nav-link[data-tooltip]::after {
-  position: absolute;
-  top: 50%;
-  left: calc(100% + 10px);
-  z-index: 100;
-  display: none;
-  min-height: 34px;
-  align-items: center;
-  padding: 0 11px;
-  border: 1px solid var(--theme-border-strong);
-  border-radius: 9px;
-  background: var(--theme-surface-raised);
-  box-shadow: var(--theme-shadow-hover);
-  color: var(--theme-text-primary);
-  content: attr(data-tooltip);
-  font-size: 11px;
-  font-weight: 800;
-  line-height: 1;
-  white-space: nowrap;
-  pointer-events: none;
-  opacity: 0;
-  transform: translateY(-50%) translateX(-4px);
-  transition:
-    opacity 120ms ease,
-    transform 160ms var(--app-ease);
 }
 
 .app-nav-link:hover {
@@ -487,46 +453,6 @@ textarea {
   min-width: 0;
   align-items: center;
   gap: 10px;
-}
-
-.app-sidebar-toggle {
-  display: grid;
-  width: 34px;
-  height: 34px;
-  flex: 0 0 34px;
-  place-items: center;
-
-  padding: 0;
-  border: 1px solid var(--app-border-strong);
-  border-radius: 9px;
-  background: var(--app-white);
-  color: var(--app-primary);
-
-  cursor: pointer;
-  box-shadow: var(--theme-shadow-card);
-
-  transition:
-    transform var(--app-motion-fast) var(--app-ease),
-    border-color var(--app-motion-fast) ease,
-    background-color var(--app-motion-fast) ease,
-    box-shadow var(--app-motion-fast) ease;
-}
-
-.app-sidebar-toggle:hover {
-  border-color: var(--app-accent);
-  background: var(--theme-primary-soft);
-  transform: translateY(-1px);
-  box-shadow: var(--theme-shadow-hover);
-}
-
-.app-sidebar-toggle:active {
-  transform: translateY(0) scale(0.98);
-}
-
-.app-sidebar-toggle svg {
-  width: 17px;
-  height: 17px;
-  transition: transform 260ms var(--app-ease);
 }
 
 .app-page-heading {
@@ -644,70 +570,6 @@ textarea {
 }
 
 /* =========================================================
-   COLLAPSED DESKTOP SIDEBAR
-   ========================================================= */
-
-.app-shell.sidebar-collapsed {
-  --sidebar-width: 78px;
-}
-
-.app-shell.sidebar-collapsed .app-nav-label {
-  display: none;
-  max-width: 0;
-  overflow: hidden;
-  opacity: 0;
-  transform: translateX(-7px);
-  pointer-events: none;
-}
-
-.app-shell.sidebar-collapsed .app-nav-section-label {
-  display: block;
-  max-height: 0;
-  margin-block: -3px;
-  overflow: hidden;
-  opacity: 0;
-  transform: translateX(-6px);
-  pointer-events: none;
-}
-
-.app-shell.sidebar-collapsed .app-nav-link {
-  justify-content: center;
-  gap: 0;
-  padding-inline: 0;
-
-  transition:
-    background-color 170ms ease,
-    color 170ms ease,
-    transform 170ms var(--app-ease);
-}
-
-.app-shell.sidebar-collapsed .app-nav-link::before {
-  display: none;
-}
-
-.app-shell.sidebar-collapsed .app-nav-link[data-tooltip]:hover::after,
-.app-shell.sidebar-collapsed .app-nav-link[data-tooltip]:focus-visible::after {
-  display: inline-flex;
-  opacity: 1;
-  transform: translateY(-50%) translateX(0);
-}
-
-.app-shell.sidebar-collapsed .app-nav-icon {
-  margin-inline: auto;
-  transition:
-    transform var(--app-motion) var(--app-ease),
-    background-color 170ms ease;
-}
-
-.app-shell.sidebar-collapsed .app-nav-link:hover .app-nav-icon {
-  transform: scale(1.05);
-}
-
-.app-shell.sidebar-collapsed .app-sidebar-toggle svg {
-  transform: rotate(180deg);
-}
-
-/* =========================================================
    SHELL ANIMATION
    ========================================================= */
 
@@ -741,28 +603,6 @@ textarea {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
-  }
-}
-
-/* =========================================================
-   COLLAPSED SIDEBAR TOOLTIP SAFETY
-   ========================================================= */
-
-.app-shell.sidebar-collapsed .app-sidebar {
-  overflow: visible;
-}
-
-.app-shell.sidebar-collapsed .app-nav {
-  overflow: visible;
-}
-
-.app-shell.sidebar-collapsed .app-nav-link {
-  position: relative;
-}
-
-@media (hover: none), (pointer: coarse) {
-  .app-shell.sidebar-collapsed .app-nav-link[data-tooltip]::after {
-    display: none !important;
   }
 }
 

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { NavLink, Outlet, useLocation } from 'react-router-dom'
 import {
   ArrowLeftRight,
@@ -8,7 +8,6 @@ import {
   FileText,
   LayoutDashboard,
   LogOut,
-  Menu,
   Wallet,
   type LucideIcon
 } from 'lucide-react'
@@ -97,7 +96,6 @@ const navigationSections: NavigationSection[] = [
     ]
   }
 ]
-const SIDEBAR_STORAGE_KEY = 'sim-sppg.sidebar-collapsed'
 function getPageTitle(pathname: string) {
   return (
     navigationSections
@@ -122,23 +120,6 @@ export function AppLayout() {
   const { user } = useAuth()
   const { success, error } = useToast()
   const { pathname } = useLocation()
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
-    try {
-      return window.localStorage.getItem(SIDEBAR_STORAGE_KEY) === '1'
-    } catch {
-      return false
-    }
-  })
-  useEffect(() => {
-    try {
-      window.localStorage.setItem(
-        SIDEBAR_STORAGE_KEY,
-        sidebarCollapsed ? '1' : '0'
-      )
-    } catch {
-      // Sidebar persistence is optional.
-    }
-  }, [sidebarCollapsed])
   useEffect(() => {
     document.documentElement.dataset.theme = 'dark'
     document.documentElement.style.colorScheme = 'dark'
@@ -162,7 +143,7 @@ export function AppLayout() {
     success('Berhasil keluar', 'Sesi Anda telah diakhiri.')
   }
   return (
-    <div className={`app-shell${sidebarCollapsed ? ' sidebar-collapsed' : ''}`}>
+    <div className="app-shell">
       <aside className="app-sidebar">
         <nav className="app-nav" aria-label="Navigasi utama">
           {visibleSections.map((section) => (
@@ -179,8 +160,6 @@ export function AppLayout() {
                         `app-nav-link${isActive ? ' is-active' : ''}`
                       }
                       aria-label={item.label}
-                      title={sidebarCollapsed ? item.label : undefined}
-                      data-tooltip={item.label}
                     >
                       <span className="app-nav-icon" aria-hidden="true">
                         <Icon />
@@ -197,19 +176,6 @@ export function AppLayout() {
       <div className="app-content">
         <header className="app-header">
           <div className="app-header-left">
-            <button
-              type="button"
-              className="app-sidebar-toggle"
-              onClick={() => setSidebarCollapsed((current) => !current)}
-              aria-label={
-                sidebarCollapsed ? 'Tampilkan sidebar' : 'Sembunyikan sidebar'
-              }
-              title={
-                sidebarCollapsed ? 'Tampilkan sidebar' : 'Sembunyikan sidebar'
-              }
-            >
-              <Menu aria-hidden="true" />
-            </button>
             <div className="app-page-heading">
               <span className="app-header-kicker">SIM SPPG</span>
               <h1 className="app-page-title">{getPageTitle(pathname)}</h1>

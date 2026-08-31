@@ -1356,7 +1356,7 @@
   max-height: 38px;
   padding: 0 10px;
   border: 1px solid var(--app-border-strong);
-  border-radius: 9px;
+  border-radius: var(--app-control-radius);
   outline: 0;
   background: var(--app-surface);
   color: var(--app-text);
@@ -1386,7 +1386,7 @@
   max-height: 38px;
   padding: 0 10px;
   border: 1px solid var(--app-border-strong);
-  border-radius: 9px;
+  border-radius: var(--app-control-radius);
   outline: 0;
   background: var(--app-surface);
   color: var(--app-text);
