@@ -1,4 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
+
+import { Skeleton } from '@/components/ui/skeleton'
 import { Bell, Pencil, Plus, Save, Trash2, X } from 'lucide-react'
 
 import { canAccess } from '@/features/auth/role-policy'
@@ -399,7 +401,49 @@ export function VehiclePage() {
 
       <div className="vehicle-panel">
         {loading ? (
-          <div className="vehicle-state">Memuat data kendaraan...</div>
+          <div
+            className="vehicle-loading"
+            aria-label="Memuat data kendaraan"
+            role="status"
+          >
+            <div className="vehicle-loading-head" aria-hidden="true">
+              <span>Dapur</span>
+              <span>Jenis</span>
+              <span>Kendaraan</span>
+              <span>No. Polisi</span>
+              <span>PKB</span>
+              <span>STNK</span>
+              {canManage ? <span>Aksi</span> : null}
+            </div>
+
+            <div className="vehicle-loading-rows">
+              {Array.from({ length: 6 }, (_, index) => (
+                <div className="vehicle-loading-row" key={index}>
+                  <Skeleton className="vehicle-skeleton-kitchen" />
+                  <Skeleton className="vehicle-skeleton-type" />
+                  <Skeleton className="vehicle-skeleton-name" />
+                  <Skeleton className="vehicle-skeleton-plate" />
+                  <div className="vehicle-skeleton-expiry">
+                    <Skeleton />
+                    <Skeleton className="vehicle-skeleton-expiry-sub" />
+                  </div>
+                  <div className="vehicle-skeleton-expiry">
+                    <Skeleton />
+                    <Skeleton className="vehicle-skeleton-expiry-sub" />
+                  </div>
+                  {canManage ? (
+                    <div
+                      className="vehicle-skeleton-actions"
+                      aria-hidden="true"
+                    >
+                      <Skeleton />
+                      <Skeleton />
+                    </div>
+                  ) : null}
+                </div>
+              ))}
+            </div>
+          </div>
         ) : error ? (
           <div className="vehicle-state vehicle-state-error">{error}</div>
         ) : !filtered.length ? (

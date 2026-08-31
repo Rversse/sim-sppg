@@ -48,7 +48,7 @@ import {
   getTodayLocal
 } from '@/lib/formatters'
 
-const DASHBOARD_HISTORY_PAGE_SIZE = 6
+const DASHBOARD_HISTORY_PAGE_SIZE = 5
 
 const FLOW_OPTIONS: { value: DashboardFlow | ''; label: string }[] = [
   { value: '', label: 'Semua transaksi' },
@@ -1117,9 +1117,6 @@ export function DashboardPage() {
   return (
     <div className="dashboard-page">
       <style>{`
-        .dashboard-page .dashboard-transaction-modal {
-          overflow: visible;
-        }
 
         .dashboard-page .dashboard-transaction-form-date {
           display: grid;

@@ -411,6 +411,115 @@
   color: var(--app-danger);
 }
 
+.vehicle-loading {
+  width: 100%;
+  padding: 0;
+}
+
+.vehicle-loading-head,
+.vehicle-loading-row {
+  display: grid;
+  grid-template-columns:
+    minmax(150px, 1.15fr)
+    minmax(90px, 0.7fr)
+    minmax(140px, 1fr)
+    minmax(110px, 0.9fr)
+    minmax(130px, 1fr)
+    minmax(130px, 1fr)
+    minmax(96px, 0.7fr);
+  align-items: center;
+  gap: 12px;
+  min-width: 1100px;
+}
+
+.vehicle-loading-head {
+  padding: 12px;
+  border-bottom: 1px solid var(--theme-border);
+  background: var(--theme-surface-soft);
+  color: var(--theme-text-secondary);
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.055em;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.vehicle-loading-rows {
+  overflow-x: auto;
+}
+
+.vehicle-loading-row {
+  min-height: 62px;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--theme-border);
+}
+
+.vehicle-loading-row:last-child {
+  border-bottom: 0;
+}
+
+.vehicle-loading-row > .ui-skeleton {
+  width: min(100%, 130px);
+  height: 12px;
+}
+
+.vehicle-skeleton-kitchen {
+  width: min(100%, 140px) !important;
+}
+
+.vehicle-skeleton-type {
+  width: 54px !important;
+  justify-self: center;
+}
+
+.vehicle-skeleton-name {
+  width: min(100%, 120px) !important;
+}
+
+.vehicle-skeleton-plate {
+  width: 84px !important;
+  justify-self: center;
+}
+
+.vehicle-skeleton-expiry {
+  display: grid;
+  gap: 5px;
+}
+
+.vehicle-skeleton-expiry > .ui-skeleton {
+  width: min(100%, 88px);
+  height: 10px;
+}
+
+.vehicle-skeleton-expiry-sub {
+  width: 62px !important;
+  height: 9px !important;
+}
+
+.vehicle-skeleton-actions {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+}
+
+.vehicle-skeleton-actions .ui-skeleton {
+  width: 28px;
+  height: 28px !important;
+  border-radius: 8px !important;
+}
+
+@media (max-width: 700px) {
+  .vehicle-loading-head,
+  .vehicle-loading-row {
+    min-width: 1020px;
+  }
+
+  .vehicle-loading-row {
+    min-height: 58px;
+    padding: 9px 10px;
+  }
+}
+
 /* =========================================================
    CRUD MODAL
    ========================================================= */

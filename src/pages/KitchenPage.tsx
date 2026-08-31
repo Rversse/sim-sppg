@@ -1,4 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
+
+import { Skeleton } from '@/components/ui/skeleton'
 import { Pencil, Plus, Save, Trash2, X } from 'lucide-react'
 
 import { canAccess } from '@/features/auth/role-policy'
@@ -267,7 +269,47 @@ export function KitchenPage() {
 
       <div className="kitchen-panel">
         {loading ? (
-          <div className="kitchen-empty">Memuat data dapur...</div>
+          <div
+            className="kitchen-loading"
+            aria-label="Memuat data dapur"
+            role="status"
+          >
+            <div className="kitchen-loading-head" aria-hidden="true">
+              {[
+                'ID SPPG',
+                'Dapur',
+                'Yayasan',
+                'Perwakilan',
+                'Alamat',
+                'Status'
+              ].map((label) => (
+                <span key={label}>{label}</span>
+              ))}
+              {canManage ? <span>Aksi</span> : null}
+            </div>
+
+            <div className="kitchen-loading-rows">
+              {Array.from({ length: 6 }, (_, index) => (
+                <div className="kitchen-loading-row" key={index}>
+                  <Skeleton className="kitchen-skeleton-id" />
+                  <Skeleton className="kitchen-skeleton-name" />
+                  <Skeleton className="kitchen-skeleton-foundation" />
+                  <Skeleton className="kitchen-skeleton-pic" />
+                  <Skeleton className="kitchen-skeleton-address" />
+                  <Skeleton className="kitchen-skeleton-status" />
+                  {canManage ? (
+                    <div
+                      className="kitchen-skeleton-actions"
+                      aria-hidden="true"
+                    >
+                      <Skeleton />
+                      <Skeleton />
+                    </div>
+                  ) : null}
+                </div>
+              ))}
+            </div>
+          </div>
         ) : error ? (
           <div className="kitchen-empty kitchen-state-error">{error}</div>
         ) : !filtered.length ? (

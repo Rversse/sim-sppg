@@ -607,6 +607,44 @@ textarea {
 }
 
 /* =========================================================
+   SHARED SKELETON
+   Reusable loading placeholder for data-heavy surfaces.
+   ========================================================= */
+
+.ui-skeleton {
+  position: relative;
+  overflow: hidden;
+  border-radius: 8px;
+  background: var(--theme-surface-soft);
+}
+
+.ui-skeleton::after {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    color-mix(in srgb, var(--theme-surface-raised) 65%, transparent),
+    transparent
+  );
+  content: '';
+  transform: translateX(-100%);
+  animation: ui-skeleton-shimmer 1.4s ease-in-out infinite;
+}
+
+@keyframes ui-skeleton-shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ui-skeleton::after {
+    animation: none;
+  }
+}
+
+/* =========================================================
    MERGED SYSTEM LAYER
    Former file: system.css
    ========================================================= */
