@@ -350,6 +350,39 @@
   animation: dashboard-kpi-orbit 7s ease-in-out infinite;
 }
 
+.dashboard-kpi > .dashboard-kpi-icon {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 1;
+  display: inline-grid;
+  width: 30px;
+  height: 30px;
+  place-items: center;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.dashboard-kpi-icon svg {
+  width: 15px;
+  height: 15px;
+  color: #fff;
+  stroke-width: 2.25;
+}
+
+.dashboard-kpi-grid > .dashboard-kpi:nth-child(1) .dashboard-kpi-icon {
+  color: var(--theme-success);
+}
+.dashboard-kpi-grid > .dashboard-kpi:nth-child(2) .dashboard-kpi-icon {
+  color: var(--theme-primary);
+}
+.dashboard-kpi-grid > .dashboard-kpi:nth-child(3) .dashboard-kpi-icon {
+  color: var(--theme-warning);
+}
+.dashboard-kpi-grid > .dashboard-kpi:nth-child(4) .dashboard-kpi-icon {
+  color: var(--theme-primary);
+}
+
 .dashboard-kpi > span,
 .dashboard-kpi > small {
   display: block;
@@ -772,6 +805,7 @@
   flex: 1 1 auto;
   min-height: 0;
   margin-top: 12px;
+  padding-top: 14px; /* ruang biar icon row pertama gak kepotong */
   overflow-y: auto;
   border-top: 1px solid var(--app-border);
   scrollbar-width: thin;
@@ -784,8 +818,8 @@
   grid-template-columns: minmax(0, 1fr) auto;
   align-items: start;
   gap: 18px;
-  margin: 0 2px 8px;
-  padding: 30px 14px 14px;
+  margin: 0 10px 14px; /* dari 2px 8px → 10px 14px, kasih ruang samping+bawah */
+  padding: 26px 14px 14px;
   border: 1px solid var(--app-border-soft);
   border-radius: 12px;
   background: var(--theme-surface-raised);
@@ -935,22 +969,21 @@
 
 .dashboard-flow {
   position: absolute;
-  top: 8px;
-  left: 10px;
+  top: -8px;
+  left: -8px;
   z-index: 3;
   display: inline-grid;
-  width: 24px;
-  height: 24px;
-  min-width: 24px;
-  min-height: 24px;
+  width: 26px;
+  height: 26px;
+  min-width: 26px;
+  min-height: 26px;
   place-items: center;
   padding: 0;
   border: 0;
-  border-radius: 0;
-  background: transparent;
+  border-radius: 50%; /* lingkaran penuh */
+  background: currentColor;
+  box-shadow: var(--theme-shadow-hover);
   font-size: 0;
-  font-weight: 900;
-  line-height: 1;
   cursor: help;
   transition:
     transform var(--theme-motion-fast) var(--theme-ease),
@@ -958,9 +991,10 @@
 }
 
 .dashboard-flow svg {
-  width: 20px;
-  height: 20px;
+  width: 16px;
+  height: 16px;
   stroke-width: 2.25;
+  color: #fff;
 }
 
 .dashboard-flow:hover {

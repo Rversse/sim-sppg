@@ -1,6 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 
-import { Settings2, ShoppingCart, WalletCards } from 'lucide-react'
+import {
+  Settings2,
+  ShoppingCart,
+  WalletCards,
+  ArrowRightLeft
+} from 'lucide-react'
 
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/features/auth/use-auth'
@@ -1225,6 +1230,9 @@ export function DashboardPage() {
             filters.flowType === 'income' ? 'dashboard-kpi-primary' : ''
           }`}
         >
+          <span className="dashboard-kpi-icon">
+            <WalletCards aria-hidden="true" />
+          </span>
           <span>Pencairan / RAB</span>
           <strong>
             {loading ? 'Memuat…' : formatCurrency(summary.income)}
@@ -1237,6 +1245,9 @@ export function DashboardPage() {
             filters.flowType === 'expense' ? 'dashboard-kpi-primary' : ''
           }`}
         >
+          <span className="dashboard-kpi-icon">
+            <ShoppingCart aria-hidden="true" />
+          </span>
           <span>Pembayaran Supplier</span>
           <strong>
             {loading ? 'Memuat…' : formatCurrency(summary.expense)}
@@ -1249,6 +1260,9 @@ export function DashboardPage() {
             filters.flowType === 'neutral' ? 'dashboard-kpi-primary' : ''
           }`}
         >
+          <span className="dashboard-kpi-icon">
+            <Settings2 aria-hidden="true" />
+          </span>
           <span>Operasional</span>
           <strong>
             {loading ? 'Memuat…' : formatCurrency(summary.operational)}
@@ -1261,6 +1275,9 @@ export function DashboardPage() {
             filters.flowType === '' ? 'dashboard-kpi-primary' : ''
           }`}
         >
+          <span className="dashboard-kpi-icon">
+            <ArrowRightLeft aria-hidden="true" />
+          </span>
           <span>RAB − Pembayaran Supplier</span>
           <strong>
             {loading
@@ -1381,7 +1398,6 @@ export function DashboardPage() {
                         <span
                           className={flowClass(transaction.flow_type)}
                           aria-label={flowLabel(transaction.flow_type)}
-                          title={flowLabel(transaction.flow_type)}
                         >
                           <FlowIcon flow={transaction.flow_type} />
                         </span>
