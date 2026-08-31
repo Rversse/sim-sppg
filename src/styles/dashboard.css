@@ -911,8 +911,20 @@
 }
 
 .dashboard-history-party > strong {
-  color: var(--theme-success);
+  color: var(--theme-text-primary);
   font-weight: 900;
+}
+
+.dashboard-history-party-name.dashboard-flow-income {
+  color: var(--theme-success);
+}
+
+.dashboard-history-party-name.dashboard-flow-expense {
+  color: var(--theme-primary);
+}
+
+.dashboard-history-party-name.dashboard-flow-neutral {
+  color: var(--theme-warning);
 }
 
 .dashboard-history-party > i {
@@ -1048,24 +1060,24 @@
 
 .dashboard-history-amount {
   color: var(--theme-text-primary);
-  font-size: 12px;
-  font-weight: 800;
+  font-size: 14px;
+  font-weight: 850;
   white-space: nowrap;
 }
 
 .dashboard-history-actions {
   display: flex;
-  gap: 5px;
+  gap: 7px;
 }
 
 .dashboard-history-actions button {
-  min-height: 22px;
-  padding: 2px 7px;
+  min-height: 30px;
+  padding: 4px 9px;
   border: 1px solid var(--app-border);
-  border-radius: 6px;
+  border-radius: 8px;
   background: var(--app-surface);
   color: var(--app-text-muted);
-  font-size: 8px;
+  font-size: 9px;
   font-weight: 800;
   cursor: pointer;
   transition:

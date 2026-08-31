@@ -1117,6 +1117,9 @@ export function DashboardPage() {
   return (
     <div className="dashboard-page">
       <style>{`
+        .dashboard-page .dashboard-transaction-modal {
+          overflow: visible;
+        }
 
         .dashboard-page .dashboard-transaction-form-date {
           display: grid;
@@ -1401,7 +1404,14 @@ export function DashboardPage() {
                       </div>
 
                       <div className="dashboard-history-party">
-                        <strong>
+                        <strong
+                          className={`dashboard-history-party-name ${flowClass(
+                            transaction.flow_type
+                          )
+                            .split(' ')
+                            .slice(1)
+                            .join(' ')}`}
+                        >
                           {meta?.businessName ??
                             transaction.category ??
                             'Transaksi'}

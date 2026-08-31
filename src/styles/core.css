@@ -807,6 +807,12 @@ textarea:disabled {
     --app-header-height: 60px;
   }
 
+  .app-content {
+    width: 100%;
+    min-width: 0;
+    overflow-x: visible;
+  }
+
   .app-header {
     height: var(--app-header-height);
     padding: 0 16px;
@@ -838,7 +844,15 @@ textarea:disabled {
   }
 
   .app-main {
+    width: 100%;
+    min-width: 0;
+    max-width: none;
+    overflow-x: visible;
     padding: 17px 14px 124px;
+  }
+
+  .app-main {
+    overscroll-behavior-x: contain;
   }
 
   .app-mobile-nav {
