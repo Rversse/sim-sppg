@@ -15,6 +15,7 @@ import type { Kitchen, KitchenInput } from '@/features/kitchen/kitchen-types'
 
 const EMPTY_INPUT: KitchenInput = {
   name: '',
+  id_sppg: '',
   pic: '',
   foundation: '',
   address: '',
@@ -185,6 +186,7 @@ export function KitchenPage() {
     setEditingId(kitchen.id)
     setForm({
       name: kitchen.name,
+      id_sppg: kitchen.id_sppg ?? '',
       pic: kitchen.pic ?? '',
       foundation: kitchen.foundation ?? '',
       address: kitchen.address ?? '',
@@ -274,6 +276,7 @@ export function KitchenPage() {
           <table className="kitchen-table">
             <thead>
               <tr>
+                <th>ID SPPG</th>
                 <th>Dapur</th>
                 <th>Yayasan</th>
                 <th>Perwakilan</th>
@@ -287,6 +290,7 @@ export function KitchenPage() {
             <tbody>
               {filtered.map((kitchen) => (
                 <tr key={kitchen.id}>
+                  <td>{kitchen.id_sppg || '-'}</td>
                   <td>
                     <strong>{kitchen.name}</strong>
                   </td>
@@ -367,6 +371,26 @@ export function KitchenPage() {
 
             <div className="kitchen-modal-body">
               <div className="kitchen-form-grid">
+                <div className="kitchen-field">
+                  <label htmlFor="kitchen-id-sppg">ID SPPG</label>
+                  <input
+                    id="kitchen-id-sppg"
+                    value={form.id_sppg}
+                    onChange={(event) =>
+                      setForm((current) => ({
+                        ...current,
+                        id_sppg: event.target.value
+                          .replace(/[^a-zA-Z0-9]/g, '')
+                          .toUpperCase()
+                      }))
+                    }
+                    maxLength={32}
+                    autoComplete="off"
+                    spellCheck={false}
+                    placeholder="Contoh: SPPG001A"
+                  />
+                </div>
+
                 <div className="kitchen-field">
                   <label htmlFor="kitchen-name">Nama Dapur</label>
                   <input

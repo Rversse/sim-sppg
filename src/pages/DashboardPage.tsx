@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 
+import { Settings2, ShoppingCart, WalletCards } from 'lucide-react'
+
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/features/auth/use-auth'
 import {
@@ -54,6 +56,18 @@ function flowLabel(flow: DashboardFlow) {
   if (flow === 'income') return 'RAB'
   if (flow === 'expense') return 'Supplier'
   return 'Operasional'
+}
+
+function FlowIcon({ flow }: { flow: DashboardFlow }) {
+  if (flow === 'income') {
+    return <WalletCards aria-hidden="true" />
+  }
+
+  if (flow === 'expense') {
+    return <ShoppingCart aria-hidden="true" />
+  }
+
+  return <Settings2 aria-hidden="true" />
 }
 
 function flowClass(flow: DashboardFlow) {
@@ -1292,11 +1306,28 @@ export function DashboardPage() {
                       </span>
                     </div>
                     <div className="dashboard-status-flags">
-                      <span className={row.income ? 'is-done' : ''}>B</span>
-                      <span className={row.expense ? 'is-done' : ''}>S</span>
+                      <span
+                        className={row.income ? 'is-done' : ''}
+                        aria-label="RAB"
+                        title="RAB"
+                      >
+                        <WalletCards aria-hidden="true" />
+                      </span>
+
+                      <span
+                        className={row.expense ? 'is-done' : ''}
+                        aria-label="Supplier"
+                        title="Supplier"
+                      >
+                        <ShoppingCart aria-hidden="true" />
+                      </span>
                       {row.required === 3 ? (
-                        <span className={row.operational ? 'is-done' : ''}>
-                          O
+                        <span
+                          className={row.operational ? 'is-done' : ''}
+                          aria-label="Operasional"
+                          title="Operasional"
+                        >
+                          <Settings2 aria-hidden="true" />
                         </span>
                       ) : null}
                     </div>
@@ -1333,11 +1364,26 @@ export function DashboardPage() {
                   <div className="dashboard-history-row" key={transaction.id}>
                     <div className="dashboard-history-main">
                       <div className="dashboard-history-heading">
-                        <strong>
+                        <strong className="dashboard-history-kitchen">
                           {kitchen?.name ?? 'Dapur tidak diketahui'}
+                          {kitchen?.id_sppg ? (
+                            <>
+                              <span className="dashboard-history-kitchen-separator">
+                                /
+                              </span>
+                              <span className="dashboard-history-kitchen-id">
+                                {kitchen.id_sppg}
+                              </span>
+                            </>
+                          ) : null}
                         </strong>
-                        <span className={flowClass(transaction.flow_type)}>
-                          {flowLabel(transaction.flow_type)}
+
+                        <span
+                          className={flowClass(transaction.flow_type)}
+                          aria-label={flowLabel(transaction.flow_type)}
+                          title={flowLabel(transaction.flow_type)}
+                        >
+                          <FlowIcon flow={transaction.flow_type} />
                         </span>
                       </div>
 

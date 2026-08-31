@@ -4,7 +4,7 @@ import type { Kitchen, KitchenInput } from './kitchen-types'
 export async function getKitchens(client = supabase): Promise<Kitchen[]> {
   const { data, error } = await client
     .from('kitchens')
-    .select('id,name,pic,foundation,address,is_active')
+    .select('id,name,id_sppg,pic,foundation,address,is_active')
     .order('name')
 
   if (error) throw error
@@ -33,6 +33,7 @@ function validateKitchenInput(input: KitchenInput): string | null {
 function toKitchenRecord(input: KitchenInput) {
   return {
     name: input.name.trim(),
+    id_sppg: input.id_sppg.trim().toUpperCase() || null,
     pic: input.pic.trim() || null,
     foundation: input.foundation.trim() || null,
     address: input.address.trim() || null,

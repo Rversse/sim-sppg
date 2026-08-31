@@ -21,6 +21,7 @@ export type DashboardSummary = {
 export type DashboardKitchen = {
   id: string
   name: string
+  id_sppg: string | null
 }
 
 export type DashboardTransaction = {
@@ -91,7 +92,7 @@ export async function getActiveKitchens(
 ): Promise<DashboardKitchen[]> {
   const { data, error } = await client
     .from('kitchens')
-    .select('id,name')
+    .select('id,name,id_sppg')
     .eq('is_active', true)
     .order('name')
 
