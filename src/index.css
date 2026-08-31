@@ -7,6 +7,9 @@
 @import './styles/kitchen.css';
 @import './styles/supplier.css';
 @import './styles/vehicle.css';
+@import './styles/bank.css';
+@import './styles/disbursement.css';
 @import './styles/login.css';
 @import './styles/auth-notifications.css';
 @import './styles/toast.css';
+@import './styles/animated-select.css';
