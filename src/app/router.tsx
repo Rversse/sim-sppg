@@ -20,8 +20,6 @@ const {
   BankPage,
   ReportsPage,
   DisbursementPage,
-  DisbursementMakerPage,
-  AccountantManagementPage,
   DefaultRoute
 } = lazyPages
 const pageFallback = createElement(
@@ -53,24 +51,6 @@ export const router = createBrowserRouter(
               element: <RoleRoute permission="dashboard.view" />,
               children: [
                 { path: 'dashboard', element: pageElement(DashboardPage) }
-              ]
-            },
-            {
-              element: <RoleRoute permission="disbursement-maker.view" />,
-              children: [
-                {
-                  path: 'disbursement-maker',
-                  element: pageElement(DisbursementMakerPage)
-                }
-              ]
-            },
-            {
-              element: <RoleRoute permission="accountant.manage" />,
-              children: [
-                {
-                  path: 'admin/accountants',
-                  element: pageElement(AccountantManagementPage)
-                }
               ]
             },
             {

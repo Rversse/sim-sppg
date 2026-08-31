@@ -24,10 +24,6 @@ export const lazyPages = {
     () => import('@/pages/DashboardPage'),
     'DashboardPage'
   ),
-  DisbursementMakerPage: lazyNamed(
-    () => import('@/pages/DisbursementMakerPage'),
-    'DisbursementMakerPage'
-  ),
   KitchenPage: lazyNamed(() => import('@/pages/KitchenPage'), 'KitchenPage'),
   VehiclePage: lazyNamed(() => import('@/pages/VehiclePage'), 'VehiclePage'),
   SupplierPage: lazyNamed(() => import('@/pages/SupplierPage'), 'SupplierPage'),
@@ -36,10 +32,6 @@ export const lazyPages = {
   DisbursementPage: lazyNamed(
     () => import('@/pages/DisbursementPage'),
     'DisbursementPage'
-  ),
-  AccountantManagementPage: lazyNamed(
-    () => import('@/pages/AccountantManagementPage'),
-    'AccountantManagementPage'
   ),
   DefaultRoute: lazyNamed(() => import('@/pages/DefaultRoute'), 'DefaultRoute')
 } as const

@@ -13,13 +13,10 @@ export type Permission =
   | 'bank.transaction.create'
   | 'disbursement.view'
   | 'reports.view'
-  | 'disbursement-maker.view'
-  | 'accountant.manage'
 
 const permissions: Record<Permission, readonly UserRole[]> = {
   'dashboard.view': ['admin', 'operator'],
   'dashboard.transaction.create': ['admin'],
-  'disbursement-maker.view': ['admin'],
   'kitchen.view': ['admin', 'operator'],
   'kitchen.manage': ['admin'],
   'vehicle.view': ['admin', 'operator'],
@@ -29,8 +26,7 @@ const permissions: Record<Permission, readonly UserRole[]> = {
   'bank.view': ['admin', 'operator', 'viewer'],
   'bank.transaction.create': ['admin', 'operator'],
   'disbursement.view': ['admin'],
-  'reports.view': ['admin'],
-  'accountant.manage': ['admin']
+  'reports.view': ['admin']
 }
 
 export function canAccess(

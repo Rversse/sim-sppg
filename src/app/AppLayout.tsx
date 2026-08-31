@@ -6,12 +6,10 @@ import {
   Car,
   ChefHat,
   FileText,
-  KeyRound,
   LayoutDashboard,
   LogOut,
   Menu,
   Wallet,
-  WandSparkles,
   type LucideIcon
 } from 'lucide-react'
 import { VehicleExpiryNotification } from '@/components/ui/VehicleExpiryNotification'
@@ -38,13 +36,6 @@ const navigationSections: NavigationSection[] = [
         permission: 'dashboard.view',
         icon: LayoutDashboard,
         pageTitle: 'Dashboard'
-      },
-      {
-        label: 'Pencairan Maker',
-        to: '/disbursement-maker',
-        permission: 'disbursement-maker.view',
-        icon: WandSparkles,
-        pageTitle: 'Pencairan Maker'
       }
     ]
   },
@@ -102,18 +93,6 @@ const navigationSections: NavigationSection[] = [
         permission: 'reports.view',
         icon: FileText,
         pageTitle: 'Laporan'
-      }
-    ]
-  },
-  {
-    label: 'Administrasi',
-    items: [
-      {
-        label: 'Manajemen Akuntan',
-        to: '/admin/accountants',
-        permission: 'accountant.manage',
-        icon: KeyRound,
-        pageTitle: 'Manajemen Akuntan'
       }
     ]
   }
