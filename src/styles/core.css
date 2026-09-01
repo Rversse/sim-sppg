@@ -1,4 +1,58 @@
 /* =========================================================
+   INTER WEBFONT
+   Bundled locally so typography does not depend on OS-installed
+   fonts or browser privacy protections.
+   ========================================================= */
+
+@font-face {
+  font-family: 'Inter';
+  src: url('../assets/fonts/inter-v20-latin-regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Inter';
+  src: url('../assets/fonts/inter-v20-latin-500.woff2') format('woff2');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Inter';
+  src: url('../assets/fonts/inter-v20-latin-600.woff2') format('woff2');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Inter';
+  src: url('../assets/fonts/inter-v20-latin-700.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Inter';
+  src: url('../assets/fonts/inter-v20-latin-800.woff2') format('woff2');
+  font-weight: 800;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Inter';
+  src: url('../assets/fonts/inter-v20-latin-900.woff2') format('woff2');
+  font-weight: 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* =========================================================
    SIM SPPG — CORE UI FOUNDATION
    Single owner for:
    - light theme tokens
@@ -807,12 +861,6 @@ textarea:disabled {
     --app-header-height: 60px;
   }
 
-  .app-content {
-    width: 100%;
-    min-width: 0;
-    overflow-x: visible;
-  }
-
   .app-header {
     height: var(--app-header-height);
     padding: 0 16px;
@@ -844,15 +892,7 @@ textarea:disabled {
   }
 
   .app-main {
-    width: 100%;
-    min-width: 0;
-    max-width: none;
-    overflow-x: visible;
     padding: 17px 14px 124px;
-  }
-
-  .app-main {
-    overscroll-behavior-x: contain;
   }
 
   .app-mobile-nav {
