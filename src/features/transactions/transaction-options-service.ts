@@ -132,12 +132,8 @@ export async function getTransactionAccounts(
       : account.income_suppliers
 
     // RAB/Income availability is determined by the kitchen_account_rules mapping.
-    // Income account labels use income_suppliers metadata, so income accounts
-    // without that relation are not selectable.
-    //
-    // Operational/Neutral availability only depends on the kitchen_account_rules
-    // mapping to the account. It must not require an income_suppliers relation.
-    if (flowType === 'income' && !supplier) {
+    // income_suppliers.is_active is no longer part of the model.
+    if (!supplier) {
       continue
     }
 
@@ -161,15 +157,16 @@ function getIncomeAccountLabel(account: TransactionAccount): string {
 }
 
 function getOperationalAccountLabel(account: TransactionAccount): string {
-  const owner = (() => {
-    const supplier = Array.isArray(account.income_suppliers)
-      ? account.income_suppliers[0]
-      : account.income_suppliers
+  const supplier = Array.isArray(account.income_suppliers)
+    ? account.income_suppliers[0]
+    : account.income_suppliers
 
-    return supplier?.owner_name ? ` / ${supplier.owner_name}` : ''
-  })()
+  const businessName = supplier?.business_name?.trim() || account.name
+  const owner = supplier?.owner_name?.trim()
+    ? ` / ${supplier.owner_name.trim()}`
+    : ''
 
-  return `${account.name}${owner} (${account.bank} - ${account.account_number})`
+  return `${businessName}${owner} (${account.bank} - ${account.account_number})`
 }
 
 export async function getAvailableTransactionFlows(
@@ -274,11 +271,11 @@ export function getDefaultOperationalAccount(
   accounts: TransactionOption[]
 ): string {
   const arutalaBniAccounts = accounts.filter((account) =>
-    /^ARUTALA(?:\s*\/.*)?\s*\(BNI\s*-\s*/i.test(account.label)
+    /^KOPERASI ARUTALA(?:\s*\/.*)?\s*\(BNI\s*-\s*/i.test(account.label)
   )
 
   // Never choose an arbitrary BNI account. Auto-select only when the
-  // mapped operational options identify exactly one ARUTALA BNI account.
+  // mapped operational options identify exactly one Koperasi Arutala BNI account.
   return arutalaBniAccounts.length === 1 ? arutalaBniAccounts[0].value : ''
 }
 
