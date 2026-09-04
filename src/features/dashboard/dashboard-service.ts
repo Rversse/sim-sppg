@@ -163,7 +163,7 @@ export async function getSupplierOptions(
       if (!rule) return []
     }
 
-    return [{ value: account.id, label: 'Arutala BNI' }]
+    return [{ value: account.id, label: 'Koperasi Arutala BNI' }]
   }
 
   if (filters.flowType === 'expense') {
