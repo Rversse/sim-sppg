@@ -132,8 +132,12 @@ export async function getTransactionAccounts(
       : account.income_suppliers
 
     // RAB/Income availability is determined by the kitchen_account_rules mapping.
-    // income_suppliers.is_active is no longer part of the model.
-    if (!supplier) {
+    // Income account labels use income_suppliers metadata, so income accounts
+    // without that relation are not selectable.
+    //
+    // Operational/Neutral availability only depends on the kitchen_account_rules
+    // mapping to the account. It must not require an income_suppliers relation.
+    if (flowType === 'income' && !supplier) {
       continue
     }
 
