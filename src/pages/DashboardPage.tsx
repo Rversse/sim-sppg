@@ -1329,10 +1329,10 @@ export function DashboardPage() {
             <>
               <div className="dashboard-status-summary">
                 <span className="status-summary-green">
-                  <b>{dailyStatus.disbursed}</b> Sudah cair
+                  <b>{dailyStatus.disbursed}</b> Approved
                 </span>
                 <span className="status-summary-yellow">
-                  <b>{dailyStatus.pending}</b> Belum cair
+                  <b>{dailyStatus.pending}</b> Pending
                 </span>
                 <span className="status-summary-red">
                   <b>{dailyStatus.empty}</b> Belum ada transaksi
