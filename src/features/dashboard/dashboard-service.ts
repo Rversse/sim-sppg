@@ -49,17 +49,6 @@ const SUPPLIER_NAMES = [
   'Babinsa'
 ] as const
 
-const OPERATIONAL_EXCLUDED_KITCHENS = ['Sukaraja', 'Cihaur'] as const
-
-function isOperationalExcludedKitchen(
-  name: string | null | undefined
-): boolean {
-  return (
-    name === OPERATIONAL_EXCLUDED_KITCHENS[0] ||
-    name === OPERATIONAL_EXCLUDED_KITCHENS[1]
-  )
-}
-
 export async function getDashboardSummary(
   filters: DashboardFilters,
   client: SupabaseClient = supabase
@@ -301,32 +290,43 @@ export async function getDailyStatus(
   selectedDate: string,
   client: SupabaseClient = supabase
 ): Promise<{
-  green: number
-  yellow: number
-  red: number
+  disbursed: number
+  pending: number
+  empty: number
   rows: {
+    kitchenId: string
     kitchen: string
-    completed: number
-    required: number
+    status: 'disbursed' | 'pending' | 'empty'
     income: boolean
     expense: boolean
     operational: boolean
+    hasTransactions: boolean
+    canToggle: boolean
+    disbursed: boolean
   }[]
 }> {
-  const [kitchensResult, transactionsResult] = await Promise.all([
-    client
-      .from('kitchens')
-      .select('id,name')
-      .eq('is_active', true)
-      .order('name'),
-    client
-      .from('transactions')
-      .select('kitchen_id,flow_type')
-      .eq('transaction_date', selectedDate)
-  ])
+  const cutoffDate = '2026-09-09'
+
+  const [kitchensResult, transactionsResult, statusesResult] =
+    await Promise.all([
+      client
+        .from('kitchens')
+        .select('id,name')
+        .eq('is_active', true)
+        .order('name'),
+      client
+        .from('transactions')
+        .select('kitchen_id,flow_type')
+        .eq('transaction_date', selectedDate),
+      client
+        .from('kitchen_disbursement_statuses')
+        .select('kitchen_id,is_disbursed')
+        .eq('status_date', selectedDate)
+    ])
 
   if (kitchensResult.error) throw kitchensResult.error
   if (transactionsResult.error) throw transactionsResult.error
+  if (statusesResult.error) throw statusesResult.error
 
   const transactionMap = new Map<string, DashboardFlow[]>()
 
@@ -336,33 +336,46 @@ export async function getDailyStatus(
     transactionMap.set(transaction.kitchen_id, current)
   }
 
-  let green = 0
-  let yellow = 0
-  let red = 0
+  const statusMap = new Map<string, boolean>()
+  for (const row of statusesResult.data ?? []) {
+    statusMap.set(row.kitchen_id, Boolean(row.is_disbursed))
+  }
+
+  let disbursed = 0
+  let pending = 0
+  let empty = 0
 
   const rows = (kitchensResult.data ?? []).map((kitchen) => {
     const flows = transactionMap.get(kitchen.id) ?? []
     const income = flows.includes('income')
     const expense = flows.includes('expense')
     const operational = flows.includes('neutral')
-    const needsOperational = !isOperationalExcludedKitchen(kitchen.name)
-    const required = needsOperational ? 3 : 2
-    const completed =
-      Number(income) + Number(expense) + Number(needsOperational && operational)
+    const hasTransactions = flows.length > 0
+    const impliedDisbursed = selectedDate < cutoffDate
+    const storedDisbursed = statusMap.get(kitchen.id) ?? false
+    const rowDisbursed = impliedDisbursed || storedDisbursed
+    const status: 'disbursed' | 'pending' | 'empty' = !hasTransactions
+      ? 'empty'
+      : rowDisbursed
+        ? 'disbursed'
+        : 'pending'
 
-    if (completed === required) green += 1
-    else if (completed === 0) red += 1
-    else yellow += 1
+    if (status === 'disbursed') disbursed += 1
+    else if (status === 'pending') pending += 1
+    else empty += 1
 
     return {
+      kitchenId: kitchen.id,
       kitchen: kitchen.name,
-      completed,
-      required,
+      status,
       income,
       expense,
-      operational
+      operational,
+      hasTransactions,
+      canToggle: hasTransactions && selectedDate >= cutoffDate,
+      disbursed: rowDisbursed
     }
   })
 
-  return { green, yellow, red, rows }
+  return { disbursed, pending, empty, rows }
 }

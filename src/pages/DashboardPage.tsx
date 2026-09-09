@@ -26,7 +26,8 @@ import {
   createTransaction,
   deleteTransaction,
   hasDuplicateTransaction,
-  updateTransaction
+  updateTransaction,
+  setKitchenDisbursementStatus
 } from '@/features/transactions/transaction-service'
 
 import {
@@ -1044,6 +1045,31 @@ export function DashboardPage() {
     }
   }
 
+  async function handleKitchenDisbursementToggle(
+    kitchenId: string,
+    statusDate: string,
+    isDisbursed: boolean
+  ) {
+    if (user?.role !== 'admin') return
+
+    const row = dailyStatus?.rows.find((item) => item.kitchenId === kitchenId)
+    const targetKitchen = kitchens.find((item) => item.id === kitchenId)
+
+    if (!row || !targetKitchen || !row.canToggle) return
+
+    try {
+      await setKitchenDisbursementStatus(
+        targetKitchen.id,
+        statusDate,
+        isDisbursed
+      )
+      await refreshDashboard(false)
+    } catch (saveError) {
+      console.error(saveError)
+      setError('Gagal memperbarui status pencairan dapur.')
+    }
+  }
+
   async function handleTransactionDelete(transaction: DashboardTransaction) {
     if (user?.role !== 'admin') return
 
@@ -1303,53 +1329,107 @@ export function DashboardPage() {
             <>
               <div className="dashboard-status-summary">
                 <span className="status-summary-green">
-                  <b>{dailyStatus.green}</b> Lengkap
+                  <b>{dailyStatus.disbursed}</b> Sudah cair
                 </span>
                 <span className="status-summary-yellow">
-                  <b>{dailyStatus.yellow}</b> Proses
+                  <b>{dailyStatus.pending}</b> Belum cair
                 </span>
                 <span className="status-summary-red">
-                  <b>{dailyStatus.red}</b> Belum
+                  <b>{dailyStatus.empty}</b> Belum ada transaksi
                 </span>
               </div>
 
               <div className="dashboard-status-list">
-                {dailyStatus.rows.map((row) => (
-                  <div className="dashboard-status-row" key={row.kitchen}>
-                    <div>
-                      <strong>{row.kitchen}</strong>
-                      <span>
-                        {row.completed}/{row.required} aktivitas
-                      </span>
-                    </div>
-                    <div className="dashboard-status-flags">
-                      <span
-                        className={row.income ? 'is-done' : ''}
-                        aria-label="RAB"
-                        title="RAB"
-                      >
-                        <WalletCards aria-hidden="true" />
-                      </span>
+                {dailyStatus.rows.map((row) => {
+                  const rowClass =
+                    row.status === 'disbursed'
+                      ? 'is-disbursed'
+                      : row.status === 'pending'
+                        ? 'is-pending'
+                        : 'is-empty'
 
-                      <span
-                        className={row.expense ? 'is-done' : ''}
-                        aria-label="Supplier"
-                        title="Supplier"
-                      >
-                        <ShoppingCart aria-hidden="true" />
-                      </span>
-                      {row.required === 3 ? (
-                        <span
-                          className={row.operational ? 'is-done' : ''}
-                          aria-label="Operasional"
-                          title="Operasional"
-                        >
-                          <Settings2 aria-hidden="true" />
+                  return (
+                    <div
+                      className={`dashboard-status-row ${rowClass}`}
+                      key={row.kitchen}
+                    >
+                      <div>
+                        <strong>{row.kitchen}</strong>
+                        <span>
+                          {row.status === 'disbursed'
+                            ? 'Approved'
+                            : row.status === 'pending'
+                              ? 'Pending'
+                              : 'Belum ada transaksi'}
                         </span>
-                      ) : null}
+                      </div>
+
+                      <div className="dashboard-status-row-actions">
+                        <div className="dashboard-status-flags">
+                          <span
+                            className={row.income ? 'is-done' : ''}
+                            aria-label="RAB"
+                            title="RAB"
+                          >
+                            <WalletCards aria-hidden="true" />
+                          </span>
+                          <span
+                            className={row.expense ? 'is-done' : ''}
+                            aria-label="Supplier"
+                            title="Supplier"
+                          >
+                            <ShoppingCart aria-hidden="true" />
+                          </span>
+                          {!['sukaraja', 'cihaur'].includes(
+                            row.kitchen.trim().toLowerCase()
+                          ) ? (
+                            <span
+                              className={row.operational ? 'is-done' : ''}
+                              aria-label="Operasional"
+                              title="Operasional"
+                            >
+                              <Settings2 aria-hidden="true" />
+                            </span>
+                          ) : null}
+                        </div>
+
+                        {user?.role === 'admin' && row.canToggle ? (
+                          <label
+                            className={`dashboard-disbursement-check ${
+                              row.disbursed ? 'is-checked' : ''
+                            }`}
+                            title={
+                              row.disbursed
+                                ? 'Batalkan status sudah dicairkan'
+                                : 'Tandai sudah dicairkan'
+                            }
+                          >
+                            <input
+                              type="checkbox"
+                              checked={row.disbursed}
+                              onChange={(event) =>
+                                void handleKitchenDisbursementToggle(
+                                  row.kitchenId,
+                                  filters.startDate,
+                                  event.target.checked
+                                )
+                              }
+                              aria-label={
+                                row.disbursed
+                                  ? `Batalkan status pencairan ${row.kitchen}`
+                                  : `Tandai ${row.kitchen} sudah dicairkan`
+                              }
+                            />
+                            <span
+                              className="dashboard-disbursement-checkmark"
+                              aria-hidden="true"
+                            />
+                          </label>
+                        ) : null}
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  )
+                })}
               </div>
             </>
           ) : (

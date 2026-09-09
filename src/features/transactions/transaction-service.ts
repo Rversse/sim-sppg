@@ -33,6 +33,7 @@ export type TransactionRecord = {
   account_id: string | null
   supplier_id: string | null
   created_at: string
+  is_disbursed: boolean
   kitchens: {
     name: string
   } | null
@@ -75,6 +76,7 @@ export async function getTransactions(
       account_id,
       supplier_id,
       created_at,
+      is_disbursed,
       kitchens(name),
       suppliers!transactions_supplier_id_fkey(
         name
@@ -294,6 +296,33 @@ export async function updateTransaction(
     .eq('id', id)
     .select()
     .single()
+
+  if (error) {
+    throw error
+  }
+
+  return data
+}
+
+export async function setKitchenDisbursementStatus(
+  kitchenId: string,
+  statusDate: string,
+  isDisbursed: boolean,
+  client: SupabaseClient = supabase
+) {
+  if (!kitchenId) {
+    throw new Error('Dapur tidak ditemukan')
+  }
+
+  if (!statusDate) {
+    throw new Error('Tanggal status pencairan tidak ditemukan')
+  }
+
+  const { data, error } = await client.rpc('set_kitchen_disbursement_status', {
+    p_kitchen_id: kitchenId,
+    p_status_date: statusDate,
+    p_is_disbursed: isDisbursed
+  })
 
   if (error) {
     throw error
