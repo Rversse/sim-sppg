@@ -9,7 +9,7 @@ export type TransactionOption = {
 
 export type KitchenOption = TransactionOption
 
-export type TransactionFlow = 'income' | 'expense' | 'neutral'
+export type TransactionFlow = 'income' | 'expense' | 'neutral' | 'real_ops'
 
 export type TransactionAccount = {
   id: string
@@ -203,7 +203,7 @@ export async function getAvailableTransactionFlows(
   const flows: TransactionFlow[] = ['income', 'expense']
 
   if (hasNeutralRule && !isOperationalExcludedKitchen(kitchen?.name)) {
-    flows.push('neutral')
+    flows.push('neutral', 'real_ops')
   }
 
   return flows
