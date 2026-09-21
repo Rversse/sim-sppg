@@ -1415,8 +1415,8 @@ export function DashboardPage() {
                           ) ? (
                             <span
                               className={row.operational ? 'is-done' : ''}
-                              aria-label="Operasional"
-                              title="Operasional"
+                              aria-label="Pencairan / Ops"
+                              title="Pencairan / Ops"
                             >
                               <Settings2 aria-hidden="true" />
                             </span>
