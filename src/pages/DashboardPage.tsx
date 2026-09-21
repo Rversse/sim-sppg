@@ -55,13 +55,15 @@ const FLOW_OPTIONS: { value: DashboardFlow | ''; label: string }[] = [
   { value: '', label: 'Semua transaksi' },
   { value: 'income', label: 'RAB' },
   { value: 'expense', label: 'Pembayaran Supplier' },
-  { value: 'neutral', label: 'Operasional' }
+  { value: 'neutral', label: 'Pencairan / Ops' },
+  { value: 'real_ops', label: 'Real / Ops' }
 ]
 
 function flowLabel(flow: DashboardFlow) {
   if (flow === 'income') return 'RAB'
   if (flow === 'expense') return 'Supplier'
-  return 'Operasional'
+  if (flow === 'real_ops') return 'Real / Ops'
+  return 'Pencairan / Ops'
 }
 
 function FlowIcon({ flow }: { flow: DashboardFlow }) {
@@ -79,6 +81,7 @@ function FlowIcon({ flow }: { flow: DashboardFlow }) {
 function flowClass(flow: DashboardFlow) {
   if (flow === 'income') return 'dashboard-flow dashboard-flow-income'
   if (flow === 'expense') return 'dashboard-flow dashboard-flow-expense'
+  if (flow === 'real_ops') return 'dashboard-flow dashboard-flow-real-ops'
   return 'dashboard-flow dashboard-flow-neutral'
 }
 
@@ -193,11 +196,12 @@ export function DashboardPage() {
   >([])
   const [availableFilterFlows, setAvailableFilterFlows] = useState<
     DashboardFlow[]
-  >(['income', 'expense', 'neutral'])
+  >(['income', 'expense', 'neutral', 'real_ops'])
   const [summary, setSummary] = useState<DashboardSummary>({
     income: 0,
     expense: 0,
-    operational: 0
+    operational: 0,
+    realOperational: 0
   })
   const [transactions, setTransactions] = useState<DashboardTransaction[]>([])
   const [totalTransactions, setTotalTransactions] = useState(0)
@@ -427,19 +431,21 @@ export function DashboardPage() {
     !isSukarajaFilterKitchen
 
   const supplierDisabled =
-    filters.flowType === 'neutral' || supplierLockedToArutala
+    filters.flowType === 'neutral' ||
+    filters.flowType === 'real_ops' ||
+    supplierLockedToArutala
 
   const supplierFilterLabel =
     filters.flowType === 'income'
       ? 'Rekening Supplier'
       : filters.flowType === 'expense'
         ? 'Supplier'
-        : filters.flowType === 'neutral'
+        : filters.flowType === 'neutral' || filters.flowType === 'real_ops'
           ? 'Rekening Operasional'
           : 'Supplier / Rekening'
 
   const supplierPlaceholder = supplierDisabled
-    ? filters.flowType === 'neutral'
+    ? filters.flowType === 'neutral' || filters.flowType === 'real_ops'
       ? 'Arutala BNI'
       : 'Koperasi Arutala'
     : filters.flowType === 'expense' && isSukarajaFilterKitchen
@@ -492,7 +498,7 @@ export function DashboardPage() {
     // Start from the common flows while the kitchen-specific rules load.
     // This prevents a stale "Operasional" selection from surviving a kitchen change.
     if (!value) {
-      setAvailableFilterFlows(['income', 'expense', 'neutral'])
+      setAvailableFilterFlows(['income', 'expense', 'neutral', 'real_ops'])
       return
     }
 
@@ -516,7 +522,7 @@ export function DashboardPage() {
       supplierFilter: ''
     }))
 
-    if (value === 'neutral') {
+    if (value === 'neutral' || value === 'real_ops') {
       try {
         const options = await getSupplierOptions({
           startDate: filters.startDate,
@@ -709,8 +715,13 @@ export function DashboardPage() {
       return
     }
 
-    if (flowType === 'income' || flowType === 'neutral') {
-      const accounts = await getAccountsForFlow(kitchenId, flowType)
+    if (
+      flowType === 'income' ||
+      flowType === 'neutral' ||
+      flowType === 'real_ops'
+    ) {
+      const accountFlowType = flowType === 'real_ops' ? 'neutral' : flowType
+      const accounts = await getAccountsForFlow(kitchenId, accountFlowType)
 
       setFormAccounts(accounts)
       setFormSuppliers([])
@@ -722,7 +733,7 @@ export function DashboardPage() {
       ) {
         setFormAccountId(preserveAccountId)
         setFormEntryUnlocked(true)
-      } else if (flowType === 'neutral') {
+      } else if (flowType === 'neutral' || flowType === 'real_ops') {
         const operationalAccount = getDefaultOperationalAccount(accounts)
         setFormAccountId(operationalAccount)
         setFormEntryUnlocked(Boolean(operationalAccount))
@@ -882,7 +893,7 @@ export function DashboardPage() {
         if (!isSukaraja) {
           focusNominalInput()
         }
-      } else if (value === 'neutral') {
+      } else if (value === 'neutral' || value === 'real_ops') {
         // Operational account is selected automatically, so go directly to amount.
         focusNominalInput()
       }
@@ -918,7 +929,7 @@ export function DashboardPage() {
           ? 'Pilih rekening supplier terlebih dahulu.'
           : formFlowType === 'expense'
             ? 'Pilih supplier terlebih dahulu.'
-            : formFlowType === 'neutral'
+            : formFlowType === 'neutral' || formFlowType === 'real_ops'
               ? 'Rekening operasional belum siap.'
               : 'Lengkapi dapur dan jenis transaksi terlebih dahulu.'
       )
@@ -931,7 +942,9 @@ export function DashboardPage() {
     }
 
     if (
-      (formFlowType === 'income' || formFlowType === 'neutral') &&
+      (formFlowType === 'income' ||
+        formFlowType === 'neutral' ||
+        formFlowType === 'real_ops') &&
       !formAccountId
     ) {
       setFormError('Rekening wajib dipilih.')
@@ -954,9 +967,13 @@ export function DashboardPage() {
           ? 'RAB'
           : formFlowType === 'expense'
             ? 'Supplier'
-            : 'OPS',
+            : formFlowType === 'real_ops'
+              ? 'REAL_OPS'
+              : 'OPS',
       account_id:
-        formFlowType === 'income' || formFlowType === 'neutral'
+        formFlowType === 'income' ||
+        formFlowType === 'neutral' ||
+        formFlowType === 'real_ops'
           ? formAccountId
           : null,
       supplier_id: formFlowType === 'expense' ? formSupplierId : null
@@ -1022,8 +1039,11 @@ export function DashboardPage() {
             // Keep it selected/locked so the next entry can be keyed immediately.
             setFormEntryUnlocked(true)
           }
-        } else if (formFlowType === 'neutral') {
-          // Operational: Arutala BNI stays selected and locked.
+        } else if (
+          formFlowType === 'neutral' ||
+          formFlowType === 'real_ops'
+        ) {
+          // Operational account stays selected and locked.
           setFormEntryUnlocked(Boolean(formAccountId))
         }
       }
@@ -1282,18 +1302,29 @@ export function DashboardPage() {
         </article>
 
         <article
-          className={`dashboard-kpi ${
-            filters.flowType === 'neutral' ? 'dashboard-kpi-primary' : ''
-          }`}
+          className={`dashboard-kpi ${filters.flowType === 'neutral' ? 'dashboard-kpi-primary' : ''}`}
         >
           <span className="dashboard-kpi-icon">
             <Settings2 aria-hidden="true" />
           </span>
-          <span>Operasional</span>
+          <span>Pencairan / Ops</span>
           <strong>
             {loading ? 'Memuat…' : formatCurrency(summary.operational)}
           </strong>
-          <small>Total transaksi operasional pada periode terpilih</small>
+          <small>Total pencairan operasional pada periode terpilih</small>
+        </article>
+
+        <article
+          className={`dashboard-kpi ${filters.flowType === 'real_ops' ? 'dashboard-kpi-primary' : ''}`}
+        >
+          <span className="dashboard-kpi-icon">
+            <Settings2 aria-hidden="true" />
+          </span>
+          <span>Real / Ops</span>
+          <strong>
+            {loading ? 'Memuat…' : formatCurrency(summary.realOperational)}
+          </strong>
+          <small>Total realisasi operasional pada periode terpilih</small>
         </article>
 
         <article
@@ -1304,15 +1335,14 @@ export function DashboardPage() {
           <span className="dashboard-kpi-icon">
             <ArrowRightLeft aria-hidden="true" />
           </span>
-          <span>RAB − Pembayaran Supplier</span>
+          <span>Total RAB</span>
           <strong>
             {loading
               ? 'Memuat…'
               : formatCurrency(filters.flowType === '' ? net : 0)}
           </strong>
           <small>
-            Sisa dana setelah dilakukan pembayaran ke supplier dari RAB pada
-            periode terpilih
+            Pencairan RAB dikurangi pembayaran supplier pada periode terpilih
           </small>
         </article>
       </section>
@@ -1738,7 +1768,8 @@ export function DashboardPage() {
                     ? 'Supplier / Rekening'
                     : formFlowType === 'expense'
                       ? 'Supplier'
-                      : formFlowType === 'neutral'
+                      : formFlowType === 'neutral' ||
+                          formFlowType === 'real_ops'
                         ? 'Rekening Operasional'
                         : 'Rekening'}
                 </span>
@@ -1781,7 +1812,8 @@ export function DashboardPage() {
                       !formKitchenId ||
                       !formFlowType ||
                       modalMode === 'edit' ||
-                      formFlowType === 'neutral'
+                      (formFlowType === 'neutral' ||
+                        formFlowType === 'real_ops')
                     }
                     onChange={(event) => {
                       const value = event.target.value
@@ -1798,7 +1830,8 @@ export function DashboardPage() {
                         ? 'Pilih dapur terlebih dahulu'
                         : !formFlowType
                           ? 'Pilih jenis transaksi terlebih dahulu'
-                          : formFlowType === 'neutral'
+                          : formFlowType === 'neutral' ||
+                        formFlowType === 'real_ops'
                             ? 'Rekening operasional dipilih otomatis'
                             : 'Pilih rekening'}
                     </option>
