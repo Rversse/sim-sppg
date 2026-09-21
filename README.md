@@ -19,9 +19,12 @@ Menampilkan ringkasan transaksi dan riwayat transaksi berdasarkan periode/filter
 
 Flow transaksi Dashboard:
 
-- `income` → RAB / Pencairan
-- `expense` → Pembayaran Supplier
-- `neutral` → Operasional
+- `income` → Pencairan / RAB
+- `expense` → Supplier
+- `neutral` → Pencairan / Ops
+- `real_ops` → Real / Ops
+
+`real_ops` hanya dipakai sebagai realisasi operasional. Flow ini tidak masuk ledger Transaksi Bank dan hanya mengurangi total Pencairan / Ops pada laporan.
 
 ### Transaksi Bank
 Digunakan untuk transfer antar rekening dan transfer keluar.
