@@ -19,7 +19,9 @@ export type OverallKitchenReport = {
   income: number
   expense: number
   operational: number
-  remaining: number
+  realOperational: number
+  totalRAB: number
+  totalOperational: number
 }
 
 export type OverallDailyReport = {
@@ -27,7 +29,9 @@ export type OverallDailyReport = {
   income: number
   expense: number
   operational: number
-  remaining: number
+  realOperational: number
+  totalRAB: number
+  totalOperational: number
 }
 
 export type OverallReport = {
@@ -37,7 +41,9 @@ export type OverallReport = {
     income: number
     expense: number
     operational: number
-    remaining: number
+    realOperational: number
+    totalRAB: number
+    totalOperational: number
   }
 }
 
@@ -85,7 +91,7 @@ export type SupplierReport = {
 type ReportTransaction = {
   amount: number | string | null
   transaction_date: string
-  flow_type: 'income' | 'expense' | 'neutral'
+  flow_type: 'income' | 'expense' | 'neutral' | 'real_ops'
   kitchen_id: string | null
   created_at: string
   suppliers?:
@@ -254,7 +260,9 @@ export async function getOverallReport(
       income: 0,
       expense: 0,
       operational: 0,
-      remaining: 0
+      realOperational: 0,
+      totalRAB: 0,
+      totalOperational: 0
     })
   }
 
@@ -279,6 +287,8 @@ export async function getOverallReport(
       kitchen.expense += amount
     } else if (transaction.flow_type === 'neutral') {
       kitchen.operational += amount
+    } else if (transaction.flow_type === 'real_ops') {
+      kitchen.realOperational += amount
     }
 
     let dailyRow = daily.get(transaction.transaction_date)
@@ -289,7 +299,9 @@ export async function getOverallReport(
         income: 0,
         expense: 0,
         operational: 0,
-        remaining: 0
+        realOperational: 0,
+        totalRAB: 0,
+        totalOperational: 0
       }
 
       daily.set(transaction.transaction_date, dailyRow)
@@ -301,23 +313,34 @@ export async function getOverallReport(
       dailyRow.expense += amount
     } else if (transaction.flow_type === 'neutral') {
       dailyRow.operational += amount
+    } else if (transaction.flow_type === 'real_ops') {
+      dailyRow.realOperational += amount
     }
   }
 
   let totalIncome = 0
   let totalExpense = 0
   let totalOperational = 0
+  let totalRealOperational = 0
+  let totalRAB = 0
+  let totalOperationalNet = 0
 
   for (const kitchen of grouped.values()) {
-    kitchen.remaining = kitchen.income - kitchen.expense
+    kitchen.totalRAB = kitchen.income - kitchen.expense
+    kitchen.totalOperational =
+      kitchen.operational - kitchen.realOperational
 
     totalIncome += kitchen.income
     totalExpense += kitchen.expense
     totalOperational += kitchen.operational
+    totalRealOperational += kitchen.realOperational
+    totalRAB += kitchen.totalRAB
+    totalOperationalNet += kitchen.totalOperational
   }
 
   for (const row of daily.values()) {
-    row.remaining = row.income - row.expense
+    row.totalRAB = row.income - row.expense
+    row.totalOperational = row.operational - row.realOperational
   }
 
   return {
@@ -330,7 +353,8 @@ export async function getOverallReport(
       if (!activeB && activeA) return -1
 
       return (
-        a.remaining - b.remaining || a.kitchenName.localeCompare(b.kitchenName)
+        a.totalRAB - b.totalRAB ||
+        a.kitchenName.localeCompare(b.kitchenName)
       )
     }),
 
@@ -340,7 +364,9 @@ export async function getOverallReport(
       income: totalIncome,
       expense: totalExpense,
       operational: totalOperational,
-      remaining: totalIncome - totalExpense
+      realOperational: totalRealOperational,
+      totalRAB,
+      totalOperational: totalOperationalNet
     }
   }
 }
