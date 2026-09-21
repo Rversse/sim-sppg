@@ -2,7 +2,7 @@ import type { SupabaseClient } from '@supabase/supabase-js'
 
 import { supabase } from '@/lib/supabase'
 
-export type TransactionFlow = 'income' | 'expense' | 'neutral'
+export type TransactionFlow = 'income' | 'expense' | 'neutral' | 'real_ops'
 
 export type TransactionFilters = {
   startDate: string
@@ -17,7 +17,7 @@ export type TransactionPayload = {
   amount: number
   note: string | null
   flow_type: TransactionFlow
-  category: 'RAB' | 'Supplier' | 'OPS'
+  category: 'RAB' | 'Supplier' | 'OPS' | 'REAL_OPS'
   account_id: string | null
   supplier_id: string | null
 }
@@ -160,6 +160,15 @@ export function buildTransactionPayload(
         account_id: input.accountId ?? null,
         supplier_id: null
       }
+
+    case 'real_ops':
+      return {
+        ...base,
+        flow_type: 'real_ops',
+        category: 'REAL_OPS',
+        account_id: input.accountId ?? null,
+        supplier_id: null
+      }
   }
 }
 
@@ -179,7 +188,9 @@ export function validateTransactionPayload(
   }
 
   if (
-    (payload.flow_type === 'income' || payload.flow_type === 'neutral') &&
+    (payload.flow_type === 'income' ||
+      payload.flow_type === 'neutral' ||
+      payload.flow_type === 'real_ops') &&
     !payload.account_id
   ) {
     return 'Rekening wajib dipilih'
@@ -216,7 +227,11 @@ export async function hasDuplicateTransaction(
     query = query.eq('supplier_id', payload.supplier_id)
   }
 
-  if (payload.flow_type === 'income' || payload.flow_type === 'neutral') {
+  if (
+    payload.flow_type === 'income' ||
+    payload.flow_type === 'neutral' ||
+    payload.flow_type === 'real_ops'
+  ) {
     query = query.eq('account_id', payload.account_id)
   }
 
