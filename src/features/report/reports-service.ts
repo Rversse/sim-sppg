@@ -345,9 +345,17 @@ export async function getOverallReport(
 
   return {
     kitchens: [...grouped.values()].sort((a, b) => {
-      const activeA = a.income > 0 || a.expense > 0 || a.operational > 0
+      const activeA =
+        a.income > 0 ||
+        a.expense > 0 ||
+        a.operational > 0 ||
+        a.realOperational > 0
 
-      const activeB = b.income > 0 || b.expense > 0 || b.operational > 0
+      const activeB =
+        b.income > 0 ||
+        b.expense > 0 ||
+        b.operational > 0 ||
+        b.realOperational > 0
 
       if (!activeA && activeB) return 1
       if (!activeB && activeA) return -1
