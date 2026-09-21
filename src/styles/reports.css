@@ -203,7 +203,7 @@
   display: grid;
   width: 100%;
   max-width: none;
-  grid-template-columns: repeat(4, minmax(0, 285px));
+  grid-template-columns: repeat(3, minmax(0, 285px));
   align-items: stretch;
   justify-content: center;
   gap: 12px;
