@@ -945,6 +945,10 @@
   color: var(--theme-warning);
 }
 
+.dashboard-history-party-name.dashboard-flow-real-ops {
+  color: var(--theme-warning-hover);
+}
+
 .dashboard-history-party > i {
   color: var(--theme-text-muted);
   font-style: normal;
@@ -1074,6 +1078,10 @@
 
 .dashboard-flow-neutral {
   color: var(--theme-warning);
+}
+
+.dashboard-flow-real-ops {
+  color: var(--theme-warning-hover);
 }
 
 .dashboard-history-amount {
