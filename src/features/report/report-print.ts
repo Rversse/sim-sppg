@@ -39,7 +39,7 @@ function printReport() {
 
   reportClone
     .querySelectorAll(
-      '.reports-filter-panel, .reports-detail-list, .reports-detail, .reports-total-row, button'
+      '.reports-filter-panel, .reports-detail-list, .reports-detail, button'
     )
     .forEach((element) => element.remove())
 
@@ -165,7 +165,7 @@ function printReport() {
 
     .reports-summary-grid {
       display: grid !important;
-      grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+      grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
       gap: 12px !important;
       margin-bottom: 14px !important;
     }
@@ -184,28 +184,20 @@ function printReport() {
       break-inside: avoid;
     }
 
-    .reports-summary-card:nth-child(1) {
+    .reports-summary-overall .reports-summary-card:nth-child(1) {
       border-left: 5px solid #16a34a !important;
     }
 
-    .reports-summary-card:nth-child(2) {
+    .reports-summary-overall .reports-summary-card:nth-child(2) {
       border-left: 5px solid #dc2626 !important;
     }
 
-    .reports-summary-card:nth-child(3) {
+    .reports-summary-overall .reports-summary-card:nth-child(3) {
+      border-left: 5px solid #7c3aed !important;
+    }
+
+    .reports-summary-overall .reports-summary-card:nth-child(4) {
       border-left: 5px solid #d97706 !important;
-    }
-
-    .reports-summary-card:nth-child(4) {
-      border-left: 5px solid #2563eb !important;
-    }
-
-    .reports-summary-card:nth-child(5) {
-      border-left: 5px solid #d97706 !important;
-    }
-
-    .reports-summary-card:nth-child(6) {
-      border-left: 5px solid #2563eb !important;
     }
 
     .reports-summary-card > span {
@@ -261,7 +253,7 @@ function printReport() {
       font-size: 9px !important;
       text-transform: uppercase;
       padding: 8px 10px !important;
-      border-bottom: 2px solid #D2DAEA !important;
+      border: 1px solid #D2DAEA !important;
       white-space: nowrap;
     }
 
@@ -270,7 +262,7 @@ function printReport() {
       padding: 8px 10px !important;
       text-align: center;
       vertical-align: middle;
-      border-bottom: 1px solid #D2DAEA !important;
+      border: 1px solid #D2DAEA !important;
       white-space: nowrap;
       color: #18293F !important;
     }
@@ -281,9 +273,10 @@ function printReport() {
     }
 
     .reports-total-row td {
-      font-weight: bold !important;
-      background: #ECF0F6 !important;
-      border-top: 2px solid #D2DAEA !important;
+      font-weight: 900 !important;
+      background: #E2E8F0 !important;
+      border-top: 2px solid #64748B !important;
+      border-bottom: 2px solid #64748B !important;
     }
 
     .reports-table .positive {

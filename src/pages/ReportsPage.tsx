@@ -370,22 +370,16 @@ function OverallReportView() {
 
       {!loading && !error && report && (
         <>
-          <div className="reports-summary-grid">
+          <div className="reports-summary-grid reports-summary-overall">
             <SummaryCard
               label="Pencairan / RAB"
               value={report.totals.income}
               note="Total pencairan RAB pada periode terpilih"
             />
             <SummaryCard
-              label="Supplier"
+              label="Real / RAB"
               value={report.totals.expense}
-              note="Total pembayaran ke supplier pada periode terpilih"
-            />
-            <SummaryCard
-              label="Total RAB"
-              value={report.totals.totalRAB}
-              note="Pencairan RAB dikurangi pembayaran supplier"
-              negative={report.totals.totalRAB < 0}
+              note="Total realisasi supplier pada periode terpilih"
             />
             <SummaryCard
               label="Pencairan / Ops"
@@ -397,12 +391,6 @@ function OverallReportView() {
               value={report.totals.realOperational}
               note="Total realisasi operasional pada periode terpilih"
             />
-            <SummaryCard
-              label="Total Operasional"
-              value={report.totals.totalOperational}
-              note="Pencairan / Ops dikurangi Real / Ops"
-              negative={report.totals.totalOperational < 0}
-            />
           </div>
 
           <div className="reports-table-wrapper">
@@ -411,11 +399,11 @@ function OverallReportView() {
                 <tr>
                   <th>DAPUR</th>
                   <th>PENCAIRAN / RAB</th>
-                  <th>SUPPLIER</th>
+                  <th>REAL / RAB</th>
                   <th>TOTAL RAB</th>
                   <th>PENCAIRAN / OPS</th>
                   <th>REAL / OPS</th>
-                  <th>TOTAL OPERASIONAL</th>
+                  <th>TOTAL OPS</th>
                 </tr>
               </thead>
               <tbody>
@@ -424,9 +412,7 @@ function OverallReportView() {
                     <td>{item.kitchenName}</td>
                     <td>{formatCurrency(item.income)}</td>
                     <td>{formatCurrency(item.expense)}</td>
-                    <td
-                      className={item.totalRAB < 0 ? 'negative' : 'positive'}
-                    >
+                    <td className={item.totalRAB < 0 ? 'negative' : 'positive'}>
                       {formatCurrency(item.totalRAB)}
                     </td>
                     <td>{formatCurrency(item.operational)}</td>

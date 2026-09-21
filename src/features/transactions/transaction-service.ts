@@ -20,6 +20,7 @@ export type TransactionPayload = {
   category: 'RAB' | 'Supplier' | 'OPS' | 'REAL_OPS'
   account_id: string | null
   supplier_id: string | null
+  destination_label: string | null
 }
 
 export type TransactionRecord = {
@@ -32,6 +33,7 @@ export type TransactionRecord = {
   note: string | null
   account_id: string | null
   supplier_id: string | null
+  destination_label: string | null
   created_at: string
   is_disbursed: boolean
   kitchens: {
@@ -77,6 +79,7 @@ export async function getTransactions(
       supplier_id,
       created_at,
       is_disbursed,
+      destination_label,
       kitchens(name),
       suppliers!transactions_supplier_id_fkey(
         name
@@ -124,6 +127,7 @@ export function buildTransactionPayload(
     note?: string | null
     accountId?: string | null
     supplierId?: string | null
+    destinationLabel?: string | null
   }
 ): TransactionPayload {
   const base = {
@@ -139,8 +143,9 @@ export function buildTransactionPayload(
         ...base,
         flow_type: 'income',
         category: 'RAB',
-        account_id: input.accountId ?? null,
-        supplier_id: null
+        account_id: input.accountId || null,
+        supplier_id: null,
+        destination_label: null
       }
 
     case 'expense':
@@ -149,7 +154,8 @@ export function buildTransactionPayload(
         flow_type: 'expense',
         category: 'Supplier',
         account_id: null,
-        supplier_id: input.supplierId ?? null
+        supplier_id: input.supplierId || null,
+        destination_label: null
       }
 
     case 'neutral':
@@ -157,8 +163,9 @@ export function buildTransactionPayload(
         ...base,
         flow_type: 'neutral',
         category: 'OPS',
-        account_id: input.accountId ?? null,
-        supplier_id: null
+        account_id: input.accountId || null,
+        supplier_id: null,
+        destination_label: input.destinationLabel?.trim() || null
       }
 
     case 'real_ops':
@@ -166,8 +173,9 @@ export function buildTransactionPayload(
         ...base,
         flow_type: 'real_ops',
         category: 'REAL_OPS',
-        account_id: input.accountId ?? null,
-        supplier_id: null
+        account_id: null,
+        supplier_id: null,
+        destination_label: null
       }
   }
 }
@@ -188,17 +196,18 @@ export function validateTransactionPayload(
   }
 
   if (
-    (payload.flow_type === 'income' ||
-      payload.flow_type === 'neutral' ||
-      payload.flow_type === 'real_ops') &&
-    !payload.account_id
+    (payload.flow_type === 'income' || payload.flow_type === 'neutral') &&
+    !payload.account_id &&
+    !payload.destination_label
   ) {
-    return 'Rekening wajib dipilih'
+    return 'Rekening atau tujuan operasional wajib diisi'
   }
 
   if (payload.flow_type === 'expense' && !payload.supplier_id) {
     return 'Supplier wajib dipilih'
   }
+
+  // Real / Ops is a reporting-only realization entry and never needs an account.
 
   return null
 }
@@ -227,12 +236,19 @@ export async function hasDuplicateTransaction(
     query = query.eq('supplier_id', payload.supplier_id)
   }
 
-  if (
-    payload.flow_type === 'income' ||
-    payload.flow_type === 'neutral' ||
-    payload.flow_type === 'real_ops'
-  ) {
+  if (payload.flow_type === 'income') {
     query = query.eq('account_id', payload.account_id)
+  } else if (payload.flow_type === 'neutral') {
+    if (payload.account_id) {
+      query = query.eq('account_id', payload.account_id)
+    } else if (payload.destination_label) {
+      query = query
+        .is('account_id', null)
+        .eq('destination_label', payload.destination_label)
+    }
+  } else if (payload.flow_type === 'real_ops') {
+    // Real / Ops always uses account_id NULL.
+    query = query.is('account_id', null)
   }
 
   const { count, error } = await query

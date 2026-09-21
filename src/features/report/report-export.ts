@@ -265,15 +265,26 @@ function createOverallDetailSheet(
   worksheet.addRow([
     'Tanggal',
     'Pencairan / RAB',
-    'Supplier',
+    'Real / RAB',
     'Total RAB',
     'Pencairan / Ops',
     'Real / Ops',
-    'Total Operasional'
+    'Total Ops'
   ])
   styleHeader(worksheet.getRow(1))
 
   addDailyDetailRows(worksheet, report.daily)
+
+  const totalRow = worksheet.addRow([
+    'GRAND TOTAL',
+    report.totals.income,
+    report.totals.expense,
+    report.totals.totalRAB,
+    report.totals.operational,
+    report.totals.realOperational,
+    report.totals.totalOperational
+  ])
+  styleTotalRow(totalRow)
 
   setCurrencyColumns(worksheet, [2, 3, 4, 5, 6, 7])
   setColumnWidths(worksheet, {
@@ -412,11 +423,11 @@ function createOverallSummarySheet(
   worksheet.insertRow(headerRowNumber, [
     'Dapur',
     'Pencairan / RAB',
-    'Supplier',
+    'Real / RAB',
     'Total RAB',
     'Pencairan / Ops',
     'Real / Ops',
-    'Total Operasional'
+    'Total Ops'
   ])
 
   styleHeader(worksheet.getRow(headerRowNumber))

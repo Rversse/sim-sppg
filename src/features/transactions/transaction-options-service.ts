@@ -35,12 +35,20 @@ type KitchenAccountRuleRow = {
 }
 
 const SUKARAJA_NAME = 'Sukaraja'
-const CIHAUR_NAME = 'Cihaur'
 
-function isOperationalExcludedKitchen(
-  name: string | null | undefined
-): boolean {
-  return name === SUKARAJA_NAME || name === CIHAUR_NAME
+const TEMPORARY_OPERATIONAL_DESTINATIONS: Record<string, string> = {
+  Sukaraja: 'Akuntan Sukaraja',
+  Cihaur: 'Akuntan Cihaur'
+}
+
+export function getTemporaryOperationalDestination(
+  kitchenName: string | null | undefined
+): string | null {
+  if (!kitchenName) {
+    return null
+  }
+
+  return TEMPORARY_OPERATIONAL_DESTINATIONS[kitchenName] ?? null
 }
 
 export async function getActiveKitchens(
@@ -131,9 +139,9 @@ export async function getTransactionAccounts(
       ? account.income_suppliers[0]
       : account.income_suppliers
 
-    // RAB/Income availability is determined by the kitchen_account_rules mapping.
-    // income_suppliers.is_active is no longer part of the model.
-    if (!supplier) {
+    // RAB/Income rows must resolve to a supplier identity.
+    // Operational destinations are allowed without income_suppliers metadata.
+    if (flowType === 'income' && !supplier) {
       continue
     }
 
@@ -162,9 +170,14 @@ function getOperationalAccountLabel(account: TransactionAccount): string {
     : account.income_suppliers
 
   const businessName = supplier?.business_name?.trim() || account.name
+
   const owner = supplier?.owner_name?.trim()
     ? ` / ${supplier.owner_name.trim()}`
     : ''
+
+  if (!account.bank && !account.account_number) {
+    return `${businessName}${owner}`
+  }
 
   return `${businessName}${owner} (${account.bank} - ${account.account_number})`
 }
@@ -177,36 +190,22 @@ export async function getAvailableTransactionFlows(
     return []
   }
 
-  const { data: kitchen, error: kitchenError } = await client
+  const { data: kitchen, error } = await client
     .from('kitchens')
-    .select('name')
+    .select('id')
     .eq('id', kitchenId)
     .maybeSingle()
-
-  if (kitchenError) {
-    throw kitchenError
-  }
-
-  const { data: rules, error } = await client
-    .from('kitchen_account_rules')
-    .select('flow_type')
-    .eq('kitchen_id', kitchenId)
 
   if (error) {
     throw error
   }
 
-  const hasNeutralRule = (rules ?? []).some(
-    (row) => row.flow_type === 'neutral'
-  )
-
-  const flows: TransactionFlow[] = ['income', 'expense']
-
-  if (hasNeutralRule && !isOperationalExcludedKitchen(kitchen?.name)) {
-    flows.push('neutral', 'real_ops')
+  if (!kitchen) {
+    return []
   }
 
-  return flows
+  // Semua kitchen sekarang memiliki empat alur transaksi.
+  return ['income', 'expense', 'neutral', 'real_ops']
 }
 
 export async function getAccountsForFlow(
@@ -270,13 +269,15 @@ export async function getSuppliersForKitchen(
 export function getDefaultOperationalAccount(
   accounts: TransactionOption[]
 ): string {
-  const arutalaBniAccounts = accounts.filter((account) =>
+  if (accounts.length === 1) {
+    return accounts[0].value
+  }
+
+  const arutalaBni = accounts.find((account) =>
     /^KOPERASI ARUTALA(?:\s*\/.*)?\s*\(BNI\s*-\s*/i.test(account.label)
   )
 
-  // Never choose an arbitrary BNI account. Auto-select only when the
-  // mapped operational options identify exactly one Koperasi Arutala BNI account.
-  return arutalaBniAccounts.length === 1 ? arutalaBniAccounts[0].value : ''
+  return arutalaBni?.value ?? ''
 }
 
 export function getDefaultSupplier(suppliers: TransactionOption[]): string {

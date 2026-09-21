@@ -5,6 +5,12 @@
    ========================================================= */
 
 .dashboard-page {
+  --flow-rab: #16a34a;
+  --flow-real-rab: #dc2626;
+  --flow-pencairan-ops: #7c3aed;
+  --flow-real-ops: #d97706;
+  --flow-inactive: #94a3b8;
+
   --dashboard-emphasis-border: color-mix(
     in srgb,
     var(--theme-primary) 28%,
@@ -306,7 +312,7 @@
   display: grid;
   width: 100%;
   max-width: none;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 12px;
   margin-inline: auto;
 }
@@ -371,16 +377,16 @@
 }
 
 .dashboard-kpi-grid > .dashboard-kpi:nth-child(1) .dashboard-kpi-icon {
-  color: var(--theme-success);
+  color: var(--flow-rab);
 }
 .dashboard-kpi-grid > .dashboard-kpi:nth-child(2) .dashboard-kpi-icon {
-  color: var(--theme-primary);
+  color: var(--flow-real-rab);
 }
 .dashboard-kpi-grid > .dashboard-kpi:nth-child(3) .dashboard-kpi-icon {
-  color: var(--theme-warning);
+  color: var(--flow-pencairan-ops);
 }
 .dashboard-kpi-grid > .dashboard-kpi:nth-child(4) .dashboard-kpi-icon {
-  color: var(--theme-primary);
+  color: var(--flow-real-ops);
 }
 
 .dashboard-kpi > span,
@@ -452,107 +458,105 @@
   color: var(--dashboard-emphasis-value);
 }
 
+/* Flow color system stays identical across Dashboard cards, history and status. */
 .dashboard-kpi-grid > .dashboard-kpi:nth-child(1) {
-  border-color: color-mix(
+  border-color: color-mix(in srgb, var(--flow-rab) 28%, var(--theme-border));
+  background: color-mix(
     in srgb,
-    var(--theme-success) 24%,
-    var(--theme-border)
+    var(--flow-rab) 9%,
+    var(--theme-surface-raised)
   );
-  background: var(--theme-success-soft);
 }
-
 .dashboard-kpi-grid > .dashboard-kpi:nth-child(1) > span,
 .dashboard-kpi-grid > .dashboard-kpi:nth-child(1) > strong {
-  color: var(--theme-success);
+  color: var(--flow-rab);
 }
-
 .dashboard-kpi-grid > .dashboard-kpi:nth-child(1) > small {
-  color: var(--theme-success-hover);
+  color: color-mix(in srgb, var(--flow-rab) 78%, var(--theme-text-secondary));
 }
 
 .dashboard-kpi-grid > .dashboard-kpi:nth-child(2) {
   border-color: color-mix(
     in srgb,
-    var(--theme-primary) 24%,
+    var(--flow-real-rab) 28%,
     var(--theme-border)
   );
-  background: var(--theme-primary-soft);
+  background: color-mix(
+    in srgb,
+    var(--flow-real-rab) 8%,
+    var(--theme-surface-raised)
+  );
 }
-
 .dashboard-kpi-grid > .dashboard-kpi:nth-child(2) > span,
 .dashboard-kpi-grid > .dashboard-kpi:nth-child(2) > strong {
-  color: var(--theme-primary);
+  color: var(--flow-real-rab);
 }
-
 .dashboard-kpi-grid > .dashboard-kpi:nth-child(2) > small {
-  color: var(--theme-text-secondary);
+  color: color-mix(
+    in srgb,
+    var(--flow-real-rab) 72%,
+    var(--theme-text-secondary)
+  );
 }
 
 .dashboard-kpi-grid > .dashboard-kpi:nth-child(3) {
   border-color: color-mix(
     in srgb,
-    var(--theme-warning) 24%,
+    var(--flow-pencairan-ops) 28%,
     var(--theme-border)
   );
-  background: var(--theme-warning-soft);
+  background: color-mix(
+    in srgb,
+    var(--flow-pencairan-ops) 8%,
+    var(--theme-surface-raised)
+  );
 }
-
 .dashboard-kpi-grid > .dashboard-kpi:nth-child(3) > span,
 .dashboard-kpi-grid > .dashboard-kpi:nth-child(3) > strong {
-  color: var(--theme-warning);
+  color: var(--flow-pencairan-ops);
 }
-
 .dashboard-kpi-grid > .dashboard-kpi:nth-child(3) > small {
-  color: var(--theme-warning-hover);
+  color: color-mix(
+    in srgb,
+    var(--flow-pencairan-ops) 72%,
+    var(--theme-text-secondary)
+  );
 }
 
 .dashboard-kpi-grid > .dashboard-kpi:nth-child(4) {
   border-color: color-mix(
     in srgb,
-    var(--theme-primary) 24%,
+    var(--flow-real-ops) 28%,
     var(--theme-border)
   );
-  background: var(--theme-primary-soft);
+  background: color-mix(
+    in srgb,
+    var(--flow-real-ops) 9%,
+    var(--theme-surface-raised)
+  );
   box-shadow: var(--theme-shadow-card);
 }
-
 .dashboard-kpi-grid > .dashboard-kpi:nth-child(4):hover {
-  border-color: var(--dashboard-emphasis-border);
-  box-shadow: var(--theme-shadow-hover);
-}
-
-.dashboard-kpi-grid > .dashboard-kpi:nth-child(4)::after {
-  background: color-mix(in srgb, var(--theme-primary) 9%, transparent);
-}
-
-.dashboard-kpi-grid > .dashboard-kpi:nth-child(4) > span {
-  color: var(--dashboard-emphasis-muted);
-}
-
-.dashboard-kpi-grid > .dashboard-kpi:nth-child(4) > strong {
-  color: var(--dashboard-emphasis-value);
-}
-
-.dashboard-kpi-grid > .dashboard-kpi:nth-child(4) > small {
-  color: var(--dashboard-emphasis-muted);
-}
-
-.dashboard-kpi-grid > .dashboard-kpi:nth-child(5) {
   border-color: color-mix(
     in srgb,
-    var(--theme-warning) 24%,
+    var(--flow-real-ops) 44%,
     var(--theme-border)
   );
-  background: var(--theme-warning-soft);
+  box-shadow: var(--theme-shadow-hover);
 }
-
-.dashboard-kpi-grid > .dashboard-kpi:nth-child(5) > span,
-.dashboard-kpi-grid > .dashboard-kpi:nth-child(5) > strong {
-  color: var(--theme-warning);
+.dashboard-kpi-grid > .dashboard-kpi:nth-child(4)::after {
+  background: color-mix(in srgb, var(--flow-real-ops) 10%, transparent);
 }
-
-.dashboard-kpi-grid > .dashboard-kpi:nth-child(5) > small {
-  color: var(--theme-warning-hover);
+.dashboard-kpi-grid > .dashboard-kpi:nth-child(4) > span,
+.dashboard-kpi-grid > .dashboard-kpi:nth-child(4) > strong {
+  color: var(--flow-real-ops);
+}
+.dashboard-kpi-grid > .dashboard-kpi:nth-child(4) > small {
+  color: color-mix(
+    in srgb,
+    var(--flow-real-ops) 76%,
+    var(--theme-text-secondary)
+  );
 }
 
 .dashboard-kpi-grid > .dashboard-kpi.is-selected {
@@ -750,7 +754,38 @@
 .dashboard-status-flags span.is-done {
   border: 0;
   background: transparent;
-  color: var(--app-success);
+}
+
+.dashboard-status-flags .status-flag-rab {
+  color: var(--flow-inactive);
+}
+
+.dashboard-status-flags .status-flag-rab.is-done {
+  color: var(--flow-rab);
+}
+
+.dashboard-status-flags .status-flag-real-rab {
+  color: var(--flow-inactive);
+}
+
+.dashboard-status-flags .status-flag-real-rab.is-done {
+  color: var(--flow-real-rab);
+}
+
+.dashboard-status-flags .status-flag-pencairan-ops {
+  color: var(--flow-inactive);
+}
+
+.dashboard-status-flags .status-flag-pencairan-ops.is-done {
+  color: var(--flow-pencairan-ops);
+}
+
+.dashboard-status-flags .status-flag-real-ops {
+  color: var(--flow-inactive);
+}
+
+.dashboard-status-flags .status-flag-real-ops.is-done {
+  color: var(--flow-real-ops);
 }
 
 .dashboard-status-flags span:hover {
@@ -792,12 +827,16 @@
   content: 'RAB';
 }
 
-.dashboard-status-flags span[aria-label='Supplier']::after {
-  content: 'Supplier';
+.dashboard-status-flags span[aria-label='Real / RAB']::after {
+  content: 'Real / RAB';
 }
 
-.dashboard-status-flags span[aria-label='Operasional']::after {
-  content: 'Operasional';
+.dashboard-status-flags span[aria-label='Pencairan / Ops']::after {
+  content: 'Pencairan / Ops';
+}
+
+.dashboard-status-flags span[aria-label='Real / Ops']::after {
+  content: 'Real / Ops';
 }
 
 .dashboard-status-flags span:hover::after,
@@ -934,19 +973,19 @@
 }
 
 .dashboard-history-party-name.dashboard-flow-income {
-  color: var(--theme-success);
+  color: var(--flow-rab);
 }
 
 .dashboard-history-party-name.dashboard-flow-expense {
-  color: var(--theme-primary);
+  color: var(--flow-real-rab);
 }
 
 .dashboard-history-party-name.dashboard-flow-neutral {
-  color: var(--theme-warning);
+  color: var(--flow-pencairan-ops);
 }
 
 .dashboard-history-party-name.dashboard-flow-real-ops {
-  color: var(--theme-warning-hover);
+  color: var(--flow-real-ops);
 }
 
 .dashboard-history-party > i {
@@ -1069,19 +1108,19 @@
 }
 
 .dashboard-flow-income {
-  color: var(--theme-success);
+  color: var(--flow-rab);
 }
 
 .dashboard-flow-expense {
-  color: var(--theme-primary);
+  color: var(--flow-real-rab);
 }
 
 .dashboard-flow-neutral {
-  color: var(--theme-warning);
+  color: var(--flow-pencairan-ops);
 }
 
 .dashboard-flow-real-ops {
-  color: var(--theme-warning-hover);
+  color: var(--flow-real-ops);
 }
 
 .dashboard-history-amount {

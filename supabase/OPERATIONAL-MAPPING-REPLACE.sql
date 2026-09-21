@@ -1,0 +1,20 @@
+-- Future mapping template for Sukaraja / Cihaur once the real accountant
+-- destination accounts are known.
+--
+-- 1. Insert or identify the real accounts in public.accounts.
+-- 2. Add one kitchen_account_rules row per kitchen with flow_type='neutral'.
+-- 3. Backfill existing temporary transactions:
+--
+-- update public.transactions t
+-- set account_id = '<SUKARAJA_ACCOUNT_UUID>'::uuid,
+--     destination_label = null
+-- where t.flow_type = 'neutral'
+--   and t.destination_label = 'Akuntan Sukaraja';
+--
+-- update public.transactions t
+-- set account_id = '<CIHAUR_ACCOUNT_UUID>'::uuid,
+--     destination_label = null
+-- where t.flow_type = 'neutral'
+--   and t.destination_label = 'Akuntan Cihaur';
+--
+-- 4. Future Pencairan / Ops rows will then use the mapped account automatically.
