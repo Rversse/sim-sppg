@@ -2,7 +2,7 @@ import type { SupabaseClient } from '@supabase/supabase-js'
 
 import { supabase } from '@/lib/supabase'
 
-export type DashboardFlow = 'income' | 'expense' | 'neutral'
+export type DashboardFlow = 'income' | 'expense' | 'neutral' | 'real_ops'
 
 export type DashboardFilters = {
   startDate: string
@@ -16,6 +16,7 @@ export type DashboardSummary = {
   income: number
   expense: number
   operational: number
+  realOperational: number
 }
 
 export type DashboardKitchen = {
@@ -66,13 +67,19 @@ export async function getDashboardSummary(
   if (error) throw error
 
   const row = data?.[0] as
-    | { income?: number; expense?: number; operational?: number }
+    | {
+        income?: number
+        expense?: number
+        operational?: number
+        real_operational?: number
+      }
     | undefined
 
   return {
     income: Number(row?.income ?? 0),
     expense: Number(row?.expense ?? 0),
-    operational: Number(row?.operational ?? 0)
+    operational: Number(row?.operational ?? 0),
+    realOperational: Number(row?.real_operational ?? 0)
   }
 }
 
@@ -127,7 +134,7 @@ export async function getSupplierOptions(
   >,
   client: SupabaseClient = supabase
 ): Promise<{ value: string; label: string }[]> {
-  if (filters.flowType === 'neutral') {
+  if (filters.flowType === 'neutral' || filters.flowType === 'real_ops') {
     const { data: account, error: accountError } = await client
       .from('accounts')
       .select('id,name,bank,account_category')
@@ -267,7 +274,10 @@ export async function getDashboardTransactionPage(
       query = query.eq('supplier_id', supplierId)
     } else if (filters.flowType === 'income') {
       query = query.eq('account_id', filters.supplierFilter)
-    } else if (filters.flowType === 'neutral') {
+    } else if (
+      filters.flowType === 'neutral' ||
+      filters.flowType === 'real_ops'
+    ) {
       query = query.eq('account_id', filters.supplierFilter)
     } else {
       query = query
@@ -350,7 +360,9 @@ export async function getDailyStatus(
     const income = flows.includes('income')
     const expense = flows.includes('expense')
     const operational = flows.includes('neutral')
-    const hasTransactions = flows.length > 0
+    // Real / Ops is a realization record and should not create a new
+    // pending/approved disbursement state by itself.
+    const hasTransactions = flows.some((flow) => flow !== 'real_ops')
     const impliedDisbursed = selectedDate < cutoffDate
     const storedDisbursed = statusMap.get(kitchen.id) ?? false
     const rowDisbursed = impliedDisbursed || storedDisbursed
