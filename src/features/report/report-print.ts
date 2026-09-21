@@ -165,7 +165,7 @@ function printReport() {
 
     .reports-summary-grid {
       display: grid !important;
-      grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+      grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
       gap: 12px !important;
       margin-bottom: 14px !important;
     }
@@ -197,6 +197,14 @@ function printReport() {
     }
 
     .reports-summary-card:nth-child(4) {
+      border-left: 5px solid #2563eb !important;
+    }
+
+    .reports-summary-card:nth-child(5) {
+      border-left: 5px solid #d97706 !important;
+    }
+
+    .reports-summary-card:nth-child(6) {
       border-left: 5px solid #2563eb !important;
     }
 
