@@ -306,7 +306,7 @@
   display: grid;
   width: 100%;
   max-width: none;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 12px;
   margin-inline: auto;
 }
@@ -535,6 +535,24 @@
 
 .dashboard-kpi-grid > .dashboard-kpi:nth-child(4) > small {
   color: var(--dashboard-emphasis-muted);
+}
+
+.dashboard-kpi-grid > .dashboard-kpi:nth-child(5) {
+  border-color: color-mix(
+    in srgb,
+    var(--theme-warning) 24%,
+    var(--theme-border)
+  );
+  background: var(--theme-warning-soft);
+}
+
+.dashboard-kpi-grid > .dashboard-kpi:nth-child(5) > span,
+.dashboard-kpi-grid > .dashboard-kpi:nth-child(5) > strong {
+  color: var(--theme-warning);
+}
+
+.dashboard-kpi-grid > .dashboard-kpi:nth-child(5) > small {
+  color: var(--theme-warning-hover);
 }
 
 .dashboard-kpi-grid > .dashboard-kpi.is-selected {
