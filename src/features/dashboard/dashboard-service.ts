@@ -184,7 +184,7 @@ export async function getSupplierOptions(
         )
         `
       )
-      .eq('flow_type', 'gas')
+      .eq('flow_type', 'neutral')
 
     if (filters.kitchenId) {
       query = query.eq('kitchen_id', filters.kitchenId)
