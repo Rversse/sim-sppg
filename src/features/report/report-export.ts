@@ -462,7 +462,7 @@ function createOverallSummarySheet(
   ])
 
   styleTotalRow(totalRow)
-  setCurrencyColumns(worksheet, [2, 3, 4, 5, 6, 7])
+  setCurrencyColumns(worksheet, [2, 3, 4, 5, 6, 7, 8])
   setColumnWidths(worksheet, {
     1: 26,
     2: 18,
