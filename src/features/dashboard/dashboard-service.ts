@@ -1,6 +1,7 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
 
 import { supabase } from '@/lib/supabase'
+import { MANUAL_DISBURSEMENT_STATUS_START_DATE } from '@/lib/app-config'
 
 export type DashboardFlow =
   | 'income'
@@ -374,7 +375,7 @@ export async function getDailyStatus(
     disbursed: boolean
   }[]
 }> {
-  const cutoffDate = '2026-09-09'
+  const cutoffDate = MANUAL_DISBURSEMENT_STATUS_START_DATE
 
   const [kitchensResult, transactionsResult, statusesResult] =
     await Promise.all([
