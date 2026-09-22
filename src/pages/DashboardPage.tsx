@@ -203,7 +203,7 @@ export function DashboardPage() {
   >([])
   const [availableFilterFlows, setAvailableFilterFlows] = useState<
     DashboardFlow[]
-  >(['income', 'expense', 'neutral', 'real_ops'])
+  >(['income', 'expense', 'gas', 'ops_disbursement', 'real_ops'])
   const [summary, setSummary] = useState<DashboardSummary>({
     income: 0,
     expense: 0,
@@ -868,9 +868,14 @@ export function DashboardPage() {
 
       setAvailableFormFlows(availableFlows)
 
+      const editFlowType =
+        transaction.flow_type === 'neutral'
+          ? 'gas'
+          : transaction.flow_type
+
       await loadFormOptions(
         transaction.kitchen_id ?? '',
-        transaction.flow_type,
+        editFlowType,
         transaction.account_id ?? '',
         transaction.supplier_id ?? '',
         true
