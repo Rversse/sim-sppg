@@ -54,18 +54,18 @@ const DASHBOARD_HISTORY_PAGE_SIZE = 5
 const FLOW_OPTIONS: { value: DashboardFlow | ''; label: string }[] = [
   { value: '', label: 'Semua transaksi' },
   { value: 'income', label: 'RAB / Pencairan' },
-  { value: 'expense', label: 'Real / RAB' },
-  { value: 'gas', label: 'Ops / Arutala' },
-  { value: 'ops_disbursement', label: 'Pencairan / Ops' },
-  { value: 'real_ops', label: 'Real / Ops' }
+  { value: 'expense', label: 'RAB / Real' },
+  { value: 'gas', label: 'OPS / Arutala' },
+  { value: 'ops_disbursement', label: 'OPS / Pencairan' },
+  { value: 'real_ops', label: 'OPS / Real' }
 ]
 
 function flowLabel(flow: DashboardFlow) {
   if (flow === 'income') return 'RAB / Pencairan'
-  if (flow === 'expense') return 'Real / RAB'
-  if (flow === 'gas' || flow === 'neutral') return 'Ops / Arutala'
-  if (flow === 'ops_disbursement') return 'Pencairan / Ops'
-  return 'Real / Ops'
+  if (flow === 'expense') return 'RAB / Real'
+  if (flow === 'gas' || flow === 'neutral') return 'OPS / Arutala'
+  if (flow === 'ops_disbursement') return 'OPS / Pencairan'
+  return 'OPS / Real'
 }
 
 function FlowIcon({ flow }: { flow: DashboardFlow }) {
@@ -683,7 +683,7 @@ export function DashboardPage() {
           : transaction.flow_type === 'ops_disbursement'
             ? temporaryDestination || 'Tujuan operasional'
             : transaction.flow_type === 'real_ops'
-              ? 'Real / Ops'
+              ? 'OPS / Real'
               : accountSupplier?.business_name?.trim() ||
                 account?.name?.trim() ||
                 'Transaksi'
@@ -1401,7 +1401,7 @@ export function DashboardPage() {
           <span className="dashboard-kpi-icon">
             <WalletCards aria-hidden="true" />
           </span>
-          <span>Real / RAB</span>
+          <span>RAB / Real</span>
           <strong>
             {loading ? 'Memuat…' : formatCurrency(summary.expense)}
           </strong>
@@ -1416,7 +1416,7 @@ export function DashboardPage() {
           <span className="dashboard-kpi-icon">
             <Landmark aria-hidden="true" />
           </span>
-          <span>Ops / Arutala</span>
+          <span>OPS / Arutala</span>
           <strong>
             {loading ? 'Memuat…' : formatCurrency(summary.gas)}
           </strong>
@@ -1433,7 +1433,7 @@ export function DashboardPage() {
           <span className="dashboard-kpi-icon">
             <Settings2 aria-hidden="true" />
           </span>
-          <span>Pencairan / Ops</span>
+          <span>OPS / Pencairan</span>
           <strong>
             {loading ? 'Memuat…' : formatCurrency(summary.operationalDisbursement)}
           </strong>
@@ -1448,7 +1448,7 @@ export function DashboardPage() {
           <span className="dashboard-kpi-icon">
             <Settings2 aria-hidden="true" />
           </span>
-          <span>Real / Ops</span>
+          <span>OPS / Real</span>
           <strong>
             {loading ? 'Memuat…' : formatCurrency(summary.realOperational)}
           </strong>
@@ -1517,7 +1517,7 @@ export function DashboardPage() {
                             className={`status-flag-real-rab ${
                               row.expense ? 'is-done' : ''
                             }`}
-                            aria-label="Real / RAB"
+                            aria-label="RAB / Real"
                           >
                             <WalletCards aria-hidden="true" />
                           </span>
@@ -1526,7 +1526,7 @@ export function DashboardPage() {
                               className={`status-flag-gas ${
                                 row.gas ? 'is-done' : ''
                               }`}
-                              aria-label="Ops / Arutala"
+                              aria-label="OPS / Arutala"
                             >
                               <Landmark aria-hidden="true" />
                             </span>
@@ -1535,7 +1535,7 @@ export function DashboardPage() {
                             className={`status-flag-pencairan-ops ${
                               row.operational ? 'is-done' : ''
                             }`}
-                            aria-label="Pencairan / Ops"
+                            aria-label="OPS / Pencairan"
                           >
                             <Settings2 aria-hidden="true" />
                           </span>
@@ -1543,7 +1543,7 @@ export function DashboardPage() {
                             className={`status-flag-real-ops ${
                               row.realOperational ? 'is-done' : ''
                             }`}
-                            aria-label="Real / Ops"
+                            aria-label="OPS / Real"
                           >
                             <Settings2 aria-hidden="true" />
                           </span>
@@ -1906,7 +1906,7 @@ export function DashboardPage() {
                     {!formFlowType
                       ? 'Supplier / Rekening'
                       : formFlowType === 'expense'
-                        ? 'Real / RAB'
+                        ? 'RAB / Real'
                         : formFlowType === 'gas'
                           ? 'Rekening Operasional'
                           : 'Rekening'}
