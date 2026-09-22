@@ -618,7 +618,6 @@ function SupplierReportView() {
                     <th>SUKALARANG</th>
                     <th>ARIS</th>
                     <th>BABINSA</th>
-                    <th>OPS</th>
                     <th>TOTAL</th>
                   </tr>
                 </thead>
@@ -630,7 +629,6 @@ function SupplierReportView() {
                       <td>{formatCurrency(row.Sukalarang)}</td>
                       <td>{formatCurrency(row.Aris)}</td>
                       <td>{formatCurrency(row.Babinsa)}</td>
-                      <td>{formatCurrency(row.Operational)}</td>
                       <td>{formatCurrency(row.Total)}</td>
                     </tr>
                   ))}
@@ -640,7 +638,6 @@ function SupplierReportView() {
                     <td>{formatCurrency(report.totals.Sukalarang)}</td>
                     <td>{formatCurrency(report.totals.Aris)}</td>
                     <td>{formatCurrency(report.totals.Babinsa)}</td>
-                    <td>{formatCurrency(report.totals.Operational)}</td>
                     <td>{formatCurrency(report.totals.Total)}</td>
                   </tr>
                 </tbody>
