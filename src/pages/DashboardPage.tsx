@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 
 import {
-  ArrowDownUp,
   Landmark,
   Settings2,
   ShoppingCart,
@@ -1422,7 +1421,7 @@ export function DashboardPage() {
           <strong>
             {loading ? 'Memuat…' : formatCurrency(summary.gas)}
           </strong>
-          <small>Total operasional melalui Arutala pada periode terpilih</small>
+          <small>Total operasional masuk ke rekening Arutala pada periode terpilih</small>
         </article>
 
         <article
@@ -1456,51 +1455,6 @@ export function DashboardPage() {
           </strong>
           <small>Total realisasi operasional pada periode terpilih</small>
         </article>
-
-        <article
-          className={`dashboard-kpi dashboard-kpi-sisa ${
-            summary.income - summary.expense < 0
-              ? 'is-negative'
-              : summary.income - summary.expense > 0
-                ? 'is-positive'
-                : 'is-zero'
-          }`}
-        >
-          <span className="dashboard-kpi-icon">
-            <ArrowDownUp aria-hidden="true" />
-          </span>
-          <span>Sisa RAB</span>
-          <strong>
-            {loading
-              ? 'Memuat…'
-              : formatCurrency(summary.income - summary.expense)}
-          </strong>
-          <small>Pencairan / RAB - Real / RAB</small>
-        </article>
-
-        <article
-          className={`dashboard-kpi dashboard-kpi-sisa ${
-            summary.operationalDisbursement - summary.realOperational < 0
-              ? 'is-negative'
-              : summary.operationalDisbursement - summary.realOperational > 0
-                ? 'is-positive'
-                : 'is-zero'
-          }`}
-        >
-          <span className="dashboard-kpi-icon">
-            <ArrowDownUp aria-hidden="true" />
-          </span>
-          <span>Sisa Ops</span>
-          <strong>
-            {loading
-              ? 'Memuat…'
-              : formatCurrency(
-                  summary.operationalDisbursement - summary.realOperational
-                )}
-          </strong>
-          <small>Pencairan / Ops - Real / Ops</small>
-        </article>
-      </section>
 
       <section className="dashboard-main-grid">
         <article className="dashboard-panel dashboard-status-panel dashboard-main-panel">
