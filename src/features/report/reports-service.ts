@@ -519,8 +519,7 @@ export async function getSupplierReport(
   for (const transaction of transactions) {
     if (
       transaction.flow_type !== 'expense' &&
-      transaction.flow_type !== 'ops_disbursement' &&
-      transaction.flow_type !== 'neutral'
+      transaction.flow_type !== 'ops_disbursement'
     ) {
       continue
     }
@@ -586,10 +585,7 @@ export async function getSupplierReport(
       continue
     }
 
-    if (
-      transaction.flow_type === 'ops_disbursement' ||
-      transaction.flow_type === 'neutral'
-    ) {
+    if (transaction.flow_type === 'ops_disbursement') {
       addSupplierOperational(summaryRow, totals, amount)
 
       addSupplierOperational(
