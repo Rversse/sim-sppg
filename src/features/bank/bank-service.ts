@@ -936,7 +936,7 @@ export async function hasSufficientBalance(
       .from('transactions')
       .select('amount')
       .eq('account_id', accountId)
-      .in('flow_type', ['income', 'neutral'])
+      .in('flow_type', ['income', 'gas', 'neutral'])
       .gte('transaction_date', BANK_MODULE_START_DATE)
       .lte('transaction_date', incomeEndDate)
       .order('transaction_date', { ascending: true })
