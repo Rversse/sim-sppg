@@ -388,7 +388,7 @@ function OverallReportView() {
             <SummaryCard
               label="Pencairan / Ops"
               value={report.totals.operational}
-              note="Total pencairan operasional pada periode terpilih"
+              note="Total pencairan operasional masuk ke rekening Akuntan / Aslap pada periode terpilih"
             />
             <SummaryCard
               label="Real / Ops"
@@ -398,7 +398,7 @@ function OverallReportView() {
             <SummaryCard
               label="Ops / Arutala"
               value={report.totals.gas}
-              note="Total operasional melalui Arutala pada periode terpilih"
+              note="Total operasional masuk ke rekening Arutala pada periode terpilih"
             />
           </div>
 
