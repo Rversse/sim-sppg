@@ -971,9 +971,13 @@ export function DashboardPage() {
         if (!isSukaraja) {
           focusNominalInput()
         }
-      } else if (value === 'neutral' || value === 'real_ops') {
-        // Both operational flows go directly to the amount field.
-        // Real / Ops has no account selector at all.
+      } else if (
+        value === 'gas' ||
+        value === 'ops_disbursement' ||
+        value === 'real_ops'
+      ) {
+        // These flows have a fixed account/destination or no account at all,
+        // so the next editable field is always Nominal.
         focusNominalInput()
       }
     } catch (loadError) {
