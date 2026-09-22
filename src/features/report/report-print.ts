@@ -196,7 +196,7 @@ function printReport() {
     }
 
     .reports-summary-overall .reports-summary-card:nth-child(1) {
-      border-left: 5px solid #16a34a !important;
+      border-left: 5px solid #0f766e !important;
     }
 
     .reports-summary-overall .reports-summary-card:nth-child(2) {
@@ -208,7 +208,7 @@ function printReport() {
     }
 
     .reports-summary-overall .reports-summary-card:nth-child(4) {
-      border-left: 5px solid #d97706 !important;
+      border-left: 5px solid #0891b2 !important;
     }
 
     .reports-summary-overall .reports-summary-card:nth-child(5) {
