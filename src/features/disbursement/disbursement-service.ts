@@ -1,8 +1,9 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
 
 import { supabase } from '@/lib/supabase'
+import { PROGRAM_START_DATE } from '@/lib/app-config'
 
-const PERIOD_ANCHOR_DATE = '2026-04-13'
+const PERIOD_ANCHOR_DATE = PROGRAM_START_DATE
 const PERIOD_LENGTH_DAYS = 14
 const PERIOD_CHECKLIST_OFFSET_DAYS = 11
 
