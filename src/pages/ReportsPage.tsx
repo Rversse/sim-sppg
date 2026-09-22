@@ -386,11 +386,6 @@ function OverallReportView() {
               note="Total realisasi supplier pada periode terpilih"
             />
             <SummaryCard
-              label="GAS"
-              value={report.totals.gas}
-              note="Total pencairan GAS pada periode terpilih"
-            />
-            <SummaryCard
               label="Pencairan / Ops"
               value={report.totals.operational}
               note="Total pencairan operasional pada periode terpilih"
@@ -399,6 +394,11 @@ function OverallReportView() {
               label="Real / Ops"
               value={report.totals.realOperational}
               note="Total realisasi operasional pada periode terpilih"
+            />
+            <SummaryCard
+              label="GAS"
+              value={report.totals.gas}
+              note="Total pencairan GAS pada periode terpilih"
             />
           </div>
 
@@ -410,10 +410,10 @@ function OverallReportView() {
                   <th className="reports-col-rab">PENCAIRAN / RAB</th>
                   <th className="reports-col-real-rab">REAL / RAB</th>
                   <th className="reports-col-total">TOTAL RAB</th>
-                  <th className="reports-col-gas">GAS</th>
                   <th className="reports-col-ops">PENCAIRAN / OPS</th>
                   <th className="reports-col-real-ops">REAL / OPS</th>
                   <th className="reports-col-total">TOTAL OPS</th>
+                  <th className="reports-col-gas">GAS</th>
                 </tr>
               </thead>
               <tbody>
@@ -425,7 +425,6 @@ function OverallReportView() {
                     <td className={item.totalRAB < 0 ? 'negative' : 'positive'}>
                       {formatCurrency(item.totalRAB)}
                     </td>
-                    <td>{formatCurrency(item.gas)}</td>
                     <td>{formatCurrency(item.operational)}</td>
                     <td>{formatCurrency(item.realOperational)}</td>
                     <td
@@ -435,6 +434,7 @@ function OverallReportView() {
                     >
                       {formatCurrency(item.totalOperational)}
                     </td>
+                    <td>{formatCurrency(item.gas)}</td>
                   </tr>
                 ))}
                 <tr className="reports-total-row">
@@ -448,7 +448,6 @@ function OverallReportView() {
                   >
                     {formatCurrency(report.totals.totalRAB)}
                   </td>
-                  <td>{formatCurrency(report.totals.gas)}</td>
                   <td>{formatCurrency(report.totals.operational)}</td>
                   <td>{formatCurrency(report.totals.realOperational)}</td>
                   <td
@@ -460,6 +459,7 @@ function OverallReportView() {
                   >
                     {formatCurrency(report.totals.totalOperational)}
                   </td>
+                  <td>{formatCurrency(report.totals.gas)}</td>
                 </tr>
               </tbody>
             </table>
