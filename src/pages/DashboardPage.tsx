@@ -1501,8 +1501,7 @@ export function DashboardPage() {
                             className={`status-flag-rab ${
                               row.income ? 'is-done' : ''
                             }`}
-                            aria-label="RAB"
-                            title="RAB"
+                            aria-label="Pencairan / RAB"
                           >
                             <ShoppingCart aria-hidden="true" />
                           </span>
@@ -1511,7 +1510,6 @@ export function DashboardPage() {
                               row.expense ? 'is-done' : ''
                             }`}
                             aria-label="Real / RAB"
-                            title="Real / RAB"
                           >
                             <ShoppingCart aria-hidden="true" />
                           </span>
@@ -1521,7 +1519,6 @@ export function DashboardPage() {
                                 row.gas ? 'is-done' : ''
                               }`}
                               aria-label="GAS"
-                              title="GAS"
                             >
                               <Flame aria-hidden="true" />
                             </span>
@@ -1531,7 +1528,6 @@ export function DashboardPage() {
                               row.operational ? 'is-done' : ''
                             }`}
                             aria-label="Pencairan / Ops"
-                            title="Pencairan / Ops"
                           >
                             <Settings2 aria-hidden="true" />
                           </span>
@@ -1540,7 +1536,6 @@ export function DashboardPage() {
                               row.realOperational ? 'is-done' : ''
                             }`}
                             aria-label="Real / Ops"
-                            title="Real / Ops"
                           >
                             <Settings2 aria-hidden="true" />
                           </span>
