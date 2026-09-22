@@ -688,20 +688,20 @@
 }
 
 .status-summary-green {
-  border-color: var(--theme-border);
-  background: var(--theme-surface-soft);
+  border-color: transparent;
+  background: transparent;
   color: var(--app-success);
 }
 
 .status-summary-yellow {
-  border-color: var(--theme-border);
-  background: var(--theme-surface-soft);
+  border-color: transparent;
+  background: transparent;
   color: var(--app-warning);
 }
 
 .status-summary-red {
-  border-color: var(--theme-border);
-  background: var(--theme-surface-soft);
+  border-color: transparent;
+  background: transparent;
   color: var(--app-danger);
 }
 
@@ -719,16 +719,22 @@
   justify-content: space-between;
   gap: 12px;
   padding: 9px 3px;
-  border-bottom: 1px solid var(--app-border-soft);
-  transition: background-color var(--theme-motion-fast) ease;
+  border: 1px solid transparent;
+  border-bottom-color: var(--app-border-soft);
+  border-radius: 10px;
+  background: transparent;
+  transition:
+    background-color var(--theme-motion-fast) ease,
+    border-color var(--theme-motion-fast) ease;
 }
 
 .dashboard-status-row:hover {
-  background: var(--theme-surface-soft);
+  background: transparent;
+  border-color: var(--theme-border-strong);
 }
 
 .dashboard-status-row:last-child {
-  border-bottom: 0;
+  border-bottom-color: transparent;
 }
 
 .dashboard-status-row strong,
