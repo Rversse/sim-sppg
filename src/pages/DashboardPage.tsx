@@ -1,11 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 
-import {
-  Settings2,
-  ShoppingCart,
-  WalletCards,
-  ArrowRightLeft
-} from 'lucide-react'
+import { Settings2, ShoppingCart, WalletCards } from 'lucide-react'
 
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/features/auth/use-auth'
@@ -36,6 +31,7 @@ import {
   getDefaultOperationalAccount,
   getDefaultSupplier,
   getSuppliersForKitchen,
+  getTemporaryOperationalDestination,
   type TransactionOption
 } from '@/features/transactions/transaction-options-service'
 import { DateRangePicker } from '@/components/ui/date-range-picker'
@@ -54,14 +50,16 @@ const DASHBOARD_HISTORY_PAGE_SIZE = 5
 const FLOW_OPTIONS: { value: DashboardFlow | ''; label: string }[] = [
   { value: '', label: 'Semua transaksi' },
   { value: 'income', label: 'RAB' },
-  { value: 'expense', label: 'Pembayaran Supplier' },
-  { value: 'neutral', label: 'Operasional' }
+  { value: 'expense', label: 'Real / RAB' },
+  { value: 'neutral', label: 'Pencairan / Ops' },
+  { value: 'real_ops', label: 'Real / Ops' }
 ]
 
 function flowLabel(flow: DashboardFlow) {
   if (flow === 'income') return 'RAB'
-  if (flow === 'expense') return 'Supplier'
-  return 'Operasional'
+  if (flow === 'expense') return 'Real / RAB'
+  if (flow === 'real_ops') return 'Real / Ops'
+  return 'Pencairan / Ops'
 }
 
 function FlowIcon({ flow }: { flow: DashboardFlow }) {
@@ -79,6 +77,7 @@ function FlowIcon({ flow }: { flow: DashboardFlow }) {
 function flowClass(flow: DashboardFlow) {
   if (flow === 'income') return 'dashboard-flow dashboard-flow-income'
   if (flow === 'expense') return 'dashboard-flow dashboard-flow-expense'
+  if (flow === 'real_ops') return 'dashboard-flow dashboard-flow-real-ops'
   return 'dashboard-flow dashboard-flow-neutral'
 }
 
@@ -193,11 +192,12 @@ export function DashboardPage() {
   >([])
   const [availableFilterFlows, setAvailableFilterFlows] = useState<
     DashboardFlow[]
-  >(['income', 'expense', 'neutral'])
+  >(['income', 'expense', 'neutral', 'real_ops'])
   const [summary, setSummary] = useState<DashboardSummary>({
     income: 0,
     expense: 0,
-    operational: 0
+    operational: 0,
+    realOperational: 0
   })
   const [transactions, setTransactions] = useState<DashboardTransaction[]>([])
   const [totalTransactions, setTotalTransactions] = useState(0)
@@ -413,8 +413,6 @@ export function DashboardPage() {
     }
   }, [refreshDashboard])
 
-  const net = filters.flowType === '' ? summary.income - summary.expense : 0
-
   const selectedFilterKitchen = kitchens.find(
     (kitchen) => kitchen.id === filters.kitchenId
   )
@@ -427,20 +425,26 @@ export function DashboardPage() {
     !isSukarajaFilterKitchen
 
   const supplierDisabled =
-    filters.flowType === 'neutral' || supplierLockedToArutala
+    filters.flowType === 'neutral' ||
+    filters.flowType === 'real_ops' ||
+    supplierLockedToArutala
 
   const supplierFilterLabel =
     filters.flowType === 'income'
       ? 'Rekening Supplier'
       : filters.flowType === 'expense'
         ? 'Supplier'
-        : filters.flowType === 'neutral'
+        : filters.flowType === 'neutral' || filters.flowType === 'real_ops'
           ? 'Rekening Operasional'
           : 'Supplier / Rekening'
 
+  const temporaryOperationalDestination = getTemporaryOperationalDestination(
+    selectedFilterKitchen?.name
+  )
+
   const supplierPlaceholder = supplierDisabled
-    ? filters.flowType === 'neutral'
-      ? 'Arutala BNI'
+    ? filters.flowType === 'neutral' || filters.flowType === 'real_ops'
+      ? (temporaryOperationalDestination ?? 'Rekening operasional')
       : 'Koperasi Arutala'
     : filters.flowType === 'expense' && isSukarajaFilterKitchen
       ? 'Semua supplier'
@@ -492,7 +496,7 @@ export function DashboardPage() {
     // Start from the common flows while the kitchen-specific rules load.
     // This prevents a stale "Operasional" selection from surviving a kitchen change.
     if (!value) {
-      setAvailableFilterFlows(['income', 'expense', 'neutral'])
+      setAvailableFilterFlows(['income', 'expense', 'neutral', 'real_ops'])
       return
     }
 
@@ -516,7 +520,7 @@ export function DashboardPage() {
       supplierFilter: ''
     }))
 
-    if (value === 'neutral') {
+    if (value === 'neutral' || value === 'real_ops') {
       try {
         const options = await getSupplierOptions({
           startDate: filters.startDate,
@@ -529,7 +533,12 @@ export function DashboardPage() {
 
         if (operationalAccount) {
           setFilters((current) => {
-            if (current.flowType !== 'neutral') return current
+            if (
+              current.flowType !== 'neutral' &&
+              current.flowType !== 'real_ops'
+            ) {
+              return current
+            }
 
             return {
               ...current,
@@ -624,12 +633,22 @@ export function DashboardPage() {
           : account.income_suppliers
         : null
 
+      const transactionKitchen = kitchens.find(
+        (item) => item.id === transaction.kitchen_id
+      )
+
+      const temporaryDestination =
+        transaction.destination_label?.trim() ||
+        getTemporaryOperationalDestination(transactionKitchen?.name)
+
       const businessName =
         transaction.flow_type === 'expense'
           ? supplier?.name?.trim() || 'Supplier tidak diketahui'
-          : accountSupplier?.business_name?.trim() ||
-            account?.name?.trim() ||
-            'Transaksi'
+          : transaction.flow_type === 'neutral' && !account
+            ? temporaryDestination || 'Tujuan operasional'
+            : accountSupplier?.business_name?.trim() ||
+              account?.name?.trim() ||
+              'Transaksi'
 
       // `transactions` does not store an owner for expense rows.
       // Keep this empty instead of guessing from unrelated master data.
@@ -650,7 +669,7 @@ export function DashboardPage() {
     }
 
     return next
-  }, [transactions])
+  }, [transactions, kitchens])
 
   useEffect(() => {
     let cancelled = false
@@ -701,11 +720,23 @@ export function DashboardPage() {
     kitchenId: string,
     flowType: DashboardFlow | '',
     preserveAccountId = '',
-    preserveSupplierId = ''
+    preserveSupplierId = '',
+    preserveAccountSelection = false
   ) {
     if (!kitchenId || !flowType) {
       setFormAccounts([])
       setFormSuppliers([])
+      return
+    }
+
+    if (flowType === 'real_ops') {
+      // Real / Ops is a reporting-only realization entry.
+      // It never has an account or operational destination.
+      setFormAccounts([])
+      setFormSuppliers([])
+      setFormAccountId('')
+      setFormSupplierId('')
+      setFormEntryUnlocked(true)
       return
     }
 
@@ -716,16 +747,27 @@ export function DashboardPage() {
       setFormSuppliers([])
       setFormSupplierId('')
 
-      if (
-        preserveAccountId &&
-        accounts.some((item) => item.value === preserveAccountId)
-      ) {
-        setFormAccountId(preserveAccountId)
-        setFormEntryUnlocked(true)
+      if (preserveAccountSelection) {
+        const preservedAccount =
+          preserveAccountId &&
+          accounts.some((item) => item.value === preserveAccountId)
+            ? preserveAccountId
+            : ''
+
+        setFormAccountId(preservedAccount)
+        setFormEntryUnlocked(Boolean(preservedAccount))
       } else if (flowType === 'neutral') {
         const operationalAccount = getDefaultOperationalAccount(accounts)
+        const currentKitchenName = kitchens.find(
+          (kitchen) => kitchen.id === kitchenId
+        )?.name
+        const temporaryDestination =
+          getTemporaryOperationalDestination(currentKitchenName)
+
         setFormAccountId(operationalAccount)
-        setFormEntryUnlocked(Boolean(operationalAccount))
+        setFormEntryUnlocked(
+          Boolean(operationalAccount) || Boolean(temporaryDestination)
+        )
       } else {
         setFormAccountId('')
         setFormEntryUnlocked(false)
@@ -797,7 +839,8 @@ export function DashboardPage() {
         transaction.kitchen_id ?? '',
         transaction.flow_type,
         transaction.account_id ?? '',
-        transaction.supplier_id ?? ''
+        transaction.supplier_id ?? '',
+        true
       )
     } catch (loadError) {
       console.error(loadError)
@@ -882,8 +925,9 @@ export function DashboardPage() {
         if (!isSukaraja) {
           focusNominalInput()
         }
-      } else if (value === 'neutral') {
-        // Operational account is selected automatically, so go directly to amount.
+      } else if (value === 'neutral' || value === 'real_ops') {
+        // Both operational flows go directly to the amount field.
+        // Real / Ops has no account selector at all.
         focusNominalInput()
       }
     } catch (loadError) {
@@ -919,7 +963,7 @@ export function DashboardPage() {
           : formFlowType === 'expense'
             ? 'Pilih supplier terlebih dahulu.'
             : formFlowType === 'neutral'
-              ? 'Rekening operasional belum siap.'
+              ? 'Tujuan operasional belum siap.'
               : 'Lengkapi dapur dan jenis transaksi terlebih dahulu.'
       )
       return
@@ -934,8 +978,15 @@ export function DashboardPage() {
       (formFlowType === 'income' || formFlowType === 'neutral') &&
       !formAccountId
     ) {
-      setFormError('Rekening wajib dipilih.')
-      return
+      const temporaryDestination =
+        formFlowType === 'neutral'
+          ? getTemporaryOperationalDestination(selectedFormKitchen?.name)
+          : null
+
+      if (!temporaryDestination) {
+        setFormError('Rekening wajib dipilih.')
+        return
+      }
     }
 
     if (formFlowType === 'expense' && !formSupplierId) {
@@ -947,19 +998,27 @@ export function DashboardPage() {
       transaction_date: formDate,
       kitchen_id: formKitchenId,
       amount,
-      note: formNote.trim() || null,
+      note: formFlowType === 'real_ops' ? null : formNote.trim() || null,
       flow_type: formFlowType,
       category:
         formFlowType === 'income'
           ? 'RAB'
           : formFlowType === 'expense'
             ? 'Supplier'
-            : 'OPS',
+            : formFlowType === 'real_ops'
+              ? 'REAL_OPS'
+              : 'OPS',
       account_id:
-        formFlowType === 'income' || formFlowType === 'neutral'
-          ? formAccountId
+        formFlowType === 'income' ||
+        formFlowType === 'neutral' ||
+        formFlowType === 'real_ops'
+          ? formAccountId || null
           : null,
-      supplier_id: formFlowType === 'expense' ? formSupplierId : null
+      supplier_id: formFlowType === 'expense' ? formSupplierId || null : null,
+      destination_label:
+        formFlowType === 'neutral' && !formAccountId
+          ? getTemporaryOperationalDestination(selectedFormKitchen?.name)
+          : null
     } as const
 
     setSaving(true)
@@ -1023,8 +1082,12 @@ export function DashboardPage() {
             setFormEntryUnlocked(true)
           }
         } else if (formFlowType === 'neutral') {
-          // Operational: Arutala BNI stays selected and locked.
+          // Pencairan / Ops keeps its operational account selected and locked.
           setFormEntryUnlocked(Boolean(formAccountId))
+        } else if (formFlowType === 'real_ops') {
+          // Real / Ops has no account by design.
+          setFormAccountId('')
+          setFormEntryUnlocked(true)
         }
       }
 
@@ -1274,11 +1337,11 @@ export function DashboardPage() {
           <span className="dashboard-kpi-icon">
             <ShoppingCart aria-hidden="true" />
           </span>
-          <span>Pembayaran Supplier</span>
+          <span>Real / RAB</span>
           <strong>
             {loading ? 'Memuat…' : formatCurrency(summary.expense)}
           </strong>
-          <small>Total pembayaran ke supplier pada periode terpilih</small>
+          <small>Total realisasi supplier pada periode terpilih</small>
         </article>
 
         <article
@@ -1289,31 +1352,26 @@ export function DashboardPage() {
           <span className="dashboard-kpi-icon">
             <Settings2 aria-hidden="true" />
           </span>
-          <span>Operasional</span>
+          <span>Pencairan / Ops</span>
           <strong>
             {loading ? 'Memuat…' : formatCurrency(summary.operational)}
           </strong>
-          <small>Total transaksi operasional pada periode terpilih</small>
+          <small>Total pencairan operasional pada periode terpilih</small>
         </article>
 
         <article
           className={`dashboard-kpi ${
-            filters.flowType === '' ? 'dashboard-kpi-primary' : ''
+            filters.flowType === 'real_ops' ? 'dashboard-kpi-primary' : ''
           }`}
         >
           <span className="dashboard-kpi-icon">
-            <ArrowRightLeft aria-hidden="true" />
+            <Settings2 aria-hidden="true" />
           </span>
-          <span>RAB − Pembayaran Supplier</span>
+          <span>Real / Ops</span>
           <strong>
-            {loading
-              ? 'Memuat…'
-              : formatCurrency(filters.flowType === '' ? net : 0)}
+            {loading ? 'Memuat…' : formatCurrency(summary.realOperational)}
           </strong>
-          <small>
-            Sisa dana setelah dilakukan pembayaran ke supplier dari RAB pada
-            periode terpilih
-          </small>
+          <small>Total realisasi operasional pada periode terpilih</small>
         </article>
       </section>
 
@@ -1367,30 +1425,41 @@ export function DashboardPage() {
                       <div className="dashboard-status-row-actions">
                         <div className="dashboard-status-flags">
                           <span
-                            className={row.income ? 'is-done' : ''}
+                            className={`status-flag-rab ${
+                              row.income ? 'is-done' : ''
+                            }`}
                             aria-label="RAB"
                             title="RAB"
                           >
                             <WalletCards aria-hidden="true" />
                           </span>
                           <span
-                            className={row.expense ? 'is-done' : ''}
-                            aria-label="Supplier"
-                            title="Supplier"
+                            className={`status-flag-real-rab ${
+                              row.expense ? 'is-done' : ''
+                            }`}
+                            aria-label="Real / RAB"
+                            title="Real / RAB"
                           >
                             <ShoppingCart aria-hidden="true" />
                           </span>
-                          {!['sukaraja', 'cihaur'].includes(
-                            row.kitchen.trim().toLowerCase()
-                          ) ? (
-                            <span
-                              className={row.operational ? 'is-done' : ''}
-                              aria-label="Operasional"
-                              title="Operasional"
-                            >
-                              <Settings2 aria-hidden="true" />
-                            </span>
-                          ) : null}
+                          <span
+                            className={`status-flag-pencairan-ops ${
+                              row.operational ? 'is-done' : ''
+                            }`}
+                            aria-label="Pencairan / Ops"
+                            title="Pencairan / Ops"
+                          >
+                            <Settings2 aria-hidden="true" />
+                          </span>
+                          <span
+                            className={`status-flag-real-ops ${
+                              row.realOperational ? 'is-done' : ''
+                            }`}
+                            aria-label="Real / Ops"
+                            title="Real / Ops"
+                          >
+                            <Settings2 aria-hidden="true" />
+                          </span>
                         </div>
 
                         {user?.role === 'admin' && row.canToggle ? (
@@ -1732,85 +1801,89 @@ export function DashboardPage() {
                 </select>
               </label>
 
-              <label>
-                <span>
-                  {!formFlowType
-                    ? 'Supplier / Rekening'
-                    : formFlowType === 'expense'
-                      ? 'Supplier'
-                      : formFlowType === 'neutral'
-                        ? 'Rekening Operasional'
-                        : 'Rekening'}
-                </span>
+              {formFlowType !== 'real_ops' ? (
+                <label>
+                  <span>
+                    {!formFlowType
+                      ? 'Supplier / Rekening'
+                      : formFlowType === 'expense'
+                        ? 'Real / RAB'
+                        : formFlowType === 'neutral'
+                          ? 'Rekening Operasional'
+                          : 'Rekening'}
+                  </span>
 
-                {formFlowType === 'expense' ? (
-                  <select
-                    value={formSupplierId}
-                    disabled={
-                      !formKitchenId ||
-                      !formFlowType ||
-                      modalMode === 'edit' ||
-                      !isSukarajaFormKitchen
-                    }
-                    onChange={(event) => {
-                      const value = event.target.value
-                      setFormSupplierId(value)
-                      setFormEntryUnlocked(Boolean(value))
-
-                      if (value) {
-                        focusNominalInput()
+                  {formFlowType === 'expense' ? (
+                    <select
+                      value={formSupplierId}
+                      disabled={
+                        !formKitchenId ||
+                        !formFlowType ||
+                        modalMode === 'edit' ||
+                        !isSukarajaFormKitchen
                       }
-                    }}
-                  >
-                    <option value="">
-                      {!formKitchenId
-                        ? 'Pilih dapur terlebih dahulu'
-                        : 'Pilih supplier'}
-                    </option>
+                      onChange={(event) => {
+                        const value = event.target.value
+                        setFormSupplierId(value)
+                        setFormEntryUnlocked(Boolean(value))
 
-                    {formSuppliers.map((supplier) => (
-                      <option key={supplier.value} value={supplier.value}>
-                        {supplier.label}
+                        if (value) {
+                          focusNominalInput()
+                        }
+                      }}
+                    >
+                      <option value="">
+                        {!formKitchenId
+                          ? 'Pilih dapur terlebih dahulu'
+                          : 'Pilih supplier'}
                       </option>
-                    ))}
-                  </select>
-                ) : (
-                  <select
-                    value={formAccountId}
-                    disabled={
-                      !formKitchenId ||
-                      !formFlowType ||
-                      modalMode === 'edit' ||
-                      formFlowType === 'neutral'
-                    }
-                    onChange={(event) => {
-                      const value = event.target.value
-                      setFormAccountId(value)
-                      setFormEntryUnlocked(Boolean(value))
 
-                      if (value) {
-                        focusNominalInput()
+                      {formSuppliers.map((supplier) => (
+                        <option key={supplier.value} value={supplier.value}>
+                          {supplier.label}
+                        </option>
+                      ))}
+                    </select>
+                  ) : (
+                    <select
+                      value={formAccountId}
+                      disabled={
+                        !formKitchenId ||
+                        !formFlowType ||
+                        modalMode === 'edit' ||
+                        formFlowType === 'neutral'
                       }
-                    }}
-                  >
-                    <option value="">
-                      {!formKitchenId
-                        ? 'Pilih dapur terlebih dahulu'
-                        : !formFlowType
-                          ? 'Pilih jenis transaksi terlebih dahulu'
-                          : formFlowType === 'neutral'
-                            ? 'Rekening operasional dipilih otomatis'
-                            : 'Pilih rekening'}
-                    </option>
+                      onChange={(event) => {
+                        const value = event.target.value
+                        setFormAccountId(value)
+                        setFormEntryUnlocked(Boolean(value))
 
-                    {formAccounts.map((account) => (
-                      <option key={account.value} value={account.value}>
-                        {getFormAccountLabel(account, formFlowType)}
+                        if (value) {
+                          focusNominalInput()
+                        }
+                      }}
+                    >
+                      <option value="">
+                        {!formKitchenId
+                          ? 'Pilih dapur terlebih dahulu'
+                          : !formFlowType
+                            ? 'Pilih jenis transaksi terlebih dahulu'
+                            : formFlowType === 'neutral'
+                              ? (getTemporaryOperationalDestination(
+                                  selectedFormKitchen?.name
+                                ) ?? 'Rekening operasional dipilih otomatis')
+                              : 'Pilih rekening'}
                       </option>
-                    ))}
-                  </select>
-                )}
-              </label>
+
+                      {formAccounts.map((account) => (
+                        <option key={account.value} value={account.value}>
+                          {getFormAccountLabel(account, formFlowType)}
+                        </option>
+                      ))}
+                    </select>
+                  )}
+                </label>
+              ) : null}
 
               <label>
                 <span>Nominal</span>
@@ -1827,27 +1900,29 @@ export function DashboardPage() {
                 />
               </label>
 
-              <label className="dashboard-transaction-form-note">
-                <span>Catatan</span>
-                <textarea
-                  rows={3}
-                  value={formNote}
-                  disabled={!transactionDetailsUnlocked}
-                  onChange={(event) => setFormNote(event.target.value)}
-                  onKeyDown={(event) => {
-                    if (
-                      event.key !== 'Enter' ||
-                      event.nativeEvent.isComposing
-                    ) {
-                      return
-                    }
+              {formFlowType !== 'real_ops' ? (
+                <label className="dashboard-transaction-form-note">
+                  <span>Catatan</span>
+                  <textarea
+                    rows={3}
+                    value={formNote}
+                    disabled={!transactionDetailsUnlocked}
+                    onChange={(event) => setFormNote(event.target.value)}
+                    onKeyDown={(event) => {
+                      if (
+                        event.key !== 'Enter' ||
+                        event.nativeEvent.isComposing
+                      ) {
+                        return
+                      }
 
-                    event.preventDefault()
-                    void handleTransactionSubmit()
-                  }}
-                  placeholder="Pilih dapur, jenis transaksi, dan tujuan terlebih dahulu"
-                />
-              </label>
+                      event.preventDefault()
+                      void handleTransactionSubmit()
+                    }}
+                    placeholder="Pilih dapur dan jenis transaksi terlebih dahulu"
+                  />
+                </label>
+              ) : null}
             </div>
 
             <div className="dashboard-transaction-modal-actions">

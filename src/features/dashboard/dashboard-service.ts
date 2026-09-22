@@ -2,7 +2,7 @@ import type { SupabaseClient } from '@supabase/supabase-js'
 
 import { supabase } from '@/lib/supabase'
 
-export type DashboardFlow = 'income' | 'expense' | 'neutral'
+export type DashboardFlow = 'income' | 'expense' | 'neutral' | 'real_ops'
 
 export type DashboardFilters = {
   startDate: string
@@ -16,6 +16,7 @@ export type DashboardSummary = {
   income: number
   expense: number
   operational: number
+  realOperational: number
 }
 
 export type DashboardKitchen = {
@@ -34,6 +35,7 @@ export type DashboardTransaction = {
   kitchen_id: string | null
   account_id: string | null
   supplier_id: string | null
+  destination_label: string | null
   created_at: string
 }
 
@@ -66,13 +68,19 @@ export async function getDashboardSummary(
   if (error) throw error
 
   const row = data?.[0] as
-    | { income?: number; expense?: number; operational?: number }
+    | {
+        income?: number
+        expense?: number
+        operational?: number
+        real_operational?: number
+      }
     | undefined
 
   return {
     income: Number(row?.income ?? 0),
     expense: Number(row?.expense ?? 0),
-    operational: Number(row?.operational ?? 0)
+    operational: Number(row?.operational ?? 0),
+    realOperational: Number(row?.real_operational ?? 0)
   }
 }
 
@@ -127,32 +135,53 @@ export async function getSupplierOptions(
   >,
   client: SupabaseClient = supabase
 ): Promise<{ value: string; label: string }[]> {
-  if (filters.flowType === 'neutral') {
-    const { data: account, error: accountError } = await client
-      .from('accounts')
-      .select('id,name,bank,account_category')
-      .eq('name', 'ARUTALA')
-      .eq('bank', 'BNI')
-      .eq('account_category', 'supplier')
-      .maybeSingle()
-
-    if (accountError) throw accountError
-    if (!account) return []
+  if (filters.flowType === 'neutral' || filters.flowType === 'real_ops') {
+    let query = client
+      .from('kitchen_account_rules')
+      .select(
+        `
+        account_id,
+        accounts(
+          id,
+          name,
+          bank,
+          account_number
+        )
+        `
+      )
+      .eq('flow_type', 'neutral')
 
     if (filters.kitchenId) {
-      const { data: rule, error: ruleError } = await client
-        .from('kitchen_account_rules')
-        .select('account_id')
-        .eq('kitchen_id', filters.kitchenId)
-        .eq('flow_type', 'neutral')
-        .eq('account_id', account.id)
-        .maybeSingle()
-
-      if (ruleError) throw ruleError
-      if (!rule) return []
+      query = query.eq('kitchen_id', filters.kitchenId)
     }
 
-    return [{ value: account.id, label: 'Koperasi Arutala BNI' }]
+    const { data, error } = await query
+
+    if (error) throw error
+
+    const options = new Map<string, { value: string; label: string }>()
+
+    for (const row of data ?? []) {
+      const account = Array.isArray(row.accounts)
+        ? row.accounts[0]
+        : row.accounts
+
+      if (!account) continue
+
+      const label =
+        account.bank || account.account_number
+          ? `${account.name} (${account.bank}${account.account_number ? ` - ${account.account_number}` : ''})`
+          : account.name
+
+      options.set(account.id, {
+        value: account.id,
+        label
+      })
+    }
+
+    return [...options.values()].sort((a, b) =>
+      a.label.localeCompare(b.label, 'id')
+    )
   }
 
   if (filters.flowType === 'expense') {
@@ -236,7 +265,7 @@ export async function getDashboardTransactionPage(
   let query = client
     .from('transactions')
     .select(
-      'id,transaction_date,flow_type,category,amount,note,kitchen_id,account_id,supplier_id,created_at',
+      'id,transaction_date,flow_type,category,amount,note,kitchen_id,account_id,supplier_id,destination_label,created_at',
       { count: 'exact' }
     )
     .gte('transaction_date', filters.startDate)
@@ -267,7 +296,10 @@ export async function getDashboardTransactionPage(
       query = query.eq('supplier_id', supplierId)
     } else if (filters.flowType === 'income') {
       query = query.eq('account_id', filters.supplierFilter)
-    } else if (filters.flowType === 'neutral') {
+    } else if (
+      filters.flowType === 'neutral' ||
+      filters.flowType === 'real_ops'
+    ) {
       query = query.eq('account_id', filters.supplierFilter)
     } else {
       query = query
@@ -300,6 +332,7 @@ export async function getDailyStatus(
     income: boolean
     expense: boolean
     operational: boolean
+    realOperational: boolean
     hasTransactions: boolean
     canToggle: boolean
     disbursed: boolean
@@ -350,11 +383,16 @@ export async function getDailyStatus(
     const income = flows.includes('income')
     const expense = flows.includes('expense')
     const operational = flows.includes('neutral')
-    const hasTransactions = flows.length > 0
+    const realOperational = flows.includes('real_ops')
+
+    // Status pencairan hanya digerakkan oleh Pencairan / RAB (income).
+    // Flow lain tetap tampil sebagai indikator icon, tetapi tidak boleh
+    // mengubah status dapur menjadi Pending.
+    const hasTransactions = income
     const impliedDisbursed = selectedDate < cutoffDate
     const storedDisbursed = statusMap.get(kitchen.id) ?? false
-    const rowDisbursed = impliedDisbursed || storedDisbursed
-    const status: 'disbursed' | 'pending' | 'empty' = !hasTransactions
+    const rowDisbursed = income && (impliedDisbursed || storedDisbursed)
+    const status: 'disbursed' | 'pending' | 'empty' = !income
       ? 'empty'
       : rowDisbursed
         ? 'disbursed'
@@ -371,8 +409,9 @@ export async function getDailyStatus(
       income,
       expense,
       operational,
+      realOperational,
       hasTransactions,
-      canToggle: hasTransactions && selectedDate >= cutoffDate,
+      canToggle: income && selectedDate >= cutoffDate,
       disbursed: rowDisbursed
     }
   })

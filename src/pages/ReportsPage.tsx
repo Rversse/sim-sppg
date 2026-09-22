@@ -370,27 +370,26 @@ function OverallReportView() {
 
       {!loading && !error && report && (
         <>
-          <div className="reports-summary-grid">
+          <div className="reports-summary-grid reports-summary-overall">
             <SummaryCard
-              label="Total RAB"
+              label="Pencairan / RAB"
               value={report.totals.income}
-              note="Total RAB pada periode terpilih"
+              note="Total pencairan RAB pada periode terpilih"
             />
             <SummaryCard
-              label="Total Supplier"
+              label="Real / RAB"
               value={report.totals.expense}
-              note="Total pembayaran ke supplier pada periode terpilih"
+              note="Total realisasi supplier pada periode terpilih"
             />
             <SummaryCard
-              label="Total Operasional"
+              label="Pencairan / Ops"
               value={report.totals.operational}
-              note="Total transaksi operasional pada periode terpilih"
+              note="Total pencairan operasional pada periode terpilih"
             />
             <SummaryCard
-              label="Total"
-              value={report.totals.remaining}
-              note="Sisa dana setelah dilakukan pembayaran ke supplier dari RAB pada periode terpilih"
-              negative={report.totals.remaining < 0}
+              label="Real / Ops"
+              value={report.totals.realOperational}
+              note="Total realisasi operasional pada periode terpilih"
             />
           </div>
 
@@ -399,10 +398,12 @@ function OverallReportView() {
               <thead>
                 <tr>
                   <th>DAPUR</th>
-                  <th>RAB</th>
-                  <th>SUPPLIER</th>
-                  <th>OPS</th>
-                  <th>TOTAL</th>
+                  <th>PENCAIRAN / RAB</th>
+                  <th>REAL / RAB</th>
+                  <th>TOTAL RAB</th>
+                  <th>PENCAIRAN / OPS</th>
+                  <th>REAL / OPS</th>
+                  <th>TOTAL OPS</th>
                 </tr>
               </thead>
               <tbody>
@@ -411,11 +412,17 @@ function OverallReportView() {
                     <td>{item.kitchenName}</td>
                     <td>{formatCurrency(item.income)}</td>
                     <td>{formatCurrency(item.expense)}</td>
+                    <td className={item.totalRAB < 0 ? 'negative' : 'positive'}>
+                      {formatCurrency(item.totalRAB)}
+                    </td>
                     <td>{formatCurrency(item.operational)}</td>
+                    <td>{formatCurrency(item.realOperational)}</td>
                     <td
-                      className={item.remaining < 0 ? 'negative' : 'positive'}
+                      className={
+                        item.totalOperational < 0 ? 'negative' : 'positive'
+                      }
                     >
-                      {formatCurrency(item.remaining)}
+                      {formatCurrency(item.totalOperational)}
                     </td>
                   </tr>
                 ))}
@@ -423,13 +430,23 @@ function OverallReportView() {
                   <td>GRAND TOTAL</td>
                   <td>{formatCurrency(report.totals.income)}</td>
                   <td>{formatCurrency(report.totals.expense)}</td>
-                  <td>{formatCurrency(report.totals.operational)}</td>
                   <td
                     className={
-                      report.totals.remaining < 0 ? 'negative' : 'positive'
+                      report.totals.totalRAB < 0 ? 'negative' : 'positive'
                     }
                   >
-                    {formatCurrency(report.totals.remaining)}
+                    {formatCurrency(report.totals.totalRAB)}
+                  </td>
+                  <td>{formatCurrency(report.totals.operational)}</td>
+                  <td>{formatCurrency(report.totals.realOperational)}</td>
+                  <td
+                    className={
+                      report.totals.totalOperational < 0
+                        ? 'negative'
+                        : 'positive'
+                    }
+                  >
+                    {formatCurrency(report.totals.totalOperational)}
                   </td>
                 </tr>
               </tbody>
