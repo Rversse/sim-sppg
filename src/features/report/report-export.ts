@@ -265,13 +265,13 @@ function createOverallDetailSheet(
   setupWorksheet(worksheet)
   worksheet.addRow([
     'Tanggal',
-    'Pencairan / RAB',
+    'RAB / Pencairan',
     'Real / RAB',
     'Total RAB',
     'Pencairan / Ops',
     'Real / Ops',
     'Total Ops',
-    'Operasional / Arutala'
+    'Ops / Arutala'
   ])
   styleHeader(worksheet.getRow(1))
 
@@ -426,13 +426,13 @@ function createOverallSummarySheet(
 
   worksheet.insertRow(headerRowNumber, [
     'Dapur',
-    'Pencairan / RAB',
+    'RAB / Pencairan',
     'Real / RAB',
     'Total RAB',
     'Pencairan / Ops',
     'Real / Ops',
     'Total Ops',
-    'Operasional / Arutala'
+    'Ops / Arutala'
   ])
 
   styleHeader(worksheet.getRow(headerRowNumber))
