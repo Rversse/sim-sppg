@@ -2,7 +2,13 @@ import type { SupabaseClient } from '@supabase/supabase-js'
 
 import { supabase } from '@/lib/supabase'
 
-export type DashboardFlow =\n  | 'income'\n  | 'expense'\n  | 'gas'\n  | 'ops_disbursement'\n  | 'real_ops'\n  | 'neutral'
+export type DashboardFlow =
+  | 'income'
+  | 'expense'
+  | 'gas'
+  | 'ops_disbursement'
+  | 'real_ops'
+  | 'neutral'
 
 export type DashboardFilters = {
   startDate: string
