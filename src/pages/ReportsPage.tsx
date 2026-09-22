@@ -381,22 +381,22 @@ function OverallReportView() {
               note="Total pencairan RAB pada periode terpilih"
             />
             <SummaryCard
-              label="Real / RAB"
+              label="RAB / Real"
               value={report.totals.expense}
               note="Total realisasi supplier pada periode terpilih"
             />
             <SummaryCard
-              label="Pencairan / Ops"
+              label="OPS / Pencairan"
               value={report.totals.operational}
               note="Total pencairan operasional masuk ke rekening Akuntan / Aslap pada periode terpilih"
             />
             <SummaryCard
-              label="Real / Ops"
+              label="OPS / Real"
               value={report.totals.realOperational}
               note="Total realisasi operasional pada periode terpilih"
             />
             <SummaryCard
-              label="Ops / Arutala"
+              label="OPS / Arutala"
               value={report.totals.gas}
               note="Total operasional masuk ke rekening Arutala pada periode terpilih"
             />
