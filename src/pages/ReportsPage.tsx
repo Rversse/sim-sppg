@@ -407,13 +407,13 @@ function OverallReportView() {
               <thead>
                 <tr>
                   <th className="reports-col-kitchen">DAPUR</th>
-                  <th className="reports-col-rab">PENCAIRAN / RAB</th>
-                  <th className="reports-col-real-rab">REAL / RAB</th>
+                  <th className="reports-col-rab">RAB / PENCAIRAN</th>
+                  <th className="reports-col-real-rab">RAB / REAL</th>
                   <th className="reports-col-total">TOTAL RAB</th>
-                  <th className="reports-col-ops">PENCAIRAN / OPS</th>
-                  <th className="reports-col-real-ops">REAL / OPS</th>
+                  <th className="reports-col-ops">OPS / PENCAIRAN</th>
+                  <th className="reports-col-real-ops">OPS / REAL</th>
                   <th className="reports-col-total">TOTAL OPS</th>
-                  <th className="reports-col-gas">OPERASIONAL / ARUTALA</th>
+                  <th className="reports-col-gas">OPS / ARUTALA</th>
                 </tr>
               </thead>
               <tbody>
