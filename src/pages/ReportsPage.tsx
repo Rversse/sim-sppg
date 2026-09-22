@@ -342,7 +342,11 @@ function OverallReportView() {
   } = useReportData(loadOverallReport, 'Gagal memuat laporan keseluruhan')
 
   return (
-    <section className="reports-section">
+    <section
+      className="reports-section"
+      data-report-start-date={startDate}
+      data-report-end-date={endDate}
+    >
       <div className="reports-filter-panel">
         <ReportDateRange
           startDate={startDate}
@@ -479,7 +483,11 @@ function IncomeReportView() {
   } = useReportData(loadIncomeReport, 'Gagal memuat rekap pemasukan')
 
   return (
-    <section className="reports-section">
+    <section
+      className="reports-section"
+      data-report-start-date={startDate}
+      data-report-end-date={endDate}
+    >
       <div className="reports-filter-panel">
         <ReportDateRange
           startDate={startDate}
@@ -566,7 +574,11 @@ function SupplierReportView() {
   } = useReportData(loadSupplierReport, 'Gagal memuat rekap pengeluaran')
 
   return (
-    <section className="reports-section">
+    <section
+      className="reports-section"
+      data-report-start-date={startDate}
+      data-report-end-date={endDate}
+    >
       <div className="reports-filter-panel">
         <ReportDateRange
           startDate={startDate}
