@@ -429,10 +429,10 @@ function createOverallSummarySheet(
     'Pencairan / RAB',
     'Real / RAB',
     'Total RAB',
-    'GAS',
     'Pencairan / Ops',
     'Real / Ops',
-    'Total Ops'
+    'Total Ops',
+    'GAS'
   ])
 
   styleHeader(worksheet.getRow(headerRowNumber))
@@ -443,10 +443,10 @@ function createOverallSummarySheet(
       row.income,
       row.expense,
       row.totalRAB,
-      row.gas,
       row.operational,
       row.realOperational,
-      row.totalOperational
+      row.totalOperational,
+      row.gas
     ])
   }
 
@@ -455,10 +455,10 @@ function createOverallSummarySheet(
     report.totals.income,
     report.totals.expense,
     report.totals.totalRAB,
-    report.totals.gas,
     report.totals.operational,
     report.totals.realOperational,
-    report.totals.totalOperational
+    report.totals.totalOperational,
+    report.totals.gas
   ])
 
   styleTotalRow(totalRow)
@@ -468,10 +468,10 @@ function createOverallSummarySheet(
     2: 18,
     3: 18,
     4: 18,
-    5: 14,
+    5: 18,
     6: 18,
-    7: 18,
-    8: 20
+    7: 20,
+    8: 14
   })
   styleBody(worksheet)
 }
