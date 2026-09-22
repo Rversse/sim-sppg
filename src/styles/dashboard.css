@@ -2004,34 +2004,24 @@
    ========================================================= */
 
 .dashboard-status-row {
+  border: 1px solid transparent;
   border-radius: 10px;
   padding: 9px 7px;
+  background: transparent;
+  transition:
+    border-color var(--theme-motion-fast) ease,
+    background-color var(--theme-motion-fast) ease;
 }
 
-.dashboard-status-row.is-disbursed {
-  background: var(--theme-surface-soft);
-}
-
-.dashboard-status-row.is-pending {
-  background: var(--theme-surface-soft);
-}
-
+.dashboard-status-row.is-disbursed,
+.dashboard-status-row.is-pending,
 .dashboard-status-row.is-empty {
   background: transparent;
 }
 
-.dashboard-status-row.is-disbursed:hover {
-  background: var(--theme-surface-raised);
-}
-
-.dashboard-status-row.is-pending:hover {
-  background: var(--theme-surface-raised);
-}
-
-.dashboard-status-row.is-empty:hover,
-.dashboard-status-row.is-disbursed:hover,
-.dashboard-status-row.is-pending:hover {
-  background: var(--theme-surface-raised);
+.dashboard-status-row:hover {
+  border-color: var(--theme-border-strong);
+  background: transparent;
 }
 
 .dashboard-status-row-actions {
