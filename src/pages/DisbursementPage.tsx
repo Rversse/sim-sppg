@@ -161,15 +161,13 @@ export function DisbursementPage() {
   )
 
   const loadPeriodData = useCallback(async () => {
-    setLoading(true)
-    setError('')
-
     try {
       const nextRows = await getDisbursementRows(
         selectedPeriod.checklistDate
       )
 
       setRows(nextRows)
+      setError('')
     } catch (loadError: unknown) {
       console.error(loadError)
       const message =
@@ -191,7 +189,19 @@ export function DisbursementPage() {
   }, [selectedPeriod.number])
 
   useEffect(() => {
-    void loadPeriodData()
+    let cancelled = false
+
+    setLoading(true)
+
+    void loadPeriodData().finally(() => {
+      if (!cancelled) {
+        setLoading(false)
+      }
+    })
+
+    return () => {
+      cancelled = true
+    }
   }, [loadPeriodData])
 
   useEffect(() => {
