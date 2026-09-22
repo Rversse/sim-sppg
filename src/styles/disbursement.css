@@ -427,7 +427,7 @@
 .disbursement-table th {
   background: var(--theme-surface-soft);
   color: var(--theme-text-secondary);
-  font-size: 8px;
+  font-size: 10px;
   font-weight: 900;
   letter-spacing: 0.04em;
   text-transform: uppercase;
@@ -436,7 +436,7 @@
 
 .disbursement-table td {
   color: var(--theme-text-primary);
-  font-size: 9px;
+  font-size: 11px;
 }
 
 .disbursement-table tbody tr:hover td {
@@ -540,7 +540,7 @@
   border-radius: 999px;
   background: var(--theme-surface-soft);
   color: var(--theme-text-secondary);
-  font-size: 8px;
+  font-size: 9px;
   font-weight: 800;
   line-height: 1;
 }
