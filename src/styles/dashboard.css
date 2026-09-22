@@ -877,24 +877,24 @@
   white-space: nowrap;
 }
 
-.dashboard-status-flags span[aria-label='Ops / Arutala']::after {
-  content: 'Ops / Arutala';
+.dashboard-status-flags span[aria-label='OPS / Arutala']::after {
+  content: 'OPS / Arutala';
 }
 
 .dashboard-status-flags span[aria-label='RAB / Pencairan']::after {
   content: 'RAB / Pencairan';
 }
 
-.dashboard-status-flags span[aria-label='Real / RAB']::after {
-  content: 'Real / RAB';
+.dashboard-status-flags span[aria-label='RAB / Real']::after {
+  content: 'RAB / Real';
 }
 
-.dashboard-status-flags span[aria-label='Pencairan / Ops']::after {
-  content: 'Pencairan / Ops';
+.dashboard-status-flags span[aria-label='OPS / Pencairan']::after {
+  content: 'OPS / Pencairan';
 }
 
-.dashboard-status-flags span[aria-label='Real / Ops']::after {
-  content: 'Real / Ops';
+.dashboard-status-flags span[aria-label='OPS / Real']::after {
+  content: 'OPS / Real';
 }
 
 .dashboard-status-flags span:hover::after,
