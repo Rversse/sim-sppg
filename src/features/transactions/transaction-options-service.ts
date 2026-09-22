@@ -121,7 +121,7 @@ export async function getTransactionAccounts(
     `
     )
     .eq('kitchen_id', kitchenId)
-    .eq('flow_type', flowType)
+    .eq('flow_type', flowType === 'gas' ? 'neutral' : flowType)
 
   if (error) {
     throw error
