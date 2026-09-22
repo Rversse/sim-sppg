@@ -3,7 +3,6 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import {
   Landmark,
   Settings2,
-  ShoppingCart,
   WalletCards
 } from 'lucide-react'
 
@@ -54,17 +53,17 @@ const DASHBOARD_HISTORY_PAGE_SIZE = 5
 
 const FLOW_OPTIONS: { value: DashboardFlow | ''; label: string }[] = [
   { value: '', label: 'Semua transaksi' },
-  { value: 'income', label: 'Pencairan / RAB' },
+  { value: 'income', label: 'RAB / Pencairan' },
   { value: 'expense', label: 'Real / RAB' },
-  { value: 'gas', label: 'Operasional / Arutala' },
+  { value: 'gas', label: 'Ops / Arutala' },
   { value: 'ops_disbursement', label: 'Pencairan / Ops' },
   { value: 'real_ops', label: 'Real / Ops' }
 ]
 
 function flowLabel(flow: DashboardFlow) {
-  if (flow === 'income') return 'Pencairan / RAB'
+  if (flow === 'income') return 'RAB / Pencairan'
   if (flow === 'expense') return 'Real / RAB'
-  if (flow === 'gas' || flow === 'neutral') return 'Operasional / Arutala'
+  if (flow === 'gas' || flow === 'neutral') return 'Ops / Arutala'
   if (flow === 'ops_disbursement') return 'Pencairan / Ops'
   return 'Real / Ops'
 }
@@ -75,7 +74,7 @@ function FlowIcon({ flow }: { flow: DashboardFlow }) {
   }
 
   if (flow === 'expense') {
-    return <ShoppingCart aria-hidden="true" />
+    return <WalletCards aria-hidden="true" />
   }
 
   if (flow === 'gas' || flow === 'neutral') {
@@ -1387,7 +1386,7 @@ export function DashboardPage() {
           <span className="dashboard-kpi-icon">
             <WalletCards aria-hidden="true" />
           </span>
-          <span>Pencairan / RAB</span>
+          <span>RAB / Pencairan</span>
           <strong>
             {loading ? 'Memuat…' : formatCurrency(summary.income)}
           </strong>
@@ -1400,7 +1399,7 @@ export function DashboardPage() {
           }`}
         >
           <span className="dashboard-kpi-icon">
-            <ShoppingCart aria-hidden="true" />
+            <WalletCards aria-hidden="true" />
           </span>
           <span>Real / RAB</span>
           <strong>
@@ -1417,7 +1416,7 @@ export function DashboardPage() {
           <span className="dashboard-kpi-icon">
             <Landmark aria-hidden="true" />
           </span>
-          <span>Operasional / Arutala</span>
+          <span>Ops / Arutala</span>
           <strong>
             {loading ? 'Memuat…' : formatCurrency(summary.gas)}
           </strong>
@@ -1438,7 +1437,7 @@ export function DashboardPage() {
           <strong>
             {loading ? 'Memuat…' : formatCurrency(summary.operationalDisbursement)}
           </strong>
-          <small>Total pencairan operasional pada periode terpilih</small>
+          <small>Total pencairan operasional masuk ke rekening Akuntan / Aslap pada periode terpilih</small>
         </article>
 
         <article
@@ -1510,9 +1509,9 @@ export function DashboardPage() {
                             className={`status-flag-rab ${
                               row.income ? 'is-done' : ''
                             }`}
-                            aria-label="Pencairan / RAB"
+                            aria-label="RAB / Pencairan"
                           >
-                            <ShoppingCart aria-hidden="true" />
+                            <WalletCards aria-hidden="true" />
                           </span>
                           <span
                             className={`status-flag-real-rab ${
@@ -1520,14 +1519,14 @@ export function DashboardPage() {
                             }`}
                             aria-label="Real / RAB"
                           >
-                            <ShoppingCart aria-hidden="true" />
+                            <WalletCards aria-hidden="true" />
                           </span>
                           {row.gasAvailable ? (
                             <span
                               className={`status-flag-gas ${
                                 row.gas ? 'is-done' : ''
                               }`}
-                              aria-label="Operasional / Arutala"
+                              aria-label="Ops / Arutala"
                             >
                               <Landmark aria-hidden="true" />
                             </span>
