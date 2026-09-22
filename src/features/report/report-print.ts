@@ -454,3 +454,9 @@ function escapeHtml(value: string) {
 }
 
 export { printReport }
+
+
+    .reports-table-overall thead th.reports-col-gas {
+      white-space: normal !important;
+      line-height: 1.15 !important;
+    }
