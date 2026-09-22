@@ -618,7 +618,7 @@
   flex: 0 0 auto;
   padding: 0 12px;
   border: 1px solid var(--theme-border-strong);
-  border-radius: var(--app-control-radius);
+  border-radius: 9px;
   background: var(--theme-surface-raised);
   box-shadow: var(--theme-shadow-card);
   color: var(--theme-text-secondary);
