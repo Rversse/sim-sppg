@@ -209,6 +209,7 @@ export function DashboardPage() {
     expense: 0,
     gas: 0,
     operational: 0,
+    operationalDisbursement: 0,
     realOperational: 0
   })
   const [transactions, setTransactions] = useState<DashboardTransaction[]>([])
@@ -1425,7 +1426,7 @@ export function DashboardPage() {
           </span>
           <span>Pencairan / Ops</span>
           <strong>
-            {loading ? 'Memuat…' : formatCurrency(summary.operational)}
+            {loading ? 'Memuat…' : formatCurrency(summary.operationalDisbursement)}
           </strong>
           <small>Total pencairan operasional pada periode terpilih</small>
         </article>
