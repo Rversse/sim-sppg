@@ -863,8 +863,8 @@
   content: 'GAS';
 }
 
-.dashboard-status-flags span[aria-label='RAB']::after {
-  content: 'RAB';
+.dashboard-status-flags span[aria-label='Pencairan / RAB']::after {
+  content: 'Pencairan / RAB';
 }
 
 .dashboard-status-flags span[aria-label='Real / RAB']::after {
