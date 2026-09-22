@@ -1019,7 +1019,7 @@ export function DashboardPage() {
           : formFlowType === 'expense'
             ? 'Pilih supplier terlebih dahulu.'
             : formFlowType === 'gas'
-              ? 'Rekening GAS belum siap.'
+              ? 'Rekening Operasional belum siap.'
               : formFlowType === 'ops_disbursement'
                 ? 'Tujuan operasional belum siap.'
                 : formFlowType === 'real_ops'
@@ -1954,7 +1954,7 @@ export function DashboardPage() {
                       : formFlowType === 'expense'
                         ? 'Real / RAB'
                         : formFlowType === 'gas'
-                          ? 'Rekening GAS'
+                          ? 'Rekening Operasional'
                           : 'Rekening'}
                   </span>
 
