@@ -191,16 +191,17 @@ export function DisbursementPage() {
   useEffect(() => {
     let cancelled = false
 
-    setLoading(true)
-
-    void loadPeriodData().finally(() => {
-      if (!cancelled) {
-        setLoading(false)
-      }
-    })
+    const timer = window.setTimeout(() => {
+      void loadPeriodData().finally(() => {
+        if (!cancelled) {
+          setLoading(false)
+        }
+      })
+    }, 0)
 
     return () => {
       cancelled = true
+      window.clearTimeout(timer)
     }
   }, [loadPeriodData])
 
