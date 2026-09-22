@@ -95,7 +95,7 @@ export type BankIncomeHistoryTransaction = {
   transaction_date: string
   created_at: string
   amount: number
-  flow_type: 'income' | 'neutral'
+  flow_type: 'income' | 'gas' | 'neutral'
   note: string | null
   kitchen_name: string | null
 }
@@ -335,7 +335,7 @@ export async function getBankIncomeTransactions(
     const { data, error } = await client
       .from('transactions')
       .select('account_id,amount')
-      .in('flow_type', ['income', 'neutral'])
+      .in('flow_type', ['income', 'gas', 'neutral'])
       .gte('transaction_date', startDate)
       .lte('transaction_date', endDate)
       .order('transaction_date', { ascending: true })
