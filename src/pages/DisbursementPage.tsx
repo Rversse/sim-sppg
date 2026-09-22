@@ -181,11 +181,7 @@ export function DisbursementPage() {
     } finally {
       setLoading(false)
     }
-  }, [
-    selectedPeriod.checklistDate,
-    selectedPeriod.endDate,
-    selectedPeriod.startDate
-  ])
+  }, [selectedPeriod.checklistDate])
 
   useEffect(() => {
     localStorage.setItem(
