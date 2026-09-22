@@ -366,6 +366,7 @@ export async function getDailyStatus(
     income: boolean
     expense: boolean
     gas: boolean
+    gasAvailable: boolean
     operational: boolean
     realOperational: boolean
     hasTransactions: boolean
@@ -449,6 +450,7 @@ export async function getDailyStatus(
       income,
       expense,
       gas,
+      gasAvailable,
       operational,
       realOperational,
       hasTransactions,
