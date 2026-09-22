@@ -1163,7 +1163,12 @@
   color: var(--flow-real-rab);
 }
 
+.dashboard-flow-gas,
 .dashboard-flow-neutral {
+  color: var(--flow-gas);
+}
+
+.dashboard-flow-ops-disbursement {
   color: var(--flow-pencairan-ops);
 }
 
