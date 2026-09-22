@@ -23,6 +23,7 @@ export type DashboardSummary = {
   expense: number
   gas: number
   operational: number
+  operationalDisbursement: number
   realOperational: number
 }
 
@@ -80,6 +81,7 @@ export async function getDashboardSummary(
         expense?: number
         gas?: number
         operational?: number
+        operational_disbursement?: number
         real_operational?: number
       }
     | undefined
@@ -89,6 +91,9 @@ export async function getDashboardSummary(
     expense: Number(row?.expense ?? 0),
     gas: Number(row?.gas ?? 0),
     operational: Number(row?.operational ?? 0),
+    operationalDisbursement: Number(
+      row?.operational_disbursement ?? 0
+    ),
     realOperational: Number(row?.real_operational ?? 0)
   }
 }
