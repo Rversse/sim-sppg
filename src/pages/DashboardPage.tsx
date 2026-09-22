@@ -1455,6 +1455,7 @@ export function DashboardPage() {
             {loading ? 'Memuat…' : formatCurrency(summary.realOperational)}
           </strong>
           <small>Total realisasi operasional pada periode terpilih</small>
+        </article>
 
         <article
           className={`dashboard-kpi dashboard-kpi-sisa ${
