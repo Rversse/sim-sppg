@@ -417,7 +417,11 @@ export async function getDailyStatus(
     const flows = transactionMap.get(kitchen.id) ?? []
     const income = flows.includes('income')
     const expense = flows.includes('expense')
-    const gas = flows.includes('gas') || flows.includes('neutral')
+    const normalizedKitchenName = kitchen.name?.trim().toLowerCase() ?? ''
+    const gasAvailable =
+      normalizedKitchenName !== 'sukaraja' &&
+      normalizedKitchenName !== 'cihaur'
+    const gas = gasAvailable && (flows.includes('gas') || flows.includes('neutral'))
     const operational = flows.includes('ops_disbursement')
     const realOperational = flows.includes('real_ops')
 
