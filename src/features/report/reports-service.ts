@@ -69,7 +69,6 @@ export type SupplierSummaryRow = {
   Sukalarang: number
   Aris: number
   Babinsa: number
-  Operational: number
   Total: number
 }
 
@@ -86,7 +85,6 @@ export type SupplierReport = {
     Sukalarang: number
     Aris: number
     Babinsa: number
-    Operational: number
     Total: number
   }
 }
@@ -147,7 +145,6 @@ function createSupplierValues(): Omit<SupplierSummaryRow, 'kitchenName'> {
     Sukalarang: 0,
     Aris: 0,
     Babinsa: 0,
-    Operational: 0,
     Total: 0
   }
 }
@@ -361,29 +358,9 @@ export async function getOverallReport(
   }
 
   return {
-    kitchens: [...grouped.values()].sort((a, b) => {
-      const activeA =
-        a.income > 0 ||
-        a.expense > 0 ||
-        a.gas > 0 ||
-        a.operational > 0 ||
-        a.realOperational > 0
-
-      const activeB =
-        b.income > 0 ||
-        b.expense > 0 ||
-        b.gas > 0 ||
-        b.operational > 0 ||
-        b.realOperational > 0
-
-      if (!activeA && activeB) return 1
-      if (!activeB && activeA) return -1
-
-      return (
-        a.totalRAB - b.totalRAB ||
-        a.kitchenName.localeCompare(b.kitchenName)
-      )
-    }),
+    kitchens: [...grouped.values()].sort((a, b) =>
+      a.kitchenName.localeCompare(b.kitchenName, 'id')
+    ),
 
     daily: [...daily.values()].sort((a, b) => b.date.localeCompare(a.date)),
 
@@ -495,15 +472,6 @@ function addSupplierExpense(
   }
 }
 
-function addSupplierOperational(
-  values: Omit<SupplierSummaryRow, 'kitchenName'>,
-  totals: SupplierReport['totals'],
-  amount: number
-) {
-  values.Operational += amount
-  totals.Operational += amount
-}
-
 export async function getSupplierReport(
   filters: ReportFilters,
   client: SupabaseClient = supabase
@@ -517,10 +485,7 @@ export async function getSupplierReport(
   const totals = createSupplierTotals()
 
   for (const transaction of transactions) {
-    if (
-      transaction.flow_type !== 'expense' &&
-      transaction.flow_type !== 'ops_disbursement'
-    ) {
+    if (transaction.flow_type !== 'expense') {
       continue
     }
 
@@ -583,23 +548,6 @@ export async function getSupplierReport(
       totals.Total += amount
 
       continue
-    }
-
-    if (transaction.flow_type === 'ops_disbursement') {
-      addSupplierOperational(summaryRow, totals, amount)
-
-      addSupplierOperational(
-        dailyRow,
-        {
-          Arutala: 0,
-          Sukalarang: 0,
-          Aris: 0,
-          Babinsa: 0,
-          Operational: 0,
-          Total: 0
-        },
-        amount
-      )
     }
   }
 
