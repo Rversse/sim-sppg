@@ -204,15 +204,15 @@ function printReport() {
     }
 
     .reports-summary-overall .reports-summary-card:nth-child(3) {
-      border-left: 5px solid #2563eb !important;
-    }
-
-    .reports-summary-overall .reports-summary-card:nth-child(4) {
       border-left: 5px solid #7c3aed !important;
     }
 
-    .reports-summary-overall .reports-summary-card:nth-child(5) {
+    .reports-summary-overall .reports-summary-card:nth-child(4) {
       border-left: 5px solid #d97706 !important;
+    }
+
+    .reports-summary-overall .reports-summary-card:nth-child(5) {
+      border-left: 5px solid #2563eb !important;
     }
 
     .reports-summary-card > span {
