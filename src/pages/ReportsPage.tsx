@@ -376,7 +376,7 @@ function OverallReportView() {
         <>
           <div className="reports-summary-grid reports-summary-overall">
             <SummaryCard
-              label="Pencairan / RAB"
+              label="RAB / Pencairan"
               value={report.totals.income}
               note="Total pencairan RAB pada periode terpilih"
             />
@@ -396,7 +396,7 @@ function OverallReportView() {
               note="Total realisasi operasional pada periode terpilih"
             />
             <SummaryCard
-              label="Operasional / Arutala"
+              label="Ops / Arutala"
               value={report.totals.gas}
               note="Total operasional melalui Arutala pada periode terpilih"
             />
