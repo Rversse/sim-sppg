@@ -281,15 +281,6 @@ export function DisbursementPage() {
         },
         scheduleRealtimeRefresh
       )
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'transactions'
-        },
-        scheduleRealtimeRefresh
-      )
       .subscribe((status) => {
         if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
           if (!cancelled) {
