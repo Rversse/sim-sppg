@@ -271,7 +271,7 @@ function createOverallDetailSheet(
     'Pencairan / Ops',
     'Real / Ops',
     'Total Ops',
-    'GAS'
+    'Operasional / Arutala'
   ])
   styleHeader(worksheet.getRow(1))
 
