@@ -8,11 +8,6 @@ import {
 import { canAccess } from '@/features/auth/role-policy'
 import { useAuth } from '@/features/auth/use-auth'
 import { useToast } from '@/features/ui/toast-context'
-import {
-  getOverallReport,
-  type OverallReport
-} from '@/features/report/reports-service'
-import { formatCurrency } from '@/lib/formatters'
 import { supabase } from '@/lib/supabase'
 import {
   calculateDisbursementProgress,
@@ -65,75 +60,6 @@ function getChecklistStatus(summary: DisbursementSummary) {
   return 'Belum Mulai'
 }
 
-function FinancialSummary({
-  report,
-  period
-}: {
-  report: OverallReport | null
-  period: DisbursementPeriod
-}) {
-  if (!report) {
-    return (
-      <div className="disbursement-financial-empty">
-        Ringkasan transaksi periode sedang dimuat...
-      </div>
-    )
-  }
-
-  const cards = [
-    {
-      label: 'Pencairan / RAB',
-      value: report.totals.income,
-      className: 'is-rab'
-    },
-    {
-      label: 'Real / RAB',
-      value: report.totals.expense,
-      className: 'is-real-rab'
-    },
-    {
-      label: 'GAS',
-      value: report.totals.gas,
-      className: 'is-gas'
-    },
-    {
-      label: 'Pencairan / Ops',
-      value: report.totals.operational,
-      className: 'is-ops'
-    },
-    {
-      label: 'Real / Ops',
-      value: report.totals.realOperational,
-      className: 'is-real-ops'
-    }
-  ]
-
-  return (
-    <section className="disbursement-financial-panel">
-      <div className="disbursement-section-heading">
-        <div>
-          <h2>Ringkasan Keuangan Periode</h2>
-          <p>
-            Referensi transaksi periode {period.startDate} s/d {period.endDate}.
-          </p>
-        </div>
-      </div>
-
-      <div className="disbursement-financial-grid">
-        {cards.map((card) => (
-          <article
-            className={`disbursement-financial-card ${card.className}`}
-            key={card.label}
-          >
-            <span>{card.label}</span>
-            <strong>{formatCurrency(card.value)}</strong>
-          </article>
-        ))}
-      </div>
-    </section>
-  )
-}
-
 export function DisbursementPage() {
   const { user } = useAuth()
   const { error: toastError } = useToast()
@@ -156,9 +82,16 @@ export function DisbursementPage() {
   )
   const [periodPickerOpen, setPeriodPickerOpen] = useState(false)
   const [periodSearch, setPeriodSearch] = useState('')
+  const [openYears, setOpenYears] = useState<Set<string>>(
+    () => new Set([getDisbursementPeriod(initialPeriodNumber).startDate.slice(0, 4)])
+  )
+  const [openMonths, setOpenMonths] = useState<Set<string>>(
+    () =>
+      new Set([
+        getDisbursementPeriod(initialPeriodNumber).startDate.slice(0, 7)
+      ])
+  )
   const [rows, setRows] = useState<DisbursementRow[]>([])
-  const [financialReport, setFinancialReport] =
-    useState<OverallReport | null>(null)
   const [loading, setLoading] = useState(true)
   const [savingKey, setSavingKey] = useState<string | null>(null)
   const [error, setError] = useState('')
@@ -195,17 +128,31 @@ export function DisbursementPage() {
   }, [availablePeriods, periodSearch])
 
   const groupedPeriods = useMemo(() => {
-    const groups = new Map<string, DisbursementPeriod[]>()
+    const yearGroups = new Map<
+      string,
+      Map<string, DisbursementPeriod[]>
+    >()
 
     for (const period of filteredPeriods) {
-      const groupKey = period.startDate.slice(0, 7)
-      const current = groups.get(groupKey) ?? []
+      const yearKey = period.startDate.slice(0, 4)
+      const monthKey = period.startDate.slice(0, 7)
+      const months =
+        yearGroups.get(yearKey) ??
+        new Map<string, DisbursementPeriod[]>()
+      const current = months.get(monthKey) ?? []
+
       current.push(period)
-      groups.set(groupKey, current)
+      months.set(monthKey, current)
+      yearGroups.set(yearKey, months)
     }
 
-    return [...groups.entries()]
+    return [...yearGroups.entries()].map(([year, months]) => ({
+      year,
+      months: [...months.entries()]
+    }))
   }, [filteredPeriods])
+
+  const hasMultipleYears = groupedPeriods.length > 1
 
   const summary = useMemo(() => summarizeDisbursementRows(rows), [rows])
   const checklistStatus = useMemo(
@@ -218,17 +165,11 @@ export function DisbursementPage() {
     setError('')
 
     try {
-      const [nextRows, nextReport] = await Promise.all([
-        getDisbursementRows(selectedPeriod.checklistDate),
-        getOverallReport({
-          startDate: selectedPeriod.startDate,
-          endDate: selectedPeriod.endDate,
-          kitchenId: ''
-        })
-      ])
+      const nextRows = await getDisbursementRows(
+        selectedPeriod.checklistDate
+      )
 
       setRows(nextRows)
-      setFinancialReport(nextReport)
     } catch (loadError: unknown) {
       console.error(loadError)
       const message =
@@ -370,8 +311,11 @@ export function DisbursementPage() {
 
   function selectPeriod(periodNumber: number) {
     setLoading(true)
-    setFinancialReport(null)
     setPeriodSearch('')
+
+    const nextPeriod = getDisbursementPeriod(periodNumber)
+    setOpenYears(new Set([nextPeriod.startDate.slice(0, 4)]))
+    setOpenMonths(new Set([nextPeriod.startDate.slice(0, 7)]))
     setPeriodPickerOpen(false)
     setSelectedPeriodNumber(periodNumber)
   }
@@ -536,34 +480,107 @@ export function DisbursementPage() {
                     Periode tidak ditemukan.
                   </div>
                 ) : (
-                  groupedPeriods.map(([groupKey, periods]) => (
-                    <section
-                      className="disbursement-period-group"
-                      key={groupKey}
-                    >
-                      <strong>{formatPeriodMonth(periods[0].startDate)}</strong>
+                  groupedPeriods.map(({ year, months }) => {
+                    const yearOpen =
+                      !hasMultipleYears ||
+                      periodSearch.trim() !== '' ||
+                      openYears.has(year)
 
-                      <div>
-                        {periods.map((period) => (
+                    return (
+                      <section
+                        className="disbursement-period-year-group"
+                        key={year}
+                      >
+                        {hasMultipleYears ? (
                           <button
                             type="button"
-                            className={
-                              period.number === selectedPeriod.number
-                                ? 'is-active'
-                                : ''
+                            className={'disbursement-period-year-toggle ' + (yearOpen ? 'is-open' : '')}
+                            onClick={() =>
+                              setOpenYears((current) => {
+                                const next = new Set(current)
+
+                                if (next.has(year)) {
+                                  next.delete(year)
+                                } else {
+                                  next.add(year)
+                                }
+
+                                return next
+                              })
                             }
-                            key={period.number}
-                            onClick={() => selectPeriod(period.number)}
+                            aria-expanded={yearOpen}
                           >
-                            <span>Periode {period.number}</span>
-                            <small>
-                              {period.startDate} — {period.endDate}
-                            </small>
+                            <ChevronRight aria-hidden="true" />
+                            <span>{year}</span>
                           </button>
-                        ))}
-                      </div>
-                    </section>
-                  ))
+                        ) : null}
+
+                        {yearOpen ? (
+                          <div className="disbursement-period-months">
+                            {months.map(([monthKey, periods]) => {
+                              const monthOpen =
+                                periodSearch.trim() !== '' ||
+                                openMonths.has(monthKey)
+
+                              return (
+                                <section
+                                  className="disbursement-period-group"
+                                  key={monthKey}
+                                >
+                                  <button
+                                    type="button"
+                                    className={'disbursement-period-month-toggle ' + (monthOpen ? 'is-open' : '')}
+                                    onClick={() =>
+                                      setOpenMonths((current) => {
+                                        const next = new Set(current)
+
+                                        if (next.has(monthKey)) {
+                                          next.delete(monthKey)
+                                        } else {
+                                          next.add(monthKey)
+                                        }
+
+                                        return next
+                                      })
+                                    }
+                                    aria-expanded={monthOpen}
+                                  >
+                                    <ChevronRight aria-hidden="true" />
+                                    <span>
+                                      {formatPeriodMonth(periods[0].startDate)}
+                                    </span>
+                                    <small>{periods.length} periode</small>
+                                  </button>
+
+                                  {monthOpen ? (
+                                    <div>
+                                      {periods.map((period) => (
+                                        <button
+                                          type="button"
+                                          className={
+                                            period.number === selectedPeriod.number
+                                              ? 'is-active'
+                                              : ''
+                                          }
+                                          key={period.number}
+                                          onClick={() => selectPeriod(period.number)}
+                                        >
+                                          <span>Periode {period.number}</span>
+                                          <small>
+                                            {period.startDate} — {period.endDate}
+                                          </small>
+                                        </button>
+                                      ))}
+                                    </div>
+                                  ) : null}
+                                </section>
+                              )
+                            })}
+                          </div>
+                        ) : null}
+                      </section>
+                    )
+                  })
                 )}
               </div>
             </div>
@@ -645,8 +662,6 @@ export function DisbursementPage() {
               </div>
             ) : null}
           </section>
-
-          <FinancialSummary report={financialReport} period={selectedPeriod} />
 
           <section className="disbursement-panel">
             <div className="disbursement-panel-header">
