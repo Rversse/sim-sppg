@@ -27,7 +27,7 @@ type NavigationItem = {
 type NavigationSection = { label: string; items: NavigationItem[] }
 const navigationSections: NavigationSection[] = [
   {
-    label: 'Utama',
+    label: '',
     items: [
       {
         label: 'Dashboard',
@@ -148,7 +148,9 @@ export function AppLayout() {
         <nav className="app-nav" aria-label="Navigasi utama">
           {visibleSections.map((section) => (
             <div className="app-nav-section" key={section.label}>
-              <span className="app-nav-section-label">{section.label}</span>
+              {section.label ? (
+                <span className="app-nav-section-label">{section.label}</span>
+              ) : null}
               <div className="app-nav-section-items">
                 {section.items.map((item) => {
                   const Icon = item.icon
