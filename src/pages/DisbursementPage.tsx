@@ -1,91 +1,227 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
+import {
+  ChevronLeft,
+  ChevronRight,
+  Search
+} from 'lucide-react'
 
 import { canAccess } from '@/features/auth/role-policy'
 import { useAuth } from '@/features/auth/use-auth'
 import { useToast } from '@/features/ui/toast-context'
-import { SingleDatePicker } from '@/components/ui/date-picker'
+import { supabase } from '@/lib/supabase'
 import {
   calculateDisbursementProgress,
   DISBURSEMENT_ITEMS,
+  getCurrentDisbursementPeriod,
+  getDisbursementPeriod,
+  getDisbursementPeriods,
   getDisbursementProgressClass,
   getDisbursementRows,
-  getNearestFriday,
   isDisbursementLocked,
   saveDisbursementCheckbox,
   summarizeDisbursementRows,
   type DisbursementField,
-  type DisbursementRow
+  type DisbursementPeriod,
+  type DisbursementRow,
+  type DisbursementSummary
 } from '@/features/disbursement/disbursement-service'
 
-import { supabase } from '@/lib/supabase'
+const DISBURSEMENT_PERIOD_KEY = 'disbursement_selected_period'
 
-const DISBURSEMENT_DATE_KEY = 'disbursement_selected_date'
+function formatLongDate(value: string) {
+  const [year, month, day] = value.split('-').map(Number)
+
+  return new Intl.DateTimeFormat('id-ID', {
+    weekday: 'long',
+    day: '2-digit',
+    month: 'long',
+    year: 'numeric'
+  }).format(new Date(year, month - 1, day))
+}
+
+function formatPeriodMonth(value: string) {
+  const [year, month, day] = value.split('-').map(Number)
+
+  return new Intl.DateTimeFormat('id-ID', {
+    month: 'long',
+    year: 'numeric'
+  }).format(new Date(year, month - 1, day))
+}
+
+function getChecklistStatus(summary: DisbursementSummary) {
+  if (summary.completedKitchens === summary.totalKitchens) {
+    return 'Selesai'
+  }
+
+  if (summary.completedKitchens > 0 || summary.inProgressCount > 0) {
+    return 'Berjalan'
+  }
+
+  return 'Belum Mulai'
+}
 
 export function DisbursementPage() {
   const { user } = useAuth()
   const { error: toastError } = useToast()
   const canView = canAccess(user?.role, 'disbursement.view')
 
-  const [selectedDate, setSelectedDate] = useState(() => {
-    return localStorage.getItem(DISBURSEMENT_DATE_KEY) ?? getNearestFriday()
-  })
+  const availablePeriods = useMemo(() => getDisbursementPeriods(), [])
+  const currentPeriod = useMemo(() => getCurrentDisbursementPeriod(), [])
+  const currentStoredPeriod = Number(
+    localStorage.getItem(DISBURSEMENT_PERIOD_KEY) ?? currentPeriod.number
+  )
+  const initialPeriodNumber =
+    Number.isFinite(currentStoredPeriod) &&
+    currentStoredPeriod >= 1 &&
+    currentStoredPeriod <= currentPeriod.number
+      ? currentStoredPeriod
+      : currentPeriod.number
+
+  const [selectedPeriodNumber, setSelectedPeriodNumber] = useState(
+    initialPeriodNumber
+  )
+  const [periodPickerOpen, setPeriodPickerOpen] = useState(false)
+  const [periodSearch, setPeriodSearch] = useState('')
+  const [openYears, setOpenYears] = useState<Set<string>>(
+    () => new Set([getDisbursementPeriod(initialPeriodNumber).startDate.slice(0, 4)])
+  )
+  const [openMonths, setOpenMonths] = useState<Set<string>>(
+    () =>
+      new Set([
+        getDisbursementPeriod(initialPeriodNumber).startDate.slice(0, 7)
+      ])
+  )
   const [rows, setRows] = useState<DisbursementRow[]>([])
   const [loading, setLoading] = useState(true)
   const [savingKey, setSavingKey] = useState<string | null>(null)
   const [error, setError] = useState('')
 
-  const locked = useMemo(
-    () => isDisbursementLocked(selectedDate),
-    [selectedDate]
+  const selectedPeriod = useMemo(
+    () => getDisbursementPeriod(selectedPeriodNumber),
+    [selectedPeriodNumber]
   )
 
+  const locked = useMemo(
+    () => isDisbursementLocked(selectedPeriod.checklistDate),
+    [selectedPeriod.checklistDate]
+  )
+
+  const filteredPeriods = useMemo(() => {
+    const query = periodSearch.trim().toLowerCase()
+
+    if (!query) {
+      return availablePeriods
+    }
+
+    return availablePeriods.filter((period) =>
+      [
+        String(period.number),
+        period.startDate,
+        period.endDate,
+        period.checklistDate,
+        period.label
+      ]
+        .join(' ')
+        .toLowerCase()
+        .includes(query)
+    )
+  }, [availablePeriods, periodSearch])
+
+  const groupedPeriods = useMemo(() => {
+    const yearGroups = new Map<
+      string,
+      Map<string, DisbursementPeriod[]>
+    >()
+
+    for (const period of filteredPeriods) {
+      const yearKey = period.startDate.slice(0, 4)
+      const monthKey = period.startDate.slice(0, 7)
+      const months =
+        yearGroups.get(yearKey) ??
+        new Map<string, DisbursementPeriod[]>()
+      const current = months.get(monthKey) ?? []
+
+      current.push(period)
+      months.set(monthKey, current)
+      yearGroups.set(yearKey, months)
+    }
+
+    return [...yearGroups.entries()].map(([year, months]) => ({
+      year,
+      months: [...months.entries()]
+    }))
+  }, [filteredPeriods])
+
+  const hasMultipleYears = groupedPeriods.length > 1
+
+  const summary = useMemo(() => summarizeDisbursementRows(rows), [rows])
+  const checklistStatus = useMemo(
+    () => getChecklistStatus(summary),
+    [summary]
+  )
+
+  const loadPeriodData = useCallback(async () => {
+    try {
+      const nextRows = await getDisbursementRows(
+        selectedPeriod.checklistDate
+      )
+
+      setRows(nextRows)
+      setError('')
+    } catch (loadError: unknown) {
+      console.error(loadError)
+      const message =
+        loadError instanceof Error
+          ? loadError.message
+          : 'Gagal memuat data periode.'
+
+      setError(message)
+    } finally {
+      setLoading(false)
+    }
+  }, [selectedPeriod.checklistDate])
+
   useEffect(() => {
-    localStorage.setItem(DISBURSEMENT_DATE_KEY, selectedDate)
-  }, [selectedDate])
+    localStorage.setItem(
+      DISBURSEMENT_PERIOD_KEY,
+      String(selectedPeriod.number)
+    )
+  }, [selectedPeriod.number])
 
   useEffect(() => {
     let cancelled = false
 
-    void getDisbursementRows(selectedDate)
-      .then((data) => {
-        if (cancelled) return
-
-        setRows(data)
-        setError('')
+    const timer = window.setTimeout(() => {
+      void loadPeriodData().finally(() => {
+        if (!cancelled) {
+          setLoading(false)
+        }
       })
-      .catch((err: unknown) => {
-        if (cancelled) return
-
-        console.error(err)
-        const message =
-          err instanceof Error ? err.message : 'Gagal memuat data pencairan.'
-
-        setError(message)
-      })
-      .finally(() => {
-        if (cancelled) return
-
-        setLoading(false)
-      })
+    }, 0)
 
     return () => {
       cancelled = true
+      window.clearTimeout(timer)
     }
-  }, [selectedDate])
+  }, [loadPeriodData])
 
-  const summary = useMemo(() => summarizeDisbursementRows(rows), [rows])
+  useEffect(() => {
+    if (!periodPickerOpen) {
+      return
+    }
 
-  function handleDateChange(value: string) {
-    setLoading(true)
-    setRows([])
-    setError('')
-    setSelectedDate(value)
-  }
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === 'Escape') {
+        setPeriodPickerOpen(false)
+      }
+    }
 
-  const reloadCurrentDate = useCallback(async () => {
-    const data = await getDisbursementRows(selectedDate)
-    setRows(data)
-  }, [selectedDate])
+    window.addEventListener('keydown', handleKeyDown)
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown)
+    }
+  }, [periodPickerOpen])
 
   useEffect(() => {
     let cancelled = false
@@ -112,11 +248,11 @@ export function DisbursementPage() {
 
         refreshInFlight = true
 
-        void reloadCurrentDate()
-          .catch((err: unknown) => {
+        void loadPeriodData()
+          .catch((refreshError: unknown) => {
             console.error(
-              'Gagal memperbarui checklist pencairan dari Realtime:',
-              err
+              'Gagal memperbarui checklist periode dari Realtime:',
+              refreshError
             )
           })
           .finally(() => {
@@ -132,7 +268,7 @@ export function DisbursementPage() {
 
     const channel = supabase
       .channel(
-        `disbursement-checklist-live-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
+        `disbursement-period-live-${selectedPeriod.number}-${Date.now()}`
       )
       .on(
         'postgres_changes',
@@ -155,7 +291,7 @@ export function DisbursementPage() {
       .subscribe((status) => {
         if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
           if (!cancelled) {
-            console.warn(`[Disbursement Realtime] ${status}`)
+            console.warn(`[Disbursement Period Realtime] ${status}`)
           }
         }
       })
@@ -165,12 +301,38 @@ export function DisbursementPage() {
 
       if (refreshTimer !== null) {
         clearTimeout(refreshTimer)
-        refreshTimer = null
       }
 
       void supabase.removeChannel(channel)
     }
-  }, [reloadCurrentDate])
+  }, [loadPeriodData, selectedPeriod.number])
+
+  function selectPeriod(periodNumber: number) {
+    setLoading(true)
+    setPeriodSearch('')
+
+    const nextPeriod = getDisbursementPeriod(periodNumber)
+    setOpenYears(new Set([nextPeriod.startDate.slice(0, 4)]))
+    setOpenMonths(new Set([nextPeriod.startDate.slice(0, 7)]))
+    setPeriodPickerOpen(false)
+    setSelectedPeriodNumber(periodNumber)
+  }
+
+  function goToPreviousPeriod() {
+    if (selectedPeriod.number <= 1) {
+      return
+    }
+
+    selectPeriod(selectedPeriod.number - 1)
+  }
+
+  function goToNextPeriod() {
+    if (selectedPeriod.number >= currentPeriod.number) {
+      return
+    }
+
+    selectPeriod(selectedPeriod.number + 1)
+  }
 
   async function handleToggle(
     row: DisbursementRow,
@@ -194,7 +356,7 @@ export function DisbursementPage() {
           : {
               id: '',
               kitchen_id: row.kitchen.id,
-              checklist_date: selectedDate,
+              checklist_date: selectedPeriod.checklistDate,
               relawan: false,
               pic_sekolah: false,
               kader_posyandu: false,
@@ -212,19 +374,24 @@ export function DisbursementPage() {
     )
 
     try {
-      await saveDisbursementCheckbox(row.kitchen.id, selectedDate, field, value)
-    } catch (err: unknown) {
-      console.error(err)
+      await saveDisbursementCheckbox(
+        row.kitchen.id,
+        selectedPeriod.checklistDate,
+        field,
+        value
+      )
+    } catch (saveError: unknown) {
+      console.error(saveError)
 
       try {
-        await reloadCurrentDate()
+        await loadPeriodData()
       } catch (reloadError) {
         console.error(reloadError)
       }
 
       const message =
-        err instanceof Error
-          ? err.message
+        saveError instanceof Error
+          ? saveError.message
           : 'Gagal menyimpan checklist pencairan.'
 
       setError(message)
@@ -244,18 +411,178 @@ export function DisbursementPage() {
     <div className="disbursement-page">
       <section className="disbursement-header">
         <div className="disbursement-header-copy">
-          <span>Checklist Operasional</span>
+          <span>Checklist Pencairan Periode</span>
           <p>
-            Pilih periode untuk melihat dan memperbarui checklist setiap dapur.
+            Hanya Admin. Satu periode berlangsung 14 hari dan checklist
+            pencairan dilakukan pada Jumat minggu kedua.
           </p>
         </div>
 
-        <div className="disbursement-date-picker">
-          <SingleDatePicker
-            label="Periode Checklist"
-            value={selectedDate}
-            onChange={handleDateChange}
-          />
+        <div className="disbursement-period-picker">
+          <div className="disbursement-period-picker-actions">
+            <button
+              type="button"
+              className="disbursement-period-nav"
+              onClick={goToPreviousPeriod}
+              disabled={selectedPeriod.number <= 1}
+              aria-label="Periode sebelumnya"
+              title="Periode sebelumnya"
+            >
+              <ChevronLeft aria-hidden="true" />
+            </button>
+
+            <button
+              type="button"
+              className="disbursement-period-trigger"
+              onClick={() => setPeriodPickerOpen((current) => !current)}
+              aria-expanded={periodPickerOpen}
+              aria-haspopup="dialog"
+            >
+              <span className="disbursement-period-trigger-kicker">
+                PERIODE {selectedPeriod.number}
+              </span>
+              <strong>{selectedPeriod.label}</strong>
+              <small>
+                Checklist / pencairan: {formatLongDate(selectedPeriod.checklistDate)}
+              </small>
+            </button>
+
+            <button
+              type="button"
+              className="disbursement-period-nav"
+              onClick={goToNextPeriod}
+              disabled={selectedPeriod.number >= currentPeriod.number}
+              aria-label="Periode berikutnya"
+              title="Periode berikutnya"
+            >
+              <ChevronRight aria-hidden="true" />
+            </button>
+          </div>
+
+          {periodPickerOpen ? (
+            <div className="disbursement-period-picker-popover" role="dialog">
+              <div className="disbursement-period-search">
+                <Search aria-hidden="true" />
+                <input
+                  type="search"
+                  value={periodSearch}
+                  onChange={(event) => setPeriodSearch(event.target.value)}
+                  placeholder="Cari periode, tanggal, atau tahun..."
+                  autoFocus
+                />
+              </div>
+
+              <div className="disbursement-period-list">
+                {groupedPeriods.length === 0 ? (
+                  <div className="disbursement-period-empty">
+                    Periode tidak ditemukan.
+                  </div>
+                ) : (
+                  groupedPeriods.map(({ year, months }) => {
+                    const yearOpen =
+                      !hasMultipleYears ||
+                      periodSearch.trim() !== '' ||
+                      openYears.has(year)
+
+                    return (
+                      <section
+                        className="disbursement-period-year-group"
+                        key={year}
+                      >
+                        {hasMultipleYears ? (
+                          <button
+                            type="button"
+                            className={'disbursement-period-year-toggle ' + (yearOpen ? 'is-open' : '')}
+                            onClick={() =>
+                              setOpenYears((current) => {
+                                const next = new Set(current)
+
+                                if (next.has(year)) {
+                                  next.delete(year)
+                                } else {
+                                  next.add(year)
+                                }
+
+                                return next
+                              })
+                            }
+                            aria-expanded={yearOpen}
+                          >
+                            <ChevronRight aria-hidden="true" />
+                            <span>{year}</span>
+                          </button>
+                        ) : null}
+
+                        {yearOpen ? (
+                          <div className="disbursement-period-months">
+                            {months.map(([monthKey, periods]) => {
+                              const monthOpen =
+                                periodSearch.trim() !== '' ||
+                                openMonths.has(monthKey)
+
+                              return (
+                                <section
+                                  className="disbursement-period-group"
+                                  key={monthKey}
+                                >
+                                  <button
+                                    type="button"
+                                    className={'disbursement-period-month-toggle ' + (monthOpen ? 'is-open' : '')}
+                                    onClick={() =>
+                                      setOpenMonths((current) => {
+                                        const next = new Set(current)
+
+                                        if (next.has(monthKey)) {
+                                          next.delete(monthKey)
+                                        } else {
+                                          next.add(monthKey)
+                                        }
+
+                                        return next
+                                      })
+                                    }
+                                    aria-expanded={monthOpen}
+                                  >
+                                    <ChevronRight aria-hidden="true" />
+                                    <span>
+                                      {formatPeriodMonth(periods[0].startDate)}
+                                    </span>
+                                    <small>{periods.length} periode</small>
+                                  </button>
+
+                                  {monthOpen ? (
+                                    <div>
+                                      {periods.map((period) => (
+                                        <button
+                                          type="button"
+                                          className={
+                                            period.number === selectedPeriod.number
+                                              ? 'is-active'
+                                              : ''
+                                          }
+                                          key={period.number}
+                                          onClick={() => selectPeriod(period.number)}
+                                        >
+                                          <span>Periode {period.number}</span>
+                                          <small>
+                                            {period.startDate} — {period.endDate}
+                                          </small>
+                                        </button>
+                                      ))}
+                                    </div>
+                                  ) : null}
+                                </section>
+                              )
+                            })}
+                          </div>
+                        ) : null}
+                      </section>
+                    )
+                  })
+                )}
+              </div>
+            </div>
+          ) : null}
         </div>
       </section>
 
@@ -269,10 +596,9 @@ export function DisbursementPage() {
         <section
           className="disbursement-panel disbursement-loading"
           aria-busy="true"
-          aria-label="Memuat data pencairan"
+          aria-label="Memuat data periode"
         >
           <div className="disbursement-skeleton disbursement-skeleton-summary" />
-          <div className="disbursement-skeleton" />
           <div className="disbursement-skeleton" />
           <div className="disbursement-skeleton" />
           <div className="disbursement-skeleton" />
@@ -281,13 +607,6 @@ export function DisbursementPage() {
         <>
           <section className="disbursement-summary-card">
             <div className="disbursement-summary-main">
-              <div className="disbursement-summary-value">
-                <strong>
-                  {summary.completedKitchens} / {summary.totalKitchens}
-                </strong>
-                <span>Dapur Selesai</span>
-              </div>
-
               <div className="disbursement-summary-progress-label">
                 <span>Progress Checklist</span>
                 <strong>{summary.overallProgress}%</strong>
@@ -311,6 +630,10 @@ export function DisbursementPage() {
               </span>
             </div>
 
+            <div className="disbursement-period-status">
+              Status periode: <strong>{checklistStatus}</strong>
+            </div>
+
             <div
               className="disbursement-progress-track"
               role="progressbar"
@@ -324,8 +647,8 @@ export function DisbursementPage() {
 
             {locked ? (
               <div className="disbursement-lock">
-                🔒 Data terkunci karena periode checklist sudah lebih dari 7
-                hari.
+                Data terkunci karena tanggal checklist sudah lebih dari 7 hari
+                berlalu.
               </div>
             ) : null}
           </section>
@@ -333,11 +656,10 @@ export function DisbursementPage() {
           <section className="disbursement-panel">
             <div className="disbursement-panel-header">
               <div>
-                <h2>Checklist Dapur</h2>
+                <h2>Checklist Pencairan</h2>
                 <p>
-                  {locked
-                    ? 'Checklist sudah terkunci dan hanya dapat dilihat.'
-                    : 'Perubahan tersimpan otomatis saat checkbox diubah.'}
+                  Centang komponen yang sudah dicek untuk setiap dapur.
+                  Perubahan tersimpan otomatis.
                 </p>
               </div>
               <span>{rows.length} dapur</span>

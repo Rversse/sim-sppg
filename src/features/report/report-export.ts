@@ -211,7 +211,7 @@ function addReportTitle(
   kitchenName?: string
 ) {
   worksheet.insertRow(1, [title])
-  worksheet.mergeCells(1, 1, 1, 7)
+  worksheet.mergeCells(1, 1, 1, 8)
 
   const titleCell = worksheet.getCell(1, 1)
 
@@ -250,7 +250,8 @@ function addDailyDetailRows(
       row.totalRAB,
       row.operational,
       row.realOperational,
-      row.totalOperational
+      row.totalOperational,
+      row.gas
     ])
   }
 }
@@ -269,7 +270,8 @@ function createOverallDetailSheet(
     'Total RAB',
     'Pencairan / Ops',
     'Real / Ops',
-    'Total Ops'
+    'Total Ops',
+    'GAS'
   ])
   styleHeader(worksheet.getRow(1))
 
@@ -282,11 +284,12 @@ function createOverallDetailSheet(
     report.totals.totalRAB,
     report.totals.operational,
     report.totals.realOperational,
-    report.totals.totalOperational
+    report.totals.totalOperational,
+    report.totals.gas
   ])
   styleTotalRow(totalRow)
 
-  setCurrencyColumns(worksheet, [2, 3, 4, 5, 6, 7])
+  setCurrencyColumns(worksheet, [2, 3, 4, 5, 6, 7, 8])
   setColumnWidths(worksheet, {
     1: 16,
     2: 18,
@@ -294,7 +297,8 @@ function createOverallDetailSheet(
     4: 18,
     5: 18,
     6: 18,
-    7: 20
+    7: 20,
+    8: 14
   })
   styleBody(worksheet)
 }
@@ -427,7 +431,8 @@ function createOverallSummarySheet(
     'Total RAB',
     'Pencairan / Ops',
     'Real / Ops',
-    'Total Ops'
+    'Total Ops',
+    'GAS'
   ])
 
   styleHeader(worksheet.getRow(headerRowNumber))
@@ -440,7 +445,8 @@ function createOverallSummarySheet(
       row.totalRAB,
       row.operational,
       row.realOperational,
-      row.totalOperational
+      row.totalOperational,
+      row.gas
     ])
   }
 
@@ -451,19 +457,21 @@ function createOverallSummarySheet(
     report.totals.totalRAB,
     report.totals.operational,
     report.totals.realOperational,
-    report.totals.totalOperational
+    report.totals.totalOperational,
+    report.totals.gas
   ])
 
   styleTotalRow(totalRow)
-  setCurrencyColumns(worksheet, [2, 3, 4, 5, 6, 7])
+  setCurrencyColumns(worksheet, [2, 3, 4, 5, 6, 7, 8])
   setColumnWidths(worksheet, {
-    1: 28,
+    1: 26,
     2: 18,
     3: 18,
     4: 18,
     5: 18,
     6: 18,
-    7: 20
+    7: 20,
+    8: 14
   })
   styleBody(worksheet)
 }

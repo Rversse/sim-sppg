@@ -1279,6 +1279,16 @@ section.bank-history-modal {
   color: var(--theme-success-hover);
 }
 
+.bank-history-badge--rab {
+  background: color-mix(in srgb, #16A34A 12%, var(--theme-surface-raised));
+  color: #16A34A;
+}
+
+.bank-history-badge--gas {
+  background: color-mix(in srgb, #2563EB 12%, var(--theme-surface-raised));
+  color: #2563EB;
+}
+
 .bank-history-meta {
   margin-top: 1px;
   color: var(--theme-text-muted);

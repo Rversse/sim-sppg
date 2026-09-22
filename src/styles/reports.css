@@ -211,7 +211,7 @@
 }
 
 .reports-summary-grid.reports-summary-overall {
-  grid-template-columns: repeat(4, minmax(0, 285px));
+  grid-template-columns: repeat(5, minmax(0, 245px));
 }
 
 .reports-summary-grid.reports-summary-single {
@@ -258,6 +258,10 @@
   border-left-color: #d97706;
 }
 
+.reports-summary-overall .reports-summary-card:nth-child(5) {
+  border-left-color: #2563eb;
+}
+
 .reports-summary-card > span {
   display: block;
   color: var(--app-text-muted);
@@ -284,11 +288,12 @@
   margin-top: 4px;
   overflow-wrap: anywhere;
   color: var(--app-primary);
-  font-size: clamp(21px, 2.15vw, 28px);
+  font-size: clamp(18px, 1.8vw, 24px);
   font-weight: 800;
-  letter-spacing: -0.04em;
+  letter-spacing: -0.045em;
   line-height: 1.1;
   text-align: center;
+  white-space: nowrap;
 }
 
 .reports-summary-card > strong.negative,
@@ -358,6 +363,31 @@
   font-weight: 900;
   letter-spacing: 0.04em;
   text-align: center;
+}
+
+.reports-table-overall thead th.reports-col-kitchen,
+.reports-table-overall thead th.reports-col-total {
+  color: #18293F;
+}
+
+.reports-table-overall thead th.reports-col-rab {
+  color: #16A34A;
+}
+
+.reports-table-overall thead th.reports-col-real-rab {
+  color: #DC2626;
+}
+
+.reports-table-overall thead th.reports-col-gas {
+  color: #2563EB;
+}
+
+.reports-table-overall thead th.reports-col-ops {
+  color: #7C3AED;
+}
+
+.reports-table-overall thead th.reports-col-real-ops {
+  color: #D97706;
 }
 
 .reports-table tbody tr:hover:not(.reports-total-row) {
@@ -665,7 +695,7 @@
   }
 
   .reports-summary-grid {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-columns: repeat(5, minmax(0, 1fr));
     gap: 8px;
   }
 
@@ -689,7 +719,7 @@
 
   .reports-table {
     width: 100%;
-    min-width: 0;
+    min-width: 920px;
     table-layout: auto;
     font-size: 9px;
   }

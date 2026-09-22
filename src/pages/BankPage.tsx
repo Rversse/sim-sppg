@@ -1630,10 +1630,13 @@ export function BankPage() {
                     const title = transaction.kitchen_name
                       ? `Pencairan ${transaction.kitchen_name}`
                       : 'Pencairan Dashboard'
-                    const badge =
-                      transaction.flow_type === 'income'
-                        ? 'PENCAIRAN MASUK'
-                        : 'OPERASIONAL MASUK'
+                    const isGas =
+                      transaction.flow_type === 'gas' ||
+                      transaction.flow_type === 'neutral'
+                    const badge = isGas ? 'GAS' : 'PENCAIRAN / RAB'
+                    const badgeClass = isGas
+                      ? 'bank-history-badge bank-history-badge--gas'
+                      : 'bank-history-badge bank-history-badge--rab'
 
                     return (
                       <article
@@ -1643,7 +1646,7 @@ export function BankPage() {
                         <div className="bank-history-main">
                           <div className="bank-history-top">
                             <strong>{title}</strong>
-                            <span className="bank-history-badge incoming">
+                            <span className={badgeClass}>
                               {badge}
                             </span>
                           </div>

@@ -1,13 +1,18 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
 
 import { supabase } from '@/lib/supabase'
+import { PROGRAM_START_DATE } from '@/lib/app-config'
+
+const PERIOD_ANCHOR_DATE = PROGRAM_START_DATE
+const PERIOD_LENGTH_DAYS = 14
+const PERIOD_CHECKLIST_OFFSET_DAYS = 11
 
 export const DISBURSEMENT_ITEMS = [
-  { key: 'relawan', label: 'Relawan' },
-  { key: 'pic_sekolah', label: 'PIC Sekolah' },
-  { key: 'kader_posyandu', label: 'Kader Posyandu' },
+  { key: 'relawan', label: 'Gaji Relawan' },
+  { key: 'pic_sekolah', label: 'Insentif PIC Guru' },
+  { key: 'kader_posyandu', label: 'Insentif Kader Posyandu' },
   { key: 'sewa_kendaraan', label: 'Sewa Kendaraan' },
-  { key: 'fasilitas_sppg', label: 'Fasilitas SPPG' }
+  { key: 'fasilitas_sppg', label: 'Sewa SPPG' }
 ] as const
 
 export type DisbursementField = (typeof DISBURSEMENT_ITEMS)[number]['key']
@@ -28,6 +33,14 @@ export type DisbursementChecklist = {
   fasilitas_sppg: boolean
 }
 
+export type DisbursementPeriod = {
+  number: number
+  startDate: string
+  endDate: string
+  checklistDate: string
+  label: string
+}
+
 export type DisbursementRow = {
   kitchen: DisbursementKitchen
   checklist: DisbursementChecklist | null
@@ -40,6 +53,89 @@ export type DisbursementSummary = {
   notStartedCount: number
   inProgressCount: number
   overallProgress: number
+}
+
+function parseDate(value: string): Date {
+  const [year, month, day] = value.split('-').map(Number)
+  return new Date(year, month - 1, day)
+}
+
+function formatIsoDate(value: Date): string {
+  return [
+    value.getFullYear(),
+    String(value.getMonth() + 1).padStart(2, '0'),
+    String(value.getDate()).padStart(2, '0')
+  ].join('-')
+}
+
+function addDays(value: string, days: number): string {
+  const date = parseDate(value)
+  date.setDate(date.getDate() + days)
+  return formatIsoDate(date)
+}
+
+function dateDiffDays(startDate: string, endDate: string): number {
+  const start = parseDate(startDate)
+  const end = parseDate(endDate)
+
+  return Math.round(
+    (end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)
+  )
+}
+
+function getLocalToday(): string {
+  return formatIsoDate(new Date())
+}
+
+function formatPeriodDate(value: string): string {
+  const date = parseDate(value)
+
+  return new Intl.DateTimeFormat('id-ID', {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric'
+  }).format(date)
+}
+
+export function getDisbursementPeriod(periodNumber: number): DisbursementPeriod {
+  const safeNumber = Math.max(1, Math.floor(periodNumber))
+  const startDate = addDays(
+    PERIOD_ANCHOR_DATE,
+    (safeNumber - 1) * PERIOD_LENGTH_DAYS
+  )
+  const endDate = addDays(startDate, PERIOD_LENGTH_DAYS - 1)
+  const checklistDate = addDays(startDate, PERIOD_CHECKLIST_OFFSET_DAYS)
+
+  return {
+    number: safeNumber,
+    startDate,
+    endDate,
+    checklistDate,
+    label: `Periode ${safeNumber} • ${formatPeriodDate(startDate)} — ${formatPeriodDate(endDate)}`
+  }
+}
+
+export function getCurrentDisbursementPeriod(
+  today = getLocalToday()
+): DisbursementPeriod {
+  const daysFromAnchor = dateDiffDays(PERIOD_ANCHOR_DATE, today)
+  const periodNumber =
+    daysFromAnchor < 0
+      ? 1
+      : Math.floor(daysFromAnchor / PERIOD_LENGTH_DAYS) + 1
+
+  return getDisbursementPeriod(periodNumber)
+}
+
+export function getDisbursementPeriods(
+  upToDate = getLocalToday()
+): DisbursementPeriod[] {
+  const currentPeriod = getCurrentDisbursementPeriod(upToDate)
+
+  return Array.from(
+    { length: currentPeriod.number },
+    (_, index) => getDisbursementPeriod(index + 1)
+  ).reverse()
 }
 
 export function getNearestFriday(value = new Date()): string {
@@ -61,18 +157,13 @@ export function getNearestFriday(value = new Date()): string {
   const diffNext = Math.abs(today.getTime() - nextFriday.getTime())
   const target = diffPrev <= diffNext ? previousFriday : nextFriday
 
-  return [
-    target.getFullYear(),
-    String(target.getMonth() + 1).padStart(2, '0'),
-    String(target.getDate()).padStart(2, '0')
-  ].join('-')
+  return formatIsoDate(target)
 }
 
 export function isDisbursementLocked(checklistDate: string, now = new Date()) {
-  const selectedDate = new Date(`${checklistDate}T00:00:00`)
+  const selectedDate = parseDate(checklistDate)
   const today = new Date(now)
 
-  selectedDate.setHours(0, 0, 0, 0)
   today.setHours(0, 0, 0, 0)
 
   const diffDays = Math.floor(
@@ -104,21 +195,23 @@ export async function getDisbursementRows(
   checklistDate: string,
   client: SupabaseClient = supabase
 ): Promise<DisbursementRow[]> {
-  const [{ data: kitchens, error: kitchenError }, { data: checklistRows, error: checklistError }] =
-    await Promise.all([
-      client
-        .from('kitchens')
-        .select('id,name')
-        .eq('include_disbursement', true)
-        .eq('is_active', true)
-        .order('name'),
-      client
-        .from('disbursement_checklists')
-        .select(
-          'id,kitchen_id,checklist_date,relawan,pic_sekolah,kader_posyandu,sewa_kendaraan,fasilitas_sppg'
-        )
-        .eq('checklist_date', checklistDate)
-    ])
+  const [
+    { data: kitchens, error: kitchenError },
+    { data: checklistRows, error: checklistError }
+  ] = await Promise.all([
+    client
+      .from('kitchens')
+      .select('id,name')
+      .eq('include_disbursement', true)
+      .eq('is_active', true)
+      .order('name'),
+    client
+      .from('disbursement_checklists')
+      .select(
+        'id,kitchen_id,checklist_date,relawan,pic_sekolah,kader_posyandu,sewa_kendaraan,fasilitas_sppg'
+      )
+      .eq('checklist_date', checklistDate)
+  ])
 
   if (kitchenError) throw kitchenError
   if (checklistError) throw checklistError

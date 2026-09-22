@@ -1,8 +1,15 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
 
 import { supabase } from '@/lib/supabase'
+import { MANUAL_DISBURSEMENT_STATUS_START_DATE } from '@/lib/app-config'
 
-export type DashboardFlow = 'income' | 'expense' | 'neutral' | 'real_ops'
+export type DashboardFlow =
+  | 'income'
+  | 'expense'
+  | 'gas'
+  | 'ops_disbursement'
+  | 'real_ops'
+  | 'neutral'
 
 export type DashboardFilters = {
   startDate: string
@@ -15,7 +22,9 @@ export type DashboardFilters = {
 export type DashboardSummary = {
   income: number
   expense: number
+  gas: number
   operational: number
+  operationalDisbursement: number
   realOperational: number
 }
 
@@ -71,7 +80,9 @@ export async function getDashboardSummary(
     | {
         income?: number
         expense?: number
+        gas?: number
         operational?: number
+        operational_disbursement?: number
         real_operational?: number
       }
     | undefined
@@ -79,7 +90,11 @@ export async function getDashboardSummary(
   return {
     income: Number(row?.income ?? 0),
     expense: Number(row?.expense ?? 0),
+    gas: Number(row?.gas ?? 0),
     operational: Number(row?.operational ?? 0),
+    operationalDisbursement: Number(
+      row?.operational_disbursement ?? 0
+    ),
     realOperational: Number(row?.real_operational ?? 0)
   }
 }
@@ -135,7 +150,28 @@ export async function getSupplierOptions(
   >,
   client: SupabaseClient = supabase
 ): Promise<{ value: string; label: string }[]> {
-  if (filters.flowType === 'neutral' || filters.flowType === 'real_ops') {
+  if (filters.flowType === 'ops_disbursement') {
+    const kitchenQuery = client
+      .from('kitchens')
+      .select('id,name')
+      .eq('is_active', true)
+      .order('name')
+
+    if (filters.kitchenId) {
+      kitchenQuery.eq('id', filters.kitchenId)
+    }
+
+    const { data, error } = await kitchenQuery
+
+    if (error) throw error
+
+    return (data ?? []).map((kitchen) => ({
+      value: `Akuntan ${kitchen.name}`,
+      label: `Akuntan ${kitchen.name}`
+    }))
+  }
+
+  if (filters.flowType === 'gas') {
     let query = client
       .from('kitchen_account_rules')
       .select(
@@ -168,14 +204,9 @@ export async function getSupplierOptions(
 
       if (!account) continue
 
-      const label =
-        account.bank || account.account_number
-          ? `${account.name} (${account.bank}${account.account_number ? ` - ${account.account_number}` : ''})`
-          : account.name
-
       options.set(account.id, {
         value: account.id,
-        label
+        label: `${account.name} (${account.bank}${account.account_number ? ` - ${account.account_number}` : ''})`
       })
     }
 
@@ -279,7 +310,10 @@ export async function getDashboardTransactionPage(
   }
 
   if (filters.flowType) {
-    query = query.eq('flow_type', filters.flowType)
+    query =
+      filters.flowType === 'gas'
+        ? query.in('flow_type', ['gas', 'neutral'])
+        : query.eq('flow_type', filters.flowType)
   }
 
   if (filters.supplierFilter) {
@@ -296,14 +330,15 @@ export async function getDashboardTransactionPage(
       query = query.eq('supplier_id', supplierId)
     } else if (filters.flowType === 'income') {
       query = query.eq('account_id', filters.supplierFilter)
-    } else if (
-      filters.flowType === 'neutral' ||
-      filters.flowType === 'real_ops'
-    ) {
+    } else if (filters.flowType === 'gas') {
       query = query.eq('account_id', filters.supplierFilter)
+    } else if (filters.flowType === 'ops_disbursement') {
+      query = query.eq('destination_label', filters.supplierFilter)
+    } else if (filters.flowType === 'real_ops') {
+      // Real / Ops intentionally has no account filter.
     } else {
       query = query
-        .in('flow_type', ['income', 'neutral'])
+        .in('flow_type', ['income', 'gas', 'neutral'])
         .eq('account_id', filters.supplierFilter)
     }
   }
@@ -331,6 +366,8 @@ export async function getDailyStatus(
     status: 'disbursed' | 'pending' | 'empty'
     income: boolean
     expense: boolean
+    gas: boolean
+    gasAvailable: boolean
     operational: boolean
     realOperational: boolean
     hasTransactions: boolean
@@ -338,7 +375,7 @@ export async function getDailyStatus(
     disbursed: boolean
   }[]
 }> {
-  const cutoffDate = '2026-09-09'
+  const cutoffDate = MANUAL_DISBURSEMENT_STATUS_START_DATE
 
   const [kitchensResult, transactionsResult, statusesResult] =
     await Promise.all([
@@ -382,7 +419,12 @@ export async function getDailyStatus(
     const flows = transactionMap.get(kitchen.id) ?? []
     const income = flows.includes('income')
     const expense = flows.includes('expense')
-    const operational = flows.includes('neutral')
+    const normalizedKitchenName = kitchen.name?.trim().toLowerCase() ?? ''
+    const gasAvailable =
+      normalizedKitchenName !== 'sukaraja' &&
+      normalizedKitchenName !== 'cihaur'
+    const gas = gasAvailable && (flows.includes('gas') || flows.includes('neutral'))
+    const operational = flows.includes('ops_disbursement')
     const realOperational = flows.includes('real_ops')
 
     // Status pencairan hanya digerakkan oleh Pencairan / RAB (income).
@@ -408,6 +450,8 @@ export async function getDailyStatus(
       status,
       income,
       expense,
+      gas,
+      gasAvailable,
       operational,
       realOperational,
       hasTransactions,

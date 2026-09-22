@@ -342,7 +342,11 @@ function OverallReportView() {
   } = useReportData(loadOverallReport, 'Gagal memuat laporan keseluruhan')
 
   return (
-    <section className="reports-section">
+    <section
+      className="reports-section"
+      data-report-start-date={startDate}
+      data-report-end-date={endDate}
+    >
       <div className="reports-filter-panel">
         <ReportDateRange
           startDate={startDate}
@@ -391,19 +395,25 @@ function OverallReportView() {
               value={report.totals.realOperational}
               note="Total realisasi operasional pada periode terpilih"
             />
+            <SummaryCard
+              label="GAS"
+              value={report.totals.gas}
+              note="Total pencairan GAS pada periode terpilih"
+            />
           </div>
 
           <div className="reports-table-wrapper">
-            <table className="reports-table">
+            <table className="reports-table reports-table-overall">
               <thead>
                 <tr>
-                  <th>DAPUR</th>
-                  <th>PENCAIRAN / RAB</th>
-                  <th>REAL / RAB</th>
-                  <th>TOTAL RAB</th>
-                  <th>PENCAIRAN / OPS</th>
-                  <th>REAL / OPS</th>
-                  <th>TOTAL OPS</th>
+                  <th className="reports-col-kitchen">DAPUR</th>
+                  <th className="reports-col-rab">PENCAIRAN / RAB</th>
+                  <th className="reports-col-real-rab">REAL / RAB</th>
+                  <th className="reports-col-total">TOTAL RAB</th>
+                  <th className="reports-col-ops">PENCAIRAN / OPS</th>
+                  <th className="reports-col-real-ops">REAL / OPS</th>
+                  <th className="reports-col-total">TOTAL OPS</th>
+                  <th className="reports-col-gas">GAS</th>
                 </tr>
               </thead>
               <tbody>
@@ -424,6 +434,7 @@ function OverallReportView() {
                     >
                       {formatCurrency(item.totalOperational)}
                     </td>
+                    <td>{formatCurrency(item.gas)}</td>
                   </tr>
                 ))}
                 <tr className="reports-total-row">
@@ -448,6 +459,7 @@ function OverallReportView() {
                   >
                     {formatCurrency(report.totals.totalOperational)}
                   </td>
+                  <td>{formatCurrency(report.totals.gas)}</td>
                 </tr>
               </tbody>
             </table>
@@ -471,7 +483,11 @@ function IncomeReportView() {
   } = useReportData(loadIncomeReport, 'Gagal memuat rekap pemasukan')
 
   return (
-    <section className="reports-section">
+    <section
+      className="reports-section"
+      data-report-start-date={startDate}
+      data-report-end-date={endDate}
+    >
       <div className="reports-filter-panel">
         <ReportDateRange
           startDate={startDate}
@@ -558,7 +574,11 @@ function SupplierReportView() {
   } = useReportData(loadSupplierReport, 'Gagal memuat rekap pengeluaran')
 
   return (
-    <section className="reports-section">
+    <section
+      className="reports-section"
+      data-report-start-date={startDate}
+      data-report-end-date={endDate}
+    >
       <div className="reports-filter-panel">
         <ReportDateRange
           startDate={startDate}

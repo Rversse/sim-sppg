@@ -1,8 +1,8 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
 
 import { supabase } from '@/lib/supabase'
+import { BANK_MODULE_START_DATE } from '@/lib/app-config'
 
-const BANK_MODULE_START_DATE = '2026-07-20'
 const SUPABASE_PAGE_SIZE = 1000
 
 const BANK_FUTURE_READ_DAYS = 2
@@ -95,7 +95,7 @@ export type BankIncomeHistoryTransaction = {
   transaction_date: string
   created_at: string
   amount: number
-  flow_type: 'income' | 'neutral'
+  flow_type: 'income' | 'gas' | 'neutral'
   note: string | null
   kitchen_name: string | null
 }
@@ -335,7 +335,7 @@ export async function getBankIncomeTransactions(
     const { data, error } = await client
       .from('transactions')
       .select('account_id,amount')
-      .in('flow_type', ['income', 'neutral'])
+      .in('flow_type', ['income', 'gas', 'neutral'])
       .gte('transaction_date', startDate)
       .lte('transaction_date', endDate)
       .order('transaction_date', { ascending: true })
@@ -542,7 +542,7 @@ export async function getBankHistoryPage(
           `
         )
         .eq('account_id', accountId)
-        .in('flow_type', ['income', 'neutral'])
+        .in('flow_type', ['income', 'gas', 'neutral'])
         .gte('transaction_date', startDate)
         .lte('transaction_date', incomeEndDate)
         .order('transaction_date', { ascending: false })
@@ -558,7 +558,7 @@ export async function getBankHistoryPage(
         transaction_date: string
         created_at: string
         amount: number | string | null
-        flow_type: 'income' | 'neutral'
+        flow_type: 'income' | 'gas' | 'neutral'
         note: string | null
         kitchens: { name: string } | { name: string }[] | null
       }>
@@ -936,7 +936,7 @@ export async function hasSufficientBalance(
       .from('transactions')
       .select('amount')
       .eq('account_id', accountId)
-      .in('flow_type', ['income', 'neutral'])
+      .in('flow_type', ['income', 'gas', 'neutral'])
       .gte('transaction_date', BANK_MODULE_START_DATE)
       .lte('transaction_date', incomeEndDate)
       .order('transaction_date', { ascending: true })

@@ -18,6 +18,7 @@ export type OverallKitchenReport = {
   kitchenName: string
   income: number
   expense: number
+  gas: number
   operational: number
   realOperational: number
   totalRAB: number
@@ -28,6 +29,7 @@ export type OverallDailyReport = {
   date: string
   income: number
   expense: number
+  gas: number
   operational: number
   realOperational: number
   totalRAB: number
@@ -40,6 +42,7 @@ export type OverallReport = {
   totals: {
     income: number
     expense: number
+    gas: number
     operational: number
     realOperational: number
     totalRAB: number
@@ -91,7 +94,7 @@ export type SupplierReport = {
 type ReportTransaction = {
   amount: number | string | null
   transaction_date: string
-  flow_type: 'income' | 'expense' | 'neutral' | 'real_ops'
+  flow_type: 'income' | 'expense' | 'gas' | 'ops_disbursement' | 'real_ops' | 'neutral'
   kitchen_id: string | null
   created_at: string
   suppliers?:
@@ -259,6 +262,7 @@ export async function getOverallReport(
       kitchenName: kitchen.name,
       income: 0,
       expense: 0,
+      gas: 0,
       operational: 0,
       realOperational: 0,
       totalRAB: 0,
@@ -285,7 +289,12 @@ export async function getOverallReport(
       kitchen.income += amount
     } else if (transaction.flow_type === 'expense') {
       kitchen.expense += amount
-    } else if (transaction.flow_type === 'neutral') {
+    } else if (
+      transaction.flow_type === 'gas' ||
+      transaction.flow_type === 'neutral'
+    ) {
+      kitchen.gas += amount
+    } else if (transaction.flow_type === 'ops_disbursement') {
       kitchen.operational += amount
     } else if (transaction.flow_type === 'real_ops') {
       kitchen.realOperational += amount
@@ -298,6 +307,7 @@ export async function getOverallReport(
         date: transaction.transaction_date,
         income: 0,
         expense: 0,
+        gas: 0,
         operational: 0,
         realOperational: 0,
         totalRAB: 0,
@@ -311,7 +321,12 @@ export async function getOverallReport(
       dailyRow.income += amount
     } else if (transaction.flow_type === 'expense') {
       dailyRow.expense += amount
-    } else if (transaction.flow_type === 'neutral') {
+    } else if (
+      transaction.flow_type === 'gas' ||
+      transaction.flow_type === 'neutral'
+    ) {
+      dailyRow.gas += amount
+    } else if (transaction.flow_type === 'ops_disbursement') {
       dailyRow.operational += amount
     } else if (transaction.flow_type === 'real_ops') {
       dailyRow.realOperational += amount
@@ -320,6 +335,7 @@ export async function getOverallReport(
 
   let totalIncome = 0
   let totalExpense = 0
+  let totalGas = 0
   let totalOperational = 0
   let totalRealOperational = 0
   let totalRAB = 0
@@ -332,6 +348,7 @@ export async function getOverallReport(
 
     totalIncome += kitchen.income
     totalExpense += kitchen.expense
+    totalGas += kitchen.gas
     totalOperational += kitchen.operational
     totalRealOperational += kitchen.realOperational
     totalRAB += kitchen.totalRAB
@@ -348,12 +365,14 @@ export async function getOverallReport(
       const activeA =
         a.income > 0 ||
         a.expense > 0 ||
+        a.gas > 0 ||
         a.operational > 0 ||
         a.realOperational > 0
 
       const activeB =
         b.income > 0 ||
         b.expense > 0 ||
+        b.gas > 0 ||
         b.operational > 0 ||
         b.realOperational > 0
 
@@ -371,6 +390,7 @@ export async function getOverallReport(
     totals: {
       income: totalIncome,
       expense: totalExpense,
+      gas: totalGas,
       operational: totalOperational,
       realOperational: totalRealOperational,
       totalRAB,
@@ -499,7 +519,7 @@ export async function getSupplierReport(
   for (const transaction of transactions) {
     if (
       transaction.flow_type !== 'expense' &&
-      transaction.flow_type !== 'neutral'
+      transaction.flow_type !== 'ops_disbursement'
     ) {
       continue
     }
@@ -565,7 +585,7 @@ export async function getSupplierReport(
       continue
     }
 
-    if (transaction.flow_type === 'neutral') {
+    if (transaction.flow_type === 'ops_disbursement') {
       addSupplierOperational(summaryRow, totals, amount)
 
       addSupplierOperational(
