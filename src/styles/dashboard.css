@@ -688,20 +688,20 @@
 }
 
 .status-summary-green {
-  border-color: color-mix(in srgb, var(--app-success) 30%, white);
-  background: var(--app-success-bg);
+  border-color: var(--theme-border);
+  background: var(--theme-surface-soft);
   color: var(--app-success);
 }
 
 .status-summary-yellow {
-  border-color: color-mix(in srgb, var(--app-warning) 30%, white);
-  background: var(--app-warning-bg);
+  border-color: var(--theme-border);
+  background: var(--theme-surface-soft);
   color: var(--app-warning);
 }
 
 .status-summary-red {
-  border-color: color-mix(in srgb, var(--app-danger) 30%, white);
-  background: var(--app-danger-bg);
+  border-color: var(--theme-border);
+  background: var(--theme-surface-soft);
   color: var(--app-danger);
 }
 
