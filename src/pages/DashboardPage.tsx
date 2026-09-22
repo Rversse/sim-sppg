@@ -1455,6 +1455,7 @@ export function DashboardPage() {
           </strong>
           <small>Total realisasi operasional pada periode terpilih</small>
         </article>
+      </section>
 
       <section className="dashboard-main-grid">
         <article className="dashboard-panel dashboard-status-panel dashboard-main-panel">
