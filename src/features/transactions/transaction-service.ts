@@ -170,7 +170,7 @@ export function buildTransactionPayload(
     case 'gas':
       return {
         ...base,
-        flow_type: 'gas',
+        flow_type: 'neutral',
         category: 'GAS',
         account_id: input.accountId || null,
         supplier_id: null,
