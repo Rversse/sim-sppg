@@ -2,7 +2,12 @@ import type { SupabaseClient } from '@supabase/supabase-js'
 
 import { supabase } from '@/lib/supabase'
 
-export type TransactionFlow = 'income' | 'expense' | 'neutral' | 'real_ops'
+export type TransactionFlow =
+  | 'income'
+  | 'expense'
+  | 'gas'
+  | 'ops_disbursement'
+  | 'real_ops'
 
 export type TransactionFilters = {
   startDate: string
@@ -17,7 +22,7 @@ export type TransactionPayload = {
   amount: number
   note: string | null
   flow_type: TransactionFlow
-  category: 'RAB' | 'Supplier' | 'OPS' | 'REAL_OPS'
+  category: 'RAB' | 'Supplier' | 'OPS' | 'GAS' | 'REAL_OPS'
   account_id: string | null
   supplier_id: string | null
   destination_label: string | null
@@ -104,7 +109,10 @@ export async function getTransactions(
   }
 
   if (filters.flowType) {
-    query = query.eq('flow_type', filters.flowType)
+    query =
+      filters.flowType === 'gas'
+        ? query.in('flow_type', ['gas', 'neutral'])
+        : query.eq('flow_type', filters.flowType)
   }
 
   const { data, error } = await query.order('created_at', {
@@ -158,12 +166,22 @@ export function buildTransactionPayload(
         destination_label: null
       }
 
-    case 'neutral':
+    case 'gas':
       return {
         ...base,
-        flow_type: 'neutral',
-        category: 'OPS',
+        flow_type: 'gas',
+        category: 'GAS',
         account_id: input.accountId || null,
+        supplier_id: null,
+        destination_label: null
+      }
+
+    case 'ops_disbursement':
+      return {
+        ...base,
+        flow_type: 'ops_disbursement',
+        category: 'OPS',
+        account_id: null,
         supplier_id: null,
         destination_label: input.destinationLabel?.trim() || null
       }
@@ -175,7 +193,8 @@ export function buildTransactionPayload(
         category: 'REAL_OPS',
         account_id: null,
         supplier_id: null,
-        destination_label: null
+        destination_label: null,
+        note: null
       }
   }
 }
@@ -196,18 +215,22 @@ export function validateTransactionPayload(
   }
 
   if (
-    (payload.flow_type === 'income' || payload.flow_type === 'neutral') &&
-    !payload.account_id &&
+    (payload.flow_type === 'income' || payload.flow_type === 'gas') &&
+    !payload.account_id
+  ) {
+    return 'Rekening wajib dipilih'
+  }
+
+  if (
+    payload.flow_type === 'ops_disbursement' &&
     !payload.destination_label
   ) {
-    return 'Rekening atau tujuan operasional wajib diisi'
+    return 'Tujuan operasional wajib diisi'
   }
 
   if (payload.flow_type === 'expense' && !payload.supplier_id) {
     return 'Supplier wajib dipilih'
   }
-
-  // Real / Ops is a reporting-only realization entry and never needs an account.
 
   return null
 }
@@ -236,18 +259,13 @@ export async function hasDuplicateTransaction(
     query = query.eq('supplier_id', payload.supplier_id)
   }
 
-  if (payload.flow_type === 'income') {
+  if (payload.flow_type === 'income' || payload.flow_type === 'gas') {
     query = query.eq('account_id', payload.account_id)
-  } else if (payload.flow_type === 'neutral') {
-    if (payload.account_id) {
-      query = query.eq('account_id', payload.account_id)
-    } else if (payload.destination_label) {
-      query = query
-        .is('account_id', null)
-        .eq('destination_label', payload.destination_label)
-    }
+  } else if (payload.flow_type === 'ops_disbursement') {
+    query = query
+      .is('account_id', null)
+      .eq('destination_label', payload.destination_label)
   } else if (payload.flow_type === 'real_ops') {
-    // Real / Ops always uses account_id NULL.
     query = query.is('account_id', null)
   }
 
