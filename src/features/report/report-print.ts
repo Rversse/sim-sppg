@@ -293,33 +293,27 @@ function printReport() {
 
     .reports-table-overall thead th.reports-col-kitchen,
     .reports-table-overall thead th.reports-col-total {
-      background: #18293F !important;
-      color: #FFFFFF !important;
+      color: #18293F !important;
     }
 
     .reports-table-overall thead th.reports-col-rab {
-      background: #16A34A !important;
-      color: #FFFFFF !important;
+      color: #16A34A !important;
     }
 
     .reports-table-overall thead th.reports-col-real-rab {
-      background: #DC2626 !important;
-      color: #FFFFFF !important;
+      color: #DC2626 !important;
     }
 
     .reports-table-overall thead th.reports-col-gas {
-      background: #2563EB !important;
-      color: #FFFFFF !important;
+      color: #2563EB !important;
     }
 
     .reports-table-overall thead th.reports-col-ops {
-      background: #7C3AED !important;
-      color: #FFFFFF !important;
+      color: #7C3AED !important;
     }
 
     .reports-table-overall thead th.reports-col-real-ops {
-      background: #D97706 !important;
-      color: #FFFFFF !important;
+      color: #D97706 !important;
     }
 
     .reports-table td {
