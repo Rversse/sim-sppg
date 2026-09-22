@@ -432,7 +432,7 @@ function createOverallSummarySheet(
     'Pencairan / Ops',
     'Real / Ops',
     'Total Ops',
-    'GAS'
+    'Operasional / Arutala'
   ])
 
   styleHeader(worksheet.getRow(headerRowNumber))
