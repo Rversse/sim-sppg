@@ -947,7 +947,7 @@ export function DashboardPage() {
     setFormAccountId('')
     setFormSupplierId('')
     setFormAmount('')
-    setFormNote('')
+    setFormNote(value === 'ops_disbursement' ? 'Ops Harian' : '')
     setFormEntryUnlocked(false)
     setFormAccounts([])
     setFormSuppliers([])
@@ -1121,7 +1121,7 @@ export function DashboardPage() {
         // Preserve kitchen + flow + date, clear only the field that
         // identifies the next transaction within that flow.
         setFormAmount('')
-        setFormNote('')
+        setFormNote(formFlowType === 'ops_disbursement' ? 'Ops Harian' : '')
         setFormError(null)
 
         if (formFlowType === 'income') {
