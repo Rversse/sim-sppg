@@ -251,15 +251,15 @@
 }
 
 .reports-summary-overall .reports-summary-card:nth-child(3) {
-  border-left-color: #2563eb;
-}
-
-.reports-summary-overall .reports-summary-card:nth-child(4) {
   border-left-color: #7c3aed;
 }
 
-.reports-summary-overall .reports-summary-card:nth-child(5) {
+.reports-summary-overall .reports-summary-card:nth-child(4) {
   border-left-color: #d97706;
+}
+
+.reports-summary-overall .reports-summary-card:nth-child(5) {
+  border-left-color: #2563eb;
 }
 
 .reports-summary-card > span {
