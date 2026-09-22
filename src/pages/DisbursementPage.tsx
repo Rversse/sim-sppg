@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import {
-  CalendarDays,
   ChevronLeft,
   ChevronRight,
   Search
@@ -66,7 +65,13 @@ function getChecklistStatus(summary: DisbursementSummary) {
   return 'Belum Mulai'
 }
 
-function FinancialSummary({ report }: { report: OverallReport | null }) {
+function FinancialSummary({
+  report,
+  period
+}: {
+  report: OverallReport | null
+  period: DisbursementPeriod
+}) {
   if (!report) {
     return (
       <div className="disbursement-financial-empty">
@@ -109,8 +114,7 @@ function FinancialSummary({ report }: { report: OverallReport | null }) {
         <div>
           <h2>Ringkasan Keuangan Periode</h2>
           <p>
-            Referensi transaksi dari tanggal {report.startDate} sampai{' '}
-            {report.endDate}.
+            Referensi transaksi periode {period.startDate} s/d {period.endDate}.
           </p>
         </div>
       </div>
@@ -642,7 +646,7 @@ export function DisbursementPage() {
             ) : null}
           </section>
 
-          <FinancialSummary report={financialReport} />
+          <FinancialSummary report={financialReport} period={selectedPeriod} />
 
           <section className="disbursement-panel">
             <div className="disbursement-panel-header">
