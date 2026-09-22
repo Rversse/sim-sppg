@@ -369,7 +369,6 @@ function createSupplierDetailSheet(
     'Sukalarang',
     'Aris',
     'Babinsa',
-    'OPS',
     'Total'
   ])
 
@@ -384,13 +383,12 @@ function createSupplierDetailSheet(
         row.Sukalarang,
         row.Aris,
         row.Babinsa,
-        row.Operational,
         row.Total
       ])
     }
   }
 
-  setCurrencyColumns(worksheet, [3, 4, 5, 6, 7, 8])
+  setCurrencyColumns(worksheet, [3, 4, 5, 6, 7])
   setColumnWidths(worksheet, {
     1: 16,
     2: 28,
@@ -398,8 +396,7 @@ function createSupplierDetailSheet(
     4: 18,
     5: 18,
     6: 18,
-    7: 18,
-    8: 18
+    7: 18
   })
   styleBody(worksheet)
 }
@@ -535,7 +532,6 @@ function createSupplierSummarySheet(
     'Sukalarang',
     'Aris',
     'Babinsa',
-    'OPS',
     'Total'
   ])
 
@@ -559,7 +555,6 @@ function createSupplierSummarySheet(
     report.totals.Sukalarang,
     report.totals.Aris,
     report.totals.Babinsa,
-    report.totals.Operational,
     report.totals.Total
   ])
 
