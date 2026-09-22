@@ -542,7 +542,7 @@ export async function getBankHistoryPage(
           `
         )
         .eq('account_id', accountId)
-        .in('flow_type', ['income', 'neutral'])
+        .in('flow_type', ['income', 'gas', 'neutral'])
         .gte('transaction_date', startDate)
         .lte('transaction_date', incomeEndDate)
         .order('transaction_date', { ascending: false })
@@ -558,7 +558,7 @@ export async function getBankHistoryPage(
         transaction_date: string
         created_at: string
         amount: number | string | null
-        flow_type: 'income' | 'neutral'
+        flow_type: 'income' | 'gas' | 'neutral'
         note: string | null
         kitchens: { name: string } | { name: string }[] | null
       }>
