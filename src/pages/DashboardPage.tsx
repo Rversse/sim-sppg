@@ -542,7 +542,14 @@ export function DashboardPage() {
       supplierFilter: ''
     }))
 
-    if (value !== 'gas' && value !== 'ops_disbursement') {
+    if (
+      value !== 'gas' &&
+      value !== 'ops_disbursement'
+    ) {
+      return
+    }
+
+    if (!filters.kitchenId) {
       return
     }
 
