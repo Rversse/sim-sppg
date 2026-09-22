@@ -112,3 +112,14 @@ execute function public.validate_transaction_flow();
 
 comment on function public.validate_transaction_flow() is
   'Enforces the final SIM SPPG transaction flow semantics, including GAS=neutral and non-GAS operational flows.';
+
+
+-- All authenticated roles may read transaction records. Write policies remain role-restricted.
+drop policy if exists "transactions select" on public.transactions;
+drop policy if exists "transactions viewer bank income select" on public.transactions;
+
+create policy "transactions select"
+on public.transactions
+for select
+to authenticated
+using (true);
