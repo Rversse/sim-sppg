@@ -382,6 +382,11 @@ function OverallReportView() {
               note="Total realisasi supplier pada periode terpilih"
             />
             <SummaryCard
+              label="GAS"
+              value={report.totals.gas}
+              note="Total pencairan GAS pada periode terpilih"
+            />
+            <SummaryCard
               label="Pencairan / Ops"
               value={report.totals.operational}
               note="Total pencairan operasional pada periode terpilih"
@@ -394,13 +399,14 @@ function OverallReportView() {
           </div>
 
           <div className="reports-table-wrapper">
-            <table className="reports-table">
+            <table className="reports-table reports-table-overall">
               <thead>
                 <tr>
                   <th>DAPUR</th>
                   <th>PENCAIRAN / RAB</th>
                   <th>REAL / RAB</th>
                   <th>TOTAL RAB</th>
+                  <th>GAS</th>
                   <th>PENCAIRAN / OPS</th>
                   <th>REAL / OPS</th>
                   <th>TOTAL OPS</th>
@@ -415,6 +421,7 @@ function OverallReportView() {
                     <td className={item.totalRAB < 0 ? 'negative' : 'positive'}>
                       {formatCurrency(item.totalRAB)}
                     </td>
+                    <td>{formatCurrency(item.gas)}</td>
                     <td>{formatCurrency(item.operational)}</td>
                     <td>{formatCurrency(item.realOperational)}</td>
                     <td
@@ -437,6 +444,7 @@ function OverallReportView() {
                   >
                     {formatCurrency(report.totals.totalRAB)}
                   </td>
+                  <td>{formatCurrency(report.totals.gas)}</td>
                   <td>{formatCurrency(report.totals.operational)}</td>
                   <td>{formatCurrency(report.totals.realOperational)}</td>
                   <td
