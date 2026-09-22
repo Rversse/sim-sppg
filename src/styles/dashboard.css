@@ -5,11 +5,11 @@
    ========================================================= */
 
 .dashboard-page {
-  --flow-rab: #16a34a;
+  --flow-rab: #0f766e;
   --flow-real-rab: #dc2626;
   --flow-gas: #2563eb;
   --flow-pencairan-ops: #7c3aed;
-  --flow-real-ops: #d97706;
+  --flow-real-ops: #0891b2;
   --flow-inactive: #94a3b8;
 
   --dashboard-emphasis-border: color-mix(
@@ -748,6 +748,18 @@
   font-size: 9px;
 }
 
+.dashboard-status-row.is-disbursed > div:first-child span {
+  color: var(--app-success);
+}
+
+.dashboard-status-row.is-pending > div:first-child span {
+  color: var(--app-warning);
+}
+
+.dashboard-status-row.is-empty > div:first-child span {
+  color: var(--app-danger);
+}
+
 .dashboard-status-flags {
   display: flex;
   flex: 0 0 auto;
@@ -859,12 +871,12 @@
   white-space: nowrap;
 }
 
-.dashboard-status-flags span[aria-label='Operasional / Arutala']::after {
-  content: 'Operasional / Arutala';
+.dashboard-status-flags span[aria-label='Ops / Arutala']::after {
+  content: 'Ops / Arutala';
 }
 
-.dashboard-status-flags span[aria-label='Pencairan / RAB']::after {
-  content: 'Pencairan / RAB';
+.dashboard-status-flags span[aria-label='RAB / Pencairan']::after {
+  content: 'RAB / Pencairan';
 }
 
 .dashboard-status-flags span[aria-label='Real / RAB']::after {
@@ -1991,11 +2003,11 @@
 }
 
 .dashboard-status-row.is-disbursed {
-  background: color-mix(in srgb, var(--app-success-bg) 72%, transparent);
+  background: var(--theme-surface-soft);
 }
 
 .dashboard-status-row.is-pending {
-  background: color-mix(in srgb, var(--app-danger-bg) 34%, transparent);
+  background: var(--theme-surface-soft);
 }
 
 .dashboard-status-row.is-empty {
@@ -2003,15 +2015,17 @@
 }
 
 .dashboard-status-row.is-disbursed:hover {
-  background: color-mix(in srgb, var(--app-success-bg) 84%, transparent);
+  background: var(--theme-surface-raised);
 }
 
 .dashboard-status-row.is-pending:hover {
-  background: color-mix(in srgb, var(--app-danger-bg) 46%, transparent);
+  background: var(--theme-surface-raised);
 }
 
-.dashboard-status-row.is-empty:hover {
-  background: var(--theme-surface-soft);
+.dashboard-status-row.is-empty:hover,
+.dashboard-status-row.is-disbursed:hover,
+.dashboard-status-row.is-pending:hover {
+  background: var(--theme-surface-raised);
 }
 
 .dashboard-status-row-actions {
