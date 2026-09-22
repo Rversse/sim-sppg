@@ -211,7 +211,7 @@ function addReportTitle(
   kitchenName?: string
 ) {
   worksheet.insertRow(1, [title])
-  worksheet.mergeCells(1, 1, 1, 7)
+  worksheet.mergeCells(1, 1, 1, 8)
 
   const titleCell = worksheet.getCell(1, 1)
 
@@ -248,6 +248,7 @@ function addDailyDetailRows(
       row.income,
       row.expense,
       row.totalRAB,
+      row.gas,
       row.operational,
       row.realOperational,
       row.totalOperational
@@ -267,6 +268,7 @@ function createOverallDetailSheet(
     'Pencairan / RAB',
     'Real / RAB',
     'Total RAB',
+    'GAS',
     'Pencairan / Ops',
     'Real / Ops',
     'Total Ops'
@@ -280,21 +282,23 @@ function createOverallDetailSheet(
     report.totals.income,
     report.totals.expense,
     report.totals.totalRAB,
+    report.totals.gas,
     report.totals.operational,
     report.totals.realOperational,
     report.totals.totalOperational
   ])
   styleTotalRow(totalRow)
 
-  setCurrencyColumns(worksheet, [2, 3, 4, 5, 6, 7])
+  setCurrencyColumns(worksheet, [2, 3, 4, 5, 6, 7, 8])
   setColumnWidths(worksheet, {
     1: 16,
     2: 18,
     3: 18,
     4: 18,
-    5: 18,
+    5: 14,
     6: 18,
-    7: 20
+    7: 18,
+    8: 20
   })
   styleBody(worksheet)
 }
@@ -425,6 +429,7 @@ function createOverallSummarySheet(
     'Pencairan / RAB',
     'Real / RAB',
     'Total RAB',
+    'GAS',
     'Pencairan / Ops',
     'Real / Ops',
     'Total Ops'
@@ -438,6 +443,7 @@ function createOverallSummarySheet(
       row.income,
       row.expense,
       row.totalRAB,
+      row.gas,
       row.operational,
       row.realOperational,
       row.totalOperational
@@ -449,6 +455,7 @@ function createOverallSummarySheet(
     report.totals.income,
     report.totals.expense,
     report.totals.totalRAB,
+    report.totals.gas,
     report.totals.operational,
     report.totals.realOperational,
     report.totals.totalOperational
@@ -457,13 +464,14 @@ function createOverallSummarySheet(
   styleTotalRow(totalRow)
   setCurrencyColumns(worksheet, [2, 3, 4, 5, 6, 7])
   setColumnWidths(worksheet, {
-    1: 28,
+    1: 26,
     2: 18,
     3: 18,
     4: 18,
-    5: 18,
+    5: 14,
     6: 18,
-    7: 20
+    7: 18,
+    8: 20
   })
   styleBody(worksheet)
 }
