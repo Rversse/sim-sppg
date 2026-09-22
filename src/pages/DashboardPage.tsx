@@ -1514,15 +1514,17 @@ export function DashboardPage() {
                           >
                             <ShoppingCart aria-hidden="true" />
                           </span>
-                          <span
-                            className={`status-flag-gas ${
-                              row.gas ? 'is-done' : ''
-                            }`}
-                            aria-label="GAS"
-                            title="GAS"
-                          >
-                            <Flame aria-hidden="true" />
-                          </span>
+                          {row.gasAvailable ? (
+                            <span
+                              className={`status-flag-gas ${
+                                row.gas ? 'is-done' : ''
+                              }`}
+                              aria-label="GAS"
+                              title="GAS"
+                            >
+                              <Flame aria-hidden="true" />
+                            </span>
+                          ) : null}
                           <span
                             className={`status-flag-pencairan-ops ${
                               row.operational ? 'is-done' : ''
