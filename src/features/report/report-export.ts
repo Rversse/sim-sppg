@@ -298,7 +298,7 @@ function createOverallDetailSheet(
     5: 18,
     6: 18,
     7: 20,
-    8: 14
+    8: 26
   })
   styleBody(worksheet)
 }
@@ -471,7 +471,7 @@ function createOverallSummarySheet(
     5: 18,
     6: 18,
     7: 20,
-    8: 14
+    8: 26
   })
   styleBody(worksheet)
 }
