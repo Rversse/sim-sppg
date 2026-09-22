@@ -167,6 +167,48 @@ where t.transaction_date between start_date and end_date
 $function$;
 
 -- All authenticated roles may read transaction records. Write policies remain role-restricted.
+-- GAS mappings use neutral as the canonical flow.
+alter table public.kitchen_account_rules
+  drop constraint if exists kitchen_account_rules_flow_type_check;
+
+alter table public.kitchen_account_rules
+  add constraint kitchen_account_rules_flow_type_check
+  check (flow_type = any (array['income'::text, 'neutral'::text]));
+
+create or replace function public.validate_kitchen_account_rule_flow()
+returns trigger
+language plpgsql
+set search_path to 'public'
+as $function$
+declare
+  kitchen_name text;
+begin
+  if new.flow_type = 'neutral' then
+    select name into kitchen_name
+    from public.kitchens
+    where id = new.kitchen_id;
+
+    if kitchen_name is null then
+      raise exception 'Dapur mapping tidak ditemukan';
+    end if;
+
+    if lower(trim(kitchen_name)) in ('sukaraja', 'cihaur') then
+      raise exception 'GAS tidak tersedia untuk dapur Sukaraja dan Cihaur';
+    end if;
+  end if;
+
+  return new;
+end;
+$function$;
+
+drop trigger if exists kitchen_account_rules_validate_flow
+on public.kitchen_account_rules;
+
+create trigger kitchen_account_rules_validate_flow
+before insert or update on public.kitchen_account_rules
+for each row
+execute function public.validate_kitchen_account_rule_flow();
+
 drop policy if exists "transactions select" on public.transactions;
 drop policy if exists "transactions viewer bank income select" on public.transactions;
 
