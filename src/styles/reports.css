@@ -243,7 +243,7 @@
 }
 
 .reports-summary-overall .reports-summary-card:nth-child(1) {
-  border-left-color: #16a34a;
+  border-left-color: #0f766e;
 }
 
 .reports-summary-overall .reports-summary-card:nth-child(2) {
@@ -255,7 +255,7 @@
 }
 
 .reports-summary-overall .reports-summary-card:nth-child(4) {
-  border-left-color: #d97706;
+  border-left-color: #0891b2;
 }
 
 .reports-summary-overall .reports-summary-card:nth-child(5) {
