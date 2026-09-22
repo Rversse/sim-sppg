@@ -1,6 +1,12 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 
-import { Flame, Settings2, ShoppingCart, WalletCards } from 'lucide-react'
+import {
+  ArrowDownUp,
+  Landmark,
+  Settings2,
+  ShoppingCart,
+  WalletCards
+} from 'lucide-react'
 
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/features/auth/use-auth'
@@ -51,7 +57,7 @@ const FLOW_OPTIONS: { value: DashboardFlow | ''; label: string }[] = [
   { value: '', label: 'Semua transaksi' },
   { value: 'income', label: 'Pencairan / RAB' },
   { value: 'expense', label: 'Real / RAB' },
-  { value: 'gas', label: 'GAS' },
+  { value: 'gas', label: 'Operasional / Arutala' },
   { value: 'ops_disbursement', label: 'Pencairan / Ops' },
   { value: 'real_ops', label: 'Real / Ops' }
 ]
@@ -59,7 +65,7 @@ const FLOW_OPTIONS: { value: DashboardFlow | ''; label: string }[] = [
 function flowLabel(flow: DashboardFlow) {
   if (flow === 'income') return 'Pencairan / RAB'
   if (flow === 'expense') return 'Real / RAB'
-  if (flow === 'gas' || flow === 'neutral') return 'GAS'
+  if (flow === 'gas' || flow === 'neutral') return 'Operasional / Arutala'
   if (flow === 'ops_disbursement') return 'Pencairan / Ops'
   return 'Real / Ops'
 }
@@ -74,7 +80,7 @@ function FlowIcon({ flow }: { flow: DashboardFlow }) {
   }
 
   if (flow === 'gas' || flow === 'neutral') {
-    return <Flame aria-hidden="true" />
+    return <Landmark aria-hidden="true" />
   }
 
   return <Settings2 aria-hidden="true" />
@@ -449,7 +455,7 @@ export function DashboardPage() {
       : filters.flowType === 'expense'
         ? 'Supplier'
         : filters.flowType === 'gas'
-          ? 'Rekening GAS'
+          ? 'Rekening Operasional'
           : filters.flowType === 'ops_disbursement'
             ? 'Tujuan Ops'
             : filters.flowType === 'real_ops'
@@ -1410,13 +1416,13 @@ export function DashboardPage() {
           }`}
         >
           <span className="dashboard-kpi-icon">
-            <Flame aria-hidden="true" />
+            <Landmark aria-hidden="true" />
           </span>
-          <span>GAS</span>
+          <span>Operasional / Arutala</span>
           <strong>
             {loading ? 'Memuat…' : formatCurrency(summary.gas)}
           </strong>
-          <small>Total pencairan GAS pada periode terpilih</small>
+          <small>Total operasional melalui Arutala pada periode terpilih</small>
         </article>
 
         <article
@@ -1449,6 +1455,50 @@ export function DashboardPage() {
             {loading ? 'Memuat…' : formatCurrency(summary.realOperational)}
           </strong>
           <small>Total realisasi operasional pada periode terpilih</small>
+
+        <article
+          className={`dashboard-kpi dashboard-kpi-sisa ${
+            summary.income - summary.expense < 0
+              ? 'is-negative'
+              : summary.income - summary.expense > 0
+                ? 'is-positive'
+                : 'is-zero'
+          }`}
+        >
+          <span className="dashboard-kpi-icon">
+            <ArrowDownUp aria-hidden="true" />
+          </span>
+          <span>Sisa RAB</span>
+          <strong>
+            {loading
+              ? 'Memuat…'
+              : formatCurrency(summary.income - summary.expense)}
+          </strong>
+          <small>Pencairan / RAB - Real / RAB</small>
+        </article>
+
+        <article
+          className={`dashboard-kpi dashboard-kpi-sisa ${
+            summary.operationalDisbursement - summary.realOperational < 0
+              ? 'is-negative'
+              : summary.operationalDisbursement - summary.realOperational > 0
+                ? 'is-positive'
+                : 'is-zero'
+          }`}
+        >
+          <span className="dashboard-kpi-icon">
+            <ArrowDownUp aria-hidden="true" />
+          </span>
+          <span>Sisa Ops</span>
+          <strong>
+            {loading
+              ? 'Memuat…'
+              : formatCurrency(
+                  summary.operationalDisbursement - summary.realOperational
+                )}
+          </strong>
+          <small>Pencairan / Ops - Real / Ops</small>
+        </article>
         </article>
       </section>
 
@@ -1522,7 +1572,7 @@ export function DashboardPage() {
                               className={`status-flag-gas ${
                                 row.gas ? 'is-done' : ''
                               }`}
-                              aria-label="GAS"
+                              aria-label="Operasional / Arutala"
                             >
                               <Flame aria-hidden="true" />
                             </span>
