@@ -406,14 +406,14 @@ function OverallReportView() {
             <table className="reports-table reports-table-overall">
               <thead>
                 <tr>
-                  <th>DAPUR</th>
-                  <th>PENCAIRAN / RAB</th>
-                  <th>REAL / RAB</th>
-                  <th>TOTAL RAB</th>
-                  <th>GAS</th>
-                  <th>PENCAIRAN / OPS</th>
-                  <th>REAL / OPS</th>
-                  <th>TOTAL OPS</th>
+                  <th className="reports-col-kitchen">DAPUR</th>
+                  <th className="reports-col-rab">PENCAIRAN / RAB</th>
+                  <th className="reports-col-real-rab">REAL / RAB</th>
+                  <th className="reports-col-total">TOTAL RAB</th>
+                  <th className="reports-col-gas">GAS</th>
+                  <th className="reports-col-ops">PENCAIRAN / OPS</th>
+                  <th className="reports-col-real-ops">REAL / OPS</th>
+                  <th className="reports-col-total">TOTAL OPS</th>
                 </tr>
               </thead>
               <tbody>
