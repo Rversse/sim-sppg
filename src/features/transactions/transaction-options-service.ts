@@ -9,7 +9,12 @@ export type TransactionOption = {
 
 export type KitchenOption = TransactionOption
 
-export type TransactionFlow = 'income' | 'expense' | 'neutral' | 'real_ops'
+export type TransactionFlow =
+  | 'income'
+  | 'expense'
+  | 'gas'
+  | 'ops_disbursement'
+  | 'real_ops'
 
 export type TransactionAccount = {
   id: string
@@ -30,25 +35,25 @@ export type TransactionAccount = {
 
 type KitchenAccountRuleRow = {
   kitchen_id: string
-  flow_type: 'income' | 'neutral'
+  flow_type: 'income' | 'gas'
   accounts: TransactionAccount | TransactionAccount[] | null
 }
 
 const SUKARAJA_NAME = 'Sukaraja'
+const CIHAUR_NAME = 'Cihaur'
 
-const TEMPORARY_OPERATIONAL_DESTINATIONS: Record<string, string> = {
-  Sukaraja: 'Akuntan Sukaraja',
-  Cihaur: 'Akuntan Cihaur'
+function isGasExcludedKitchen(name: string | null | undefined): boolean {
+  const normalized = name?.trim().toLowerCase() ?? ''
+  return normalized === SUKARAJA_NAME.toLowerCase() ||
+    normalized === CIHAUR_NAME.toLowerCase()
 }
 
-export function getTemporaryOperationalDestination(
+export function getOperationalDestination(
   kitchenName: string | null | undefined
 ): string | null {
-  if (!kitchenName) {
-    return null
-  }
+  const normalized = kitchenName?.trim()
 
-  return TEMPORARY_OPERATIONAL_DESTINATIONS[kitchenName] ?? null
+  return normalized ? `Akuntan ${normalized}` : null
 }
 
 export async function getActiveKitchens(
@@ -73,10 +78,6 @@ export async function getActiveKitchens(
 export async function getActiveSuppliers(
   client: SupabaseClient = supabase
 ): Promise<TransactionOption[]> {
-  // Supplier options for Pembayaran Supplier still use the legacy
-  // `suppliers` table because `transactions.supplier_id` and
-  // `kitchen_supplier_rules.supplier_id` reference that table.
-  // Supplier availability is determined by kitchen mapping, not is_active.
   const { data, error } = await client
     .from('suppliers')
     .select('id,name')
@@ -94,7 +95,7 @@ export async function getActiveSuppliers(
 
 export async function getTransactionAccounts(
   kitchenId: string,
-  flowType: 'income' | 'neutral',
+  flowType: 'income' | 'gas',
   client: SupabaseClient = supabase
 ): Promise<TransactionAccount[]> {
   if (!kitchenId) {
@@ -139,8 +140,6 @@ export async function getTransactionAccounts(
       ? account.income_suppliers[0]
       : account.income_suppliers
 
-    // RAB/Income rows must resolve to a supplier identity.
-    // Operational destinations are allowed without income_suppliers metadata.
     if (flowType === 'income' && !supplier) {
       continue
     }
@@ -164,22 +163,8 @@ function getIncomeAccountLabel(account: TransactionAccount): string {
   return ownerName ? `${businessName} / ${ownerName}` : businessName
 }
 
-function getOperationalAccountLabel(account: TransactionAccount): string {
-  const supplier = Array.isArray(account.income_suppliers)
-    ? account.income_suppliers[0]
-    : account.income_suppliers
-
-  const businessName = supplier?.business_name?.trim() || account.name
-
-  const owner = supplier?.owner_name?.trim()
-    ? ` / ${supplier.owner_name.trim()}`
-    : ''
-
-  if (!account.bank && !account.account_number) {
-    return `${businessName}${owner}`
-  }
-
-  return `${businessName}${owner} (${account.bank} - ${account.account_number})`
+function getGasAccountLabel(account: TransactionAccount): string {
+  return `${account.name} (${account.bank} - ${account.account_number})`
 }
 
 export async function getAvailableTransactionFlows(
@@ -192,7 +177,7 @@ export async function getAvailableTransactionFlows(
 
   const { data: kitchen, error } = await client
     .from('kitchens')
-    .select('id')
+    .select('name')
     .eq('id', kitchenId)
     .maybeSingle()
 
@@ -204,13 +189,20 @@ export async function getAvailableTransactionFlows(
     return []
   }
 
-  // Semua kitchen sekarang memiliki empat alur transaksi.
-  return ['income', 'expense', 'neutral', 'real_ops']
+  const flows: TransactionFlow[] = ['income', 'expense']
+
+  if (!isGasExcludedKitchen(kitchen.name)) {
+    flows.push('gas')
+  }
+
+  flows.push('ops_disbursement', 'real_ops')
+
+  return flows
 }
 
 export async function getAccountsForFlow(
   kitchenId: string,
-  flowType: 'income' | 'neutral',
+  flowType: 'income' | 'gas',
   client: SupabaseClient = supabase
 ): Promise<TransactionOption[]> {
   const accounts = await getTransactionAccounts(kitchenId, flowType, client)
@@ -220,7 +212,7 @@ export async function getAccountsForFlow(
     label:
       flowType === 'income'
         ? getIncomeAccountLabel(account)
-        : getOperationalAccountLabel(account)
+        : getGasAccountLabel(account)
   }))
 }
 
@@ -266,7 +258,7 @@ export async function getSuppliersForKitchen(
   return suppliers.filter((supplier) => mappedSupplierIds.has(supplier.value))
 }
 
-export function getDefaultOperationalAccount(
+export function getDefaultGasAccount(
   accounts: TransactionOption[]
 ): string {
   if (accounts.length === 1) {
@@ -274,7 +266,9 @@ export function getDefaultOperationalAccount(
   }
 
   const arutalaBni = accounts.find((account) =>
-    /^KOPERASI ARUTALA(?:\s*\/.*)?\s*\(BNI\s*-\s*/i.test(account.label)
+    /^KOPERASI ARUTALA(?:\\s*\\/.*)?\\s*\\(BNI\\s*-\\s*/i.test(
+      account.label
+    )
   )
 
   return arutalaBni?.value ?? ''
