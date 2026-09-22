@@ -1,6 +1,7 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
 
 import { supabase } from '@/lib/supabase'
+import { BANK_MODULE_START_DATE } from '@/lib/app-config'
 
 const BANK_MODULE_START_DATE = '2026-07-20'
 const SUPABASE_PAGE_SIZE = 1000
