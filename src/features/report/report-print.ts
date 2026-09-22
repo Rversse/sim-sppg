@@ -291,6 +291,37 @@ function printReport() {
       white-space: nowrap;
     }
 
+    .reports-table-overall thead th.reports-col-kitchen,
+    .reports-table-overall thead th.reports-col-total {
+      background: #18293F !important;
+      color: #FFFFFF !important;
+    }
+
+    .reports-table-overall thead th.reports-col-rab {
+      background: #16A34A !important;
+      color: #FFFFFF !important;
+    }
+
+    .reports-table-overall thead th.reports-col-real-rab {
+      background: #DC2626 !important;
+      color: #FFFFFF !important;
+    }
+
+    .reports-table-overall thead th.reports-col-gas {
+      background: #2563EB !important;
+      color: #FFFFFF !important;
+    }
+
+    .reports-table-overall thead th.reports-col-ops {
+      background: #7C3AED !important;
+      color: #FFFFFF !important;
+    }
+
+    .reports-table-overall thead th.reports-col-real-ops {
+      background: #D97706 !important;
+      color: #FFFFFF !important;
+    }
+
     .reports-table td {
       font-size: 10px !important;
       padding: 6px 5px !important;
