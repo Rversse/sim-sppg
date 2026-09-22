@@ -1529,7 +1529,7 @@ export function DashboardPage() {
                               }`}
                               aria-label="Operasional / Arutala"
                             >
-                              <Flame aria-hidden="true" />
+                              <Landmark aria-hidden="true" />
                             </span>
                           ) : null}
                           <span
