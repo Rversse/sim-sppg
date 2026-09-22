@@ -8,6 +8,7 @@ export type TransactionFlow =
   | 'gas'
   | 'ops_disbursement'
   | 'real_ops'
+  | 'neutral'
 
 export type TransactionFilters = {
   startDate: string
@@ -167,6 +168,16 @@ export function buildTransactionPayload(
       }
 
     case 'gas':
+      return {
+        ...base,
+        flow_type: 'gas',
+        category: 'GAS',
+        account_id: input.accountId || null,
+        supplier_id: null,
+        destination_label: null
+      }
+
+    case 'neutral':
       return {
         ...base,
         flow_type: 'gas',
