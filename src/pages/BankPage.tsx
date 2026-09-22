@@ -1633,7 +1633,7 @@ export function BankPage() {
                     const isGas =
                       transaction.flow_type === 'gas' ||
                       transaction.flow_type === 'neutral'
-                    const badge = isGas ? 'OPERASIONAL / ARUTALA' : 'PENCAIRAN / RAB'
+                    const badge = isGas ? 'OPS / ARUTALA' : 'RAB / PENCAIRAN'
                     const badgeClass = isGas
                       ? 'bank-history-badge bank-history-badge--gas'
                       : 'bank-history-badge bank-history-badge--rab'
