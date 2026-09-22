@@ -1500,7 +1500,6 @@ export function DashboardPage() {
           </strong>
           <small>Pencairan / Ops - Real / Ops</small>
         </article>
-        </article>
       </section>
 
       <section className="dashboard-main-grid">
