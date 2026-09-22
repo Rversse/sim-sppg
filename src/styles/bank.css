@@ -808,7 +808,7 @@ section.bank-form-modal {
   box-sizing: border-box;
   padding: 0 12px;
   border: 1px solid var(--theme-border-strong);
-  border-radius: 9px;
+  border-radius: var(--app-control-radius);
   background: var(--theme-surface-raised);
   color: var(--theme-text-primary);
   outline: none;
