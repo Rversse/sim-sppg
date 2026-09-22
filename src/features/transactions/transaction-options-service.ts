@@ -266,7 +266,7 @@ export function getDefaultGasAccount(
   }
 
   const arutalaBni = accounts.find((account) =>
-    /^KOPERASI ARUTALA(?:\\s*\\/.*)?\\s*\\(BNI\\s*-\\s*/i.test(
+    /^KOPERASI ARUTALA(?:\s*\/.*)?\s*\(BNI\s*-\s*/i.test(
       account.label
     )
   )
