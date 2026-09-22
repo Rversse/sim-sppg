@@ -1053,7 +1053,8 @@ export function DashboardPage() {
       kitchen_id: formKitchenId,
       amount,
       note: formFlowType === 'real_ops' ? null : formNote.trim() || null,
-      flow_type: formFlowType,
+      flow_type:
+        formFlowType === 'gas' ? 'neutral' : formFlowType,
       category:
         formFlowType === 'income'
           ? 'RAB'
