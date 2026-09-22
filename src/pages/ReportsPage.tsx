@@ -396,9 +396,9 @@ function OverallReportView() {
               note="Total realisasi operasional pada periode terpilih"
             />
             <SummaryCard
-              label="GAS"
+              label="Operasional / Arutala"
               value={report.totals.gas}
-              note="Total pencairan GAS pada periode terpilih"
+              note="Total operasional melalui Arutala pada periode terpilih"
             />
           </div>
 
@@ -413,7 +413,7 @@ function OverallReportView() {
                   <th className="reports-col-ops">PENCAIRAN / OPS</th>
                   <th className="reports-col-real-ops">REAL / OPS</th>
                   <th className="reports-col-total">TOTAL OPS</th>
-                  <th className="reports-col-gas">GAS</th>
+                  <th className="reports-col-gas">OPERASIONAL / ARUTALA</th>
                 </tr>
               </thead>
               <tbody>
