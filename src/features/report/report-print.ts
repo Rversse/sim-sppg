@@ -18,8 +18,14 @@ function printReport() {
     '.reports-filter-panel input[type="date"]'
   )
 
-  const startDate = dateInputs[0]?.value ?? ''
-  const endDate = dateInputs[1]?.value ?? startDate
+  const startDate =
+    activeSection.dataset.reportStartDate?.trim() ||
+    dateInputs[0]?.value ||
+    ''
+  const endDate =
+    activeSection.dataset.reportEndDate?.trim() ||
+    dateInputs[1]?.value ||
+    startDate
 
   const kitchenSelect = activeSection.querySelector<HTMLSelectElement>(
     '.reports-filter-panel select'
@@ -91,6 +97,11 @@ function printReport() {
   <title>${escapeHtml(title)}</title>
 
   <style>
+    @page {
+      size: A4 landscape;
+      margin: 10mm 12mm;
+    }
+
     * {
       box-sizing: border-box;
       margin: 0;
@@ -107,8 +118,8 @@ function printReport() {
     body {
       font-family: Arial, sans-serif;
       color: #18293F;
-      padding: 22px 28px;
-      font-size: 11px;
+      padding: 0;
+      font-size: 10px;
       background: white;
       -webkit-print-color-adjust: exact;
       print-color-adjust: exact;
@@ -166,7 +177,7 @@ function printReport() {
     .reports-summary-grid {
       display: grid !important;
       grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
-      gap: 12px !important;
+      gap: 8px !important;
       margin-bottom: 14px !important;
     }
 
@@ -178,7 +189,7 @@ function printReport() {
       background: #fff !important;
       border: 1.5px solid #d2daea !important;
       border-radius: 10px !important;
-      padding: 14px 16px !important;
+      padding: 10px 9px !important;
       min-height: 0 !important;
       box-shadow: none !important;
       break-inside: avoid;
@@ -215,10 +226,15 @@ function printReport() {
 
     .reports-summary-card > strong {
       display: block;
-      font-size: 18px;
+      width: 100%;
+      overflow: hidden;
+      font-size: 16px;
       line-height: 1.2;
       margin: 0;
       color: #18293F;
+      white-space: nowrap;
+      text-overflow: clip;
+      letter-spacing: -0.045em;
     }
 
     .reports-summary-card > small {
@@ -247,7 +263,21 @@ function printReport() {
       min-width: 0 !important;
       border-collapse: collapse !important;
       table-layout: auto;
-      line-height: 1.4;
+      line-height: 1.35;
+    }
+
+    .reports-table-overall {
+      table-layout: fixed !important;
+    }
+
+    .reports-table-overall th:first-child,
+    .reports-table-overall td:first-child {
+      width: 18%;
+    }
+
+    .reports-table-overall th:not(:first-child),
+    .reports-table-overall td:not(:first-child) {
+      width: 11.714%;
     }
 
     .reports-table th {
@@ -256,14 +286,14 @@ function printReport() {
       color: #637A96 !important;
       font-size: 8.5px !important;
       text-transform: uppercase;
-      padding: 8px 10px !important;
+      padding: 6px 6px !important;
       border: 1px solid #D2DAEA !important;
       white-space: nowrap;
     }
 
     .reports-table td {
       font-size: 10px !important;
-      padding: 7px 7px !important;
+      padding: 6px 5px !important;
       text-align: center;
       vertical-align: middle;
       border: 1px solid #D2DAEA !important;
