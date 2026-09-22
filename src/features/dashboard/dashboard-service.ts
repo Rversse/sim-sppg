@@ -165,7 +165,7 @@ export async function getSupplierOptions(
     if (error) throw error
 
     return (data ?? []).map((kitchen) => ({
-      value: kitchen.id,
+      value: `Akuntan ${kitchen.name}`,
       label: `Akuntan ${kitchen.name}`
     }))
   }
