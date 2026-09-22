@@ -1503,7 +1503,7 @@ export function DashboardPage() {
                             aria-label="RAB"
                             title="RAB"
                           >
-                            <WalletCards aria-hidden="true" />
+                            <ShoppingCart aria-hidden="true" />
                           </span>
                           <span
                             className={`status-flag-real-rab ${
