@@ -607,14 +607,6 @@ export function DisbursementPage() {
         <>
           <section className="disbursement-summary-card">
             <div className="disbursement-summary-main">
-              <div className="disbursement-period-meta">
-                <span>Periode</span>
-                <strong>{selectedPeriod.label}</strong>
-                <small>
-                  Tanggal pencairan / checklist: {formatLongDate(selectedPeriod.checklistDate)}
-                </small>
-              </div>
-
               <div className="disbursement-summary-progress-label">
                 <span>Progress Checklist</span>
                 <strong>{summary.overallProgress}%</strong>
