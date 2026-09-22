@@ -544,7 +544,6 @@ function createSupplierSummarySheet(
       row.Sukalarang,
       row.Aris,
       row.Babinsa,
-      row.Operational,
       row.Total
     ])
   }
@@ -559,7 +558,7 @@ function createSupplierSummarySheet(
   ])
 
   styleTotalRow(totalRow)
-  setCurrencyColumns(worksheet, [2, 3, 4, 5, 6, 7])
+  setCurrencyColumns(worksheet, [2, 3, 4, 5, 6])
 
   setColumnWidths(worksheet, {
     1: 28,
@@ -567,8 +566,7 @@ function createSupplierSummarySheet(
     3: 18,
     4: 18,
     5: 18,
-    6: 18,
-    7: 18
+    6: 18
   })
 
   styleBody(worksheet)
