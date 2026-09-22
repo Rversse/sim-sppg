@@ -316,6 +316,11 @@ function printReport() {
       color: #D97706 !important;
     }
 
+    .reports-table-overall thead th.reports-col-gas {
+      white-space: normal !important;
+      line-height: 1.15 !important;
+    }
+
     .reports-table td {
       font-size: 10px !important;
       padding: 6px 5px !important;
@@ -454,9 +459,3 @@ function escapeHtml(value: string) {
 }
 
 export { printReport }
-
-
-    .reports-table-overall thead th.reports-col-gas {
-      white-space: normal !important;
-      line-height: 1.15 !important;
-    }
