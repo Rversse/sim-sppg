@@ -155,7 +155,6 @@ function createSupplierTotals() {
     Sukalarang: 0,
     Aris: 0,
     Babinsa: 0,
-    Operational: 0,
     Total: 0
   }
 }
@@ -534,7 +533,6 @@ export async function getSupplierReport(
           Sukalarang: 0,
           Aris: 0,
           Babinsa: 0,
-          Operational: 0,
           Total: 0
         },
         supplierName,
