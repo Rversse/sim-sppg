@@ -26,10 +26,19 @@ const pageLoaders = {
 
 type AppRoutePath = keyof typeof pageLoaders
 
+const preloadedPages = new Set<AppRoutePath>()
+
 export function preloadPage(path: string) {
-  const loader = pageLoaders[path as AppRoutePath]
-  if (!loader) return
-  void loader()
+  const route = path as AppRoutePath
+  const loader = pageLoaders[route]
+
+  if (!loader || preloadedPages.has(route)) return
+
+  preloadedPages.add(route)
+
+  void loader().catch(() => {
+    preloadedPages.delete(route)
+  })
 }
 
 export const lazyPages = {
