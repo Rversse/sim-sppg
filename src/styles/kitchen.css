@@ -423,7 +423,7 @@
    ========================================================= */
 
 .kitchen-modal {
-  width: min(500px, calc(100vw - 28px)) !important;
+  width: min(500px, calc(100vw - var(--sidebar-width) - 36px)) !important;
   max-width: 500px !important;
 }
 
