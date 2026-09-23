@@ -174,34 +174,6 @@ function getDashboardPaginationPages(
 
 type StatusData = Awaited<ReturnType<typeof getDailyStatus>>
 
-type DashboardHistoryMeta = {
-  businessName: string
-  ownerName: string
-  bankAccount: string
-}
-
-type HistoryAccountRow = {
-  id: string
-  name: string
-  bank: string
-  account_number: string
-  income_suppliers:
-    | {
-        business_name: string | null
-        owner_name: string | null
-      }
-    | {
-        business_name: string | null
-        owner_name: string | null
-      }[]
-    | null
-}
-
-type HistorySupplierRow = {
-  id: string
-  name: string | null
-}
-
 export function DashboardPage() {
   const { user } = useAuth()
   const today = getTodayLocal()
@@ -265,10 +237,6 @@ export function DashboardPage() {
       })
     })
   }
-  const [historyMeta, setHistoryMeta] = useState<
-    Record<string, DashboardHistoryMeta>
-  >({})
-
   const loadDashboardData = useCallback(async () => {
     const [
       nextSummary,
@@ -664,150 +632,6 @@ export function DashboardPage() {
       supplierFilter: ''
     }))
   }
-
-  const loadHistoryMeta = useCallback(async () => {
-    if (!transactions.length) {
-      return {} as Record<string, DashboardHistoryMeta>
-    }
-
-    const accountIds = [
-      ...new Set(
-        transactions
-          .map((transaction) => transaction.account_id)
-          .filter((value): value is string => Boolean(value))
-      )
-    ]
-
-    const supplierIds = [
-      ...new Set(
-        transactions
-          .map((transaction) => transaction.supplier_id)
-          .filter((value): value is string => Boolean(value))
-      )
-    ]
-
-    const [accountsResult, suppliersResult] = await Promise.all([
-      accountIds.length
-        ? supabase
-            .from('accounts')
-            .select(
-              `
-              id,
-              name,
-              bank,
-              account_number,
-              income_suppliers(
-                business_name,
-                owner_name
-              )
-              `
-            )
-            .in('id', accountIds)
-        : Promise.resolve({ data: [], error: null }),
-      supplierIds.length
-        ? supabase.from('suppliers').select('id,name').in('id', supplierIds)
-        : Promise.resolve({ data: [], error: null })
-    ])
-
-    if (accountsResult.error) {
-      throw accountsResult.error
-    }
-
-    if (suppliersResult.error) {
-      throw suppliersResult.error
-    }
-
-    const accountMap = new Map(
-      ((accountsResult.data ?? []) as unknown as HistoryAccountRow[]).map(
-        (account) => [account.id, account]
-      )
-    )
-
-    const supplierMap = new Map(
-      ((suppliersResult.data ?? []) as unknown as HistorySupplierRow[]).map(
-        (supplier) => [supplier.id, supplier]
-      )
-    )
-
-    const next: Record<string, DashboardHistoryMeta> = {}
-
-    for (const transaction of transactions) {
-      const account = transaction.account_id
-        ? accountMap.get(transaction.account_id)
-        : undefined
-
-      const supplier = transaction.supplier_id
-        ? supplierMap.get(transaction.supplier_id)
-        : undefined
-
-      const accountSupplier = account
-        ? Array.isArray(account.income_suppliers)
-          ? account.income_suppliers[0]
-          : account.income_suppliers
-        : null
-
-      const transactionKitchen = kitchens.find(
-        (item) => item.id === transaction.kitchen_id
-      )
-
-      const temporaryDestination =
-        transaction.destination_label?.trim() ||
-        getOperationalDestination(transactionKitchen?.name)
-
-      const businessName =
-        transaction.flow_type === 'expense'
-          ? supplier?.name?.trim() || 'Supplier tidak diketahui'
-          : transaction.flow_type === 'ops_disbursement'
-            ? temporaryDestination || 'Tujuan operasional'
-            : transaction.flow_type === 'real_ops'
-              ? 'OPS / Real'
-              : accountSupplier?.business_name?.trim() ||
-                account?.name?.trim() ||
-                'Transaksi'
-
-      // `transactions` does not store an owner for expense rows.
-      // Keep this empty instead of guessing from unrelated master data.
-      const ownerName =
-        transaction.flow_type === 'expense' ||
-        transaction.flow_type === 'ops_disbursement' ||
-        transaction.flow_type === 'real_ops'
-          ? ''
-          : accountSupplier?.owner_name?.trim() || ''
-
-      const bankAccount = account
-        ? `${account.bank} - ${account.account_number}`
-        : ''
-
-      next[transaction.id] = {
-        businessName,
-        ownerName,
-        bankAccount
-      }
-    }
-
-    return next
-  }, [transactions, kitchens])
-
-  useEffect(() => {
-    let cancelled = false
-
-    void loadHistoryMeta()
-      .then((next) => {
-        if (!cancelled) {
-          setHistoryMeta(next)
-        }
-      })
-      .catch((loadError) => {
-        if (!cancelled) {
-          console.error('Gagal memuat metadata riwayat transaksi:', loadError)
-          setHistoryMeta({})
-        }
-      })
-
-    return () => {
-      cancelled = true
-    }
-  }, [loadHistoryMeta])
 
   function resetTransactionForm() {
     setFormDate(today)
@@ -1689,7 +1513,43 @@ export function DashboardPage() {
                 const kitchen = kitchens.find(
                   (item) => item.id === transaction.kitchen_id
                 )
-                const meta = historyMeta[transaction.id]
+                const account = transaction.accounts
+                  ? Array.isArray(transaction.accounts)
+                    ? transaction.accounts[0]
+                    : transaction.accounts
+                  : undefined
+                const supplier = transaction.suppliers
+                  ? Array.isArray(transaction.suppliers)
+                    ? transaction.suppliers[0]
+                    : transaction.suppliers
+                  : undefined
+                const accountSupplier = account
+                  ? Array.isArray(account.income_suppliers)
+                    ? account.income_suppliers[0]
+                    : account.income_suppliers
+                  : null
+                const temporaryDestination =
+                  transaction.destination_label?.trim() ||
+                  getOperationalDestination(kitchen?.name)
+                const businessName =
+                  transaction.flow_type === 'expense'
+                    ? supplier?.name?.trim() || 'Supplier tidak diketahui'
+                    : transaction.flow_type === 'ops_disbursement'
+                      ? temporaryDestination || 'Tujuan operasional'
+                      : transaction.flow_type === 'real_ops'
+                        ? 'OPS / Real'
+                        : accountSupplier?.business_name?.trim() ||
+                          account?.name?.trim() ||
+                          'Transaksi'
+                const ownerName =
+                  transaction.flow_type === 'expense' ||
+                  transaction.flow_type === 'ops_disbursement' ||
+                  transaction.flow_type === 'real_ops'
+                    ? ''
+                    : accountSupplier?.owner_name?.trim() || ''
+                const bankAccount = account
+                  ? account.bank + ' - ' + account.account_number
+                  : ''
 
                 return (
                   <div className="dashboard-history-row" key={transaction.id}>
@@ -1726,22 +1586,22 @@ export function DashboardPage() {
                             .slice(1)
                             .join(' ')}`}
                         >
-                          {meta?.businessName ??
-                            transaction.category ??
+                          {businessName ||
+                            transaction.category ||
                             'Transaksi'}
                         </strong>
 
-                        {meta?.ownerName ? (
+                        {ownerName ? (
                           <>
                             <i aria-hidden="true">•</i>
-                            <span>{meta.ownerName}</span>
+                            <span>{ownerName}</span>
                           </>
                         ) : null}
 
-                        {meta?.bankAccount ? (
+                        {bankAccount ? (
                           <>
                             <i aria-hidden="true">•</i>
-                            <span>{meta.bankAccount}</span>
+                            <span>{bankAccount}</span>
                           </>
                         ) : null}
                       </div>
