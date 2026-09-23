@@ -274,8 +274,7 @@ export function DashboardPage() {
       nextSummary,
       nextStatus,
       nextKitchens,
-      nextTransactions,
-      nextSuppliers
+      nextTransactions
     ] = await Promise.all([
       getDashboardSummary(filters),
       getDailyStatus(filters.startDate),
@@ -284,18 +283,45 @@ export function DashboardPage() {
         filters,
         transactionPage,
         DASHBOARD_HISTORY_PAGE_SIZE
-      ),
-      getSupplierOptions(filters)
+      )
     ])
 
     return {
       summary: nextSummary,
       dailyStatus: nextStatus,
       kitchens: nextKitchens,
-      transactions: nextTransactions,
-      supplierOptions: nextSuppliers
+      transactions: nextTransactions
     }
   }, [filters, kitchens, transactionPage])
+
+  useEffect(() => {
+    let cancelled = false
+
+    void getSupplierOptions({
+      startDate: filters.startDate,
+      endDate: filters.endDate,
+      kitchenId: filters.kitchenId,
+      flowType: filters.flowType
+    })
+      .then((options) => {
+        if (!cancelled) {
+          setSupplierOptions(options)
+        }
+      })
+      .catch((loadError) => {
+        if (!cancelled) {
+          console.error(
+            'Gagal memuat opsi supplier/rekening dashboard:',
+            loadError
+          )
+          setSupplierOptions([])
+        }
+      })
+
+    return () => {
+      cancelled = true
+    }
+  }, [filters.kitchenId, filters.flowType])
 
   const applyDashboardData = useCallback(
     (data: Awaited<ReturnType<typeof loadDashboardData>>) => {
@@ -304,7 +330,6 @@ export function DashboardPage() {
       setTotalTransactions(data.transactions.total)
       setDailyStatus(data.dailyStatus)
       setKitchens(data.kitchens)
-      setSupplierOptions(data.supplierOptions)
     },
     []
   )
