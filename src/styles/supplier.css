@@ -325,7 +325,7 @@
    ========================================================= */
 
 .supplier-modal {
-  width: min(720px, calc(100vw - 32px));
+  width: min(720px, calc(100vw - var(--sidebar-width) - 36px));
   max-width: 720px;
 }
 
@@ -519,12 +519,12 @@
 }
 
 .supplier-mapping-modal {
-  width: min(640px, calc(100vw - 32px));
+  width: min(640px, calc(100vw - var(--sidebar-width) - 36px));
   max-width: 640px;
 }
 
 .supplier-account-modal.is-readonly {
-  width: min(680px, calc(100vw - 28px));
+  width: min(680px, calc(100vw - var(--sidebar-width) - 36px));
 }
 
 .supplier-account-modal.is-readonly .supplier-account-card {
