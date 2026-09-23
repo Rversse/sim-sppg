@@ -1422,6 +1422,8 @@
 }
 
 .dashboard-transaction-modal-header {
+  border-top-left-radius: calc(var(--app-modal-radius) - 1px);
+  border-top-right-radius: calc(var(--app-modal-radius) - 1px);
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
@@ -1450,7 +1452,7 @@
   height: 30px;
   place-items: center;
   border: 1px solid var(--app-border);
-  border-radius: 8px;
+  border-radius: var(--app-control-radius);
   background: var(--app-surface);
   color: var(--app-text-muted);
   font-size: 19px;
@@ -1467,7 +1469,7 @@
   padding: 9px 11px;
   border: 1px solid
     color-mix(in srgb, var(--theme-danger) 30%, var(--theme-border));
-  border-radius: 8px;
+  border-radius: var(--app-control-radius);
   background: var(--app-danger-bg);
   color: var(--theme-danger);
   font-size: 10px;
@@ -1577,6 +1579,8 @@
 }
 
 .dashboard-transaction-modal-actions {
+  border-bottom-left-radius: calc(var(--app-modal-radius) - 1px);
+  border-bottom-right-radius: calc(var(--app-modal-radius) - 1px);
   display: flex;
   align-items: center;
   justify-content: flex-end;
@@ -1590,7 +1594,7 @@
   min-height: 36px;
   padding: 0 13px;
   border: 1px solid var(--app-border-strong);
-  border-radius: 8px;
+  border-radius: var(--app-control-radius);
   background: var(--app-surface);
   color: var(--app-text-muted);
   font-size: 10px;
@@ -1604,6 +1608,7 @@
 
 .dashboard-transaction-modal-actions > .dashboard-transaction-action {
   min-height: 36px;
+  border-radius: var(--app-control-radius);
 }
 
 .dashboard-transaction-modal-actions button:disabled {
