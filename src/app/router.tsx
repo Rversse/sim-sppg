@@ -24,8 +24,17 @@ const {
 } = lazyPages
 const pageFallback = createElement(
   'div',
-  { className: 'app-page-loading', role: 'status', 'aria-live': 'polite' },
-  'Memuat halaman...'
+  {
+    className: 'app-page-loading',
+    role: 'status',
+    'aria-live': 'polite',
+    'aria-label': 'Memuat halaman'
+  },
+  createElement('div', { className: 'app-page-loading-bar' }),
+  createElement('div', {
+    className: 'app-page-loading-bar app-page-loading-bar--short'
+  }),
+  createElement('div', { className: 'app-page-loading-card-grid' })
 )
 function pageElement(Component: ComponentType): ReactElement {
   return createElement(
