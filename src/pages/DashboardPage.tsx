@@ -295,9 +295,37 @@ export function DashboardPage() {
     },
     []
   )
+  const loadDashboardLiveData = useCallback(async () => {
+    const [nextSummary, nextStatus, nextTransactions] = await Promise.all([
+      getDashboardSummary(filters),
+      getDailyStatus(filters.startDate),
+      getDashboardTransactionPage(
+        filters,
+        transactionPage,
+        DASHBOARD_HISTORY_PAGE_SIZE
+      )
+    ])
+
+    return {
+      summary: nextSummary,
+      dailyStatus: nextStatus,
+      transactions: nextTransactions
+    }
+  }, [filters, transactionPage])
+
+  const applyDashboardLiveData = useCallback(
+    (data: Awaited<ReturnType<typeof loadDashboardLiveData>>) => {
+      setSummary(data.summary)
+      setTransactions(data.transactions.data)
+      setTotalTransactions(data.transactions.total)
+      setDailyStatus(data.dailyStatus)
+    },
+    []
+  )
+
 
   const refreshDashboard = useCallback(
-    async (showLoading = false) => {
+    async (showLoading = false, liveOnly = false) => {
       if (showLoading) {
         setLoading(true)
       }
@@ -305,8 +333,13 @@ export function DashboardPage() {
       setError(null)
 
       try {
-        const data = await loadDashboardData()
-        applyDashboardData(data)
+        if (liveOnly) {
+          const data = await loadDashboardLiveData()
+          applyDashboardLiveData(data)
+        } else {
+          const data = await loadDashboardData()
+          applyDashboardData(data)
+        }
       } catch (loadError) {
         console.error(loadError)
         setError('Gagal memuat Dashboard. Coba refresh atau periksa koneksi.')
@@ -316,7 +349,12 @@ export function DashboardPage() {
         }
       }
     },
-    [applyDashboardData, loadDashboardData]
+    [
+      applyDashboardData,
+      applyDashboardLiveData,
+      loadDashboardData,
+      loadDashboardLiveData
+    ]
   )
 
   useEffect(() => {
@@ -385,7 +423,7 @@ export function DashboardPage() {
 
         refreshInFlight = true
 
-        void refreshDashboard(false)
+        void refreshDashboard(false, true)
           .catch((refreshError) => {
             console.error(
               'Gagal memperbarui Dashboard dari Realtime:',
@@ -1190,7 +1228,7 @@ export function DashboardPage() {
         statusDate,
         isDisbursed
       )
-      await refreshDashboard(false)
+      await refreshDashboard(false, true)
     } catch (saveError) {
       console.error(saveError)
       setError('Gagal memperbarui status pencairan dapur.')
