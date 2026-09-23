@@ -174,10 +174,7 @@ async function getSelectedKitchenName(
 }
 
 export async function getSupplierOptions(
-  filters: Pick<
-    DashboardFilters,
-    'startDate' | 'endDate' | 'kitchenId' | 'flowType'
-  >,
+  filters: Pick<DashboardFilters, 'kitchenId' | 'flowType'>,
   client: SupabaseClient = supabase
 ): Promise<{ value: string; label: string }[]> {
   if (filters.flowType === 'ops_disbursement') {
@@ -440,11 +437,24 @@ export async function getDailyStatus(
 
   if (error) throw error
 
+  type DashboardDailyStatusRpcRow = {
+    kitchen_id: string
+    kitchen_name: string | null
+    income: boolean | null
+    expense: boolean | null
+    gas: boolean | null
+    operational: boolean | null
+    real_operational: boolean | null
+    stored_disbursed: boolean | null
+  }
+
+  const typedData = (data ?? []) as DashboardDailyStatusRpcRow[]
+
   let disbursed = 0
   let pending = 0
   let empty = 0
 
-  const rows = (data ?? []).map((row) => {
+  const rows = typedData.map((row) => {
     const normalizedKitchenName =
       row.kitchen_name?.trim().toLowerCase() ?? ''
 
