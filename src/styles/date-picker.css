@@ -118,10 +118,10 @@
 }
 
 .single-date-picker__popover {
-  position: absolute;
-  top: calc(100% + 8px);
+  position: fixed;
+  top: 0;
   left: 0;
-  z-index: 80;
+  z-index: 3000;
   width: min(280px, calc(100vw - 24px));
   overflow: hidden;
   border: 1px solid var(--theme-border-strong);
@@ -344,8 +344,7 @@
 
 @media (max-width: 760px) {
   .single-date-picker__popover {
-    left: 50%;
-    transform: translateX(-50%);
+    width: min(280px, calc(100vw - 24px));
   }
 }
 
