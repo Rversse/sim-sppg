@@ -412,8 +412,7 @@ export async function getDashboardTransactionPage(
 
 export async function getDailyStatus(
   selectedDate: string,
-  client: SupabaseClient = supabase,
-  knownKitchens: DashboardKitchen[] = []
+  client: SupabaseClient = supabase
 ): Promise<{
   disbursed: number
   pending: number
@@ -435,66 +434,34 @@ export async function getDailyStatus(
 }> {
   const cutoffDate = MANUAL_DISBURSEMENT_STATUS_START_DATE
 
-  const kitchensPromise = knownKitchens.length
-    ? Promise.resolve({ data: knownKitchens, error: null })
-    : client
-        .from('kitchens')
-        .select('id,name')
-        .eq('is_active', true)
-        .order('name')
+  const { data, error } = await client.rpc('get_dashboard_daily_status', {
+    p_selected_date: selectedDate
+  })
 
-  const [kitchensResult, transactionsResult, statusesResult] =
-    await Promise.all([
-      kitchensPromise,
-      client
-        .from('transactions')
-        .select('kitchen_id,flow_type')
-        .eq('transaction_date', selectedDate),
-      client
-        .from('kitchen_disbursement_statuses')
-        .select('kitchen_id,is_disbursed')
-        .eq('status_date', selectedDate)
-    ])
-
-  if (kitchensResult.error) throw kitchensResult.error
-  if (transactionsResult.error) throw transactionsResult.error
-  if (statusesResult.error) throw statusesResult.error
-
-  const transactionMap = new Map<string, DashboardFlow[]>()
-
-  for (const transaction of transactionsResult.data ?? []) {
-    const current = transactionMap.get(transaction.kitchen_id) ?? []
-    current.push(transaction.flow_type as DashboardFlow)
-    transactionMap.set(transaction.kitchen_id, current)
-  }
-
-  const statusMap = new Map<string, boolean>()
-  for (const row of statusesResult.data ?? []) {
-    statusMap.set(row.kitchen_id, Boolean(row.is_disbursed))
-  }
+  if (error) throw error
 
   let disbursed = 0
   let pending = 0
   let empty = 0
 
-  const rows = (kitchensResult.data ?? []).map((kitchen) => {
-    const flows = transactionMap.get(kitchen.id) ?? []
-    const income = flows.includes('income')
-    const expense = flows.includes('expense')
-    const normalizedKitchenName = kitchen.name?.trim().toLowerCase() ?? ''
+  const rows = (data ?? []).map((row) => {
+    const normalizedKitchenName =
+      row.kitchen_name?.trim().toLowerCase() ?? ''
+
     const gasAvailable =
       normalizedKitchenName !== 'sukaraja' &&
       normalizedKitchenName !== 'cihaur'
-    const gas = gasAvailable && (flows.includes('gas') || flows.includes('neutral'))
-    const operational = flows.includes('ops_disbursement')
-    const realOperational = flows.includes('real_ops')
+
+    const gas = gasAvailable && Boolean(row.gas)
+    const income = Boolean(row.income)
+    const expense = Boolean(row.expense)
+    const operational = Boolean(row.operational)
+    const realOperational = Boolean(row.real_operational)
 
     // Status pencairan hanya digerakkan oleh Pencairan / RAB (income).
-    // Flow lain tetap tampil sebagai indikator icon, tetapi tidak boleh
-    // mengubah status dapur menjadi Pending.
     const hasTransactions = income
     const impliedDisbursed = selectedDate < cutoffDate
-    const storedDisbursed = statusMap.get(kitchen.id) ?? false
+    const storedDisbursed = Boolean(row.stored_disbursed)
     const rowDisbursed = income && (impliedDisbursed || storedDisbursed)
     const status: 'disbursed' | 'pending' | 'empty' = !income
       ? 'empty'
@@ -507,8 +474,8 @@ export async function getDailyStatus(
     else empty += 1
 
     return {
-      kitchenId: kitchen.id,
-      kitchen: kitchen.name,
+      kitchenId: row.kitchen_id,
+      kitchen: row.kitchen_name,
       status,
       income,
       expense,
