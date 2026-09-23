@@ -187,6 +187,7 @@ export function DashboardPage() {
   })
 
   const [kitchens, setKitchens] = useState<DashboardKitchen[]>([])
+  const kitchensRef = useRef<DashboardKitchen[]>([])
   const [supplierOptions, setSupplierOptions] = useState<
     { value: string; label: string }[]
   >([])
@@ -245,7 +246,7 @@ export function DashboardPage() {
       nextTransactions
     ] = await Promise.all([
       getDashboardSummary(filters),
-      getDailyStatus(filters.startDate),
+      getDailyStatus(filters.startDate, supabase, kitchensRef.current),
       kitchens.length ? Promise.resolve(kitchens) : getActiveKitchens(),
       getDashboardTransactionPage(
         filters,
@@ -260,7 +261,7 @@ export function DashboardPage() {
       kitchens: nextKitchens,
       transactions: nextTransactions
     }
-  }, [filters, kitchens, transactionPage])
+  }, [filters, transactionPage])
 
   useEffect(() => {
     let cancelled = false
@@ -297,6 +298,7 @@ export function DashboardPage() {
       setTransactions(data.transactions.data)
       setTotalTransactions(data.transactions.total)
       setDailyStatus(data.dailyStatus)
+      kitchensRef.current = data.kitchens
       setKitchens(data.kitchens)
     },
     []
@@ -304,7 +306,7 @@ export function DashboardPage() {
   const loadDashboardLiveData = useCallback(async () => {
     const [nextSummary, nextStatus, nextTransactions] = await Promise.all([
       getDashboardSummary(filters),
-      getDailyStatus(filters.startDate),
+      getDailyStatus(filters.startDate, supabase, kitchensRef.current),
       getDashboardTransactionPage(
         filters,
         transactionPage,
