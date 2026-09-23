@@ -186,7 +186,8 @@ export function DashboardPage() {
     supplierFilter: ''
   })
 
-  const [kitchens, setKitchens] = useState<DashboardKitchen[]>([])  const kitchensRef = useRef<DashboardKitchen[]>([])
+  const [kitchens, setKitchens] = useState<DashboardKitchen[]>([])
+  const kitchensRef = useRef<DashboardKitchen[]>([])
   const [supplierOptions, setSupplierOptions] = useState<
     { value: string; label: string }[]
   >([])
