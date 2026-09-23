@@ -5,14 +5,7 @@ import {
   ChevronRight
 } from 'lucide-react'
 import { createPortal } from 'react-dom'
-import {
-  useEffect,
-  useId,
-  useLayoutEffect,
-  useMemo,
-  useRef,
-  useState
-} from 'react'
+import { useEffect, useId, useMemo, useRef, useState } from 'react'
 
 export type SingleDatePickerProps = {
   label: string
@@ -123,10 +116,6 @@ export function SingleDatePicker({
   const [open, setOpen] = useState(false)
   const [viewMonth, setViewMonth] = useState(initialMonth)
   const [showMonthYearPicker, setShowMonthYearPicker] = useState(false)
-  const [popoverPosition, setPopoverPosition] = useState<{
-    top: number
-    left: number
-  } | null>(null)
 
   const selectedYear = viewMonth.getUTCFullYear()
   const selectedMonth = viewMonth.getUTCMonth()
@@ -182,11 +171,8 @@ export function SingleDatePicker({
     }
   }, [open])
 
-  useLayoutEffect(() => {
-    if (!open) {
-      setPopoverPosition(null)
-      return
-    }
+  useEffect(() => {
+    if (!open) return
 
     let frame = 0
 
@@ -226,7 +212,9 @@ export function SingleDatePicker({
               triggerRect.top - popoverHeight - gap
             )
 
-      setPopoverPosition({ top, left })
+      popover.style.top = top + 'px'
+      popover.style.left = left + 'px'
+      popover.style.visibility = 'visible'
     }
 
     function schedulePositionUpdate() {
@@ -296,9 +284,9 @@ export function SingleDatePicker({
               role="dialog"
               aria-label={`Pilih ${label.toLowerCase()}`}
               style={{
-                top: popoverPosition?.top ?? -9999,
-                left: popoverPosition?.left ?? -9999,
-                visibility: popoverPosition ? 'visible' : 'hidden'
+                top: -9999,
+                left: -9999,
+                visibility: 'hidden'
               }}
             >
           <div className="single-date-picker__toolbar">
