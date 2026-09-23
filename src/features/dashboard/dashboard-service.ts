@@ -412,7 +412,8 @@ export async function getDashboardTransactionPage(
 
 export async function getDailyStatus(
   selectedDate: string,
-  client: SupabaseClient = supabase
+  client: SupabaseClient = supabase,
+  knownKitchens: DashboardKitchen[] = []
 ): Promise<{
   disbursed: number
   pending: number
@@ -434,13 +435,17 @@ export async function getDailyStatus(
 }> {
   const cutoffDate = MANUAL_DISBURSEMENT_STATUS_START_DATE
 
-  const [kitchensResult, transactionsResult, statusesResult] =
-    await Promise.all([
-      client
+  const kitchensPromise = knownKitchens.length
+    ? Promise.resolve({ data: knownKitchens, error: null })
+    : client
         .from('kitchens')
         .select('id,name')
         .eq('is_active', true)
-        .order('name'),
+        .order('name')
+
+  const [kitchensResult, transactionsResult, statusesResult] =
+    await Promise.all([
+      kitchensPromise,
       client
         .from('transactions')
         .select('kitchen_id,flow_type')
