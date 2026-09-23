@@ -288,7 +288,6 @@ export function DashboardPage() {
     (data: Awaited<ReturnType<typeof loadDashboardData>>) => {
       setSummary(data.summary)
       setTransactions(data.transactions.data)
-      setTotalTransactions(data.transactions.total)
       setDailyStatus(data.dailyStatus)
       setKitchens(data.kitchens)
       setSupplierOptions(data.supplierOptions)
@@ -302,7 +301,9 @@ export function DashboardPage() {
       getDashboardTransactionPage(
         filters,
         transactionPage,
-        DASHBOARD_HISTORY_PAGE_SIZE
+        DASHBOARD_HISTORY_PAGE_SIZE,
+        supabase,
+        false
       )
     ])
 
@@ -497,7 +498,6 @@ export function DashboardPage() {
             : filters.flowType === 'real_ops'
               ? 'Rekening'
               : 'Supplier / Rekening'
-
   const operationalDestination = getOperationalDestination(
     selectedFilterKitchen?.name
   )
@@ -998,7 +998,6 @@ export function DashboardPage() {
     if (!formKitchenId || !value) {
       return
     }
-
     try {
       await loadFormOptions(formKitchenId, value)
 
@@ -1497,8 +1496,7 @@ export function DashboardPage() {
       <section className="dashboard-main-grid">
         <article className="dashboard-panel dashboard-status-panel dashboard-main-panel">
           <div className="dashboard-panel-header">
-            <div>
-              <h2>Status Pencairan</h2>
+            <div>              <h2>Status Pencairan</h2>
             </div>
           </div>
 
@@ -1997,8 +1995,7 @@ export function DashboardPage() {
 
                         if (value) {
                           focusNominalInput()
-                        }
-                      }}
+                        }                      }}
                     >
                       <option value="">
                         {!formKitchenId
