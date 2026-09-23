@@ -274,8 +274,6 @@ export function DashboardPage() {
     let cancelled = false
 
     void getSupplierOptions({
-      startDate: filters.startDate,
-      endDate: filters.endDate,
       kitchenId: filters.kitchenId,
       flowType: filters.flowType
     })
