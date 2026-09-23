@@ -288,6 +288,7 @@ export function DashboardPage() {
     (data: Awaited<ReturnType<typeof loadDashboardData>>) => {
       setSummary(data.summary)
       setTransactions(data.transactions.data)
+      setTotalTransactions(data.transactions.total)
       setDailyStatus(data.dailyStatus)
       setKitchens(data.kitchens)
       setSupplierOptions(data.supplierOptions)
@@ -318,7 +319,6 @@ export function DashboardPage() {
     (data: Awaited<ReturnType<typeof loadDashboardLiveData>>) => {
       setSummary(data.summary)
       setTransactions(data.transactions.data)
-      setTotalTransactions(data.transactions.total)
       setDailyStatus(data.dailyStatus)
     },
     []
@@ -497,8 +497,7 @@ export function DashboardPage() {
             ? 'Tujuan Ops'
             : filters.flowType === 'real_ops'
               ? 'Rekening'
-              : 'Supplier / Rekening'
-  const operationalDestination = getOperationalDestination(
+              : 'Supplier / Rekening'  const operationalDestination = getOperationalDestination(
     selectedFilterKitchen?.name
   )
 
@@ -997,8 +996,7 @@ export function DashboardPage() {
 
     if (!formKitchenId || !value) {
       return
-    }
-    try {
+    }    try {
       await loadFormOptions(formKitchenId, value)
 
       if (value === 'expense') {
@@ -1497,8 +1495,7 @@ export function DashboardPage() {
         <article className="dashboard-panel dashboard-status-panel dashboard-main-panel">
           <div className="dashboard-panel-header">
             <div>              <h2>Status Pencairan</h2>
-            </div>
-          </div>
+            </div>          </div>
 
           {dailyStatus ? (
             <>
@@ -1997,8 +1994,7 @@ export function DashboardPage() {
                           focusNominalInput()
                         }                      }}
                     >
-                      <option value="">
-                        {!formKitchenId
+                      <option value="">                        {!formKitchenId
                           ? 'Pilih dapur terlebih dahulu'
                           : !formFlowType
                             ? 'Pilih jenis transaksi terlebih dahulu'
