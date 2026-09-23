@@ -709,7 +709,7 @@
 section.bank-form-modal {
   display: flex;
   flex-direction: column;
-  width: min(760px, calc(100vw - 28px));
+  width: min(760px, calc(100vw - var(--sidebar-width) - 36px));
   max-width: 760px;
   min-width: 0;
   height: auto;
@@ -997,7 +997,7 @@ section.bank-history-modal {
   position: relative;
   z-index: 2;
   display: flex;
-  width: min(860px, calc(100vw - 28px));
+  width: min(860px, calc(100vw - var(--sidebar-width) - 36px));
   max-width: 860px;
   height: min(720px, calc(100dvh - 36px));
   max-height: calc(100dvh - 36px);
