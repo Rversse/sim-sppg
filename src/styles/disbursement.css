@@ -1048,7 +1048,7 @@
   z-index: 50;
   top: calc(100% + 8px);
   right: 50px;
-  width: min(520px, calc(100vw - 48px));
+  width: min(520px, calc(100vw - var(--sidebar-width) - 36px));
   overflow: hidden;
   border: 1px solid var(--theme-border-strong);
   border-radius: 14px;
