@@ -613,10 +613,11 @@ textarea {
    ========================================================= */
 
 .app-main {
+  view-transition-name: app-main;
   width: min(1500px, 100%);
   margin: 0 auto;
   padding: 16px 2px;
-  animation: app-page-in 300ms var(--app-ease) both;
+  animation: app-page-in 180ms var(--app-ease) both;
 }
 
 .app-mobile-nav {
@@ -691,15 +692,20 @@ textarea {
 
 ::view-transition-old(root),
 ::view-transition-new(root) {
-  animation-duration: 180ms;
+  animation: none;
+}
+
+::view-transition-old(app-main),
+::view-transition-new(app-main) {
+  animation-duration: 160ms;
   animation-timing-function: var(--app-ease);
 }
 
-::view-transition-old(root) {
+::view-transition-old(app-main) {
   animation-name: app-route-old;
 }
 
-::view-transition-new(root) {
+::view-transition-new(app-main) {
   animation-name: app-route-new;
 }
 
