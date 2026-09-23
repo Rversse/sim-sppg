@@ -1239,10 +1239,6 @@ export function DashboardPage() {
   return (
     <div className="dashboard-page">
       <style>{`
-        .dashboard-page .dashboard-transaction-modal {
-          overflow: visible;
-        }
-
         .dashboard-page .dashboard-transaction-form-date {
           display: grid;
           gap: 6px;
