@@ -34,6 +34,28 @@ export type DashboardKitchen = {
   id_sppg: string | null
 }
 
+export type DashboardTransactionAccount = {
+  id: string
+  name: string
+  bank: string
+  account_number: string
+  income_suppliers:
+    | {
+        business_name: string | null
+        owner_name: string | null
+      }
+    | {
+        business_name: string | null
+        owner_name: string | null
+      }[]
+    | null
+}
+
+export type DashboardTransactionSupplier = {
+  id: string
+  name: string | null
+}
+
 export type DashboardTransaction = {
   id: string
   transaction_date: string
@@ -46,6 +68,14 @@ export type DashboardTransaction = {
   supplier_id: string | null
   destination_label: string | null
   created_at: string
+  accounts:
+    | DashboardTransactionAccount
+    | DashboardTransactionAccount[]
+    | null
+  suppliers:
+    | DashboardTransactionSupplier
+    | DashboardTransactionSupplier[]
+    | null
 }
 
 export type DashboardTransactionPage = {
@@ -297,7 +327,33 @@ export async function getDashboardTransactionPage(
   let query = client
     .from('transactions')
     .select(
-      'id,transaction_date,flow_type,category,amount,note,kitchen_id,account_id,supplier_id,destination_label,created_at',
+      `
+        id,
+        transaction_date,
+        flow_type,
+        category,
+        amount,
+        note,
+        kitchen_id,
+        account_id,
+        supplier_id,
+        destination_label,
+        created_at,
+        accounts(
+          id,
+          name,
+          bank,
+          account_number,
+          income_suppliers(
+            business_name,
+            owner_name
+          )
+        ),
+        suppliers(
+          id,
+          name
+        )
+      `,
       includeCount ? { count: 'exact' } : {}
     )
     .gte('transaction_date', filters.startDate)
