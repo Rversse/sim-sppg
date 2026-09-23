@@ -4,7 +4,15 @@ import {
   ChevronLeft,
   ChevronRight
 } from 'lucide-react'
-import { useEffect, useId, useMemo, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
+import {
+  useEffect,
+  useId,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState
+} from 'react'
 
 export type SingleDatePickerProps = {
   label: string
@@ -101,6 +109,7 @@ export function SingleDatePicker({
   className = ''
 }: SingleDatePickerProps) {
   const rootRef = useRef<HTMLDivElement>(null)
+  const popoverRef = useRef<HTMLDivElement>(null)
   const triggerId = useId()
   const today = getTodayKey()
 
@@ -114,6 +123,10 @@ export function SingleDatePicker({
   const [open, setOpen] = useState(false)
   const [viewMonth, setViewMonth] = useState(initialMonth)
   const [showMonthYearPicker, setShowMonthYearPicker] = useState(false)
+  const [popoverPosition, setPopoverPosition] = useState<{
+    top: number
+    left: number
+  } | null>(null)
 
   const selectedYear = viewMonth.getUTCFullYear()
   const selectedMonth = viewMonth.getUTCMonth()
@@ -138,11 +151,16 @@ export function SingleDatePicker({
     if (!open) return
 
     function handlePointerDown(event: MouseEvent) {
-      if (
-        event.target instanceof Node &&
-        rootRef.current &&
-        !rootRef.current.contains(event.target)
-      ) {
+      if (!(event.target instanceof Node)) return
+
+      const clickedInsideTrigger = Boolean(
+        rootRef.current && rootRef.current.contains(event.target)
+      )
+      const clickedInsidePopover = Boolean(
+        popoverRef.current && popoverRef.current.contains(event.target)
+      )
+
+      if (!clickedInsideTrigger && !clickedInsidePopover) {
         setOpen(false)
         setShowMonthYearPicker(false)
       }
@@ -163,6 +181,69 @@ export function SingleDatePicker({
       document.removeEventListener('keydown', handleKeyDown)
     }
   }, [open])
+
+  useLayoutEffect(() => {
+    if (!open) {
+      setPopoverPosition(null)
+      return
+    }
+
+    let frame = 0
+
+    function updatePopoverPosition() {
+      const trigger = document.getElementById(triggerId)
+      const popover = popoverRef.current
+
+      if (!trigger || !popover) return
+
+      const triggerRect = trigger.getBoundingClientRect()
+      const popoverWidth = popover.offsetWidth
+      const popoverHeight = popover.offsetHeight
+      const viewportPadding = 12
+      const gap = 8
+
+      const maxLeft = Math.max(
+        viewportPadding,
+        window.innerWidth - popoverWidth - viewportPadding
+      )
+
+      const left = Math.min(
+        Math.max(viewportPadding, triggerRect.left),
+        maxLeft
+      )
+
+      const spaceBelow = window.innerHeight - triggerRect.bottom
+      const spaceAbove = triggerRect.top
+
+      const top =
+        spaceBelow >= popoverHeight + gap || spaceBelow >= spaceAbove
+          ? Math.min(
+              window.innerHeight - popoverHeight - viewportPadding,
+              triggerRect.bottom + gap
+            )
+          : Math.max(
+              viewportPadding,
+              triggerRect.top - popoverHeight - gap
+            )
+
+      setPopoverPosition({ top, left })
+    }
+
+    function schedulePositionUpdate() {
+      cancelAnimationFrame(frame)
+      frame = requestAnimationFrame(updatePopoverPosition)
+    }
+
+    schedulePositionUpdate()
+    window.addEventListener('resize', schedulePositionUpdate)
+    window.addEventListener('scroll', schedulePositionUpdate, true)
+
+    return () => {
+      cancelAnimationFrame(frame)
+      window.removeEventListener('resize', schedulePositionUpdate)
+      window.removeEventListener('scroll', schedulePositionUpdate, true)
+    }
+  }, [open, triggerId, showMonthYearPicker])
 
   function handleTriggerClick() {
     if (disabled) return
@@ -207,12 +288,19 @@ export function SingleDatePicker({
         <ChevronDown className="single-date-picker__caret" aria-hidden="true" />
       </button>
 
-      {open ? (
-        <div
-          className="single-date-picker__popover"
-          role="dialog"
-          aria-label={`Pilih ${label.toLowerCase()}`}
-        >
+      {open
+        ? createPortal(
+            <div
+              ref={popoverRef}
+              className="single-date-picker__popover"
+              role="dialog"
+              aria-label={`Pilih ${label.toLowerCase()}`}
+              style={{
+                top: popoverPosition?.top ?? -9999,
+                left: popoverPosition?.left ?? -9999,
+                visibility: popoverPosition ? 'visible' : 'hidden'
+              }}
+            >
           <div className="single-date-picker__toolbar">
             <button
               type="button"
@@ -327,9 +415,10 @@ export function SingleDatePicker({
                 )
               )}
             </div>
-          </div>
-        </div>
-      ) : null}
+            </div>,
+            document.body
+          )
+        : null}
     </div>
   )
 }
