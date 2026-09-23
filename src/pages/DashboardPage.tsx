@@ -588,51 +588,56 @@ export function DashboardPage() {
 
   async function handleFlow(value: DashboardFlow | '') {
     setTransactionPage(1)
+
+    if (!value || !filters.kitchenId) {
+      setFilters((current) => ({
+        ...current,
+        flowType: value,
+        supplierFilter: ''
+      }))
+      return
+    }
+
+    if (value === 'ops_disbursement') {
+      const selectedKitchenName = kitchens.find(
+        (kitchen) => kitchen.id === filters.kitchenId
+      )?.name
+      const destination = getOperationalDestination(selectedKitchenName) ?? ''
+
+      setFilters((current) => ({
+        ...current,
+        flowType: value,
+        supplierFilter: destination
+      }))
+      return
+    }
+
+    if (value === 'gas') {
+      try {
+        const accounts = await getAccountsForFlow(filters.kitchenId, 'gas')
+        const gasAccountId = getDefaultGasAccount(accounts)
+
+        setFilters((current) => ({
+          ...current,
+          flowType: value,
+          supplierFilter: gasAccountId
+        }))
+      } catch (loadError) {
+        console.error(loadError)
+        setFilters((current) => ({
+          ...current,
+          flowType: value,
+          supplierFilter: ''
+        }))
+      }
+      return
+    }
+
     setFilters((current) => ({
       ...current,
       flowType: value,
       supplierFilter: ''
     }))
-
-    if (
-      value !== 'gas' &&
-      value !== 'ops_disbursement'
-    ) {
-      return
-    }
-
-    if (!filters.kitchenId) {
-      return
-    }
-
-    try {
-      const options = await getSupplierOptions({
-        startDate: filters.startDate,
-        endDate: filters.endDate,
-        kitchenId: filters.kitchenId,
-        flowType: value
-      })
-
-      const destination = options[0]
-
-      if (destination) {
-        setFilters((current) => {
-          if (
-            current.flowType !== 'gas' &&
-            current.flowType !== 'ops_disbursement'
-          ) {
-            return current
-          }
-
-          return {
-            ...current,
-            supplierFilter: destination.value
-          }
-        })
-      }
-    } catch (loadError) {
-      console.error(loadError)
-    }
   }
 
   const loadHistoryMeta = useCallback(async () => {
