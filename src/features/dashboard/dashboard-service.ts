@@ -286,7 +286,8 @@ export async function getDashboardTransactionPage(
   filters: DashboardFilters,
   page: number,
   pageSize: number,
-  client: SupabaseClient = supabase
+  client: SupabaseClient = supabase,
+  includeCount = true
 ): Promise<DashboardTransactionPage> {
   const safePage = Math.max(1, Math.floor(page))
   const safePageSize = Math.max(1, Math.floor(pageSize))
@@ -297,7 +298,7 @@ export async function getDashboardTransactionPage(
     .from('transactions')
     .select(
       'id,transaction_date,flow_type,category,amount,note,kitchen_id,account_id,supplier_id,destination_label,created_at',
-      { count: 'exact' }
+      includeCount ? { count: 'exact' } : {}
     )
     .gte('transaction_date', filters.startDate)
     .lte('transaction_date', filters.endDate)
