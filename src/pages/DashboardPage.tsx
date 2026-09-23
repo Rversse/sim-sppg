@@ -186,7 +186,8 @@ export function DashboardPage() {
     supplierFilter: ''
   })
 
-  const [kitchens, setKitchens] = useState<DashboardKitchen[]>([])  const [supplierOptions, setSupplierOptions] = useState<
+  const [kitchens, setKitchens] = useState<DashboardKitchen[]>([])  const kitchensRef = useRef<DashboardKitchen[]>([])
+  const [supplierOptions, setSupplierOptions] = useState<
     { value: string; label: string }[]
   >([])
   const [availableFilterFlows, setAvailableFilterFlows] = useState<
@@ -228,6 +229,10 @@ export function DashboardPage() {
   const [formSuppliers, setFormSuppliers] = useState<TransactionOption[]>([])
   const [formEntryUnlocked, setFormEntryUnlocked] = useState(false)
   const nominalInputRef = useRef<HTMLInputElement | null>(null)
+  const transactionPageRef = useRef(1)
+  const dashboardInitializedRef = useRef(false)
+  const skipNextHistoryPageFetchRef = useRef(false)
+  const historyRequestRef = useRef(0)
 
   function focusNominalInput() {
     window.requestAnimationFrame(() => {
@@ -236,30 +241,33 @@ export function DashboardPage() {
       })
     })
   }
-  const loadDashboardData = useCallback(async () => {
-    const [
-      nextSummary,
-      nextStatus,
-      nextKitchens,
-      nextTransactions
-    ] = await Promise.all([
-      getDashboardSummary(filters),
-      getDailyStatus(filters.startDate, supabase),
-      kitchens.length ? Promise.resolve(kitchens) : getActiveKitchens(),
-      getDashboardTransactionPage(
-        filters,
-        transactionPage,
-        DASHBOARD_HISTORY_PAGE_SIZE
-      )
-    ])
+  const loadDashboardData = useCallback(
+    async (page: number) => {
+      const kitchenPromise = kitchensRef.current.length
+        ? Promise.resolve(kitchensRef.current)
+        : getActiveKitchens()
 
-    return {
-      summary: nextSummary,
-      dailyStatus: nextStatus,
-      kitchens: nextKitchens,
-      transactions: nextTransactions
-    }
-  }, [filters, transactionPage])
+      const [nextSummary, nextStatus, nextKitchens, nextTransactions] =
+        await Promise.all([
+          getDashboardSummary(filters),
+          getDailyStatus(filters.startDate, supabase),
+          kitchenPromise,
+          getDashboardTransactionPage(
+            filters,
+            page,
+            DASHBOARD_HISTORY_PAGE_SIZE
+          )
+        ])
+
+      return {
+        summary: nextSummary,
+        dailyStatus: nextStatus,
+        kitchens: nextKitchens,
+        transactions: nextTransactions
+      }
+    },
+    [filters]
+  )
 
   useEffect(() => {
     let cancelled = false
@@ -296,29 +304,33 @@ export function DashboardPage() {
       setTransactions(data.transactions.data)
       setTotalTransactions(data.transactions.total)
       setDailyStatus(data.dailyStatus)
+      kitchensRef.current = data.kitchens
       setKitchens(data.kitchens)
     },
     []
   )
-  const loadDashboardLiveData = useCallback(async () => {
-    const [nextSummary, nextStatus, nextTransactions] = await Promise.all([
-      getDashboardSummary(filters),
-      getDailyStatus(filters.startDate, supabase),
-      getDashboardTransactionPage(
-        filters,
-        transactionPage,
-        DASHBOARD_HISTORY_PAGE_SIZE,
-        supabase,
-        false
-      )
-    ])
+  const loadDashboardLiveData = useCallback(
+    async (page: number) => {
+      const [nextSummary, nextStatus, nextTransactions] = await Promise.all([
+        getDashboardSummary(filters),
+        getDailyStatus(filters.startDate, supabase),
+        getDashboardTransactionPage(
+          filters,
+          page,
+          DASHBOARD_HISTORY_PAGE_SIZE,
+          supabase,
+          false
+        )
+      ])
 
-    return {
-      summary: nextSummary,
-      dailyStatus: nextStatus,
-      transactions: nextTransactions
-    }
-  }, [filters, transactionPage])
+      return {
+        summary: nextSummary,
+        dailyStatus: nextStatus,
+        transactions: nextTransactions
+      }
+    },
+    [filters]
+  )
 
   const applyDashboardLiveData = useCallback(
     (data: Awaited<ReturnType<typeof loadDashboardLiveData>>) => {
@@ -329,21 +341,55 @@ export function DashboardPage() {
     []
   )
 
+  const loadHistoryPage = useCallback(
+    async (page: number) => {
+      const requestId = ++historyRequestRef.current
+
+      try {
+        const data = await getDashboardTransactionPage(
+          filters,
+          page,
+          DASHBOARD_HISTORY_PAGE_SIZE,
+          supabase,
+          false
+        )
+
+        if (requestId !== historyRequestRef.current) {
+          return
+        }
+
+        setTransactions(data.data)
+      } catch (loadError) {
+        if (requestId !== historyRequestRef.current) {
+          return
+        }
+
+        console.error('Gagal memuat halaman riwayat transaksi:', loadError)
+        setError('Gagal memuat halaman riwayat transaksi.')
+      }
+    },
+    [filters]
+  )
 
   const refreshDashboard = useCallback(
-    async (showLoading = false, liveOnly = false) => {
+    async (
+      showLoading = false,
+      liveOnly = false,
+      page = transactionPageRef.current
+    ) => {
       if (showLoading) {
         setLoading(true)
       }
 
+      historyRequestRef.current += 1
       setError(null)
 
       try {
         if (liveOnly) {
-          const data = await loadDashboardLiveData()
+          const data = await loadDashboardLiveData(page)
           applyDashboardLiveData(data)
         } else {
-          const data = await loadDashboardData()
+          const data = await loadDashboardData(page)
           applyDashboardData(data)
         }
       } catch (loadError) {
@@ -364,7 +410,14 @@ export function DashboardPage() {
   )
 
   useEffect(() => {
+    transactionPageRef.current = transactionPage
+  }, [transactionPage])
+
+  useEffect(() => {
     let cancelled = false
+
+    skipNextHistoryPageFetchRef.current = true
+    historyRequestRef.current += 1
 
     void Promise.resolve()
       .then(() => {
@@ -375,7 +428,7 @@ export function DashboardPage() {
         setLoading(true)
         setError(null)
 
-        return loadDashboardData()
+        return loadDashboardData(transactionPageRef.current)
       })
       .then((data) => {
         if (!data || cancelled) {
@@ -383,6 +436,8 @@ export function DashboardPage() {
         }
 
         applyDashboardData(data)
+        dashboardInitializedRef.current = true
+        skipNextHistoryPageFetchRef.current = false
         setLoading(false)
       })
       .catch((loadError: unknown) => {
@@ -391,6 +446,8 @@ export function DashboardPage() {
         }
 
         console.error(loadError)
+        dashboardInitializedRef.current = true
+        skipNextHistoryPageFetchRef.current = false
         setError('Gagal memuat Dashboard. Coba refresh atau periksa koneksi.')
         setLoading(false)
       })
@@ -399,6 +456,18 @@ export function DashboardPage() {
       cancelled = true
     }
   }, [applyDashboardData, loadDashboardData])
+
+  useEffect(() => {
+    if (!dashboardInitializedRef.current) {
+      return
+    }
+
+    if (skipNextHistoryPageFetchRef.current) {
+      return
+    }
+
+    void loadHistoryPage(transactionPageRef.current)
+  }, [loadHistoryPage, transactionPage])
 
   useEffect(() => {
     let cancelled = false
@@ -1056,11 +1125,9 @@ export function DashboardPage() {
         }
       }
 
-      if (transactionPage !== 1) {
-        setTransactionPage(1)
-      } else {
-        await refreshDashboard(false)
-      }
+      const targetPage = 1
+      setTransactionPage(targetPage)
+      await refreshDashboard(false, false, targetPage)
     } catch (saveError) {
       console.error(saveError)
       setFormError(
@@ -1112,11 +1179,13 @@ export function DashboardPage() {
     try {
       await deleteTransaction(transaction.id)
 
-      if (transactionPage > 1 && transactions.length === 1) {
-        setTransactionPage((current) => current - 1)
-      } else {
-        await refreshDashboard(false)
-      }
+      const targetPage =
+        transactionPage > 1 && transactions.length === 1
+          ? transactionPage - 1
+          : transactionPage
+
+      setTransactionPage(targetPage)
+      await refreshDashboard(false, false, targetPage)
     } catch (deleteError) {
       console.error(deleteError)
       setError('Gagal menghapus transaksi.')
