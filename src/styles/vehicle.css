@@ -526,7 +526,7 @@
 
 .vehicle-modal {
   display: flex;
-  width: min(650px, calc(100vw - 32px));
+  width: min(650px, calc(100vw - var(--sidebar-width) - 36px));
   max-height: calc(100dvh - 32px);
   flex-direction: column;
   overflow: visible;
