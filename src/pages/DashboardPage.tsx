@@ -31,7 +31,6 @@ import {
 
 import {
   getAccountsForFlow,
-  getAvailableTransactionFlows,
   getDefaultGasAccount,
   getDefaultSupplier,
   getSuppliersForKitchen,
@@ -94,6 +93,20 @@ function flowClass(flow: DashboardFlow) {
     return 'dashboard-flow dashboard-flow-ops-disbursement'
   }
   return 'dashboard-flow dashboard-flow-real-ops'
+}
+
+function getAvailableFlowsForKitchen(
+  kitchenName: string | null | undefined
+): DashboardFlow[] {
+  const normalized = kitchenName?.trim().toLowerCase() ?? ''
+  const flows: DashboardFlow[] = ['income', 'expense']
+
+  if (normalized !== 'sukaraja' && normalized !== 'cihaur') {
+    flows.push('gas')
+  }
+
+  flows.push('ops_disbursement', 'real_ops')
+  return flows
 }
 
 function formatIntegerInput(value: string) {
@@ -566,16 +579,11 @@ export function DashboardPage() {
       return
     }
 
-    setAvailableFilterFlows(['income', 'expense'])
+    const selectedKitchenName = kitchens.find(
+      (kitchen) => kitchen.id === value
+    )?.name
 
-    void getAvailableTransactionFlows(value)
-      .then((flows) => {
-        setAvailableFilterFlows(flows)
-      })
-      .catch((loadError) => {
-        console.error(loadError)
-        setAvailableFilterFlows(['income', 'expense'])
-      })
+    setAvailableFilterFlows(getAvailableFlowsForKitchen(selectedKitchenName))
   }
 
   async function handleFlow(value: DashboardFlow | '') {
@@ -913,8 +921,8 @@ export function DashboardPage() {
     setModalOpen(true)
 
     try {
-      const availableFlows = await getAvailableTransactionFlows(
-        transaction.kitchen_id ?? ''
+      const availableFlows = getAvailableFlowsForKitchen(
+        kitchens.find((kitchen) => kitchen.id === transaction.kitchen_id)?.name
       )
 
       setAvailableFormFlows(availableFlows)
@@ -958,7 +966,8 @@ export function DashboardPage() {
     }
 
     try {
-      const availableFlows = await getAvailableTransactionFlows(value)
+      const selectedKitchen = kitchens.find((kitchen) => kitchen.id === value)
+      const availableFlows = getAvailableFlowsForKitchen(selectedKitchen?.name)
       const nextFlowType =
         preserveSupplierFlow && availableFlows.includes('expense')
           ? 'expense'
