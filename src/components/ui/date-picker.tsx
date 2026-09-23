@@ -415,7 +415,8 @@ export function SingleDatePicker({
                 )
               )}
             </div>
-            </div>,
+            </div>
+          </div>,
             document.body
           )
         : null}
