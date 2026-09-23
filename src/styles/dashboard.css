@@ -1398,6 +1398,10 @@
    TRANSACTION MODAL
    ========================================================= */
 
+.dashboard-transaction-modal {
+  width: min(760px, 100%);
+}
+
 .dashboard-transaction-form-date {
   min-width: 0;
   min-height: 0;
