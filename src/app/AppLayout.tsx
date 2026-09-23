@@ -12,6 +12,7 @@ import {
   type LucideIcon
 } from 'lucide-react'
 import { VehicleExpiryNotification } from '@/components/ui/VehicleExpiryNotification'
+import { preloadPage } from '@/app/lazy-pages'
 import { supabase } from '@/lib/supabase'
 import { canAccess, type Permission } from '@/features/auth/role-policy'
 import { useAuth } from '@/features/auth/use-auth'
@@ -158,6 +159,9 @@ export function AppLayout() {
                     <NavLink
                       key={item.to}
                       to={item.to}
+                      viewTransition
+                      onMouseEnter={() => preloadPage(item.to)}
+                      onFocus={() => preloadPage(item.to)}
                       className={({ isActive }) =>
                         `app-nav-link${isActive ? ' is-active' : ''}`
                       }
@@ -208,6 +212,10 @@ export function AppLayout() {
             <NavLink
               key={item.to}
               to={item.to}
+              viewTransition
+              onTouchStart={() => preloadPage(item.to)}
+              onMouseEnter={() => preloadPage(item.to)}
+              onFocus={() => preloadPage(item.to)}
               className={({ isActive }) =>
                 `app-mobile-link${isActive ? ' is-active' : ''}`
               }
