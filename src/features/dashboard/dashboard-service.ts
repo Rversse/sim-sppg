@@ -485,7 +485,7 @@ export async function getDailyStatus(
 
     return {
       kitchenId: row.kitchen_id,
-      kitchen: row.kitchen_name,
+      kitchen: row.kitchen_name ?? 'Dapur tidak diketahui',
       status,
       income,
       expense,
