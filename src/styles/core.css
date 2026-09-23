@@ -306,6 +306,7 @@ textarea {
 
 .app-shell {
   --sidebar-width: 200px;
+  --modal-viewport-gap: 36px;
 
   display: flex;
   min-height: 100vh;
@@ -945,6 +946,7 @@ textarea:disabled {
 
 @media (max-width: 760px) {
   .app-shell {
+    --sidebar-width: 0px;
     display: block;
   }
 
@@ -1105,7 +1107,7 @@ textarea:disabled {
   display: grid;
   min-height: 100dvh;
   place-items: center;
-  padding: 18px;
+  padding: 18px 18px 18px calc(var(--sidebar-width) + 18px);
   overflow: auto;
   background: var(--theme-overlay);
   backdrop-filter: blur(3px);
@@ -1126,6 +1128,8 @@ textarea:disabled {
 ) {
   position: relative;
   z-index: 2;
+  width: min(100%, calc(100vw - var(--sidebar-width) - var(--modal-viewport-gap)));
+  min-width: 0;
   margin: auto;
   max-height: calc(100dvh - 36px);
   overflow: hidden;
@@ -1397,6 +1401,7 @@ textarea:disabled {
     width: min(100%, calc(100vw - 20px));
     max-width: none;
     max-height: calc(100dvh - 20px);
+    width: min(100%, calc(100vw - 20px));
   }
 }
 
