@@ -1133,3 +1133,391 @@ export async function deleteBankTransaction(
     throw error
   }
 }
+
+
+export type BankExportTransaction = {
+  id: string
+  transactionDate: string
+  createdAt: string
+  accountId: string
+  accountName: string
+  bank: string
+  accountNumber: string | null
+  direction: 'in' | 'out'
+  mutationType:
+    | 'RAB / PENCAIRAN'
+    | 'OPS / ARUTALA'
+    | 'TRANSFER MASUK'
+    | 'TRANSFER KELUAR'
+  counterparty: string
+  paymentFor: string
+  transferAmount: number
+  adminFee: number
+  totalMutation: number
+  balanceAfter: number
+}
+
+type BankExportAccountRow = {
+  id: string
+  name: string
+  bank: string
+  account_number: string | null
+  opening_balance: number | string | null
+  income_suppliers:
+    | {
+        owner_name: string | null
+      }
+    | {
+        owner_name: string | null
+      }[]
+    | null
+}
+
+type BankExportTransactionRow = {
+  id: string
+  transaction_date: string
+  created_at: string
+  account_id: string
+  recipient_account_id: string | null
+  recipient_name: string | null
+  payment_for: string | null
+  transfer_amount: number | string | null
+  admin_fee: number | string | null
+}
+
+type BankExportIncomeRow = {
+  id: string
+  transaction_date: string
+  created_at: string
+  account_id: string | null
+  amount: number | string | null
+  flow_type: 'income' | 'gas' | 'neutral'
+  note: string | null
+  kitchen: { name: string } | { name: string }[] | null
+}
+
+function getOwnerNameFromExportAccount(account: BankExportAccountRow) {
+  if (Array.isArray(account.income_suppliers)) {
+    return account.income_suppliers[0]?.owner_name?.trim() || account.name
+  }
+
+  return account.income_suppliers?.owner_name?.trim() || account.name
+}
+
+function getExportCounterparty(
+  account: BankExportAccountRow | undefined,
+  fallback: string
+) {
+  return account ? getOwnerNameFromExportAccount(account) : fallback
+}
+
+function compareExportEvents(
+  a: { date: string; createdAt: string; key: string },
+  b: { date: string; createdAt: string; key: string }
+) {
+  const dateCompare = a.date.localeCompare(b.date)
+
+  if (dateCompare !== 0) {
+    return dateCompare
+  }
+
+  const createdCompare =
+    new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+
+  if (createdCompare !== 0) {
+    return createdCompare
+  }
+
+  return a.key.localeCompare(b.key)
+}
+
+export async function getBankExportTransactions(
+  startDate: string,
+  endDate: string,
+  client: SupabaseClient = supabase
+): Promise<BankExportTransaction[]> {
+  if (!startDate || !endDate) {
+    throw new Error('Periode export belum lengkap.')
+  }
+
+  if (startDate > endDate) {
+    throw new Error('Tanggal awal export tidak boleh melewati tanggal akhir.')
+  }
+
+  if (startDate < BANK_MODULE_START_DATE) {
+    throw new Error(
+      `Data Transaksi Bank tersedia mulai ${BANK_MODULE_START_DATE}.`
+    )
+  }
+
+  const today = formatLocalDate(new Date())
+
+  if (endDate > today) {
+    throw new Error('Tanggal akhir export tidak boleh melewati hari ini.')
+  }
+
+  const [accountRows, bankRows, incomeRows] = await Promise.all([
+    fetchAllRows(async (from, to) => {
+      const { data, error } = await client
+        .from('accounts')
+        .select(
+          `
+            id,
+            name,
+            bank,
+            account_number,
+            opening_balance,
+            income_suppliers(owner_name)
+          `
+        )
+        .order('name')
+        .range(from, to)
+
+      if (error) {
+        throw error
+      }
+
+      return (data ?? []) as unknown as BankExportAccountRow[]
+    }),
+    fetchAllRows(async (from, to) => {
+      const { data, error } = await client
+        .from('bank_transactions')
+        .select(
+          `
+            id,
+            transaction_date,
+            created_at,
+            account_id,
+            recipient_account_id,
+            recipient_name,
+            payment_for,
+            transfer_amount,
+            admin_fee
+          `
+        )
+        .gte('transaction_date', BANK_MODULE_START_DATE)
+        .lte('transaction_date', endDate)
+        .order('transaction_date', { ascending: true })
+        .order('created_at', { ascending: true })
+        .range(from, to)
+
+      if (error) {
+        throw error
+      }
+
+      return (data ?? []) as BankExportTransactionRow[]
+    }),
+    fetchAllRows(async (from, to) => {
+      const { data, error } = await client
+        .from('transactions')
+        .select(
+          `
+            id,
+            transaction_date,
+            created_at,
+            account_id,
+            amount,
+            flow_type,
+            note,
+            kitchen:kitchens(name)
+          `
+        )
+        .in('flow_type', ['income', 'gas', 'neutral'])
+        .gte('transaction_date', BANK_MODULE_START_DATE)
+        .lte('transaction_date', endDate)
+        .order('transaction_date', { ascending: true })
+        .order('created_at', { ascending: true })
+        .range(from, to)
+
+      if (error) {
+        throw error
+      }
+
+      return (data ?? []) as unknown as BankExportIncomeRow[]
+    })
+  ])
+
+  const accountMap = new Map(
+    accountRows.map((account) => [
+      account.id,
+      {
+        ...account,
+        openingBalance: Number(account.opening_balance) || 0
+      }
+    ])
+  )
+
+  const events: Array<
+    | {
+        kind: 'bank'
+        id: string
+        date: string
+        createdAt: string
+        key: string
+        accountId: string
+        direction: 'in' | 'out'
+        mutationType: 'TRANSFER MASUK' | 'TRANSFER KELUAR'
+        counterparty: string
+        paymentFor: string
+        transferAmount: number
+        adminFee: number
+      }
+    | {
+        kind: 'income'
+        id: string
+        date: string
+        createdAt: string
+        key: string
+        accountId: string
+        mutationType: 'RAB / PENCAIRAN' | 'OPS / ARUTALA'
+        counterparty: string
+        paymentFor: string
+        transferAmount: number
+        adminFee: number
+      }
+  > = []
+
+  for (const row of bankRows) {
+    const transferAmount = Number(row.transfer_amount) || 0
+    const adminFee = Number(row.admin_fee) || 0
+    const recipientAccount = row.recipient_account_id
+      ? accountMap.get(row.recipient_account_id)
+      : undefined
+
+    events.push({
+      kind: 'bank',
+      id: row.id,
+      date: row.transaction_date,
+      createdAt: row.created_at,
+      key: `bank-out:${row.id}`,
+      accountId: row.account_id,
+      direction: 'out',
+      mutationType: 'TRANSFER KELUAR',
+      counterparty:
+        getExportCounterparty(recipientAccount, row.recipient_name?.trim() || 'Penerima'),
+      paymentFor: row.payment_for?.trim() || '-',
+      transferAmount,
+      adminFee
+    })
+
+    if (row.recipient_account_id && accountMap.has(row.recipient_account_id)) {
+      const senderAccount = accountMap.get(row.account_id)
+
+      events.push({
+        kind: 'bank',
+        id: row.id,
+        date: row.transaction_date,
+        createdAt: row.created_at,
+        key: `bank-in:${row.id}`,
+        accountId: row.recipient_account_id,
+        direction: 'in',
+        mutationType: 'TRANSFER MASUK',
+        counterparty: getExportCounterparty(senderAccount, 'Rekening pengirim'),
+        paymentFor: row.payment_for?.trim() || '-',
+        transferAmount,
+        adminFee: 0
+      })
+    }
+  }
+
+  for (const row of incomeRows) {
+    if (!row.account_id || !accountMap.has(row.account_id)) {
+      continue
+    }
+
+    const kitchen = Array.isArray(row.kitchen) ? row.kitchen[0] : row.kitchen
+    const amount = Number(row.amount) || 0
+    const isOperational = row.flow_type !== 'income'
+
+    events.push({
+      kind: 'income',
+      id: row.id,
+      date: row.transaction_date,
+      createdAt: row.created_at,
+      key: `income:${row.id}`,
+      accountId: row.account_id,
+      mutationType: isOperational ? 'OPS / ARUTALA' : 'RAB / PENCAIRAN',
+      counterparty: kitchen?.name
+        ? `Pencairan ${kitchen.name}`
+        : isOperational
+          ? 'OPS / Arutala'
+          : 'Pencairan Dashboard',
+      paymentFor: row.note?.trim() || '-',
+      transferAmount: amount,
+      adminFee: 0
+    })
+  }
+
+  events.sort((a, b) =>
+    compareExportEvents(
+      { date: a.date, createdAt: a.createdAt, key: a.key },
+      { date: b.date, createdAt: b.createdAt, key: b.key }
+    )
+  )
+
+  const runningBalances = new Map<string, number>()
+
+  for (const account of accountRows) {
+    runningBalances.set(account.id, Number(account.opening_balance) || 0)
+  }
+
+  const output: BankExportTransaction[] = []
+
+  for (const event of events) {
+    const account = accountMap.get(event.accountId)
+
+    if (!account) {
+      continue
+    }
+
+    const direction = event.kind === 'income' ? 'in' : event.direction
+    let balance =
+      runningBalances.get(account.id) ?? (Number(account.opening_balance) || 0)
+    const totalMutation =
+      direction === 'in'
+        ? event.transferAmount
+        : event.transferAmount + event.adminFee
+
+    balance += direction === 'in' ? totalMutation : -totalMutation
+    runningBalances.set(account.id, balance)
+
+    if (event.date < startDate || event.date > endDate) {
+      continue
+    }
+
+    output.push({
+      id: event.id,
+      transactionDate: event.date,
+      createdAt: event.createdAt,
+      accountId: account.id,
+      accountName: account.name,
+      bank: account.bank,
+      accountNumber: account.account_number,
+      direction,
+      mutationType: event.mutationType,
+      counterparty: event.counterparty,
+      paymentFor: event.paymentFor,
+      transferAmount: event.transferAmount,
+      adminFee: event.adminFee,
+      totalMutation: direction === 'in' ? totalMutation : -totalMutation,
+      balanceAfter: balance
+    })
+  }
+
+  return output.sort((a, b) => {
+    const dateCompare = a.transactionDate.localeCompare(b.transactionDate)
+
+    if (dateCompare !== 0) {
+      return dateCompare
+    }
+
+    const createdCompare =
+      new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+
+    if (createdCompare !== 0) {
+      return createdCompare
+    }
+
+    return a.accountName.localeCompare(b.accountName, 'id')
+  })
+}

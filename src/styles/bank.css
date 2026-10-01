@@ -948,6 +948,195 @@ section.bank-form-modal {
   height: 17px;
 }
 
+.bank-export-button {
+  gap: 7px;
+}
+
+.bank-export-button svg {
+  width: 16px;
+  height: 16px;
+}
+
+section.bank-export-modal {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  width: min(620px, calc(100vw - var(--sidebar-width) - 36px));
+  max-width: 620px;
+  max-height: calc(100dvh - 36px);
+  flex-direction: column;
+  margin: auto;
+  overflow: hidden;
+  border: 1px solid var(--theme-border-strong);
+  border-radius: var(--app-modal-radius);
+  background: var(--theme-surface-raised);
+  box-shadow: var(--theme-shadow-modal);
+}
+
+.bank-export-modal-header {
+  display: flex;
+  min-height: 76px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px 18px;
+  border-bottom: 1px solid var(--theme-border);
+  background: var(--theme-surface-raised);
+}
+
+.bank-export-modal-header > div {
+  min-width: 0;
+}
+
+.bank-export-modal-header > div > span {
+  display: block;
+  margin-bottom: 4px;
+  color: var(--theme-primary);
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: 0.09em;
+}
+
+.bank-export-modal-header h2 {
+  margin: 0;
+  color: var(--theme-text-primary);
+  font-size: 18px;
+  font-weight: 900;
+}
+
+.bank-export-modal-content {
+  display: grid;
+  gap: 14px;
+  min-height: 0;
+  overflow: auto;
+  padding: 17px 18px;
+}
+
+.bank-export-description {
+  margin: 0;
+  color: var(--theme-text-secondary);
+  font-size: 11px;
+  line-height: 1.55;
+}
+
+.bank-export-date-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.bank-export-date-grid > label {
+  display: grid;
+  min-width: 0;
+  gap: 5px;
+}
+
+.bank-export-date-grid > label > span {
+  color: var(--theme-text-secondary);
+  font-size: 10px;
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.bank-export-date-grid > label > input {
+  width: 100%;
+  min-width: 0;
+  height: 42px;
+  min-height: 42px;
+  padding: 0 11px;
+  box-sizing: border-box;
+  border: 1px solid var(--theme-border-strong);
+  border-radius: var(--app-control-radius);
+  background: var(--theme-surface-raised);
+  color: var(--theme-text-primary);
+  outline: none;
+  font: inherit;
+  font-size: 11px;
+}
+
+.bank-export-date-grid > label > input:focus {
+  border-color: var(--theme-primary);
+  box-shadow: 0 0 0 3px
+    color-mix(in srgb, var(--theme-primary) 14%, transparent);
+}
+
+.bank-export-date-grid > label > input:disabled {
+  background: var(--theme-surface-soft);
+  color: var(--theme-text-muted);
+}
+
+.bank-export-info-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.bank-export-info-grid > div {
+  display: grid;
+  gap: 5px;
+  min-width: 0;
+  padding: 11px 12px;
+  border: 1px solid var(--theme-border);
+  border-radius: var(--app-control-radius);
+  background: var(--theme-surface-soft);
+}
+
+.bank-export-info-grid strong {
+  margin-bottom: 2px;
+  color: var(--theme-text-primary);
+  font-size: 10px;
+  font-weight: 900;
+}
+
+.bank-export-info-grid span {
+  color: var(--theme-text-secondary);
+  font-size: 9px;
+  line-height: 1.35;
+}
+
+.bank-export-modal-actions {
+  justify-content: flex-end;
+  padding: 12px 18px 14px;
+  border-top: 1px solid var(--theme-border);
+  background: var(--theme-surface);
+}
+
+.bank-export-modal-actions > button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+}
+
+.bank-export-modal-actions svg {
+  width: 15px;
+  height: 15px;
+}
+
+@media (max-width: 760px) {
+  section.bank-export-modal {
+    width: min(100%, calc(100vw - 20px));
+    max-height: calc(100dvh - 20px);
+  }
+
+  .bank-export-date-grid,
+  .bank-export-info-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .bank-export-modal-header {
+    padding: 14px;
+  }
+
+  .bank-export-modal-content {
+    padding: 14px;
+  }
+
+  .bank-export-modal-actions {
+    padding: 11px 14px 13px;
+  }
+}
+
 .bank-autocomplete {
   position: relative;
   min-width: 0;
