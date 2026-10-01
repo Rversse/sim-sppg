@@ -272,7 +272,7 @@ export async function getSupplierOptions(
       )
       `
     )
-    .eq('flow_type', 'income')
+    .in('flow_type', ['income', 'gas', 'neutral', 'ops_disbursement'])
 
   if (filters.kitchenId) {
     query.eq('kitchen_id', filters.kitchenId)
@@ -460,14 +460,14 @@ export async function getDailyStatus(
   }
 
   const typedData = (data ?? []) as DashboardDailyStatusRpcRow[]
-  const incomeCountByKitchen = new Map<string, number>()
+  const disbursementTransactionCountByKitchen = new Map<string, number>()
 
   for (const row of incomeRows ?? []) {
     if (!row.kitchen_id) continue
 
-    incomeCountByKitchen.set(
+    disbursementTransactionCountByKitchen.set(
       row.kitchen_id,
-      (incomeCountByKitchen.get(row.kitchen_id) ?? 0) + 1
+      (disbursementTransactionCountByKitchen.get(row.kitchen_id) ?? 0) + 1
     )
   }
 
@@ -486,7 +486,9 @@ export async function getDailyStatus(
     const gas = gasAvailable && Boolean(row.gas)
     const income = Boolean(row.income)
     const incomeCount = Number(
-      row.income_count ?? incomeCountByKitchen.get(row.kitchen_id) ?? 0
+      row.income_count ??
+        disbursementTransactionCountByKitchen.get(row.kitchen_id) ??
+        0
     )
     const expense = Boolean(row.expense)
     const operational = Boolean(row.operational)
