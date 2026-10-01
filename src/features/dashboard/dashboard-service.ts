@@ -419,6 +419,7 @@ export async function getDailyStatus(
     kitchen: string
     status: 'disbursed' | 'pending' | 'empty'
     income: boolean
+    incomeCount: number
     expense: boolean
     gas: boolean
     gasAvailable: boolean
@@ -431,16 +432,26 @@ export async function getDailyStatus(
 }> {
   const cutoffDate = MANUAL_DISBURSEMENT_STATUS_START_DATE
 
-  const { data, error } = await client.rpc('get_dashboard_daily_status', {
-    p_selected_date: selectedDate
-  })
+  const [{ data, error }, { data: incomeRows, error: incomeError }] =
+    await Promise.all([
+      client.rpc('get_dashboard_daily_status', {
+        p_selected_date: selectedDate
+      }),
+      client
+        .from('transactions')
+        .select('kitchen_id')
+        .eq('transaction_date', selectedDate)
+        .eq('flow_type', 'income')
+    ])
 
   if (error) throw error
+  if (incomeError) throw incomeError
 
   type DashboardDailyStatusRpcRow = {
     kitchen_id: string
     kitchen_name: string | null
     income: boolean | null
+    income_count?: number | string | null
     expense: boolean | null
     gas: boolean | null
     operational: boolean | null
@@ -449,6 +460,16 @@ export async function getDailyStatus(
   }
 
   const typedData = (data ?? []) as DashboardDailyStatusRpcRow[]
+  const incomeCountByKitchen = new Map<string, number>()
+
+  for (const row of incomeRows ?? []) {
+    if (!row.kitchen_id) continue
+
+    incomeCountByKitchen.set(
+      row.kitchen_id,
+      (incomeCountByKitchen.get(row.kitchen_id) ?? 0) + 1
+    )
+  }
 
   let disbursed = 0
   let pending = 0
@@ -464,6 +485,9 @@ export async function getDailyStatus(
 
     const gas = gasAvailable && Boolean(row.gas)
     const income = Boolean(row.income)
+    const incomeCount = Number(
+      row.income_count ?? incomeCountByKitchen.get(row.kitchen_id) ?? 0
+    )
     const expense = Boolean(row.expense)
     const operational = Boolean(row.operational)
     const realOperational = Boolean(row.real_operational)
@@ -488,6 +512,7 @@ export async function getDailyStatus(
       kitchen: row.kitchen_name ?? 'Dapur tidak diketahui',
       status,
       income,
+      incomeCount,
       expense,
       gas,
       gasAvailable,
