@@ -425,6 +425,55 @@
   line-height: 1.35;
 }
 
+.reports-kitchen-cell {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 8px;
+}
+
+.reports-kitchen-rank {
+  display: inline-grid;
+  width: 22px;
+  height: 22px;
+  flex: 0 0 22px;
+  place-items: center;
+  border: 1px solid var(--theme-border-strong);
+  border-radius: 999px;
+  background: var(--theme-surface-soft);
+  color: var(--theme-text-secondary);
+  font-size: 9px;
+  font-weight: 900;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.reports-kitchen-name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.reports-kitchen-cell:hover .reports-kitchen-rank {
+  border-color: var(--theme-primary);
+  background: var(--theme-primary-soft);
+  color: var(--theme-primary);
+}
+
+@media (max-width: 760px) {
+  .reports-kitchen-cell {
+    gap: 6px;
+  }
+
+  .reports-kitchen-rank {
+    width: 20px;
+    height: 20px;
+    flex-basis: 20px;
+    font-size: 8px;
+  }
+}
+
 .reports-table tbody td.positive,
 .reports-table tbody td.negative,
 .reports-total-row td {
