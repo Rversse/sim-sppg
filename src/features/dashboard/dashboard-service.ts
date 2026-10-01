@@ -419,7 +419,7 @@ export async function getDailyStatus(
     kitchen: string
     status: 'disbursed' | 'pending' | 'empty'
     income: boolean
-    incomeCount: number
+    transactionCount: number
     expense: boolean
     gas: boolean
     gasAvailable: boolean
@@ -441,7 +441,7 @@ export async function getDailyStatus(
         .from('transactions')
         .select('kitchen_id')
         .eq('transaction_date', selectedDate)
-        .eq('flow_type', 'income')
+        .in('flow_type', ['income', 'gas', 'neutral', 'ops_disbursement'])
     ])
 
   if (error) throw error
@@ -451,7 +451,6 @@ export async function getDailyStatus(
     kitchen_id: string
     kitchen_name: string | null
     income: boolean | null
-    income_count?: number | string | null
     expense: boolean | null
     gas: boolean | null
     operational: boolean | null
@@ -485,11 +484,8 @@ export async function getDailyStatus(
 
     const gas = gasAvailable && Boolean(row.gas)
     const income = Boolean(row.income)
-    const incomeCount = Number(
-      row.income_count ??
-        disbursementTransactionCountByKitchen.get(row.kitchen_id) ??
-        0
-    )
+    const transactionCount =
+      disbursementTransactionCountByKitchen.get(row.kitchen_id) ?? 0
     const expense = Boolean(row.expense)
     const operational = Boolean(row.operational)
     const realOperational = Boolean(row.real_operational)
@@ -514,7 +510,7 @@ export async function getDailyStatus(
       kitchen: row.kitchen_name ?? 'Dapur tidak diketahui',
       status,
       income,
-      incomeCount,
+      transactionCount,
       expense,
       gas,
       gasAvailable,
