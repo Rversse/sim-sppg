@@ -1467,16 +1467,16 @@ export function DashboardPage() {
                                 ? 'Pending'
                                 : 'Belum ada transaksi'}
                           </span>
-                          {row.incomeCount > 0 ? (
+                          {row.transactionCount > 0 ? (
                             <span
                               className="dashboard-status-transaction-count"
-                              aria-label={`${row.incomeCount} transaksi pencairan`}
-                              title={`${row.incomeCount} transaksi pencairan`}
+                              aria-label={`${row.transactionCount} transaksi pencairan`}
+                              title={`${row.transactionCount} transaksi pencairan`}
                             >
                               <span aria-hidden="true">|</span>
                               <span className="dashboard-status-transaction-dots" aria-hidden="true">
                                 {Array.from(
-                                  { length: row.incomeCount },
+                                  { length: row.transactionCount },
                                   (_, index) => (
                                     <i key={index} />
                                   )
