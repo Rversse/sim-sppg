@@ -1,5 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { History, Pencil, Search, Trash2, X } from 'lucide-react'
+import {
+  Download,
+  History,
+  Pencil,
+  Search,
+  Trash2,
+  X
+} from 'lucide-react'
 
 import {
   createBankTransaction,
@@ -20,8 +27,10 @@ import {
   type BankTransaction,
   type RecipientHistoryOption
 } from '@/features/bank/bank-service'
+import { exportBankTransactions } from '@/features/bank/bank-export'
 
 import { supabase } from '@/lib/supabase'
+import { BANK_MODULE_START_DATE } from '@/lib/app-config'
 import { canAccess } from '@/features/auth/role-policy'
 import { useAuth } from '@/features/auth/use-auth'
 
@@ -33,7 +42,6 @@ import {
 } from '@/lib/formatters'
 
 const HISTORY_PAGE_SIZE = 10
-const BANK_MODULE_START_DATE = '2026-07-20'
 const MAX_AUTOCOMPLETE_RESULTS = 5
 
 const PRIORITY_OWNERS = [
@@ -379,6 +387,13 @@ export function BankPage() {
   const [isSavingTransaction, setIsSavingTransaction] = useState(false)
   const [isDeletingTransaction, setIsDeletingTransaction] = useState(false)
   const [createError, setCreateError] = useState('')
+  const [isExportModalOpen, setIsExportModalOpen] = useState(false)
+  const [exportStartDate, setExportStartDate] = useState(
+    BANK_MODULE_START_DATE
+  )
+  const [exportEndDate, setExportEndDate] = useState(getTodayLocal())
+  const [exportLoading, setExportLoading] = useState(false)
+  const [exportError, setExportError] = useState('')
 
   const [transferForm, setTransferForm] = useState<TransferFormState>(
     createEmptyTransferForm()
@@ -724,6 +739,66 @@ export function BankPage() {
     }
   }, [isCreateModalOpen])
 
+  function openExportModal() {
+    setExportStartDate(BANK_MODULE_START_DATE)
+    setExportEndDate(getTodayLocal())
+    setExportError('')
+    setIsExportModalOpen(true)
+  }
+
+  function closeExportModal() {
+    if (exportLoading) return
+
+    setIsExportModalOpen(false)
+    setExportError('')
+  }
+
+  async function handleExportBankTransactions() {
+    if (exportLoading) return
+
+    setExportError('')
+
+    if (!exportStartDate || !exportEndDate) {
+      setExportError('Pilih tanggal awal dan tanggal akhir export.')
+      return
+    }
+
+    if (exportStartDate < BANK_MODULE_START_DATE) {
+      setExportError(
+        'Data Transaksi Bank tersedia mulai ' +
+          formatDate(BANK_MODULE_START_DATE) +
+          '.'
+      )
+      return
+    }
+
+    if (exportStartDate > exportEndDate) {
+      setExportError('Tanggal awal tidak boleh melewati tanggal akhir.')
+      return
+    }
+
+    if (exportEndDate > getTodayLocal()) {
+      setExportError('Tanggal akhir tidak boleh melewati hari ini.')
+      return
+    }
+
+    setExportLoading(true)
+
+    try {
+      await exportBankTransactions(exportStartDate, exportEndDate)
+      setIsExportModalOpen(false)
+    } catch (error: unknown) {
+      console.error(error)
+      setExportError(
+        error instanceof Error
+          ? error.message
+          : 'Gagal mengekspor transaksi bank.'
+      )
+    } finally {
+      setExportLoading(false)
+    }
+  }
+
   function resetAutocomplete() {
     setRecipientQuery('')
     setPaymentQuery('')
@@ -1047,6 +1122,15 @@ export function BankPage() {
                     Periode Pencairan: 20 Juli 2026 – H+2 Hari
                   </span>
 
+                  <button
+                    type="button"
+                    className="bank-secondary-button bank-export-button"
+                    onClick={openExportModal}
+                  >
+                    <Download aria-hidden="true" />
+                    Export Excel
+                  </button>
+
                   {canCreateTransaction ? (
                     <button
                       type="button"
@@ -1177,6 +1261,133 @@ export function BankPage() {
           </>
         )}
       </div>
+
+      {isExportModalOpen ? (
+        <div
+          className="bank-modal-backdrop"
+          role="presentation"
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget) closeExportModal()
+          }}
+        >
+          <section
+            className="bank-export-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="bank-export-title"
+          >
+            <header className="bank-export-modal-header">
+              <div>
+                <span>EXPORT</span>
+                <h2 id="bank-export-title">Transaksi Bank</h2>
+              </div>
+
+              <button
+                type="button"
+                className="bank-modal-close"
+                onClick={closeExportModal}
+                disabled={exportLoading}
+                aria-label="Tutup export"
+              >
+                <X aria-hidden="true" />
+              </button>
+            </header>
+
+            <div className="bank-export-modal-content">
+              <p className="bank-export-description">
+                Pilih periode yang mau dicek. Data dimulai dari 20 Juli 2026 dan
+                saldo berjalan tetap dihitung dari awal modul walaupun filter
+                export dimulai di tanggal yang lebih baru.
+              </p>
+
+              <div className="bank-export-date-grid">
+                <label>
+                  <span>Dari tanggal</span>
+                  <input
+                    type="date"
+                    min={BANK_MODULE_START_DATE}
+                    max={getTodayLocal()}
+                    value={exportStartDate}
+                    disabled={exportLoading}
+                    onChange={(event) => {
+                      const value = event.target.value
+
+                      setExportStartDate(value)
+
+                      if (value > exportEndDate) {
+                        setExportEndDate(value)
+                      }
+                    }}
+                  />
+                </label>
+
+                <label>
+                  <span>Sampai tanggal</span>
+                  <input
+                    type="date"
+                    min={BANK_MODULE_START_DATE}
+                    max={getTodayLocal()}
+                    value={exportEndDate}
+                    disabled={exportLoading}
+                    onChange={(event) => {
+                      const value = event.target.value
+
+                      setExportEndDate(value)
+
+                      if (value < exportStartDate) {
+                        setExportStartDate(value)
+                      }
+                    }}
+                  />
+                </label>
+              </div>
+
+              <div className="bank-export-info-grid">
+                <div>
+                  <strong>Sheet yang dibuat</strong>
+                  <span>Semua Mutasi</span>
+                  <span>Transaksi Masuk</span>
+                  <span>Transaksi Keluar</span>
+                </div>
+
+                <div>
+                  <strong>Informasi</strong>
+                  <span>Saldo setelah transaksi</span>
+                  <span>Biaya admin</span>
+                  <span>ID transaksi</span>
+                </div>
+              </div>
+
+              {exportError ? (
+                <div className="bank-form-error" role="alert">
+                  {exportError}
+                </div>
+              ) : null}
+            </div>
+
+            <footer className="bank-form-actions bank-export-modal-actions">
+              <button
+                type="button"
+                className="bank-secondary-button"
+                disabled={exportLoading}
+                onClick={closeExportModal}
+              >
+                Batal
+              </button>
+
+              <button
+                type="button"
+                className="bank-primary-button"
+                disabled={exportLoading}
+                onClick={() => void handleExportBankTransactions()}
+              >
+                <Download aria-hidden="true" />
+                {exportLoading ? 'Membuat Excel...' : 'Download Excel'}
+              </button>
+            </footer>
+          </section>
+        </div>
+      ) : null}
 
       {isCreateModalOpen ? (
         <div
