@@ -254,53 +254,32 @@ function styleSummary(
 
   const net = transactions.reduce((sum, row) => sum + row.totalMutation, 0)
 
-  const values = [
-    ['Total transaksi', transactions.length],
-    ['Total masuk', incoming],
-    ['Total keluar', outgoing],
-    ['Total biaya admin', admin],
-    ['Mutasi bersih', net]
-  ]
+  const summaryText =
+    'Ringkasan: ' +
+    transactions.length +
+    ' transaksi | Masuk: ' +
+    incoming.toLocaleString('id-ID') +
+    ' | Keluar: ' +
+    outgoing.toLocaleString('id-ID') +
+    ' | Admin: ' +
+    admin.toLocaleString('id-ID') +
+    ' | Bersih: ' +
+    net.toLocaleString('id-ID')
 
-  worksheet.getCell('J2').value = 'Ringkasan'
-  worksheet.getCell('J2').font = {
+  worksheet.getCell('A4').value = summaryText
+  worksheet.getCell('A4').font = {
     bold: true,
+    size: 10,
     color: {
-      argb: 'FF18293F'
+      argb: 'FF334155'
     }
   }
-
-  for (let index = 0; index < values.length; index += 1) {
-    const [label, value] = values[index]
-    const row = index + 3
-
-    worksheet.getCell('J' + row).value = label
-    worksheet.getCell('K' + row).value = value
-
-    worksheet.getCell('J' + row).font = {
-      bold: true,
-      color: {
-        argb: 'FF64748B'
-      }
-    }
-
-    worksheet.getCell('K' + row).font = {
-      bold: true,
-      color: {
-        argb:
-          label === 'Total keluar' || label === 'Total biaya admin'
-            ? 'FFB91C1C'
-            : 'FF18293F'
-      }
-    }
+  worksheet.getCell('A4').alignment = {
+    vertical: 'middle',
+    horizontal: 'left'
   }
-
-  worksheet.getCell('K3').numFmt = '#,##0'
-  worksheet.getCell('K4').numFmt = '#,##0;[Red]-#,##0'
-  worksheet.getCell('K5').numFmt = '#,##0'
-  worksheet.getCell('K6').numFmt = '#,##0;[Red]-#,##0'
-  worksheet.getCell('K7').numFmt = '#,##0;[Red]-#,##0'
 }
+
 
 function setColumnWidths(worksheet: ExcelJS.Worksheet) {
   const widths: Record<number, number> = {
