@@ -1470,7 +1470,7 @@ export async function getBankExportTransactions(
       continue
     }
 
-    let balance = runningBalances.get(account.id) ?? Number(account.opening_balance) || 0
+    let balance = runningBalances.get(account.id) ?? (Number(account.opening_balance) || 0)
     const totalMutation =
       event.direction === 'in'
         ? event.transferAmount
