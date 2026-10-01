@@ -411,6 +411,7 @@ export function BankPage() {
   const [paymentAutocompleteOpen, setPaymentAutocompleteOpen] = useState(false)
 
   const canCreateTransaction = canAccess(user?.role, 'bank.transaction.create')
+  const canExportBankTransactions = canAccess(user?.role, 'bank.export')
 
   useEffect(() => {
     let cancelled = false
@@ -1123,14 +1124,16 @@ export function BankPage() {
                     Periode Pencairan: 20 Juli 2026 – H+2 Hari
                   </span>
 
-                  <button
-                    type="button"
-                    className="bank-secondary-button bank-export-button"
-                    onClick={openExportModal}
-                  >
-                    <Download aria-hidden="true" />
-                    Export Excel
-                  </button>
+                  {canExportBankTransactions ? (
+                    <button
+                      type="button"
+                      className="bank-secondary-button bank-export-button"
+                      onClick={openExportModal}
+                    >
+                      <Download aria-hidden="true" />
+                      Export Excel
+                    </button>
+                  ) : null}
 
                   {canCreateTransaction ? (
                     <button
