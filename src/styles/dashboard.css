@@ -748,22 +748,68 @@
   font-weight: 800;
 }
 
-.dashboard-status-row > div:first-child span {
+.dashboard-status-meta {
+  display: inline-flex !important;
+  align-items: center;
+  gap: 7px;
   margin-top: 3px;
   color: var(--theme-text-muted);
   font-size: 9px;
 }
 
-.dashboard-status-row.is-disbursed > div:first-child span {
+.dashboard-status-text {
+  color: inherit;
+  font-size: inherit;
+  line-height: 1.2;
+}
+
+.dashboard-status-row.is-disbursed .dashboard-status-meta {
   color: var(--app-success);
 }
 
-.dashboard-status-row.is-pending > div:first-child span {
+.dashboard-status-row.is-pending .dashboard-status-meta {
   color: var(--app-warning);
 }
 
-.dashboard-status-row.is-empty > div:first-child span {
+.dashboard-status-row.is-empty .dashboard-status-meta {
   color: var(--app-danger);
+}
+
+.dashboard-status-transaction-count {
+  display: inline-flex !important;
+  align-items: center;
+  gap: 5px;
+  margin: 0 !important;
+  color: currentColor;
+  line-height: 1;
+}
+
+.dashboard-status-transaction-count > span:first-child {
+  display: inline !important;
+  margin: 0 !important;
+  color: currentColor;
+  font-size: 9px !important;
+  font-weight: 800;
+  opacity: 0.7;
+}
+
+.dashboard-status-transaction-dots {
+  display: inline-flex !important;
+  align-items: center;
+  gap: 2px;
+  max-width: 180px;
+  margin: 0 !important;
+  overflow: hidden;
+}
+
+.dashboard-status-transaction-dots i {
+  display: block;
+  width: 4px;
+  height: 4px;
+  flex: 0 0 4px;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 0.78;
 }
 
 .dashboard-status-flags {
