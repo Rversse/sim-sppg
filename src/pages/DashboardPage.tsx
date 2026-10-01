@@ -1459,12 +1459,31 @@ export function DashboardPage() {
                     >
                       <div>
                         <strong>{row.kitchen}</strong>
-                        <span>
-                          {row.status === 'disbursed'
-                            ? 'Approved'
-                            : row.status === 'pending'
-                              ? 'Pending'
-                              : 'Belum ada transaksi'}
+                        <span className="dashboard-status-meta">
+                          <span className="dashboard-status-text">
+                            {row.status === 'disbursed'
+                              ? 'Approved'
+                              : row.status === 'pending'
+                                ? 'Pending'
+                                : 'Belum ada transaksi'}
+                          </span>
+                          {row.incomeCount > 0 ? (
+                            <span
+                              className="dashboard-status-transaction-count"
+                              aria-label={`${row.incomeCount} transaksi pencairan`}
+                              title={`${row.incomeCount} transaksi pencairan`}
+                            >
+                              <span aria-hidden="true">|</span>
+                              <span className="dashboard-status-transaction-dots" aria-hidden="true">
+                                {Array.from(
+                                  { length: row.incomeCount },
+                                  (_, index) => (
+                                    <i key={index} />
+                                  )
+                                )}
+                              </span>
+                            </span>
+                          ) : null}
                         </span>
                       </div>
 
