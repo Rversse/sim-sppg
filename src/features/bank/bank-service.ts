@@ -1470,13 +1470,15 @@ export async function getBankExportTransactions(
       continue
     }
 
-    let balance = runningBalances.get(account.id) ?? (Number(account.opening_balance) || 0)
+    const direction = event.kind === 'income' ? 'in' : event.direction
+    let balance =
+      runningBalances.get(account.id) ?? (Number(account.opening_balance) || 0)
     const totalMutation =
-      event.direction === 'in'
+      direction === 'in'
         ? event.transferAmount
         : event.transferAmount + event.adminFee
 
-    balance += event.direction === 'in' ? totalMutation : -totalMutation
+    balance += direction === 'in' ? totalMutation : -totalMutation
     runningBalances.set(account.id, balance)
 
     if (event.date < startDate || event.date > endDate) {
@@ -1491,13 +1493,13 @@ export async function getBankExportTransactions(
       accountName: account.name,
       bank: account.bank,
       accountNumber: account.account_number,
-      direction: event.direction,
+      direction,
       mutationType: event.mutationType,
       counterparty: event.counterparty,
       paymentFor: event.paymentFor,
       transferAmount: event.transferAmount,
       adminFee: event.adminFee,
-      totalMutation: event.direction === 'in' ? totalMutation : -totalMutation,
+      totalMutation: direction === 'in' ? totalMutation : -totalMutation,
       balanceAfter: balance
     })
   }
