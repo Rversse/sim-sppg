@@ -19,6 +19,12 @@ function formatDisplayDate(value: string) {
   return day + '/' + month + '/' + year
 }
 
+function createExcelDate(value: string) {
+  const [year, month, day] = value.split('-').map(Number)
+
+  return new Date(Date.UTC(year, month - 1, day))
+}
+
 function formatDateRangeLabel(startDate: string, endDate: string) {
   if (startDate === endDate) {
     return formatDisplayDate(startDate)
@@ -58,12 +64,12 @@ function setupWorksheet(worksheet: ExcelJS.Worksheet) {
 
   worksheet.autoFilter = {
     from: 'A5',
-    to: 'M5'
+    to: 'L5'
   }
 }
 
 function styleTitle(worksheet: ExcelJS.Worksheet, title: string) {
-  worksheet.mergeCells('A1:M1')
+  worksheet.mergeCells('A1:L1')
 
   const cell = worksheet.getCell('A1')
   cell.value = title
@@ -83,7 +89,7 @@ function styleTitle(worksheet: ExcelJS.Worksheet, title: string) {
 }
 
 function styleMeta(worksheet: ExcelJS.Worksheet, period: string, note: string) {
-  worksheet.mergeCells('A2:M2')
+  worksheet.mergeCells('A2:L2')
   worksheet.getCell('A2').value = 'Periode: ' + period
   worksheet.getCell('A2').font = {
     bold: true,
@@ -92,7 +98,7 @@ function styleMeta(worksheet: ExcelJS.Worksheet, period: string, note: string) {
     }
   }
 
-  worksheet.mergeCells('A3:M3')
+  worksheet.mergeCells('A3:L3')
   worksheet.getCell('A3').value = note
   worksheet.getCell('A3').font = {
     italic: true,
@@ -102,7 +108,7 @@ function styleMeta(worksheet: ExcelJS.Worksheet, period: string, note: string) {
     }
   }
 
-  worksheet.mergeCells('A4:M4')
+  worksheet.mergeCells('A4:L4')
   worksheet.getCell('A4').value = ''
 
   worksheet.getRow(2).height = 20
@@ -294,8 +300,7 @@ function setColumnWidths(worksheet: ExcelJS.Worksheet) {
     9: 18,
     10: 17,
     11: 18,
-    12: 21,
-    13: 38
+    12: 21
   }
 
   for (const [column, width] of Object.entries(widths)) {
@@ -332,7 +337,7 @@ function addTransactionsSheet(
   )
 
   worksheet.addRow([
-    'Tanggal',
+    'Tanggal Transaksi',
     'Rekening',
     'Bank',
     'No. Rekening',
@@ -343,8 +348,7 @@ function addTransactionsSheet(
     'Nominal Transfer',
     'Biaya Admin',
     'Total Mutasi',
-    'Saldo Setelah Transaksi',
-    'ID Transaksi'
+    'Saldo Setelah Transaksi'
   ])
 
   styleHeader(worksheet.getRow(5))
@@ -360,7 +364,7 @@ function addTransactionsSheet(
     }
 
     worksheet.addRow([
-      new Date(transaction.transactionDate),
+      createExcelDate(transaction.transactionDate),
       transaction.accountName,
       transaction.bank,
       transaction.accountNumber || '-',
@@ -371,8 +375,7 @@ function addTransactionsSheet(
       transaction.transferAmount,
       transaction.adminFee,
       transaction.totalMutation,
-      transaction.balanceAfter,
-      transaction.id
+      transaction.balanceAfter
     ])
   })
 
@@ -408,14 +411,6 @@ function addTransactionsSheet(
   worksheet.getColumn(12).alignment = {
     horizontal: 'right',
     vertical: 'middle'
-  }
-
-  worksheet.getColumn(13).font = {
-    name: 'Consolas',
-    size: 9,
-    color: {
-      argb: 'FF64748B'
-    }
   }
 
   return worksheet
