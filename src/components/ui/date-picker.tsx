@@ -13,6 +13,8 @@ export type SingleDatePickerProps = {
   onChange: (value: string) => void
   placeholder?: string
   disabled?: boolean
+  minDate?: string
+  maxDate?: string
   className?: string
 }
 
@@ -87,6 +89,28 @@ function getMonthCells(month: Date) {
   return cells
 }
 
+function isDateSelectable(dateKey: string, minDate?: string, maxDate?: string) {
+  if (minDate && dateKey < minDate) return false
+  if (maxDate && dateKey > maxDate) return false
+
+  return true
+}
+
+function monthHasSelectableDate(
+  month: Date,
+  minDate?: string,
+  maxDate?: string
+) {
+  const firstDate = toDateKey(
+    new Date(Date.UTC(month.getUTCFullYear(), month.getUTCMonth(), 1))
+  )
+  const lastDate = toDateKey(
+    new Date(Date.UTC(month.getUTCFullYear(), month.getUTCMonth() + 1, 0))
+  )
+
+  return (!minDate || lastDate >= minDate) && (!maxDate || firstDate <= maxDate)
+}
+
 function formatDateText(value: string, placeholder: string) {
   if (!value) return placeholder
 
@@ -99,6 +123,8 @@ export function SingleDatePicker({
   onChange,
   placeholder = 'Pilih tanggal',
   disabled = false,
+  minDate,
+  maxDate,
   className = ''
 }: SingleDatePickerProps) {
   const rootRef = useRef<HTMLDivElement>(null)
@@ -116,6 +142,11 @@ export function SingleDatePicker({
   const [open, setOpen] = useState(false)
   const [viewMonth, setViewMonth] = useState(initialMonth)
   const [showMonthYearPicker, setShowMonthYearPicker] = useState(false)
+
+  const previousMonth = addMonths(viewMonth, -1)
+  const nextMonth = addMonths(viewMonth, 1)
+  const canGoPrevious = monthHasSelectableDate(previousMonth, minDate, maxDate)
+  const canGoNext = monthHasSelectableDate(nextMonth, minDate, maxDate)
 
   const selectedYear = viewMonth.getUTCFullYear()
   const selectedMonth = viewMonth.getUTCMonth()
@@ -254,7 +285,10 @@ export function SingleDatePicker({
   }
 
   return (
-    <div ref={rootRef} className={`single-date-picker ${className}`.trim()}>
+    <div
+      ref={rootRef}
+      className={`single-date-picker ${open ? 'is-open' : ''} ${className}`.trim()}
+    >
       <button
         id={triggerId}
         type="button"
@@ -298,6 +332,7 @@ export function SingleDatePicker({
                 setViewMonth((current) => addMonths(current, -1))
               }}
               aria-label="Bulan sebelumnya"
+              disabled={!canGoPrevious}
             >
               <ChevronLeft aria-hidden="true" />
             </button>
@@ -319,6 +354,7 @@ export function SingleDatePicker({
                 setViewMonth((current) => addMonths(current, 1))
               }}
               aria-label="Bulan berikutnya"
+              disabled={!canGoNext}
             >
               <ChevronRight aria-hidden="true" />
             </button>
@@ -386,10 +422,14 @@ export function SingleDatePicker({
                     className={[
                       'single-date-picker__day',
                       dateKey === value ? 'is-selected' : '',
-                      dateKey === today ? 'is-today' : ''
+                      dateKey === today ? 'is-today' : '',
+                      !isDateSelectable(dateKey, minDate, maxDate)
+                        ? 'is-disabled'
+                        : ''
                     ]
                       .filter(Boolean)
                       .join(' ')}
+                    disabled={!isDateSelectable(dateKey, minDate, maxDate)}
                     onClick={() => selectDate(dateKey)}
                   >
                     {Number(dateKey.slice(-2))}
