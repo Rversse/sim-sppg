@@ -3,7 +3,8 @@ import { useEffect, useState } from 'react'
 import {
   getOverallReport,
   getIncomeReport,
-  getSupplierReport
+  getSupplierReport,
+  type OverallReport
 } from '@/features/report/reports-service'
 
 import {
@@ -33,6 +34,20 @@ function loadIncomeReport(startDate: string, endDate: string) {
 
 function loadSupplierReport(startDate: string, endDate: string) {
   return getSupplierReport({ startDate, endDate, kitchenId: '' })
+}
+
+function getOverallRabRankMap(
+  kitchens: OverallReport['kitchens']
+): Map<string, number> {
+  return new Map(
+    [...kitchens]
+      .sort(
+        (a, b) =>
+          b.totalRAB - a.totalRAB ||
+          a.kitchenName.localeCompare(b.kitchenName, 'id')
+      )
+      .map((kitchen, index) => [kitchen.kitchenId, index + 1])
+  )
 }
 
 function useReportData<T>(
@@ -341,6 +356,10 @@ function OverallReportView() {
     setError
   } = useReportData(loadOverallReport, 'Gagal memuat laporan keseluruhan')
 
+  const rabRankByKitchenId = report
+    ? getOverallRabRankMap(report.kitchens)
+    : new Map<string, number>()
+
   return (
     <section
       className="reports-section"
@@ -419,7 +438,18 @@ function OverallReportView() {
               <tbody>
                 {report.kitchens.map((item) => (
                   <tr key={item.kitchenId}>
-                    <td>{item.kitchenName}</td>
+                    <td className="reports-kitchen-cell">
+                      <span
+                        className="reports-kitchen-rank"
+                        aria-label={'Peringkat RAB ' + (rabRankByKitchenId.get(item.kitchenId) ?? '-')}
+                        title="Peringkat berdasarkan Total RAB"
+                      >
+                        {rabRankByKitchenId.get(item.kitchenId) ?? '-'}
+                      </span>
+                      <span className="reports-kitchen-name">
+                        {item.kitchenName}
+                      </span>
+                    </td>
                     <td>{formatCurrency(item.income)}</td>
                     <td>{formatCurrency(item.expense)}</td>
                     <td className={item.totalRAB < 0 ? 'negative' : 'positive'}>
