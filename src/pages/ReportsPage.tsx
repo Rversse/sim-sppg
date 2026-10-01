@@ -438,16 +438,18 @@ function OverallReportView() {
               <tbody>
                 {report.kitchens.map((item) => (
                   <tr key={item.kitchenId}>
-                    <td className="reports-kitchen-cell">
-                      <span
-                        className="reports-kitchen-rank"
-                        aria-label={'Peringkat RAB ' + (rabRankByKitchenId.get(item.kitchenId) ?? '-')}
-                        title="Peringkat berdasarkan Total RAB"
-                      >
-                        {rabRankByKitchenId.get(item.kitchenId) ?? '-'}
-                      </span>
-                      <span className="reports-kitchen-name">
-                        {item.kitchenName}
+                    <td>
+                      <span className="reports-kitchen-cell">
+                        <span
+                          className="reports-kitchen-rank"
+                          aria-label={'Peringkat RAB ' + (rabRankByKitchenId.get(item.kitchenId) ?? '-')}
+                          title="Peringkat berdasarkan Total RAB"
+                        >
+                          {rabRankByKitchenId.get(item.kitchenId) ?? '-'}
+                        </span>
+                        <span className="reports-kitchen-name">
+                          {item.kitchenName}
+                        </span>
                       </span>
                     </td>
                     <td>{formatCurrency(item.income)}</td>
