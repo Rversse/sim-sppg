@@ -776,7 +776,8 @@ section.bank-form-modal {
 }
 
 .bank-form-grid > label,
-.bank-form-grid > .bank-autocomplete {
+.bank-form-grid > .bank-autocomplete,
+.bank-form-grid > .single-date-picker {
   display: grid;
   width: 100%;
   min-width: 0;
@@ -1025,45 +1026,11 @@ section.bank-export-modal {
   gap: 10px;
 }
 
-.bank-export-date-grid > label {
-  display: grid;
-  min-width: 0;
-  gap: 5px;
-}
-
-.bank-export-date-grid > label > span {
-  color: var(--theme-text-secondary);
-  font-size: 10px;
-  font-weight: 800;
-  line-height: 1.2;
-}
-
-.bank-export-date-grid > label > input {
+.bank-export-date-grid > .single-date-picker {
   width: 100%;
   min-width: 0;
-  height: 42px;
-  min-height: 42px;
-  padding: 0 11px;
-  box-sizing: border-box;
-  border: 1px solid var(--theme-border-strong);
-  border-radius: var(--app-control-radius);
-  background: var(--theme-surface-raised);
-  color: var(--theme-text-primary);
-  outline: none;
-  font: inherit;
-  font-size: 11px;
 }
 
-.bank-export-date-grid > label > input:focus {
-  border-color: var(--theme-primary);
-  box-shadow: 0 0 0 3px
-    color-mix(in srgb, var(--theme-primary) 14%, transparent);
-}
-
-.bank-export-date-grid > label > input:disabled {
-  background: var(--theme-surface-soft);
-  color: var(--theme-text-muted);
-}
 
 .bank-export-info-grid {
   display: grid;
@@ -1095,7 +1062,11 @@ section.bank-export-modal {
 }
 
 .bank-export-modal-actions {
+  display: flex;
+  align-items: center;
   justify-content: flex-end;
+  gap: 8px;
+  margin-top: 0;
   padding: 12px 18px 14px;
   border-top: 1px solid var(--theme-border);
   background: var(--theme-surface);
@@ -1103,9 +1074,20 @@ section.bank-export-modal {
 
 .bank-export-modal-actions > button {
   display: inline-flex;
+  min-height: 40px;
   align-items: center;
   justify-content: center;
   gap: 7px;
+  padding-inline: 14px;
+  border-radius: var(--app-control-radius);
+}
+
+.bank-export-modal-actions > button:first-child {
+  min-width: 78px;
+}
+
+.bank-export-modal-actions > button:last-child {
+  min-width: 170px;
 }
 
 .bank-export-modal-actions svg {
