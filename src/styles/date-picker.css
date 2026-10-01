@@ -157,10 +157,15 @@
     transform var(--theme-motion-fast) var(--theme-ease);
 }
 
-.single-date-picker__nav:hover {
+.single-date-picker__nav:hover:not(:disabled) {
   border-color: var(--theme-border-strong);
   background: var(--theme-surface-raised);
   transform: translateY(-1px);
+}
+
+.single-date-picker__nav:disabled {
+  cursor: not-allowed;
+  opacity: 0.4;
 }
 
 .single-date-picker__nav:active {
@@ -306,9 +311,15 @@
     transform var(--theme-motion-fast) var(--theme-ease);
 }
 
-.single-date-picker__day:hover {
+.single-date-picker__day:hover:not(:disabled) {
   border-color: var(--theme-primary);
   background: var(--theme-primary-soft);
+}
+
+.single-date-picker__day.is-disabled {
+  cursor: not-allowed;
+  color: var(--theme-text-muted);
+  opacity: 0.4;
 }
 
 .single-date-picker__day:active {

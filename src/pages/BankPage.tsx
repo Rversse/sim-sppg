@@ -28,6 +28,7 @@ import {
   type RecipientHistoryOption
 } from '@/features/bank/bank-service'
 import { exportBankTransactions } from '@/features/bank/bank-export'
+import { SingleDatePicker } from '@/components/ui/date-picker'
 
 import { supabase } from '@/lib/supabase'
 import { BANK_MODULE_START_DATE } from '@/lib/app-config'
@@ -1295,51 +1296,42 @@ export function BankPage() {
 
             <div className="bank-export-modal-content">
               <p className="bank-export-description">
-                Pilih periode yang mau dicek. Data dimulai dari 20 Juli 2026 dan
-                saldo berjalan tetap dihitung dari awal modul walaupun filter
-                export dimulai di tanggal yang lebih baru.
+                Pilih periode yang mau dicek. Tanggal di Excel mengikuti tanggal
+                transaksi yang tercatat, bukan tanggal saat data dimasukkan. Untuk
+                transfer bank, tanggal mengikuti field Tanggal di form ini; untuk
+                RAB / Pencairan, tanggal mengikuti tanggal program.
               </p>
 
               <div className="bank-export-date-grid">
-                <label>
-                  <span>Dari tanggal</span>
-                  <input
-                    type="date"
-                    min={BANK_MODULE_START_DATE}
-                    max={getTodayLocal()}
-                    value={exportStartDate}
-                    disabled={exportLoading}
-                    onChange={(event) => {
-                      const value = event.target.value
+                <SingleDatePicker
+                  label="Dari tanggal"
+                  value={exportStartDate}
+                  minDate={BANK_MODULE_START_DATE}
+                  maxDate={getTodayLocal()}
+                  disabled={exportLoading}
+                  onChange={(value) => {
+                    setExportStartDate(value)
 
-                      setExportStartDate(value)
-
-                      if (value > exportEndDate) {
-                        setExportEndDate(value)
-                      }
-                    }}
-                  />
-                </label>
-
-                <label>
-                  <span>Sampai tanggal</span>
-                  <input
-                    type="date"
-                    min={BANK_MODULE_START_DATE}
-                    max={getTodayLocal()}
-                    value={exportEndDate}
-                    disabled={exportLoading}
-                    onChange={(event) => {
-                      const value = event.target.value
-
+                    if (value > exportEndDate) {
                       setExportEndDate(value)
+                    }
+                  }}
+                />
 
-                      if (value < exportStartDate) {
-                        setExportStartDate(value)
-                      }
-                    }}
-                  />
-                </label>
+                <SingleDatePicker
+                  label="Sampai tanggal"
+                  value={exportEndDate}
+                  minDate={BANK_MODULE_START_DATE}
+                  maxDate={getTodayLocal()}
+                  disabled={exportLoading}
+                  onChange={(value) => {
+                    setExportEndDate(value)
+
+                    if (value < exportStartDate) {
+                      setExportStartDate(value)
+                    }
+                  }}
+                />
               </div>
 
               <div className="bank-export-info-grid">
@@ -1354,7 +1346,7 @@ export function BankPage() {
                   <strong>Informasi</strong>
                   <span>Saldo setelah transaksi</span>
                   <span>Biaya admin</span>
-                  <span>ID transaksi</span>
+                  <span>Tanggal transaksi sesuai sumber data</span>
                 </div>
               </div>
 
@@ -1430,21 +1422,19 @@ export function BankPage() {
 
             <div className="bank-form-content">
               <div className="bank-form-grid">
-                <label>
-                  <span>Tanggal</span>
-                  <input
-                    type="date"
-                    min={BANK_MODULE_START_DATE}
-                    value={transferForm.transactionDate}
-                    disabled={isSavingTransaction}
-                    onChange={(event) =>
-                      setTransferForm((current) => ({
-                        ...current,
-                        transactionDate: event.target.value
-                      }))
-                    }
-                  />
-                </label>
+                <SingleDatePicker
+                  label="Tanggal"
+                  value={transferForm.transactionDate}
+                  minDate={BANK_MODULE_START_DATE}
+                  maxDate={getTodayLocal()}
+                  disabled={isSavingTransaction}
+                  onChange={(value) =>
+                    setTransferForm((current) => ({
+                      ...current,
+                      transactionDate: value
+                    }))
+                  }
+                />
 
                 <label>
                   <span>Nama Pengirim</span>
