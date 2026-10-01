@@ -356,6 +356,37 @@ function printReport() {
       color: #18293F !important;
     }
 
+    .reports-kitchen-cell {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      text-align: left;
+    }
+
+    .reports-kitchen-rank {
+      display: inline-flex;
+      width: 17px;
+      height: 17px;
+      flex: 0 0 17px;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid #B8C4D6;
+      border-radius: 999px;
+      background: #F1F5F9;
+      color: #51637D;
+      font-size: 8px;
+      font-weight: 800;
+      line-height: 1;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .reports-kitchen-name {
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
     .reports-table th:first-child,
     .reports-table td:first-child {
       text-align: left;
