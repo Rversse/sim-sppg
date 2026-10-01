@@ -1,7 +1,7 @@
 import type ExcelJS from 'exceljs'
 
+import { BANK_MODULE_START_DATE } from '@/lib/app-config'
 import {
-  BANK_MODULE_START_DATE,
   getBankExportTransactions,
   type BankExportTransaction
 } from './bank-service'
