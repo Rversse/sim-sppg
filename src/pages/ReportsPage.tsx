@@ -3,8 +3,7 @@ import { useEffect, useState } from 'react'
 import {
   getOverallReport,
   getIncomeReport,
-  getSupplierReport,
-  type OverallReport
+  getSupplierReport
 } from '@/features/report/reports-service'
 
 import {
