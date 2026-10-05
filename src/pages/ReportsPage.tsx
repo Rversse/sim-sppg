@@ -419,6 +419,7 @@ function OverallReportView() {
                   <th className="reports-col-real-ops">OPS / REAL</th>
                   <th className="reports-col-total">TOTAL OPS</th>
                   <th className="reports-col-gas">OPS / ARUTALA</th>
+                  <th className="reports-col-sppg-rent">SEWA SPPG</th>
                 </tr>
               </thead>
               <tbody>
@@ -446,6 +447,7 @@ function OverallReportView() {
                       {formatCurrency(item.totalOperational)}
                     </td>
                     <td>{formatCurrency(item.gas)}</td>
+                    <td>{formatCurrency(item.sppgRent)}</td>
                   </tr>
                 ))}
                 <tr className="reports-total-row">
@@ -471,6 +473,7 @@ function OverallReportView() {
                     {formatCurrency(report.totals.totalOperational)}
                   </td>
                   <td>{formatCurrency(report.totals.gas)}</td>
+                  <td>{formatCurrency(report.totals.sppgRent)}</td>
                 </tr>
               </tbody>
             </table>
