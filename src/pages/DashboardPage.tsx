@@ -920,7 +920,13 @@ export function DashboardPage() {
     setFormAccountId('')
     setFormSupplierId('')
     setFormAmount('')
-    setFormNote(value === 'ops_disbursement' ? 'Ops Harian' : '')
+    setFormNote(
+      value === 'gas'
+        ? 'Gas'
+        : value === 'ops_disbursement'
+          ? 'Ops Harian'
+          : ''
+    )
     setFormEntryUnlocked(false)
     setFormAccounts([])
     setFormSuppliers([])
