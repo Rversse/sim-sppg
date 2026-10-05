@@ -407,6 +407,7 @@ export async function getOverallReport(
       gas: totalGas,
       operational: totalOperational,
       realOperational: totalRealOperational,
+      sppgRent: totalSppgRent,
       totalRAB,
       totalOperational: totalOperationalNet
     }
