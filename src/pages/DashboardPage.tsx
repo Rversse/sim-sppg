@@ -1383,6 +1383,16 @@ export function DashboardPage() {
             />
           ) : null}
 
+          {includeSppgRent ? (
+            <button
+              type="button"
+              className="dashboard-transaction-action"
+              onClick={openCreateTransactionModal}
+            >
+              + Transaksi
+            </button>
+          ) : null}
+
           </div>
       </section>
 
@@ -1465,22 +1475,6 @@ export function DashboardPage() {
           </strong>
           <small>Total realisasi operasional pada periode terpilih</small>
         </article>
-        {includeSppgRent ? (
-          <article
-            className={`dashboard-kpi ${
-              filters.flowType === 'sppg_rent' ? 'dashboard-kpi-primary' : ''
-            }`}
-          >
-            <span className="dashboard-kpi-icon">
-              <Building2 aria-hidden="true" />
-            </span>
-            <span>Sewa SPPG</span>
-            <strong>
-              {loading ? 'Memuat…' : formatCurrency(summary.sppgRent)}
-            </strong>
-            <small>Total sewa SPPG pada periode terpilih</small>
-          </article>
-        ) : null}
       </section>
 
       <section className="dashboard-main-grid">
