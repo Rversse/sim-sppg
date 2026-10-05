@@ -695,7 +695,7 @@ function SppgRentReportView() {
           onClick={() => printReport()}
           disabled={!report || loading}
         >
-          Print Laporan
+          Print
         </button>
       </div>
 
@@ -715,54 +715,36 @@ function SppgRentReportView() {
           {report.rows.length === 0 ? (
             <EmptyState />
           ) : (
-            <>
-              <div className="reports-table-wrapper">
-                <table className="reports-table">
-                  <thead>
-                    <tr>
-                      <th>DAPUR</th>
-                      <th>HARI TERISI</th>
-                      <th>TOTAL SEWA SPPG</th>
+            <div className="reports-table-wrapper">
+              <table className="reports-table">
+                <thead>
+                  <tr>
+                    <th>DAPUR</th>
+                    <th>HARI TERISI</th>
+                    <th>TOTAL SEWA SPPG</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {report.rows.map((row) => (
+                    <tr key={row.kitchenId}>
+                      <td>{row.kitchenName}</td>
+                      <td>{row.dayCount}</td>
+                      <td>{formatCurrency(row.total)}</td>
                     </tr>
-                  </thead>
-                  <tbody>
-                    {report.rows.map((row) => (
-                      <tr key={row.kitchenId}>
-                        <td>{row.kitchenName}</td>
-                        <td>{row.dayCount}</td>
-                        <td>{formatCurrency(row.total)}</td>
-                      </tr>
-                    ))}
-                    <tr className="reports-total-row">
-                      <td>GRAND TOTAL</td>
-                      <td>{report.rows.reduce((total, row) => total + row.dayCount, 0)}</td>
-                      <td>{formatCurrency(report.grandTotal)}</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-
-              <div className="reports-table-wrapper reports-report-detail-table">
-                <table className="reports-table">
-                  <thead>
-                    <tr>
-                      <th>TANGGAL</th>
-                      <th>DAPUR</th>
-                      <th>NOMINAL</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {report.dailyRows.map((row, index) => (
-                      <tr key={`${row.date}-${row.kitchenId}-${index}`}>
-                        <td>{row.date}</td>
-                        <td>{row.kitchenName}</td>
-                        <td>{formatCurrency(row.amount)}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </>
+                  ))}
+                  <tr className="reports-total-row">
+                    <td>GRAND TOTAL</td>
+                    <td>
+                      {report.rows.reduce(
+                        (total, row) => total + row.dayCount,
+                        0
+                      )}
+                    </td>
+                    <td>{formatCurrency(report.grandTotal)}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
           )}
         </>
       )}
