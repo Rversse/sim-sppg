@@ -8,7 +8,7 @@ import { supabase } from '@/lib/supabase'
 import { SingleDatePicker } from '@/components/ui/date-picker'
 import { AnimatedSelect } from '@/components/ui/animated-select'
 import { DAILY_DISBURSEMENT_START_DATE } from '@/lib/app-config'
-import { formatDate, getTodayLocal } from '@/lib/formatters'
+import { getTodayLocal } from '@/lib/formatters'
 import {
   DISBURSEMENT_ITEMS,
   getDailyDisbursementKitchens,
@@ -192,16 +192,8 @@ export function DisbursementPage() {
 
   return (
     <div className="disbursement-page">
-      <section className="disbursement-header">
-        <div className="disbursement-header-copy">
-          <span>Checklist Pencairan Harian</span>
-          <p>
-            Mulai 5 Oktober 2026, checklist dilakukan setiap hari. Tidak ada
-            lagi konsep periode 14 hari.
-          </p>
-        </div>
-
-        <div className="disbursement-date-picker">
+      <section className="disbursement-toolbar">
+        <div className="disbursement-toolbar-field disbursement-toolbar-date">
           <SingleDatePicker
             label="Tanggal"
             value={selectedDate}
@@ -210,15 +202,39 @@ export function DisbursementPage() {
             onChange={setSelectedDate}
           />
         </div>
-      </section>
 
-      <section className="disbursement-filter-panel">
-        <AnimatedSelect
-          label="Dapur"
-          value={selectedKitchenId}
-          options={kitchenOptions}
-          onChange={setSelectedKitchenId}
-        />
+        <div className="disbursement-toolbar-field disbursement-toolbar-kitchen">
+          <AnimatedSelect
+            label="Dapur"
+            value={selectedKitchenId}
+            options={kitchenOptions}
+            onChange={setSelectedKitchenId}
+          />
+        </div>
+
+        <div className="disbursement-toolbar-progress">
+          <div className="disbursement-toolbar-progress-heading">
+            <span>Progress Checklist</span>
+            <strong>{summary.overallProgress}%</strong>
+          </div>
+
+          <div className="disbursement-toolbar-progress-cards">
+            <span className="is-danger" title="Dapur yang belum memulai checklist">
+              <b>{summary.notStartedCount}</b>
+              <small>Belum Mulai</small>
+            </span>
+
+            <span className="is-warning" title="Dapur yang checklist-nya masih berjalan">
+              <b>{summary.inProgressCount}</b>
+              <small>Berjalan</small>
+            </span>
+
+            <span className="is-success" title="Dapur yang seluruh checklist-nya selesai">
+              <b>{summary.completedKitchens}</b>
+              <small>Selesai</small>
+            </span>
+          </div>
+        </div>
 
         <button
           type="button"
@@ -253,44 +269,6 @@ export function DisbursementPage() {
         </section>
       ) : (
         <>
-          <section className="disbursement-summary-card">
-            <div className="disbursement-summary-main">
-              <div className="disbursement-summary-progress-label">
-                <span>Progress Checklist</span>
-                <strong>{summary.overallProgress}%</strong>
-              </div>
-              <small>Checklist {formatDate(selectedDate)}</small>
-            </div>
-
-            <div className="disbursement-status-summary">
-              <span className="is-danger">
-                <b>{summary.notStartedCount}</b>
-                <small>Belum Mulai</small>
-              </span>
-
-              <span className="is-warning">
-                <b>{summary.inProgressCount}</b>
-                <small>Berjalan</small>
-              </span>
-
-              <span className="is-success">
-                <b>{summary.completedKitchens}</b>
-                <small>Selesai</small>
-              </span>
-            </div>
-
-            <div
-              className="disbursement-progress-track"
-              role="progressbar"
-              aria-valuemin={0}
-              aria-valuemax={100}
-              aria-valuenow={summary.overallProgress}
-              aria-label="Progress Checklist"
-            >
-              <span style={{ width: `${summary.overallProgress}%` }} />
-            </div>
-          </section>
-
           <section className="disbursement-panel">
             <div className="disbursement-panel-header">
               <div>
