@@ -1,403 +1,209 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import {
-  ChevronLeft,
-  ChevronRight,
-  Search
-} from 'lucide-react'
+import { Check, RefreshCw } from 'lucide-react'
 
 import { canAccess } from '@/features/auth/role-policy'
 import { useAuth } from '@/features/auth/use-auth'
 import { useToast } from '@/features/ui/toast-context'
-import { supabase } from '@/lib/supabase'
 import {
-  calculateDisbursementProgress,
-  DISBURSEMENT_ITEMS,
-  getCurrentDisbursementPeriod,
-  getDisbursementPeriod,
-  getDisbursementPeriods,
-  getDisbursementProgressClass,
-  getDisbursementRows,
-  isDisbursementLocked,
-  saveDisbursementCheckbox,
-  summarizeDisbursementRows,
-  type DisbursementField,
-  type DisbursementPeriod,
-  type DisbursementRow,
-  type DisbursementSummary
+  getDailyDisbursementFlowClass,
+  getDailyDisbursementFlowLabel,
+  getDailyDisbursementKitchens,
+  getDailyDisbursementTransactions,
+  summarizeDailyDisbursementRows,
+  type DailyDisbursementTransaction
 } from '@/features/disbursement/disbursement-service'
+import { setTransactionDisbursed } from '@/features/transactions/transaction-service'
+import { SingleDatePicker } from '@/components/ui/date-picker'
+import { AnimatedSelect } from '@/components/ui/animated-select'
+import { DAILY_DISBURSEMENT_START_DATE } from '@/lib/app-config'
+import { formatCurrency, formatDate, getTodayLocal } from '@/lib/formatters'
+import { supabase } from '@/lib/supabase'
 
-const DISBURSEMENT_PERIOD_KEY = 'disbursement_selected_period'
+const FLOW_OPTIONS = [
+  { value: '', label: 'Semua pencairan' },
+  { value: 'income', label: 'RAB / Pencairan' },
+  { value: 'gas', label: 'OPS / Arutala' },
+  { value: 'ops_disbursement', label: 'OPS / Pencairan' }
+] as const
 
-function formatLongDate(value: string) {
-  const [year, month, day] = value.split('-').map(Number)
-
-  return new Intl.DateTimeFormat('id-ID', {
-    weekday: 'long',
-    day: '2-digit',
-    month: 'long',
-    year: 'numeric'
-  }).format(new Date(year, month - 1, day))
-}
-
-function formatPeriodMonth(value: string) {
-  const [year, month, day] = value.split('-').map(Number)
-
-  return new Intl.DateTimeFormat('id-ID', {
-    month: 'long',
-    year: 'numeric'
-  }).format(new Date(year, month - 1, day))
-}
-
-function getChecklistStatus(summary: DisbursementSummary) {
-  if (summary.completedKitchens === summary.totalKitchens) {
-    return 'Selesai'
+function formatAccount(transaction: DailyDisbursementTransaction) {
+  if (transaction.destination_label) {
+    return transaction.destination_label
   }
 
-  if (summary.completedKitchens > 0 || summary.inProgressCount > 0) {
-    return 'Berjalan'
+  if (!transaction.account) {
+    return '-'
   }
 
-  return 'Belum Mulai'
+  return transaction.account.name || transaction.account.bank || '-'
+}
+
+function formatAccountMeta(transaction: DailyDisbursementTransaction) {
+  if (!transaction.account) {
+    return ''
+  }
+
+  const number = transaction.account.account_number?.trim()
+
+  return [transaction.account.bank, number].filter(Boolean).join(' • ')
+}
+
+function groupRows(rows: DailyDisbursementTransaction[]) {
+  const groups = new Map<string, DailyDisbursementTransaction[]>()
+
+  for (const row of rows) {
+    const current = groups.get(row.kitchen_name) ?? []
+    current.push(row)
+    groups.set(row.kitchen_name, current)
+  }
+
+  return [...groups.entries()]
+    .sort(([a], [b]) => a.localeCompare(b, 'id'))
+    .map(([kitchenName, transactions]) => ({
+      kitchenName,
+      transactions
+    }))
 }
 
 export function DisbursementPage() {
   const { user } = useAuth()
-  const { error: toastError } = useToast()
+  const { error: toastError, success: toastSuccess } = useToast()
+
   const canView = canAccess(user?.role, 'disbursement.view')
+  const today = getTodayLocal()
 
-  const availablePeriods = useMemo(() => getDisbursementPeriods(), [])
-  const currentPeriod = useMemo(() => getCurrentDisbursementPeriod(), [])
-  const currentStoredPeriod = Number(
-    localStorage.getItem(DISBURSEMENT_PERIOD_KEY) ?? currentPeriod.number
+  const [selectedDate, setSelectedDate] = useState(
+    today < DAILY_DISBURSEMENT_START_DATE ? DAILY_DISBURSEMENT_START_DATE : today
   )
-  const initialPeriodNumber =
-    Number.isFinite(currentStoredPeriod) &&
-    currentStoredPeriod >= 1 &&
-    currentStoredPeriod <= currentPeriod.number
-      ? currentStoredPeriod
-      : currentPeriod.number
-
-  const [selectedPeriodNumber, setSelectedPeriodNumber] = useState(
-    initialPeriodNumber
-  )
-  const [periodPickerOpen, setPeriodPickerOpen] = useState(false)
-  const [periodSearch, setPeriodSearch] = useState('')
-  const [openYears, setOpenYears] = useState<Set<string>>(
-    () => new Set([getDisbursementPeriod(initialPeriodNumber).startDate.slice(0, 4)])
-  )
-  const [openMonths, setOpenMonths] = useState<Set<string>>(
-    () =>
-      new Set([
-        getDisbursementPeriod(initialPeriodNumber).startDate.slice(0, 7)
-      ])
-  )
-  const [rows, setRows] = useState<DisbursementRow[]>([])
+  const [selectedKitchenId, setSelectedKitchenId] = useState('')
+  const [selectedFlowType, setSelectedFlowType] = useState('')
+  const [kitchens, setKitchens] = useState<
+    Array<{ id: string; name: string }>
+  >([])
+  const [rows, setRows] = useState<DailyDisbursementTransaction[]>([])
   const [loading, setLoading] = useState(true)
-  const [savingKey, setSavingKey] = useState<string | null>(null)
+  const [savingId, setSavingId] = useState<string | null>(null)
   const [error, setError] = useState('')
 
-  const selectedPeriod = useMemo(
-    () => getDisbursementPeriod(selectedPeriodNumber),
-    [selectedPeriodNumber]
+  const kitchenOptions = useMemo(
+    () => [
+      { value: '', label: 'Semua dapur' },
+      ...kitchens.map((kitchen) => ({
+        value: kitchen.id,
+        label: kitchen.name
+      }))
+    ],
+    [kitchens]
   )
 
-  const locked = useMemo(
-    () => isDisbursementLocked(selectedPeriod.checklistDate),
-    [selectedPeriod.checklistDate]
+  const summary = useMemo(
+    () => summarizeDailyDisbursementRows(rows),
+    [rows]
   )
 
-  const filteredPeriods = useMemo(() => {
-    const query = periodSearch.trim().toLowerCase()
+  const groupedRows = useMemo(() => groupRows(rows), [rows])
 
-    if (!query) {
-      return availablePeriods
-    }
+  const loadData = useCallback(async () => {
+    setLoading(true)
 
-    return availablePeriods.filter((period) =>
-      [
-        String(period.number),
-        period.startDate,
-        period.endDate,
-        period.checklistDate,
-        period.label
-      ]
-        .join(' ')
-        .toLowerCase()
-        .includes(query)
-    )
-  }, [availablePeriods, periodSearch])
-
-  const groupedPeriods = useMemo(() => {
-    const yearGroups = new Map<
-      string,
-      Map<string, DisbursementPeriod[]>
-    >()
-
-    for (const period of filteredPeriods) {
-      const yearKey = period.startDate.slice(0, 4)
-      const monthKey = period.startDate.slice(0, 7)
-      const months =
-        yearGroups.get(yearKey) ??
-        new Map<string, DisbursementPeriod[]>()
-      const current = months.get(monthKey) ?? []
-
-      current.push(period)
-      months.set(monthKey, current)
-      yearGroups.set(yearKey, months)
-    }
-
-    return [...yearGroups.entries()].map(([year, months]) => ({
-      year,
-      months: [...months.entries()]
-    }))
-  }, [filteredPeriods])
-
-  const hasMultipleYears = groupedPeriods.length > 1
-
-  const summary = useMemo(() => summarizeDisbursementRows(rows), [rows])
-  const checklistStatus = useMemo(
-    () => getChecklistStatus(summary),
-    [summary]
-  )
-
-  const loadPeriodData = useCallback(async () => {
     try {
-      const nextRows = await getDisbursementRows(
-        selectedPeriod.checklistDate
-      )
+      const [nextRows, nextKitchens] = await Promise.all([
+        getDailyDisbursementTransactions(
+          selectedDate,
+          selectedKitchenId,
+          selectedFlowType
+        ),
+        kitchens.length ? Promise.resolve(kitchens) : getDailyDisbursementKitchens()
+      ])
 
       setRows(nextRows)
+      setKitchens(nextKitchens)
       setError('')
     } catch (loadError: unknown) {
       console.error(loadError)
-      const message =
+      setError(
         loadError instanceof Error
           ? loadError.message
-          : 'Gagal memuat data periode.'
-
-      setError(message)
+          : 'Gagal memuat checklist pencairan harian.'
+      )
     } finally {
       setLoading(false)
     }
-  }, [selectedPeriod.checklistDate])
+  }, [kitchens, selectedDate, selectedFlowType, selectedKitchenId])
 
   useEffect(() => {
-    localStorage.setItem(
-      DISBURSEMENT_PERIOD_KEY,
-      String(selectedPeriod.number)
-    )
-  }, [selectedPeriod.number])
-
-  useEffect(() => {
-    let cancelled = false
-
     const timer = window.setTimeout(() => {
-      void loadPeriodData().finally(() => {
-        if (!cancelled) {
-          setLoading(false)
-        }
-      })
+      void loadData()
     }, 0)
 
     return () => {
-      cancelled = true
       window.clearTimeout(timer)
     }
-  }, [loadPeriodData])
+  }, [loadData])
 
   useEffect(() => {
-    if (!periodPickerOpen) {
-      return
-    }
-
-    function handleKeyDown(event: KeyboardEvent) {
-      if (event.key === 'Escape') {
-        setPeriodPickerOpen(false)
-      }
-    }
-
-    window.addEventListener('keydown', handleKeyDown)
-
-    return () => {
-      window.removeEventListener('keydown', handleKeyDown)
-    }
-  }, [periodPickerOpen])
-
-  useEffect(() => {
-    let cancelled = false
-    let refreshInFlight = false
-    let refreshQueued = false
-    let refreshTimer: ReturnType<typeof setTimeout> | null = null
-
-    const scheduleRealtimeRefresh = () => {
-      if (cancelled || refreshTimer !== null) {
-        return
-      }
-
-      refreshTimer = setTimeout(() => {
-        refreshTimer = null
-
-        if (cancelled) {
-          return
-        }
-
-        if (refreshInFlight) {
-          refreshQueued = true
-          return
-        }
-
-        refreshInFlight = true
-
-        void loadPeriodData()
-          .catch((refreshError: unknown) => {
-            console.error(
-              'Gagal memperbarui checklist periode dari Realtime:',
-              refreshError
-            )
-          })
-          .finally(() => {
-            refreshInFlight = false
-
-            if (refreshQueued && !cancelled) {
-              refreshQueued = false
-              scheduleRealtimeRefresh()
-            }
-          })
-      }, 150)
-    }
-
     const channel = supabase
-      .channel(
-        `disbursement-period-live-${selectedPeriod.number}-${Date.now()}`
-      )
+      .channel(`daily-disbursement-${selectedDate}`)
       .on(
         'postgres_changes',
         {
           event: '*',
           schema: 'public',
-          table: 'disbursement_checklists'
+          table: 'transactions'
         },
-        scheduleRealtimeRefresh
-      )
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'kitchens'
-        },
-        scheduleRealtimeRefresh
-      )
-      .subscribe((status) => {
-        if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
-          if (!cancelled) {
-            console.warn(`[Disbursement Period Realtime] ${status}`)
-          }
+        () => {
+          void loadData()
         }
-      })
+      )
+      .subscribe()
 
     return () => {
-      cancelled = true
-
-      if (refreshTimer !== null) {
-        clearTimeout(refreshTimer)
-      }
-
       void supabase.removeChannel(channel)
     }
-  }, [loadPeriodData, selectedPeriod.number])
-
-  function selectPeriod(periodNumber: number) {
-    setLoading(true)
-    setPeriodSearch('')
-
-    const nextPeriod = getDisbursementPeriod(periodNumber)
-    setOpenYears(new Set([nextPeriod.startDate.slice(0, 4)]))
-    setOpenMonths(new Set([nextPeriod.startDate.slice(0, 7)]))
-    setPeriodPickerOpen(false)
-    setSelectedPeriodNumber(periodNumber)
-  }
-
-  function goToPreviousPeriod() {
-    if (selectedPeriod.number <= 1) {
-      return
-    }
-
-    selectPeriod(selectedPeriod.number - 1)
-  }
-
-  function goToNextPeriod() {
-    if (selectedPeriod.number >= currentPeriod.number) {
-      return
-    }
-
-    selectPeriod(selectedPeriod.number + 1)
-  }
+  }, [loadData, selectedDate])
 
   async function handleToggle(
-    row: DisbursementRow,
-    field: DisbursementField,
-    value: boolean
+    transaction: DailyDisbursementTransaction,
+    checked: boolean
   ) {
-    if (!canView || locked || savingKey) return
+    if (savingId) return
 
-    const key = `${row.kitchen.id}:${field}`
-    setSavingKey(key)
+    setSavingId(transaction.id)
     setError('')
 
     setRows((current) =>
-      current.map((item) => {
-        if (item.kitchen.id !== row.kitchen.id) {
-          return item
-        }
-
-        const nextChecklist = item.checklist
-          ? { ...item.checklist, [field]: value }
-          : {
-              id: '',
-              kitchen_id: row.kitchen.id,
-              checklist_date: selectedPeriod.checklistDate,
-              relawan: false,
-              pic_sekolah: false,
-              kader_posyandu: false,
-              sewa_kendaraan: false,
-              fasilitas_sppg: false,
-              [field]: value
-            }
-
-        return {
-          ...item,
-          checklist: nextChecklist,
-          progress: calculateDisbursementProgress(nextChecklist)
-        }
-      })
+      current.map((row) =>
+        row.id === transaction.id
+          ? { ...row, is_disbursed: checked }
+          : row
+      )
     )
 
     try {
-      await saveDisbursementCheckbox(
-        row.kitchen.id,
-        selectedPeriod.checklistDate,
-        field,
-        value
+      await setTransactionDisbursed(transaction.id, checked)
+      toastSuccess(
+        checked ? 'Pencairan ditandai selesai' : 'Checklist dibatalkan',
+        `${transaction.kitchen_name} • ${getDailyDisbursementFlowLabel(transaction.flow_type)}`
       )
     } catch (saveError: unknown) {
       console.error(saveError)
-
-      try {
-        await loadPeriodData()
-      } catch (reloadError) {
-        console.error(reloadError)
-      }
+      setRows((current) =>
+        current.map((row) =>
+          row.id === transaction.id
+            ? { ...row, is_disbursed: transaction.is_disbursed }
+            : row
+        )
+      )
 
       const message =
         saveError instanceof Error
           ? saveError.message
-          : 'Gagal menyimpan checklist pencairan.'
+          : 'Gagal menyimpan checklist.'
 
       setError(message)
       toastError('Checklist gagal disimpan', message)
     } finally {
-      setSavingKey(null)
+      setSavingId(null)
     }
   }
 
@@ -411,178 +217,21 @@ export function DisbursementPage() {
     <div className="disbursement-page">
       <section className="disbursement-header">
         <div className="disbursement-header-copy">
-          <span>Checklist Pencairan Periode</span>
+          <span>Checklist Pencairan Harian</span>
           <p>
-            Hanya Admin. Satu periode berlangsung 14 hari dan checklist
-            pencairan dilakukan pada Jumat minggu kedua.
+            Mulai 5 Oktober 2026, pencairan dicek per transaksi setiap hari.
+            RAB / Real dan OPS / Real tidak masuk checklist.
           </p>
         </div>
 
-        <div className="disbursement-period-picker">
-          <div className="disbursement-period-picker-actions">
-            <button
-              type="button"
-              className="disbursement-period-nav"
-              onClick={goToPreviousPeriod}
-              disabled={selectedPeriod.number <= 1}
-              aria-label="Periode sebelumnya"
-              title="Periode sebelumnya"
-            >
-              <ChevronLeft aria-hidden="true" />
-            </button>
-
-            <button
-              type="button"
-              className="disbursement-period-trigger"
-              onClick={() => setPeriodPickerOpen((current) => !current)}
-              aria-expanded={periodPickerOpen}
-              aria-haspopup="dialog"
-            >
-              <span className="disbursement-period-trigger-kicker">
-                PERIODE {selectedPeriod.number}
-              </span>
-              <strong>{selectedPeriod.label}</strong>
-              <small>
-                Checklist / pencairan: {formatLongDate(selectedPeriod.checklistDate)}
-              </small>
-            </button>
-
-            <button
-              type="button"
-              className="disbursement-period-nav"
-              onClick={goToNextPeriod}
-              disabled={selectedPeriod.number >= currentPeriod.number}
-              aria-label="Periode berikutnya"
-              title="Periode berikutnya"
-            >
-              <ChevronRight aria-hidden="true" />
-            </button>
-          </div>
-
-          {periodPickerOpen ? (
-            <div className="disbursement-period-picker-popover" role="dialog">
-              <div className="disbursement-period-search">
-                <Search aria-hidden="true" />
-                <input
-                  type="search"
-                  value={periodSearch}
-                  onChange={(event) => setPeriodSearch(event.target.value)}
-                  placeholder="Cari periode, tanggal, atau tahun..."
-                  autoFocus
-                />
-              </div>
-
-              <div className="disbursement-period-list">
-                {groupedPeriods.length === 0 ? (
-                  <div className="disbursement-period-empty">
-                    Periode tidak ditemukan.
-                  </div>
-                ) : (
-                  groupedPeriods.map(({ year, months }) => {
-                    const yearOpen =
-                      !hasMultipleYears ||
-                      periodSearch.trim() !== '' ||
-                      openYears.has(year)
-
-                    return (
-                      <section
-                        className="disbursement-period-year-group"
-                        key={year}
-                      >
-                        {hasMultipleYears ? (
-                          <button
-                            type="button"
-                            className={'disbursement-period-year-toggle ' + (yearOpen ? 'is-open' : '')}
-                            onClick={() =>
-                              setOpenYears((current) => {
-                                const next = new Set(current)
-
-                                if (next.has(year)) {
-                                  next.delete(year)
-                                } else {
-                                  next.add(year)
-                                }
-
-                                return next
-                              })
-                            }
-                            aria-expanded={yearOpen}
-                          >
-                            <ChevronRight aria-hidden="true" />
-                            <span>{year}</span>
-                          </button>
-                        ) : null}
-
-                        {yearOpen ? (
-                          <div className="disbursement-period-months">
-                            {months.map(([monthKey, periods]) => {
-                              const monthOpen =
-                                periodSearch.trim() !== '' ||
-                                openMonths.has(monthKey)
-
-                              return (
-                                <section
-                                  className="disbursement-period-group"
-                                  key={monthKey}
-                                >
-                                  <button
-                                    type="button"
-                                    className={'disbursement-period-month-toggle ' + (monthOpen ? 'is-open' : '')}
-                                    onClick={() =>
-                                      setOpenMonths((current) => {
-                                        const next = new Set(current)
-
-                                        if (next.has(monthKey)) {
-                                          next.delete(monthKey)
-                                        } else {
-                                          next.add(monthKey)
-                                        }
-
-                                        return next
-                                      })
-                                    }
-                                    aria-expanded={monthOpen}
-                                  >
-                                    <ChevronRight aria-hidden="true" />
-                                    <span>
-                                      {formatPeriodMonth(periods[0].startDate)}
-                                    </span>
-                                    <small>{periods.length} periode</small>
-                                  </button>
-
-                                  {monthOpen ? (
-                                    <div>
-                                      {periods.map((period) => (
-                                        <button
-                                          type="button"
-                                          className={
-                                            period.number === selectedPeriod.number
-                                              ? 'is-active'
-                                              : ''
-                                          }
-                                          key={period.number}
-                                          onClick={() => selectPeriod(period.number)}
-                                        >
-                                          <span>Periode {period.number}</span>
-                                          <small>
-                                            {period.startDate} — {period.endDate}
-                                          </small>
-                                        </button>
-                                      ))}
-                                    </div>
-                                  ) : null}
-                                </section>
-                              )
-                            })}
-                          </div>
-                        ) : null}
-                      </section>
-                    )
-                  })
-                )}
-              </div>
-            </div>
-          ) : null}
+        <div className="disbursement-date-picker">
+          <SingleDatePicker
+            label="Tanggal Pencairan"
+            value={selectedDate}
+            minDate={DAILY_DISBURSEMENT_START_DATE}
+            maxDate={today}
+            onChange={setSelectedDate}
+          />
         </div>
       </section>
 
@@ -592,14 +241,42 @@ export function DisbursementPage() {
         </div>
       ) : null}
 
+      <section className="disbursement-filter-panel">
+        <AnimatedSelect
+          label="Dapur"
+          value={selectedKitchenId}
+          options={kitchenOptions}
+          onChange={setSelectedKitchenId}
+        />
+
+        <AnimatedSelect
+          label="Jenis pencairan"
+          value={selectedFlowType}
+          options={FLOW_OPTIONS.map((option) => ({
+            value: option.value,
+            label: option.label
+          }))}
+          onChange={setSelectedFlowType}
+        />
+
+        <button
+          type="button"
+          className="disbursement-refresh-button"
+          onClick={() => void loadData()}
+          disabled={loading}
+        >
+          <RefreshCw aria-hidden="true" className={loading ? 'is-spinning' : ''} />
+          Segarkan
+        </button>
+      </section>
+
       {loading ? (
         <section
           className="disbursement-panel disbursement-loading"
           aria-busy="true"
-          aria-label="Memuat data periode"
+          aria-label="Memuat checklist"
         >
           <div className="disbursement-skeleton disbursement-skeleton-summary" />
-          <div className="disbursement-skeleton" />
           <div className="disbursement-skeleton" />
           <div className="disbursement-skeleton" />
         </section>
@@ -607,127 +284,169 @@ export function DisbursementPage() {
         <>
           <section className="disbursement-summary-card">
             <div className="disbursement-summary-main">
-              <div className="disbursement-summary-progress-label">
-                <span>Progress Checklist</span>
-                <strong>{summary.overallProgress}%</strong>
+              <div>
+                <span className="disbursement-summary-kicker">
+                  Checklist {formatDate(selectedDate)}
+                </span>
+                <strong>
+                  {summary.checkedTransactions} / {summary.totalTransactions}
+                </strong>
+                <small>transaksi sudah dicek</small>
+              </div>
+
+              <div className="disbursement-progress-track">
+                <span style={{ width: `${summary.progress}%` }} />
               </div>
             </div>
 
             <div className="disbursement-status-summary">
-              <span className="is-danger">
-                <b>{summary.notStartedCount}</b>
-                <small>Belum Mulai</small>
-              </span>
-
-              <span className="is-warning">
-                <b>{summary.inProgressCount}</b>
-                <small>Berjalan</small>
-              </span>
-
               <span className="is-success">
-                <b>{summary.completedKitchens}</b>
-                <small>Selesai</small>
+                <b>{summary.checkedTransactions}</b>
+                <small>Sudah Dicek</small>
+              </span>
+              <span className="is-warning">
+                <b>{summary.pendingTransactions}</b>
+                <small>Belum Dicek</small>
+              </span>
+              <span>
+                <b>{formatCurrency(summary.totalAmount)}</b>
+                <small>Total Pencairan</small>
               </span>
             </div>
-
-            <div className="disbursement-period-status">
-              Status periode: <strong>{checklistStatus}</strong>
-            </div>
-
-            <div
-              className="disbursement-progress-track"
-              role="progressbar"
-              aria-valuemin={0}
-              aria-valuemax={100}
-              aria-valuenow={summary.overallProgress}
-              aria-label="Progress Checklist"
-            >
-              <span style={{ width: `${summary.overallProgress}%` }} />
-            </div>
-
-            {locked ? (
-              <div className="disbursement-lock">
-                Data terkunci karena tanggal checklist sudah lebih dari 7 hari
-                berlalu.
-              </div>
-            ) : null}
           </section>
 
           <section className="disbursement-panel">
             <div className="disbursement-panel-header">
               <div>
-                <h2>Checklist Pencairan</h2>
+                <h2>Daftar Pencairan</h2>
                 <p>
-                  Centang komponen yang sudah dicek untuk setiap dapur.
-                  Perubahan tersimpan otomatis.
+                  Centang satu per satu transaksi yang sudah selesai dicek /
+                  dicairkan.
                 </p>
               </div>
-              <span>{rows.length} dapur</span>
+              <span>{rows.length} transaksi</span>
             </div>
 
             {rows.length === 0 ? (
               <div className="disbursement-empty">
-                Tidak ada dapur yang masuk daftar pencairan.
+                Tidak ada transaksi pencairan untuk tanggal dan filter ini.
               </div>
             ) : (
-              <div className="disbursement-table-wrap">
-                <table className="disbursement-table">
-                  <thead>
-                    <tr>
-                      <th scope="col">Dapur</th>
-                      {DISBURSEMENT_ITEMS.map((item) => (
-                        <th key={item.key} scope="col">
-                          {item.label}
-                        </th>
-                      ))}
-                      <th scope="col">Progress</th>
-                    </tr>
-                  </thead>
+              <div className="disbursement-kitchen-groups">
+                {groupedRows.map((group) => (
+                  <section
+                    className="disbursement-kitchen-group"
+                    key={group.kitchenName}
+                  >
+                    <div className="disbursement-kitchen-group-header">
+                      <strong>{group.kitchenName}</strong>
+                      <span>
+                        {group.transactions.filter((row) => row.is_disbursed).length}
+                        /{group.transactions.length} dicek
+                      </span>
+                    </div>
 
-                  <tbody>
-                    {rows.map((row) => (
-                      <tr key={row.kitchen.id}>
-                        <td>
-                          <strong>{row.kitchen.name}</strong>
-                        </td>
+                    <div className="disbursement-table-wrap">
+                      <table className="disbursement-table">
+                        <thead>
+                          <tr>
+                            <th>Jenis</th>
+                            <th>Catatan</th>
+                            <th>Tujuan / Rekening</th>
+                            <th>Nominal</th>
+                            <th>Status</th>
+                            <th>Cek</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {group.transactions.map((transaction) => {
+                            const flowLabel = getDailyDisbursementFlowLabel(
+                              transaction.flow_type
+                            )
+                            const flowClass = getDailyDisbursementFlowClass(
+                              transaction.flow_type
+                            )
 
-                        {DISBURSEMENT_ITEMS.map((item) => {
-                          const checked = Boolean(row.checklist?.[item.key])
-
-                          return (
-                            <td key={item.key}>
-                              <label className="disbursement-checkbox">
-                                <input
-                                  type="checkbox"
-                                  checked={checked}
-                                  disabled={locked || Boolean(savingKey)}
-                                  onChange={(event) =>
-                                    void handleToggle(
-                                      row,
-                                      item.key,
-                                      event.target.checked
-                                    )
-                                  }
-                                />
-                                <span />
-                              </label>
-                            </td>
-                          )
-                        })}
-
-                        <td>
-                          <span
-                            className={`disbursement-progress-badge ${getDisbursementProgressClass(row.progress)}`}
-                          >
-                            {row.progress === 100
-                              ? '✓ Selesai'
-                              : `${row.progress}%`}
-                          </span>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+                            return (
+                              <tr
+                                key={transaction.id}
+                                className={
+                                  transaction.is_disbursed
+                                    ? 'is-checked'
+                                    : 'is-pending'
+                                }
+                              >
+                                <td>
+                                  <span
+                                    className={`disbursement-flow-badge disbursement-flow-badge--${flowClass}`}
+                                  >
+                                    {flowLabel}
+                                  </span>
+                                </td>
+                                <td>
+                                  <span className="disbursement-note">
+                                    {transaction.note?.trim() || '-'}
+                                  </span>
+                                </td>
+                                <td>
+                                  <div className="disbursement-destination">
+                                    <strong>{formatAccount(transaction)}</strong>
+                                    {formatAccountMeta(transaction) ? (
+                                      <small>{formatAccountMeta(transaction)}</small>
+                                    ) : null}
+                                  </div>
+                                </td>
+                                <td>
+                                  <strong className="disbursement-amount">
+                                    {formatCurrency(transaction.amount)}
+                                  </strong>
+                                </td>
+                                <td>
+                                  <span
+                                    className={
+                                      transaction.is_disbursed
+                                        ? 'disbursement-check-status is-checked'
+                                        : 'disbursement-check-status is-pending'
+                                    }
+                                  >
+                                    {transaction.is_disbursed
+                                      ? 'Sudah dicek'
+                                      : 'Belum dicek'}
+                                  </span>
+                                </td>
+                                <td>
+                                  <label className="disbursement-checkbox">
+                                    <input
+                                      type="checkbox"
+                                      checked={transaction.is_disbursed}
+                                      disabled={savingId === transaction.id}
+                                      onChange={(event) =>
+                                        void handleToggle(
+                                          transaction,
+                                          event.target.checked
+                                        )
+                                      }
+                                    />
+                                    <span aria-hidden="true">
+                                      {transaction.is_disbursed ? (
+                                        <Check aria-hidden="true" />
+                                      ) : null}
+                                    </span>
+                                    <span className="sr-only">
+                                      {transaction.is_disbursed
+                                        ? 'Batalkan checklist'
+                                        : 'Tandai sudah dicek'}
+                                    </span>
+                                  </label>
+                                </td>
+                              </tr>
+                            )
+                          })}
+                        </tbody>
+                      </table>
+                    </div>
+                  </section>
+                ))}
               </div>
             )}
           </section>
@@ -736,3 +455,5 @@ export function DisbursementPage() {
     </div>
   )
 }
+
+export default DisbursementPage
