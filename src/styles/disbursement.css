@@ -1037,3 +1037,177 @@
     animation: none;
   }
 }
+
+
+/* =========================================================
+   UNIFIED DAILY CHECKLIST TOOLBAR
+   ========================================================= */
+
+.disbursement-toolbar {
+  display: grid;
+  grid-template-columns: minmax(220px, 0.9fr) minmax(220px, 0.9fr) minmax(380px, 1.6fr) auto;
+  align-items: stretch;
+  gap: 10px;
+  width: 100%;
+  min-width: 0;
+  padding: 10px;
+  box-sizing: border-box;
+  border: 1px solid var(--app-border-strong);
+  border-radius: 14px;
+  background: var(--theme-surface);
+  box-shadow: var(--app-shadow-card);
+}
+
+.disbursement-toolbar-field,
+.disbursement-toolbar-field .single-date-picker,
+.disbursement-toolbar-field .animated-select {
+  width: 100%;
+  min-width: 0;
+}
+
+.disbursement-toolbar-field {
+  display: flex;
+  min-width: 0;
+  align-items: stretch;
+}
+
+.disbursement-toolbar-progress {
+  display: grid;
+  min-width: 0;
+  grid-template-columns: auto minmax(260px, 1fr);
+  align-items: center;
+  gap: 12px;
+  padding: 7px 9px;
+  border: 1px solid var(--theme-border);
+  border-radius: 11px;
+  background: var(--theme-surface-soft);
+}
+
+.disbursement-toolbar-progress-heading {
+  display: grid;
+  min-width: 110px;
+  gap: 2px;
+}
+
+.disbursement-toolbar-progress-heading span {
+  color: var(--theme-text-secondary);
+  font-size: 8px;
+  font-weight: 900;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.disbursement-toolbar-progress-heading strong {
+  color: var(--theme-text-primary);
+  font-size: 20px;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.disbursement-toolbar-progress-cards {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+  min-width: 0;
+}
+
+.disbursement-toolbar-progress-cards > span {
+  display: grid;
+  min-width: 0;
+  min-height: 50px;
+  place-items: center;
+  align-content: center;
+  gap: 3px;
+  padding: 6px 5px;
+  border: 1px solid var(--theme-border);
+  border-radius: 9px;
+  text-align: center;
+}
+
+.disbursement-toolbar-progress-cards > span b {
+  color: inherit;
+  font-size: 13px;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.disbursement-toolbar-progress-cards > span small {
+  color: inherit;
+  font-size: 7px;
+  font-weight: 800;
+  line-height: 1.1;
+  white-space: nowrap;
+}
+
+.disbursement-toolbar-progress-cards > .is-danger {
+  border-color: color-mix(in srgb, var(--theme-danger) 28%, var(--theme-border));
+  background: var(--theme-danger-soft);
+  color: var(--theme-danger);
+}
+
+.disbursement-toolbar-progress-cards > .is-warning {
+  border-color: color-mix(in srgb, var(--theme-warning) 28%, var(--theme-border));
+  background: var(--theme-warning-soft);
+  color: var(--theme-warning);
+}
+
+.disbursement-toolbar-progress-cards > .is-success {
+  border-color: color-mix(in srgb, var(--theme-success) 28%, var(--theme-border));
+  background: var(--theme-success-soft);
+  color: var(--theme-success);
+}
+
+.disbursement-toolbar .disbursement-refresh-button {
+  align-self: stretch;
+  min-width: 104px;
+  height: 100%;
+  min-height: 0;
+}
+
+@media (max-width: 1250px) {
+  .disbursement-toolbar {
+    grid-template-columns: minmax(190px, 0.8fr) minmax(190px, 0.8fr);
+  }
+
+  .disbursement-toolbar-progress {
+    grid-column: 1 / -1;
+    grid-template-columns: auto minmax(300px, 1fr);
+  }
+
+  .disbursement-toolbar .disbursement-refresh-button {
+    grid-column: 1 / -1;
+    min-height: 42px;
+    height: auto;
+  }
+}
+
+@media (max-width: 760px) {
+  .disbursement-toolbar {
+    grid-template-columns: 1fr;
+    gap: 8px;
+    padding: 9px;
+  }
+
+  .disbursement-toolbar-progress {
+    grid-column: auto;
+    grid-template-columns: 1fr;
+    gap: 7px;
+  }
+
+  .disbursement-toolbar-progress-heading {
+    min-width: 0;
+    grid-template-columns: auto auto;
+    align-items: baseline;
+    justify-content: space-between;
+  }
+
+  .disbursement-toolbar-progress-cards {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .disbursement-toolbar .disbursement-refresh-button {
+    grid-column: auto;
+    min-height: 42px;
+    height: auto;
+  }
+}
