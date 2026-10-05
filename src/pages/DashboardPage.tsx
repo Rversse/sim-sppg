@@ -390,7 +390,7 @@ export function DashboardPage() {
         setError('Gagal memuat halaman riwayat transaksi.')
       }
     },
-    [filters]
+    [filters, user?.role]
   )
 
   const refreshDashboard = useCallback(
