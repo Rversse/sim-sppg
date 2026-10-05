@@ -209,6 +209,8 @@ export function DisbursementPage() {
 
   if (!user) return null
 
+  if (!user) return null
+
   if (!canView) {
     return <div className="app-access-denied">Akses ditolak.</div>
   }
