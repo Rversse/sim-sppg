@@ -670,8 +670,7 @@ function SppgRentReportView() {
     setEndDate,
     report,
     loading,
-    error,
-    setError
+    error
   } = useReportData(
     loadSppgRentReport,
     'Gagal memuat laporan Sewa SPPG'
