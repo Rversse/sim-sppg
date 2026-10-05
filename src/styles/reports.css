@@ -785,3 +785,7 @@
   white-space: normal;
   line-height: 1.15;
 }
+
+.reports-table-overall thead th.reports-col-sppg-rent {
+  color: #a16207;
+}

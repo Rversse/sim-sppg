@@ -21,6 +21,7 @@ export type OverallKitchenReport = {
   gas: number
   operational: number
   realOperational: number
+  sppgRent: number
   totalRAB: number
   totalOperational: number
 }
@@ -32,6 +33,7 @@ export type OverallDailyReport = {
   gas: number
   operational: number
   realOperational: number
+  sppgRent: number
   totalRAB: number
   totalOperational: number
 }
@@ -45,6 +47,7 @@ export type OverallReport = {
     gas: number
     operational: number
     realOperational: number
+    sppgRent: number
     totalRAB: number
     totalOperational: number
   }
@@ -226,7 +229,6 @@ async function getReportTransactions(
       )
       .gte('transaction_date', filters.startDate)
       .lte('transaction_date', filters.endDate)
-      .neq('flow_type', 'sppg_rent')
       .order('transaction_date', { ascending: false })
       .order('created_at', { ascending: false })
       .range(from, from + pageSize - 1)
@@ -289,6 +291,7 @@ export async function getOverallReport(
       gas: 0,
       operational: 0,
       realOperational: 0,
+      sppgRent: 0,
       totalRAB: 0,
       totalOperational: 0
     })
@@ -322,6 +325,8 @@ export async function getOverallReport(
       kitchen.operational += amount
     } else if (transaction.flow_type === 'real_ops') {
       kitchen.realOperational += amount
+    } else if (transaction.flow_type === 'sppg_rent') {
+      kitchen.sppgRent += amount
     }
 
     let dailyRow = daily.get(transaction.transaction_date)
@@ -334,6 +339,7 @@ export async function getOverallReport(
         gas: 0,
         operational: 0,
         realOperational: 0,
+        sppgRent: 0,
         totalRAB: 0,
         totalOperational: 0
       }
@@ -354,6 +360,8 @@ export async function getOverallReport(
       dailyRow.operational += amount
     } else if (transaction.flow_type === 'real_ops') {
       dailyRow.realOperational += amount
+    } else if (transaction.flow_type === 'sppg_rent') {
+      dailyRow.sppgRent += amount
     }
   }
 
@@ -362,6 +370,7 @@ export async function getOverallReport(
   let totalGas = 0
   let totalOperational = 0
   let totalRealOperational = 0
+  let totalSppgRent = 0
   let totalRAB = 0
   let totalOperationalNet = 0
 
@@ -375,6 +384,7 @@ export async function getOverallReport(
     totalGas += kitchen.gas
     totalOperational += kitchen.operational
     totalRealOperational += kitchen.realOperational
+    totalSppgRent += kitchen.sppgRent
     totalRAB += kitchen.totalRAB
     totalOperationalNet += kitchen.totalOperational
   }
@@ -397,6 +407,7 @@ export async function getOverallReport(
       gas: totalGas,
       operational: totalOperational,
       realOperational: totalRealOperational,
+      sppgRent: totalSppgRent,
       totalRAB,
       totalOperational: totalOperationalNet
     }
