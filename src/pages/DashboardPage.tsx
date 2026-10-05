@@ -192,7 +192,7 @@ type StatusData = Awaited<ReturnType<typeof getDailyStatus>>
 
 export function DashboardPage() {
   const { user } = useAuth()
-  const includeSppgRent = includeSppgRent
+  const includeSppgRent = user?.role === 'admin'
   const today = getTodayLocal()
 
   const [filters, setFilters] = useState<DashboardFilters>({
