@@ -211,7 +211,9 @@
 }
 
 .reports-summary-grid.reports-summary-overall {
-  grid-template-columns: repeat(5, minmax(0, 245px));
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  max-width: 1500px;
+  margin-inline: auto;
 }
 
 .reports-summary-grid.reports-summary-single {
@@ -260,6 +262,10 @@
 
 .reports-summary-overall .reports-summary-card:nth-child(5) {
   border-left-color: #2563eb;
+}
+
+.reports-summary-overall .reports-summary-card:nth-child(6) {
+  border-left-color: #a16207;
 }
 
 .reports-summary-card > span {
@@ -727,7 +733,7 @@
   }
 
   .reports-summary-grid {
-    grid-template-columns: repeat(5, minmax(0, 1fr));
+    grid-template-columns: repeat(6, minmax(0, 1fr));
     gap: 8px;
   }
 
