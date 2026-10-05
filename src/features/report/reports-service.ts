@@ -112,7 +112,14 @@ export type SppgRentReport = {
 type ReportTransaction = {
   amount: number | string | null
   transaction_date: string
-  flow_type: 'income' | 'expense' | 'gas' | 'ops_disbursement' | 'real_ops' | 'neutral'
+  flow_type:
+    | 'income'
+    | 'expense'
+    | 'gas'
+    | 'ops_disbursement'
+    | 'real_ops'
+    | 'sppg_rent'
+    | 'neutral'
   kitchen_id: string | null
   created_at: string
   suppliers?:
