@@ -364,6 +364,27 @@ export async function updateTransaction(
   return data
 }
 
+export async function setTransactionDisbursed(
+  transactionId: string,
+  isDisbursed: boolean,
+  client: SupabaseClient = supabase
+) {
+  if (!transactionId) {
+    throw new Error('ID transaksi tidak ditemukan')
+  }
+
+  const { data, error } = await client.rpc('set_transaction_disbursed', {
+    p_transaction_id: transactionId,
+    p_is_disbursed: isDisbursed
+  })
+
+  if (error) {
+    throw error
+  }
+
+  return data
+}
+
 export async function setKitchenDisbursementStatus(
   kitchenId: string,
   statusDate: string,
