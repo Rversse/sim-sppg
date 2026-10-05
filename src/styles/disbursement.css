@@ -1211,3 +1211,18 @@
     height: auto;
   }
 }
+
+
+/* Align shared date picker with the 56px dashboard/select controls. */
+.disbursement-toolbar-date .single-date-picker__trigger {
+  box-sizing: border-box;
+  min-height: 56px;
+  height: 56px;
+}
+
+@media (max-width: 560px) {
+  .disbursement-toolbar-date .single-date-picker__trigger {
+    min-height: 56px;
+    height: 56px;
+  }
+}
