@@ -218,7 +218,8 @@ export function DashboardPage() {
     gas: 0,
     operational: 0,
     operationalDisbursement: 0,
-    realOperational: 0
+    realOperational: 0,
+    sppgRent: 0
   })
   const [transactions, setTransactions] = useState<DashboardTransaction[]>([])
   const [totalTransactions, setTotalTransactions] = useState(0)
@@ -1472,6 +1473,22 @@ export function DashboardPage() {
           </strong>
           <small>Total realisasi operasional pada periode terpilih</small>
         </article>
+        {user?.role === 'admin' ? (
+          <article
+            className={`dashboard-kpi ${
+              filters.flowType === 'sppg_rent' ? 'dashboard-kpi-primary' : ''
+            }`}
+          >
+            <span className="dashboard-kpi-icon">
+              <Building2 aria-hidden="true" />
+            </span>
+            <span>Sewa SPPG</span>
+            <strong>
+              {loading ? 'Memuat…' : formatCurrency(summary.sppgRent)}
+            </strong>
+            <small>Total sewa SPPG pada periode terpilih</small>
+          </article>
+        ) : null}
       </section>
 
       <section className="dashboard-main-grid">
