@@ -405,6 +405,11 @@ function OverallReportView() {
               value={report.totals.gas}
               note="Total operasional masuk ke rekening Arutala pada periode terpilih"
             />
+            <SummaryCard
+              label="Sewa SPPG"
+              value={report.totals.sppgRent}
+              note="Total sewa SPPG pada periode terpilih"
+            />
           </div>
 
           <div className="reports-table-wrapper">

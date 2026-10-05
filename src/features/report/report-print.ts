@@ -178,7 +178,7 @@ function printReport() {
 
     .reports-summary-grid {
       display: grid !important;
-      grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+      grid-template-columns: repeat(6, minmax(0, 1fr)) !important;
       gap: 8px !important;
       margin-bottom: 14px !important;
     }
@@ -262,6 +262,11 @@ function printReport() {
     .reports-summary-overall .reports-summary-card:nth-child(5) > span,
     .reports-summary-overall .reports-summary-card:nth-child(5) > strong {
       color: #2563EB !important;
+    }
+
+    .reports-summary-overall .reports-summary-card:nth-child(6) > span,
+    .reports-summary-overall .reports-summary-card:nth-child(6) > strong {
+      color: #A16207 !important;
     }
 
     .reports-summary-card > small {
