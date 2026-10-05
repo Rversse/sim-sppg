@@ -418,7 +418,8 @@ export async function getDashboardTransactionPage(
 
 export async function getDailyStatus(
   selectedDate: string,
-  client: SupabaseClient = supabase
+  client: SupabaseClient = supabase,
+  includeSppgRent = false
 ): Promise<{
   disbursed: number
   pending: number
@@ -434,6 +435,7 @@ export async function getDailyStatus(
     gasAvailable: boolean
     operational: boolean
     realOperational: boolean
+    sppgRent: boolean
     hasTransactions: boolean
     canToggle: boolean
     disbursed: boolean
@@ -441,20 +443,31 @@ export async function getDailyStatus(
 }> {
   const cutoffDate = MANUAL_DISBURSEMENT_STATUS_START_DATE
 
-  const [{ data, error }, { data: incomeRows, error: incomeError }] =
-    await Promise.all([
-      client.rpc('get_dashboard_daily_status', {
-        p_selected_date: selectedDate
-      }),
-      client
-        .from('transactions')
-        .select('kitchen_id')
-        .eq('transaction_date', selectedDate)
-        .in('flow_type', ['income', 'gas', 'neutral', 'ops_disbursement'])
-    ])
+  const [
+    { data, error },
+    { data: incomeRows, error: incomeError },
+    { data: sppgRentRows, error: sppgRentError }
+  ] = await Promise.all([
+    client.rpc('get_dashboard_daily_status', {
+      p_selected_date: selectedDate
+    }),
+    client
+      .from('transactions')
+      .select('kitchen_id')
+      .eq('transaction_date', selectedDate)
+      .in('flow_type', ['income', 'gas', 'neutral', 'ops_disbursement']),
+    includeSppgRent
+      ? client
+          .from('transactions')
+          .select('kitchen_id')
+          .eq('transaction_date', selectedDate)
+          .eq('flow_type', 'sppg_rent')
+      : Promise.resolve({ data: [], error: null })
+  ])
 
   if (error) throw error
   if (incomeError) throw incomeError
+  if (sppgRentError) throw sppgRentError
 
   type DashboardDailyStatusRpcRow = {
     kitchen_id: string
@@ -469,6 +482,7 @@ export async function getDailyStatus(
 
   const typedData = (data ?? []) as DashboardDailyStatusRpcRow[]
   const disbursementTransactionCountByKitchen = new Map<string, number>()
+  const sppgRentByKitchen = new Set<string>()
 
   for (const row of incomeRows ?? []) {
     if (!row.kitchen_id) continue
@@ -477,6 +491,12 @@ export async function getDailyStatus(
       row.kitchen_id,
       (disbursementTransactionCountByKitchen.get(row.kitchen_id) ?? 0) + 1
     )
+  }
+
+  for (const row of sppgRentRows ?? []) {
+    if (row.kitchen_id) {
+      sppgRentByKitchen.add(row.kitchen_id)
+    }
   }
 
   let disbursed = 0
@@ -498,6 +518,7 @@ export async function getDailyStatus(
     const expense = Boolean(row.expense)
     const operational = Boolean(row.operational)
     const realOperational = Boolean(row.real_operational)
+    const sppgRent = includeSppgRent && sppgRentByKitchen.has(row.kitchen_id)
 
     // Status pencairan hanya digerakkan oleh Pencairan / RAB (income).
     const hasTransactions = income
@@ -525,6 +546,7 @@ export async function getDailyStatus(
       gasAvailable,
       operational,
       realOperational,
+      sppgRent,
       hasTransactions,
       canToggle: income && selectedDate >= cutoffDate,
       disbursed: rowDisbursed

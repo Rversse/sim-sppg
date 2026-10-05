@@ -2181,3 +2181,16 @@
   background: color-mix(in srgb, #a16207 8%, var(--theme-surface-soft));
   color: #a16207;
 }
+
+
+.dashboard-status-flags .status-flag-sppg-rent {
+  color: var(--flow-inactive);
+}
+
+.dashboard-status-flags .status-flag-sppg-rent.is-done {
+  color: #a16207;
+}
+
+.dashboard-status-flags span[aria-label='Sewa SPPG']::after {
+  content: 'Sewa SPPG';
+}

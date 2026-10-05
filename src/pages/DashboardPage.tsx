@@ -271,7 +271,7 @@ export function DashboardPage() {
       const [nextSummary, nextStatus, nextKitchens, nextTransactions] =
         await Promise.all([
           getDashboardSummary(filters),
-          getDailyStatus(filters.startDate, supabase),
+          getDailyStatus(filters.startDate, supabase, includeSppgRent),
           kitchenPromise,
           getDashboardTransactionPage(
             filters,
@@ -335,7 +335,7 @@ export function DashboardPage() {
     async (page: number) => {
       const [nextSummary, nextStatus, nextTransactions] = await Promise.all([
         getDashboardSummary(filters),
-        getDailyStatus(filters.startDate, supabase),
+        getDailyStatus(filters.startDate, supabase, includeSppgRent),
         getDashboardTransactionPage(
           filters,
           page,
@@ -1392,7 +1392,8 @@ export function DashboardPage() {
               + Transaksi
             </button>
           ) : null}
-        </div>
+
+          </div>
       </section>
 
       {error ? <div className="dashboard-error">{error}</div> : null}
@@ -1474,22 +1475,6 @@ export function DashboardPage() {
           </strong>
           <small>Total realisasi operasional pada periode terpilih</small>
         </article>
-        {includeSppgRent ? (
-          <article
-            className={`dashboard-kpi ${
-              filters.flowType === 'sppg_rent' ? 'dashboard-kpi-primary' : ''
-            }`}
-          >
-            <span className="dashboard-kpi-icon">
-              <Building2 aria-hidden="true" />
-            </span>
-            <span>Sewa SPPG</span>
-            <strong>
-              {loading ? 'Memuat…' : formatCurrency(summary.sppgRent)}
-            </strong>
-            <small>Total sewa SPPG pada periode terpilih</small>
-          </article>
-        ) : null}
       </section>
 
       <section className="dashboard-main-grid">
@@ -1602,6 +1587,16 @@ export function DashboardPage() {
                           >
                             <Settings2 aria-hidden="true" />
                           </span>
+                          {includeSppgRent ? (
+                            <span
+                              className={`status-flag-sppg-rent ${
+                                row.sppgRent ? 'is-done' : ''
+                              }`}
+                              aria-label="Sewa SPPG"
+                            >
+                              <Building2 aria-hidden="true" />
+                            </span>
+                          ) : null}
                         </div>
 
                         {includeSppgRent && row.canToggle ? (
