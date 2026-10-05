@@ -50,9 +50,11 @@ function printReport() {
     .forEach((element) => element.remove())
 
   const title =
+    activeSection.dataset.reportTitle?.trim() ||
     reportPage
       .querySelector<HTMLElement>('.reports-header h1')
-      ?.textContent?.trim() ?? 'Laporan & Rekap'
+      ?.textContent?.trim() ||
+    'Laporan & Rekap'
 
   const subtitle =
     reportPage

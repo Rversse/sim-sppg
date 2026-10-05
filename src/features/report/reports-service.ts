@@ -89,10 +89,37 @@ export type SupplierReport = {
   }
 }
 
+export type SppgRentKitchenRow = {
+  kitchenId: string
+  kitchenName: string
+  dayCount: number
+  total: number
+}
+
+export type SppgRentDailyRow = {
+  date: string
+  kitchenId: string
+  kitchenName: string
+  amount: number
+}
+
+export type SppgRentReport = {
+  rows: SppgRentKitchenRow[]
+  dailyRows: SppgRentDailyRow[]
+  grandTotal: number
+}
+
 type ReportTransaction = {
   amount: number | string | null
   transaction_date: string
-  flow_type: 'income' | 'expense' | 'gas' | 'ops_disbursement' | 'real_ops' | 'neutral'
+  flow_type:
+    | 'income'
+    | 'expense'
+    | 'gas'
+    | 'ops_disbursement'
+    | 'real_ops'
+    | 'sppg_rent'
+    | 'neutral'
   kitchen_id: string | null
   created_at: string
   suppliers?:
@@ -199,6 +226,7 @@ async function getReportTransactions(
       )
       .gte('transaction_date', filters.startDate)
       .lte('transaction_date', filters.endDate)
+      .neq('flow_type', 'sppg_rent')
       .order('transaction_date', { ascending: false })
       .order('created_at', { ascending: false })
       .range(from, from + pageSize - 1)
@@ -468,6 +496,125 @@ function addSupplierExpense(
     values.Babinsa += amount
     totals.Babinsa += amount
     return
+  }
+}
+
+export async function getSppgRentReport(
+  filters: Pick<ReportFilters, 'startDate' | 'endDate' | 'kitchenId'>,
+  client: SupabaseClient = supabase
+): Promise<SppgRentReport> {
+  const pageSize = 1000
+  const transactions: Array<{
+    amount: number | string | null
+    transaction_date: string
+    kitchen_id: string | null
+    kitchens:
+      | {
+          id: string
+          name: string
+        }
+      | {
+          id: string
+          name: string
+        }[]
+      | null
+  }> = []
+
+  for (let from = 0; ; from += pageSize) {
+    let query = client
+      .from('transactions')
+      .select(
+        `
+        amount,
+        transaction_date,
+        kitchen_id,
+        kitchens (
+          id,
+          name
+        )
+      `
+      )
+      .eq('flow_type', 'sppg_rent')
+      .gte('transaction_date', filters.startDate)
+      .lte('transaction_date', filters.endDate)
+      .order('transaction_date', { ascending: true })
+      .order('created_at', { ascending: true })
+      .range(from, from + pageSize - 1)
+
+    if (filters.kitchenId) {
+      query = query.eq('kitchen_id', filters.kitchenId)
+    }
+
+    const { data, error } = await query
+
+    if (error) throw error
+
+    const page = (data ?? []) as unknown as typeof transactions
+    transactions.push(...page)
+
+    if (page.length < pageSize) {
+      break
+    }
+  }
+
+  const kitchenMap = new Map<
+    string,
+    {
+      kitchenId: string
+      kitchenName: string
+      daySet: Set<string>
+      total: number
+    }
+  >()
+
+  const dailyRows: SppgRentDailyRow[] = []
+
+  for (const transaction of transactions) {
+    if (!transaction.kitchen_id) continue
+
+    const kitchen = Array.isArray(transaction.kitchens)
+      ? transaction.kitchens[0]
+      : transaction.kitchens
+
+    const kitchenName = kitchen?.name ?? 'Dapur tidak diketahui'
+    const amount = getAmount(transaction.amount)
+    const current =
+      kitchenMap.get(transaction.kitchen_id) ?? {
+        kitchenId: transaction.kitchen_id,
+        kitchenName,
+        daySet: new Set<string>(),
+        total: 0
+      }
+
+    current.daySet.add(transaction.transaction_date)
+    current.total += amount
+    kitchenMap.set(transaction.kitchen_id, current)
+
+    dailyRows.push({
+      date: transaction.transaction_date,
+      kitchenId: transaction.kitchen_id,
+      kitchenName,
+      amount
+    })
+  }
+
+  const rows = [...kitchenMap.values()]
+    .map((row) => ({
+      kitchenId: row.kitchenId,
+      kitchenName: row.kitchenName,
+      dayCount: row.daySet.size,
+      total: row.total
+    }))
+    .sort(
+      (a, b) =>
+        b.total - a.total ||
+        a.kitchenName.localeCompare(b.kitchenName, 'id')
+    )
+
+  return {
+    rows,
+    dailyRows,
+    grandTotal: rows.reduce((total, row) => total + row.total, 0)
   }
 }
 

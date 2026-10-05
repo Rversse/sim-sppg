@@ -8,6 +8,7 @@ export type TransactionFlow =
   | 'gas'
   | 'ops_disbursement'
   | 'real_ops'
+  | 'sppg_rent'
   | 'neutral'
 
 export type TransactionFilters = {
@@ -23,7 +24,7 @@ export type TransactionPayload = {
   amount: number
   note: string | null
   flow_type: TransactionFlow
-  category: 'RAB' | 'Supplier' | 'OPS' | 'GAS' | 'REAL_OPS'
+  category: 'RAB' | 'Supplier' | 'KPWS' | 'OPS' | 'GAS' | 'REAL_OPS' | 'SEWA_SPPG'
   account_id: string | null
   supplier_id: string | null
   destination_label: string | null
@@ -202,6 +203,17 @@ export function buildTransactionPayload(
         ...base,
         flow_type: 'real_ops',
         category: 'REAL_OPS',
+        account_id: null,
+        supplier_id: null,
+        destination_label: null,
+        note: null
+      }
+
+    case 'sppg_rent':
+      return {
+        ...base,
+        flow_type: 'sppg_rent',
+        category: 'SEWA_SPPG',
         account_id: null,
         supplier_id: null,
         destination_label: null,

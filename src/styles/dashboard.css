@@ -2174,3 +2174,10 @@
 }
 
 
+
+
+.dashboard-flow-sppg-rent {
+  border-color: color-mix(in srgb, #a16207 28%, var(--theme-border));
+  background: color-mix(in srgb, #a16207 8%, var(--theme-surface-soft));
+  color: #a16207;
+}

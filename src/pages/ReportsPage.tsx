@@ -3,7 +3,8 @@ import { useEffect, useState } from 'react'
 import {
   getOverallReport,
   getIncomeReport,
-  getSupplierReport
+  getSupplierReport,
+  getSppgRentReport
 } from '@/features/report/reports-service'
 
 import {
@@ -19,7 +20,7 @@ import {
 import { formatCurrency, getTodayLocal } from '@/lib/formatters'
 import { supabase } from '@/lib/supabase'
 
-type ReportTab = 'overall' | 'income' | 'supplier'
+type ReportTab = 'overall' | 'income' | 'supplier' | 'sppgRent'
 
 type ReportLoader<T> = (startDate: string, endDate: string) => Promise<T>
 
@@ -33,6 +34,10 @@ function loadIncomeReport(startDate: string, endDate: string) {
 
 function loadSupplierReport(startDate: string, endDate: string) {
   return getSupplierReport({ startDate, endDate, kitchenId: '' })
+}
+
+function loadSppgRentReport(startDate: string, endDate: string) {
+  return getSppgRentReport({ startDate, endDate, kitchenId: '' })
 }
 
 function useReportData<T>(
@@ -656,6 +661,115 @@ function SupplierReportView() {
   )
 }
 
+
+function SppgRentReportView() {
+  const {
+    startDate,
+    endDate,
+    setStartDate,
+    setEndDate,
+    report,
+    loading,
+    error
+  } = useReportData(
+    loadSppgRentReport,
+    'Gagal memuat laporan Sewa SPPG'
+  )
+
+  return (
+    <section
+      className="reports-section"
+      data-report-title="Laporan Sewa SPPG"
+      data-report-start-date={startDate}
+      data-report-end-date={endDate}
+    >
+      <div className="reports-filter-panel">
+        <ReportDateRange
+          startDate={startDate}
+          endDate={endDate}
+          setStartDate={setStartDate}
+          setEndDate={setEndDate}
+        />
+        <button
+          type="button"
+          onClick={() => printReport()}
+          disabled={!report || loading}
+        >
+          Print Laporan
+        </button>
+      </div>
+
+      {loading && <LoadingState />}
+      {error && <ErrorState message={error} />}
+
+      {!loading && !error && report && (
+        <>
+          <div className="reports-summary-grid reports-summary-single">
+            <SummaryCard
+              label="Total Sewa SPPG"
+              value={report.grandTotal}
+              note="Total pencairan sewa SPPG pada periode terpilih"
+            />
+          </div>
+
+          {report.rows.length === 0 ? (
+            <EmptyState />
+          ) : (
+            <>
+              <div className="reports-table-wrapper">
+                <table className="reports-table">
+                  <thead>
+                    <tr>
+                      <th>DAPUR</th>
+                      <th>HARI TERISI</th>
+                      <th>TOTAL SEWA SPPG</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {report.rows.map((row) => (
+                      <tr key={row.kitchenId}>
+                        <td>{row.kitchenName}</td>
+                        <td>{row.dayCount}</td>
+                        <td>{formatCurrency(row.total)}</td>
+                      </tr>
+                    ))}
+                    <tr className="reports-total-row">
+                      <td>GRAND TOTAL</td>
+                      <td>{report.rows.reduce((total, row) => total + row.dayCount, 0)}</td>
+                      <td>{formatCurrency(report.grandTotal)}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <div className="reports-table-wrapper reports-report-detail-table">
+                <table className="reports-table">
+                  <thead>
+                    <tr>
+                      <th>TANGGAL</th>
+                      <th>DAPUR</th>
+                      <th>NOMINAL</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {report.dailyRows.map((row, index) => (
+                      <tr key={`${row.date}-${row.kitchenId}-${index}`}>
+                        <td>{row.date}</td>
+                        <td>{row.kitchenName}</td>
+                        <td>{formatCurrency(row.amount)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </>
+          )}
+        </>
+      )}
+    </section>
+  )
+}
+
 export function ReportsPage() {
   const [tab, setTab] = useState<ReportTab>('overall')
 
@@ -683,11 +797,19 @@ export function ReportsPage() {
         >
           Rekap Pengeluaran
         </button>
+        <button
+          type="button"
+          className={tab === 'sppgRent' ? 'active' : ''}
+          onClick={() => setTab('sppgRent')}
+        >
+          Sewa SPPG
+        </button>
       </nav>
 
       {tab === 'overall' && <OverallReportView />}
       {tab === 'income' && <IncomeReportView />}
       {tab === 'supplier' && <SupplierReportView />}
+      {tab === 'sppgRent' && <SppgRentReportView />}
     </main>
   )
 }
