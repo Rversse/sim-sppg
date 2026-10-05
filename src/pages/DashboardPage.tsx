@@ -1686,9 +1686,11 @@ export function DashboardPage() {
                       ? temporaryDestination || 'Tujuan operasional'
                       : transaction.flow_type === 'real_ops'
                         ? 'OPS / Real'
-                        : accountSupplier?.business_name?.trim() ||
-                          account?.name?.trim() ||
-                          'Transaksi'
+                        : transaction.flow_type === 'sppg_rent'
+                          ? 'Sewa SPPG'
+                          : accountSupplier?.business_name?.trim() ||
+                            account?.name?.trim() ||
+                            'Transaksi'
                 const ownerName =
                   transaction.flow_type === 'expense' ||
                   transaction.flow_type === 'ops_disbursement' ||
