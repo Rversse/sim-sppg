@@ -192,6 +192,7 @@ type StatusData = Awaited<ReturnType<typeof getDailyStatus>>
 
 export function DashboardPage() {
   const { user } = useAuth()
+  const includeSppgRent = includeSppgRent
   const today = getTodayLocal()
 
   const [filters, setFilters] = useState<DashboardFilters>({
@@ -210,7 +211,7 @@ export function DashboardPage() {
   const [availableFilterFlows, setAvailableFilterFlows] = useState<
     DashboardFlow[]
   >(() =>
-    getAvailableFlowsForKitchen(undefined, user?.role === 'admin')
+    getAvailableFlowsForKitchen(undefined, includeSppgRent)
   )
   const [summary, setSummary] = useState<DashboardSummary>({
     income: 0,
@@ -278,7 +279,7 @@ export function DashboardPage() {
             DASHBOARD_HISTORY_PAGE_SIZE,
             supabase,
             true,
-            user?.role === 'admin'
+            includeSppgRent
           )
         ])
 
@@ -341,7 +342,7 @@ export function DashboardPage() {
           DASHBOARD_HISTORY_PAGE_SIZE,
           supabase,
           false,
-          user?.role === 'admin'
+          includeSppgRent
         )
       ])
 
@@ -374,7 +375,7 @@ export function DashboardPage() {
           DASHBOARD_HISTORY_PAGE_SIZE,
           supabase,
           false,
-          user?.role === 'admin'
+          includeSppgRent
         )
 
         if (requestId !== historyRequestRef.current) {
@@ -663,7 +664,7 @@ export function DashboardPage() {
     // This prevents a stale "Operasional" selection from surviving a kitchen change.
     if (!value) {
       setAvailableFilterFlows(
-        getAvailableFlowsForKitchen(undefined, user?.role === 'admin')
+        getAvailableFlowsForKitchen(undefined, includeSppgRent)
       )
       return
     }
@@ -673,7 +674,7 @@ export function DashboardPage() {
     )?.name
 
     setAvailableFilterFlows(
-      getAvailableFlowsForKitchen(selectedKitchenName, user?.role === 'admin')
+      getAvailableFlowsForKitchen(selectedKitchenName, includeSppgRent)
     )
   }
 
@@ -875,7 +876,7 @@ export function DashboardPage() {
     try {
       const availableFlows = getAvailableFlowsForKitchen(
         kitchens.find((kitchen) => kitchen.id === transaction.kitchen_id)?.name,
-        user?.role === 'admin'
+        includeSppgRent
       )
 
       setAvailableFormFlows(availableFlows)
@@ -922,7 +923,7 @@ export function DashboardPage() {
       const selectedKitchen = kitchens.find((kitchen) => kitchen.id === value)
       const availableFlows = getAvailableFlowsForKitchen(
         selectedKitchen?.name,
-        user?.role === 'admin'
+        includeSppgRent
       )
       const nextFlowType =
         preserveSupplierFlow && availableFlows.includes('expense')
@@ -1265,7 +1266,7 @@ export function DashboardPage() {
       option.value === '' ||
       (option.value !== 'sppg_rent' &&
         availableFilterFlows.includes(option.value as DashboardFlow)) ||
-      (option.value === 'sppg_rent' && user?.role === 'admin')
+      (option.value === 'sppg_rent' && includeSppgRent)
   )
 
   const supplierFilterOptions = [
@@ -1382,7 +1383,7 @@ export function DashboardPage() {
             />
           ) : null}
 
-          {user?.role === 'admin' ? (
+          {includeSppgRent ? (
             <button
               type="button"
               className="dashboard-transaction-action"
@@ -1473,7 +1474,7 @@ export function DashboardPage() {
           </strong>
           <small>Total realisasi operasional pada periode terpilih</small>
         </article>
-        {user?.role === 'admin' ? (
+        {includeSppgRent ? (
           <article
             className={`dashboard-kpi ${
               filters.flowType === 'sppg_rent' ? 'dashboard-kpi-primary' : ''
@@ -1603,7 +1604,7 @@ export function DashboardPage() {
                           </span>
                         </div>
 
-                        {user?.role === 'admin' && row.canToggle ? (
+                        {includeSppgRent && row.canToggle ? (
                           <label
                             className={`dashboard-disbursement-check ${
                               row.disbursed ? 'is-checked' : ''
@@ -1776,7 +1777,7 @@ export function DashboardPage() {
                         {formatCurrency(Number(transaction.amount))}
                       </strong>
 
-                      {user?.role === 'admin' ? (
+                      {includeSppgRent ? (
                         <div className="dashboard-history-actions">
                           <button
                             type="button"
