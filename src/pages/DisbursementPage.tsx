@@ -10,14 +10,13 @@ import {
   getDailyDisbursementKitchens,
   getDailyDisbursementTransactions,
   summarizeDailyDisbursementRows,
-  type DailyDisbursementFlow,
   type DailyDisbursementTransaction
 } from '@/features/disbursement/disbursement-service'
 import { setTransactionDisbursed } from '@/features/transactions/transaction-service'
 import { SingleDatePicker } from '@/components/ui/date-picker'
 import { AnimatedSelect } from '@/components/ui/animated-select'
 import { DAILY_DISBURSEMENT_START_DATE } from '@/lib/app-config'
-import { formatCurrency, formatDate, formatDateTimeWithSeconds, getTodayLocal } from '@/lib/formatters'
+import { formatCurrency, formatDate, getTodayLocal } from '@/lib/formatters'
 import { supabase } from '@/lib/supabase'
 
 const FLOW_OPTIONS = [
@@ -133,7 +132,13 @@ export function DisbursementPage() {
   }, [kitchens, selectedDate, selectedFlowType, selectedKitchenId])
 
   useEffect(() => {
-    void loadData()
+    const timer = window.setTimeout(() => {
+      void loadData()
+    }, 0)
+
+    return () => {
+      window.clearTimeout(timer)
+    }
   }, [loadData])
 
   useEffect(() => {
