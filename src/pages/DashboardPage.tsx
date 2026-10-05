@@ -290,7 +290,7 @@ export function DashboardPage() {
         transactions: nextTransactions
       }
     },
-    [filters, user?.role]
+    [filters, includeSppgRent]
   )
 
   useEffect(() => {
@@ -352,7 +352,7 @@ export function DashboardPage() {
         transactions: nextTransactions
       }
     },
-    [filters, user?.role]
+    [filters, includeSppgRent]
   )
 
   const applyDashboardLiveData = useCallback(
@@ -392,7 +392,7 @@ export function DashboardPage() {
         setError('Gagal memuat halaman riwayat transaksi.')
       }
     },
-    [filters, user?.role]
+    [filters, includeSppgRent]
   )
 
   const refreshDashboard = useCallback(
