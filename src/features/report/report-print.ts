@@ -307,6 +307,10 @@ function printReport() {
       width: 11.714%;
     }
 
+    .reports-table-overall thead th.reports-col-sppg-rent {
+      color: #A16207 !important;
+    }
+
     .reports-table th {
       background: #ECF0F6 !important;
       vertical-align: middle;
