@@ -9,6 +9,7 @@ export type DashboardFlow =
   | 'gas'
   | 'ops_disbursement'
   | 'real_ops'
+  | 'sppg_rent'
   | 'neutral'
 
 export type DashboardFilters = {
@@ -314,7 +315,8 @@ export async function getDashboardTransactionPage(
   page: number,
   pageSize: number,
   client: SupabaseClient = supabase,
-  includeCount = true
+  includeCount = true,
+  includeSppgRent = true
 ): Promise<DashboardTransactionPage> {
   const safePage = Math.max(1, Math.floor(page))
   const safePageSize = Math.max(1, Math.floor(pageSize))
@@ -361,6 +363,10 @@ export async function getDashboardTransactionPage(
 
   if (filters.kitchenId) {
     query = query.eq('kitchen_id', filters.kitchenId)
+  }
+
+  if (!includeSppgRent && filters.flowType !== 'sppg_rent') {
+    query = query.neq('flow_type', 'sppg_rent')
   }
 
   if (filters.flowType) {
