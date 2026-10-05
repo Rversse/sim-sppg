@@ -198,7 +198,6 @@ export function DisbursementPage() {
             label="Tanggal"
             value={selectedDate}
             minDate={DAILY_DISBURSEMENT_START_DATE}
-            maxDate={today}
             onChange={setSelectedDate}
           />
         </div>
