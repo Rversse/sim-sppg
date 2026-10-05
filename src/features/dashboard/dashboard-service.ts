@@ -27,6 +27,7 @@ export type DashboardSummary = {
   operational: number
   operationalDisbursement: number
   realOperational: number
+  sppgRent: number
 }
 
 export type DashboardKitchen = {
@@ -115,6 +116,7 @@ export async function getDashboardSummary(
         operational?: number
         operational_disbursement?: number
         real_operational?: number
+        sppg_rent?: number
       }
     | undefined
 
@@ -126,7 +128,8 @@ export async function getDashboardSummary(
     operationalDisbursement: Number(
       row?.operational_disbursement ?? 0
     ),
-    realOperational: Number(row?.real_operational ?? 0)
+    realOperational: Number(row?.real_operational ?? 0),
+    sppgRent: Number(row?.sppg_rent ?? 0)
   }
 }
 
