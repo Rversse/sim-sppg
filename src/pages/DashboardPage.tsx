@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 
 import {
+  Building2,
   Landmark,
   Settings2,
   WalletCards
@@ -56,7 +57,8 @@ const FLOW_OPTIONS: { value: DashboardFlow | ''; label: string }[] = [
   { value: 'expense', label: 'RAB / Real' },
   { value: 'gas', label: 'OPS / Arutala' },
   { value: 'ops_disbursement', label: 'OPS / Pencairan' },
-  { value: 'real_ops', label: 'OPS / Real' }
+  { value: 'real_ops', label: 'OPS / Real' },
+  { value: 'sppg_rent', label: 'Sewa SPPG' }
 ]
 
 function flowLabel(flow: DashboardFlow) {
@@ -64,6 +66,7 @@ function flowLabel(flow: DashboardFlow) {
   if (flow === 'expense') return 'RAB / Real'
   if (flow === 'gas' || flow === 'neutral') return 'OPS / Arutala'
   if (flow === 'ops_disbursement') return 'OPS / Pencairan'
+  if (flow === 'sppg_rent') return 'Sewa SPPG'
   return 'OPS / Real'
 }
 
@@ -80,6 +83,10 @@ function FlowIcon({ flow }: { flow: DashboardFlow }) {
     return <Landmark aria-hidden="true" />
   }
 
+  if (flow === 'sppg_rent') {
+    return <Building2 aria-hidden="true" />
+  }
+
   return <Settings2 aria-hidden="true" />
 }
 
@@ -92,11 +99,15 @@ function flowClass(flow: DashboardFlow) {
   if (flow === 'ops_disbursement') {
     return 'dashboard-flow dashboard-flow-ops-disbursement'
   }
+  if (flow === 'sppg_rent') {
+    return 'dashboard-flow dashboard-flow-sppg-rent'
+  }
   return 'dashboard-flow dashboard-flow-real-ops'
 }
 
 function getAvailableFlowsForKitchen(
-  kitchenName: string | null | undefined
+  kitchenName: string | null | undefined,
+  includeSppgRent = false
 ): DashboardFlow[] {
   const normalized = kitchenName?.trim().toLowerCase() ?? ''
   const flows: DashboardFlow[] = ['income', 'expense']
@@ -106,6 +117,11 @@ function getAvailableFlowsForKitchen(
   }
 
   flows.push('ops_disbursement', 'real_ops')
+
+  if (includeSppgRent) {
+    flows.push('sppg_rent')
+  }
+
   return flows
 }
 
@@ -193,7 +209,9 @@ export function DashboardPage() {
   >([])
   const [availableFilterFlows, setAvailableFilterFlows] = useState<
     DashboardFlow[]
-  >(['income', 'expense', 'gas', 'ops_disbursement', 'real_ops'])
+  >(() =>
+    getAvailableFlowsForKitchen(undefined, user?.role === 'admin')
+  )
   const [summary, setSummary] = useState<DashboardSummary>({
     income: 0,
     expense: 0,
@@ -256,7 +274,10 @@ export function DashboardPage() {
           getDashboardTransactionPage(
             filters,
             page,
-            DASHBOARD_HISTORY_PAGE_SIZE
+            DASHBOARD_HISTORY_PAGE_SIZE,
+            supabase,
+            true,
+            user?.role === 'admin'
           )
         ])
 
@@ -267,7 +288,7 @@ export function DashboardPage() {
         transactions: nextTransactions
       }
     },
-    [filters]
+    [filters, user?.role]
   )
 
   useEffect(() => {
@@ -318,7 +339,8 @@ export function DashboardPage() {
           page,
           DASHBOARD_HISTORY_PAGE_SIZE,
           supabase,
-          false
+          false,
+          user?.role === 'admin'
         )
       ])
 
@@ -328,7 +350,7 @@ export function DashboardPage() {
         transactions: nextTransactions
       }
     },
-    [filters]
+    [filters, user?.role]
   )
 
   const applyDashboardLiveData = useCallback(
@@ -350,7 +372,8 @@ export function DashboardPage() {
           page,
           DASHBOARD_HISTORY_PAGE_SIZE,
           supabase,
-          false
+          false,
+          user?.role === 'admin'
         )
 
         if (requestId !== historyRequestRef.current) {
@@ -557,6 +580,7 @@ export function DashboardPage() {
     filters.flowType === 'gas' ||
     filters.flowType === 'ops_disbursement' ||
     filters.flowType === 'real_ops' ||
+    filters.flowType === 'sppg_rent' ||
     supplierLockedToArutala
 
   const supplierFilterLabel =
@@ -570,7 +594,9 @@ export function DashboardPage() {
             ? 'Tujuan Ops'
             : filters.flowType === 'real_ops'
               ? 'Rekening'
-              : 'Supplier / Rekening'
+              : filters.flowType === 'sppg_rent'
+                ? 'Tanpa Rekening'
+                : 'Supplier / Rekening'
 
   const operationalDestination = getOperationalDestination(
     selectedFilterKitchen?.name
@@ -581,8 +607,8 @@ export function DashboardPage() {
       ? 'KOPERASI ARUTALA BNI'
       : filters.flowType === 'ops_disbursement'
         ? (operationalDestination ?? 'Akuntan + Dapur')
-        : filters.flowType === 'real_ops'
-          ? 'Tanpa rekening'
+        : filters.flowType === 'real_ops' || filters.flowType === 'sppg_rent'
+          ? 'Tidak diperlukan'
           : supplierDisabled
             ? 'Koperasi Arutala'
             : filters.flowType === 'expense' && isSukarajaFilterKitchen
@@ -635,7 +661,9 @@ export function DashboardPage() {
     // Start from the common flows while the kitchen-specific rules load.
     // This prevents a stale "Operasional" selection from surviving a kitchen change.
     if (!value) {
-      setAvailableFilterFlows(['income', 'expense', 'gas', 'ops_disbursement', 'real_ops'])
+      setAvailableFilterFlows(
+        getAvailableFlowsForKitchen(undefined, user?.role === 'admin')
+      )
       return
     }
 
@@ -643,7 +671,9 @@ export function DashboardPage() {
       (kitchen) => kitchen.id === value
     )?.name
 
-    setAvailableFilterFlows(getAvailableFlowsForKitchen(selectedKitchenName))
+    setAvailableFilterFlows(
+      getAvailableFlowsForKitchen(selectedKitchenName, user?.role === 'admin')
+    )
   }
 
   async function handleFlow(value: DashboardFlow | '') {
@@ -737,7 +767,7 @@ export function DashboardPage() {
       return
     }
 
-    if (flowType === 'real_ops') {
+    if (flowType === 'real_ops' || flowType === 'sppg_rent') {
       setFormAccounts([])
       setFormSuppliers([])
       setFormAccountId('')
@@ -843,7 +873,8 @@ export function DashboardPage() {
 
     try {
       const availableFlows = getAvailableFlowsForKitchen(
-        kitchens.find((kitchen) => kitchen.id === transaction.kitchen_id)?.name
+        kitchens.find((kitchen) => kitchen.id === transaction.kitchen_id)?.name,
+        user?.role === 'admin'
       )
 
       setAvailableFormFlows(availableFlows)
@@ -888,7 +919,10 @@ export function DashboardPage() {
 
     try {
       const selectedKitchen = kitchens.find((kitchen) => kitchen.id === value)
-      const availableFlows = getAvailableFlowsForKitchen(selectedKitchen?.name)
+      const availableFlows = getAvailableFlowsForKitchen(
+        selectedKitchen?.name,
+        user?.role === 'admin'
+      )
       const nextFlowType =
         preserveSupplierFlow && availableFlows.includes('expense')
           ? 'expense'
@@ -953,7 +987,8 @@ export function DashboardPage() {
       } else if (
         value === 'gas' ||
         value === 'ops_disbursement' ||
-        value === 'real_ops'
+        value === 'real_ops' ||
+        value === 'sppg_rent'
       ) {
         // These flows have a fixed account/destination or no account at all,
         // so the next editable field is always Nominal.
@@ -995,7 +1030,7 @@ export function DashboardPage() {
               ? 'Rekening Operasional belum siap.'
               : formFlowType === 'ops_disbursement'
                 ? 'Tujuan operasional belum siap.'
-                : formFlowType === 'real_ops'
+                : formFlowType === 'real_ops' || formFlowType === 'sppg_rent'
                   ? 'Dapur belum siap.'
                   : 'Lengkapi dapur dan jenis transaksi terlebih dahulu.'
       )
@@ -1035,7 +1070,10 @@ export function DashboardPage() {
       transaction_date: formDate,
       kitchen_id: formKitchenId,
       amount,
-      note: formFlowType === 'real_ops' ? null : formNote.trim() || null,
+      note:
+        formFlowType === 'real_ops' || formFlowType === 'sppg_rent'
+          ? null
+          : formNote.trim() || null,
       flow_type:
         formFlowType === 'gas' ? 'neutral' : formFlowType,
       category:
@@ -1047,7 +1085,9 @@ export function DashboardPage() {
               ? 'GAS'
               : formFlowType === 'real_ops'
                 ? 'REAL_OPS'
-                : 'OPS',
+                : formFlowType === 'sppg_rent'
+                  ? 'SEWA_SPPG'
+                  : 'OPS',
       account_id:
         formFlowType === 'income' || formFlowType === 'gas'
           ? formAccountId || null
@@ -1124,7 +1164,10 @@ export function DashboardPage() {
         } else if (formFlowType === 'ops_disbursement') {
           setFormAccountId('')
           setFormEntryUnlocked(true)
-        } else if (formFlowType === 'real_ops') {
+        } else if (
+          formFlowType === 'real_ops' ||
+          formFlowType === 'sppg_rent'
+        ) {
           setFormAccountId('')
           setFormEntryUnlocked(true)
         }
@@ -1219,7 +1262,9 @@ export function DashboardPage() {
   const flowFilterOptions = FLOW_OPTIONS.filter(
     (option) =>
       option.value === '' ||
-      availableFilterFlows.includes(option.value as DashboardFlow)
+      (option.value !== 'sppg_rent' &&
+        availableFilterFlows.includes(option.value as DashboardFlow)) ||
+      (option.value === 'sppg_rent' && user?.role === 'admin')
   )
 
   const supplierFilterOptions = [
@@ -1325,14 +1370,16 @@ export function DashboardPage() {
             onChange={(value) => void handleFlow(value as DashboardFlow | '')}
           />
 
-          <AnimatedSelect
-            label={supplierFilterLabel}
-            value={supplierFilterValue}
-            options={supplierFilterOptions}
-            placeholder={supplierPlaceholder}
-            disabled={supplierDisabled}
-            onChange={(value) => updateFilter('supplierFilter', value)}
-          />
+          {filters.flowType !== 'sppg_rent' ? (
+            <AnimatedSelect
+              label={supplierFilterLabel}
+              value={supplierFilterValue}
+              options={supplierFilterOptions}
+              placeholder={supplierPlaceholder}
+              disabled={supplierDisabled}
+              onChange={(value) => updateFilter('supplierFilter', value)}
+            />
+          ) : null}
 
           {user?.role === 'admin' ? (
             <button
@@ -1914,7 +1961,7 @@ export function DashboardPage() {
                 </select>
               </label>
 
-              {formFlowType === 'real_ops' ? null : formFlowType === 'ops_disbursement' ? (
+              {formFlowType === 'real_ops' || formFlowType === 'sppg_rent' ? null : formFlowType === 'ops_disbursement' ? (
                 <label>
                   <span>Tujuan Operasional</span>
                   <input
@@ -2022,7 +2069,7 @@ export function DashboardPage() {
                 />
               </label>
 
-              {formFlowType !== 'real_ops' ? (
+              {formFlowType !== 'real_ops' && formFlowType !== 'sppg_rent' ? (
                 <label className="dashboard-transaction-form-note">
                   <span>Catatan</span>
                   <textarea
