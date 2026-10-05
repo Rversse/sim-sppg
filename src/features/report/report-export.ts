@@ -292,7 +292,7 @@ function createOverallDetailSheet(
   ])
   styleTotalRow(totalRow)
 
-  setCurrencyColumns(worksheet, [2, 3, 4, 5, 6, 7, 8])
+  setCurrencyColumns(worksheet, [2, 3, 4, 5, 6, 7, 8, 9])
   setColumnWidths(worksheet, {
     1: 16,
     2: 18,
@@ -301,7 +301,8 @@ function createOverallDetailSheet(
     5: 18,
     6: 18,
     7: 20,
-    8: 26
+    8: 22,
+    9: 20
   })
   styleBody(worksheet)
 }
@@ -432,7 +433,8 @@ function createOverallSummarySheet(
     'OPS / Pencairan',
     'OPS / Real',
     'Total Ops',
-    'OPS / Arutala'
+    'OPS / Arutala',
+    'Sewa SPPG'
   ])
 
   styleHeader(worksheet.getRow(headerRowNumber))
@@ -446,7 +448,8 @@ function createOverallSummarySheet(
       row.operational,
       row.realOperational,
       row.totalOperational,
-      row.gas
+      row.gas,
+      row.sppgRent
     ])
   }
 
@@ -458,7 +461,8 @@ function createOverallSummarySheet(
     report.totals.operational,
     report.totals.realOperational,
     report.totals.totalOperational,
-    report.totals.gas
+    report.totals.gas,
+    report.totals.sppgRent
   ])
 
   styleTotalRow(totalRow)
