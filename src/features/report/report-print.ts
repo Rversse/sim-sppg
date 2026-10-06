@@ -49,16 +49,6 @@ function printReport() {
     )
     .forEach((element) => element.remove())
 
-  const operationalBlock = reportClone.querySelector<HTMLElement>(
-    '.reports-overall-operational-block'
-  )
-
-  if (operationalBlock) {
-    const pageBreak = document.createElement('div')
-    pageBreak.className = 'reports-print-page-break'
-    operationalBlock.parentNode?.insertBefore(pageBreak, operationalBlock)
-  }
-
   const title =
     activeSection.dataset.reportTitle?.trim() ||
     reportPage
@@ -184,13 +174,6 @@ function printReport() {
     .reports-section {
       display: block !important;
       width: 100%;
-    }
-
-    .reports-print-page-break {
-      display: block;
-      height: 0;
-      break-before: page;
-      page-break-before: always;
     }
 
     .reports-overall-operational-block {
