@@ -538,7 +538,8 @@ function OverallReportView() {
                 Catatan: Pencairan operasional masing-masing dapur disalurkan
                 ke rekening yang tercantum dalam tanda kurung pada nama dapur.
               </p>
-            </div>          </div>
+            </div>
+          </div>
         </>
       )}
     </section>
