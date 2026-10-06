@@ -6,6 +6,8 @@ import type {
   SupplierReport
 } from './reports-service'
 
+import { getOperationalKitchenLabel } from './reports-service'
+
 async function loadExcelJS() {
   return import('exceljs')
 }
@@ -484,7 +486,7 @@ function createOverallSummarySheet(
 
   for (const row of report.kitchens) {
     worksheet.addRow([
-      row.kitchenName,
+      getOperationalKitchenLabel(row.kitchenName, row.recipientName),
       row.relawanSalary,
       row.schoolPicIncentive,
       row.kaderIncentive,
