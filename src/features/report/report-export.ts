@@ -5,7 +5,10 @@ import type {
   IncomeReport,
   SupplierReport,
   OperationalDisbursementReport,
-  SppgRentReport,
+  SppgRentReport
+} from './reports-service'
+
+import {
   getOperationalKitchenLabel,
   getOperationalTypeLabel
 } from './reports-service'
