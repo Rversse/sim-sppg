@@ -434,10 +434,7 @@ function OverallReportView() {
                     <tr key={item.kitchenId}>
                       <td>
                         <span className="reports-kitchen-name">
-                          {getOperationalKitchenLabel(
-                            item.kitchenName,
-                            item.recipientName
-                          )}
+                          {item.kitchenName}
                         </span>
                       </td>
                     <td>{formatCurrency(item.income)}</td>
