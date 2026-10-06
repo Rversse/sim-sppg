@@ -4,7 +4,7 @@ import type { Kitchen, KitchenInput } from './kitchen-types'
 export async function getKitchens(client = supabase): Promise<Kitchen[]> {
   const { data, error } = await client
     .from('kitchens')
-    .select('id,name,id_sppg,pic,foundation,address,is_active')
+    .select('id,name,id_sppg,pic,foundation,address,operational_recipient_name,is_active')
     .order('name')
 
   if (error) throw error
@@ -37,6 +37,7 @@ function toKitchenRecord(input: KitchenInput) {
     pic: input.pic.trim() || null,
     foundation: input.foundation.trim() || null,
     address: input.address.trim() || null,
+    operational_recipient_name: input.operational_recipient_name.trim() || null,
     is_active: input.is_active
   }
 }
@@ -104,10 +105,6 @@ export async function deleteKitchen(
       .select('*', { count: 'exact', head: true })
       .eq('kitchen_id', id),
 
-    client
-      .from('disbursement_checklists')
-      .select('*', { count: 'exact', head: true })
-      .eq('kitchen_id', id),
 
     client
       .from('kitchen_vehicles')
@@ -123,7 +120,6 @@ export async function deleteKitchen(
     'transaksi',
     'mapping rekening',
     'mapping supplier',
-    'checklist',
     'kendaraan'
   ]
 
