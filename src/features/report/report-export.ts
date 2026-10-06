@@ -4,8 +4,7 @@ import type {
   OverallReport,
   IncomeReport,
   SupplierReport,
-  OperationalDisbursementReport,
-  SppgRentReport
+  OperationalDisbursementReport
 } from './reports-service'
 
 import {
@@ -684,7 +683,7 @@ function createSupplierSummarySheet(
 export async function exportPencairanReport(
   report: {
     belanja: IncomeReport
-    operasional: SppgRentReport
+    operasional: OperationalDisbursementReport
   },
   startDate: string,
   endDate: string
