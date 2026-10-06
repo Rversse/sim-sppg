@@ -5,6 +5,7 @@ import { supabase } from '@/lib/supabase'
 export type ReportKitchen = {
   id: string
   name: string
+  operationalRecipientName: string | null
 }
 
 export type ReportFilters = {
@@ -21,7 +22,12 @@ export type OverallKitchenReport = {
   gas: number
   operational: number
   realOperational: number
+  relawanSalary: number
+  schoolPicIncentive: number
+  kaderIncentive: number
+  vehicleRent: number
   sppgRent: number
+  totalOperationalDisbursement: number
   totalRAB: number
   totalOperational: number
 }
@@ -315,7 +321,7 @@ export async function getActiveKitchens(
 ): Promise<ReportKitchen[]> {
   const { data, error } = await client
     .from('kitchens')
-    .select('id,name')
+    .select('id,name,operational_recipient_name')
     .eq('is_active', true)
     .order('name')
 
@@ -323,7 +329,11 @@ export async function getActiveKitchens(
     throw error
   }
 
-  return (data ?? []) as ReportKitchen[]
+  return (data ?? []).map((item) => ({
+    id: item.id,
+    name: item.name,
+    operationalRecipientName: item.operational_recipient_name ?? null
+  })) as ReportKitchen[]
 }
 
 export async function getOverallReport(
@@ -341,12 +351,18 @@ export async function getOverallReport(
     grouped.set(kitchen.id, {
       kitchenId: kitchen.id,
       kitchenName: kitchen.name,
+      recipientName: kitchen.operationalRecipientName,
       income: 0,
       expense: 0,
       gas: 0,
       operational: 0,
       realOperational: 0,
+      relawanSalary: 0,
+      schoolPicIncentive: 0,
+      kaderIncentive: 0,
+      vehicleRent: 0,
       sppgRent: 0,
+      totalOperationalDisbursement: 0,
       totalRAB: 0,
       totalOperational: 0
     })
@@ -380,11 +396,26 @@ export async function getOverallReport(
       kitchen.operational += amount
     } else if (transaction.flow_type === 'real_ops') {
       kitchen.realOperational += amount
-    } else if (
-      transaction.flow_type === 'operational_disbursement' &&
-      transaction.operational_type === 'sppg_rent'
-    ) {
-      kitchen.sppgRent += amount
+    } else if (transaction.flow_type === 'operational_disbursement') {
+      switch (transaction.operational_type) {
+        case 'relawan_salary':
+          kitchen.relawanSalary += amount
+          break
+        case 'school_pic_incentive':
+          kitchen.schoolPicIncentive += amount
+          break
+        case 'kader_incentive':
+          kitchen.kaderIncentive += amount
+          break
+        case 'vehicle_rent':
+          kitchen.vehicleRent += amount
+          break
+        case 'sppg_rent':
+          kitchen.sppgRent += amount
+          break
+      }
+
+      kitchen.totalOperationalDisbursement += amount
     }
 
     let dailyRow = daily.get(transaction.transaction_date)
@@ -431,7 +462,12 @@ export async function getOverallReport(
   let totalGas = 0
   let totalOperational = 0
   let totalRealOperational = 0
+  let totalRelawanSalary = 0
+  let totalSchoolPicIncentive = 0
+  let totalKaderIncentive = 0
+  let totalVehicleRent = 0
   let totalSppgRent = 0
+  let totalOperationalDisbursement = 0
   let totalRAB = 0
   let totalOperationalNet = 0
 
@@ -445,7 +481,12 @@ export async function getOverallReport(
     totalGas += kitchen.gas
     totalOperational += kitchen.operational
     totalRealOperational += kitchen.realOperational
+    totalRelawanSalary += kitchen.relawanSalary
+    totalSchoolPicIncentive += kitchen.schoolPicIncentive
+    totalKaderIncentive += kitchen.kaderIncentive
+    totalVehicleRent += kitchen.vehicleRent
     totalSppgRent += kitchen.sppgRent
+    totalOperationalDisbursement += kitchen.totalOperationalDisbursement
     totalRAB += kitchen.totalRAB
     totalOperationalNet += kitchen.totalOperational
   }
@@ -468,7 +509,12 @@ export async function getOverallReport(
       gas: totalGas,
       operational: totalOperational,
       realOperational: totalRealOperational,
+      relawanSalary: totalRelawanSalary,
+      schoolPicIncentive: totalSchoolPicIncentive,
+      kaderIncentive: totalKaderIncentive,
+      vehicleRent: totalVehicleRent,
       sppgRent: totalSppgRent,
+      totalOperationalDisbursement,
       totalRAB,
       totalOperational: totalOperationalNet
     }
