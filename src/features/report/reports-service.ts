@@ -95,6 +95,7 @@ export type SupplierReport = {
 export type SppgRentKitchenRow = {
   kitchenId: string
   kitchenName: string
+  recipientName: string | null
   dayCount: number
   total: number
 }
@@ -103,6 +104,7 @@ export type SppgRentDailyRow = {
   date: string
   kitchenId: string
   kitchenName: string
+  recipientName: string | null
   amount: number
 }
 
@@ -112,15 +114,11 @@ export type SppgRentReport = {
   grandTotal: number
 }
 
-const OPERATIONAL_RECIPIENT_BY_KITCHEN: Record<string, string> = {
-  cisepat: 'Robi Sulaeman'
-}
-
-export function getOperationalKitchenLabel(kitchenName: string) {
-  const recipient =
-    OPERATIONAL_RECIPIENT_BY_KITCHEN[kitchenName.trim().toLowerCase()]
-
-  return `${kitchenName} (${recipient ?? 'Belum ditentukan'})`
+export function getOperationalKitchenLabel(
+  kitchenName: string,
+  recipientName: string | null
+) {
+  return `${kitchenName} (${recipientName?.trim() || 'Belum ditentukan'})`
 }
 
 type ReportTransaction = {
@@ -147,6 +145,7 @@ type ReportTransaction = {
   kitchens?: {
     id: string
     name: string
+    operational_recipient_name: string | null
   } | null
   accounts?: {
     name: string | null
@@ -215,6 +214,7 @@ async function getReportTransactions(
         amount,
         transaction_date,
         flow_type,
+        operational_type,
         kitchen_id,
         created_at,
 
@@ -336,7 +336,10 @@ export async function getOverallReport(
       kitchen.operational += amount
     } else if (transaction.flow_type === 'real_ops') {
       kitchen.realOperational += amount
-    } else if (transaction.flow_type === 'sppg_rent') {
+    } else if (
+      transaction.flow_type === 'operational_disbursement' &&
+      transaction.operational_type === 'sppg_rent'
+    ) {
       kitchen.sppgRent += amount
     }
 
@@ -371,7 +374,10 @@ export async function getOverallReport(
       dailyRow.operational += amount
     } else if (transaction.flow_type === 'real_ops') {
       dailyRow.realOperational += amount
-    } else if (transaction.flow_type === 'sppg_rent') {
+    } else if (
+      transaction.flow_type === 'operational_disbursement' &&
+      transaction.operational_type === 'sppg_rent'
+    ) {
       dailyRow.sppgRent += amount
     }
   }
@@ -534,10 +540,12 @@ export async function getSppgRentReport(
       | {
           id: string
           name: string
+          operational_recipient_name: string | null
         }
       | {
           id: string
           name: string
+          operational_recipient_name: string | null
         }[]
       | null
   }> = []
@@ -552,11 +560,13 @@ export async function getSppgRentReport(
         kitchen_id,
         kitchens (
           id,
-          name
+          name,
+          operational_recipient_name
         )
       `
       )
-      .eq('flow_type', 'sppg_rent')
+      .eq('flow_type', 'operational_disbursement')
+      .eq('operational_type', 'sppg_rent')
       .gte('transaction_date', filters.startDate)
       .lte('transaction_date', filters.endDate)
       .order('transaction_date', { ascending: true })
@@ -604,6 +614,7 @@ export async function getSppgRentReport(
       kitchenMap.get(transaction.kitchen_id) ?? {
         kitchenId: transaction.kitchen_id,
         kitchenName,
+        recipientName: kitchen?.operational_recipient_name ?? null,
         daySet: new Set<string>(),
         total: 0
       }
@@ -616,6 +627,7 @@ export async function getSppgRentReport(
       date: transaction.transaction_date,
       kitchenId: transaction.kitchen_id,
       kitchenName,
+      recipientName: kitchen?.operational_recipient_name ?? null,
       amount
     })
   }
@@ -624,6 +636,7 @@ export async function getSppgRentReport(
     .map((row) => ({
       kitchenId: row.kitchenId,
       kitchenName: row.kitchenName,
+      recipientName: row.recipientName,
       dayCount: row.daySet.size,
       total: row.total
     }))
