@@ -5,6 +5,7 @@ import { supabase } from '@/lib/supabase'
 export type ReportKitchen = {
   id: string
   name: string
+  operationalRecipientName: string | null
 }
 
 export type ReportFilters = {
@@ -16,6 +17,7 @@ export type ReportFilters = {
 export type OverallKitchenReport = {
   kitchenId: string
   kitchenName: string
+  recipientName: string | null
   income: number
   expense: number
   gas: number
@@ -141,6 +143,13 @@ export type OperationalDisbursementReport = {
   grandTotal: number
 }
 
+export function getOperationalKitchenLabel(
+  kitchenName: string,
+  recipientName: string | null
+) {
+  return `${kitchenName} (${recipientName?.trim() || 'Belum ditentukan'})`
+}
+
 export function getOperationalTypeLabel(type: OperationalType) {
   switch (type) {
     case 'relawan_salary':
@@ -262,7 +271,8 @@ async function getReportTransactions(
 
         kitchens (
           id,
-          name
+          name,
+          operational_recipient_name
         ),
 
         suppliers (
@@ -313,7 +323,7 @@ export async function getActiveKitchens(
 ): Promise<ReportKitchen[]> {
   const { data, error } = await client
     .from('kitchens')
-    .select('id,name')
+    .select('id,name,operational_recipient_name')
     .eq('is_active', true)
     .order('name')
 
@@ -323,7 +333,8 @@ export async function getActiveKitchens(
 
   return (data ?? []).map((item) => ({
     id: item.id,
-    name: item.name
+    name: item.name,
+    operationalRecipientName: item.operational_recipient_name ?? null
   })) as ReportKitchen[]
 }
 
@@ -342,6 +353,7 @@ export async function getOverallReport(
     grouped.set(kitchen.id, {
       kitchenId: kitchen.id,
       kitchenName: kitchen.name,
+      recipientName: kitchen.operationalRecipientName,
       income: 0,
       expense: 0,
       gas: 0,
@@ -624,6 +636,7 @@ export async function getSppgRentReport(
       | {
           id: string
           name: string
+          operational_recipient_name: string | null
         }[]
       | null
   }> = []
@@ -692,6 +705,7 @@ export async function getSppgRentReport(
       kitchenMap.get(transaction.kitchen_id) ?? {
         kitchenId: transaction.kitchen_id,
         kitchenName,
+        recipientName: kitchen?.operational_recipient_name ?? null,
         daySet: new Set<string>(),
         total: 0
       }
@@ -704,6 +718,7 @@ export async function getSppgRentReport(
       date: transaction.transaction_date,
       kitchenId: transaction.kitchen_id,
       kitchenName,
+      recipientName: kitchen?.operational_recipient_name ?? null,
       amount
     })
   }
@@ -712,6 +727,7 @@ export async function getSppgRentReport(
     .map((row) => ({
       kitchenId: row.kitchenId,
       kitchenName: row.kitchenName,
+      recipientName: row.recipientName,
       dayCount: row.daySet.size,
       total: row.total
     }))
