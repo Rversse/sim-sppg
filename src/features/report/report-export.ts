@@ -3,13 +3,7 @@ import type ExcelJS from 'exceljs'
 import type {
   OverallReport,
   IncomeReport,
-  SupplierReport,
-  OperationalDisbursementReport
-} from './reports-service'
-
-import {
-  getOperationalKitchenLabel,
-  getOperationalTypeLabel
+  SupplierReport
 } from './reports-service'
 
 async function loadExcelJS() {
