@@ -8,7 +8,7 @@ export type TransactionFlow =
   | 'gas'
   | 'ops_disbursement'
   | 'real_ops'
-  | 'sppg_rent'
+  | 'operational_disbursement'
   | 'neutral'
 
 export type TransactionFilters = {
@@ -24,10 +24,31 @@ export type TransactionPayload = {
   amount: number
   note: string | null
   flow_type: TransactionFlow
-  category: 'RAB' | 'Supplier' | 'KPWS' | 'OPS' | 'GAS' | 'REAL_OPS' | 'SEWA_SPPG'
+  category:
+    | 'RAB'
+    | 'Supplier'
+    | 'KPWS'
+    | 'OPS'
+    | 'GAS'
+    | 'REAL_OPS'
+    | 'OPERATIONAL'
+  operational_type:
+    | 'relawan_salary'
+    | 'school_pic_incentive'
+    | 'kader_incentive'
+    | 'vehicle_rent'
+    | 'sppg_rent'
+    | null
   account_id: string | null
   supplier_id: string | null
   destination_label: string | null
+  operational_type:
+    | 'relawan_salary'
+    | 'school_pic_incentive'
+    | 'kader_incentive'
+    | 'vehicle_rent'
+    | 'sppg_rent'
+    | null
 }
 
 export type TransactionRecord = {
@@ -138,6 +159,13 @@ export function buildTransactionPayload(
     accountId?: string | null
     supplierId?: string | null
     destinationLabel?: string | null
+    operationalType?:
+      | 'relawan_salary'
+      | 'school_pic_incentive'
+      | 'kader_incentive'
+      | 'vehicle_rent'
+      | 'sppg_rent'
+      | null
   }
 ): TransactionPayload {
   const base = {
@@ -155,7 +183,8 @@ export function buildTransactionPayload(
         category: 'RAB',
         account_id: input.accountId || null,
         supplier_id: null,
-        destination_label: null
+        destination_label: null,
+        operational_type: null
       }
 
     case 'expense':
@@ -165,7 +194,8 @@ export function buildTransactionPayload(
         category: 'Supplier',
         account_id: null,
         supplier_id: input.supplierId || null,
-        destination_label: null
+        destination_label: null,
+        operational_type: null
       }
 
     case 'gas':
@@ -175,7 +205,8 @@ export function buildTransactionPayload(
         category: 'GAS',
         account_id: input.accountId || null,
         supplier_id: null,
-        destination_label: null
+        destination_label: null,
+        operational_type: null
       }
 
     case 'neutral':
@@ -185,7 +216,8 @@ export function buildTransactionPayload(
         category: 'GAS',
         account_id: input.accountId || null,
         supplier_id: null,
-        destination_label: null
+        destination_label: null,
+        operational_type: null
       }
 
     case 'ops_disbursement':
@@ -195,7 +227,8 @@ export function buildTransactionPayload(
         category: 'OPS',
         account_id: null,
         supplier_id: null,
-        destination_label: input.destinationLabel?.trim() || null
+        destination_label: input.destinationLabel?.trim() || null,
+        operational_type: null
       }
 
     case 'real_ops':
@@ -203,17 +236,19 @@ export function buildTransactionPayload(
         ...base,
         flow_type: 'real_ops',
         category: 'REAL_OPS',
+        operational_type: null,
         account_id: null,
         supplier_id: null,
         destination_label: null,
         note: null
       }
 
-    case 'sppg_rent':
+    case 'operational_disbursement':
       return {
         ...base,
-        flow_type: 'sppg_rent',
-        category: 'SEWA_SPPG',
+        flow_type: 'operational_disbursement',
+        category: 'OPERATIONAL',
+        operational_type: input.operationalType ?? null,
         account_id: null,
         supplier_id: null,
         destination_label: null,
@@ -251,6 +286,13 @@ export function validateTransactionPayload(
     return 'Tujuan operasional wajib diisi'
   }
 
+  if (
+    payload.flow_type === 'operational_disbursement' &&
+    !payload.operational_type
+  ) {
+    return 'Jenis pencairan operasional wajib dipilih'
+  }
+
   if (payload.flow_type === 'expense' && !payload.supplier_id) {
     return 'Supplier wajib dipilih'
   }
@@ -280,6 +322,10 @@ export async function hasDuplicateTransaction(
 
   if (payload.flow_type === 'expense') {
     query = query.eq('supplier_id', payload.supplier_id)
+  }
+
+  if (payload.flow_type === 'operational_disbursement') {
+    query = query.eq('operational_type', payload.operational_type)
   }
 
   if (payload.flow_type === 'income' || payload.flow_type === 'gas') {
