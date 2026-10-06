@@ -49,6 +49,19 @@ function printReport() {
     )
     .forEach((element) => element.remove())
 
+  const operationalBlock = reportClone.querySelector<HTMLElement>(
+    '.reports-overall-operational-block'
+  )
+
+  let operationalHtml = ''
+  if (operationalBlock) {
+    operationalHtml = operationalBlock.outerHTML
+    operationalBlock.remove()
+  }
+
+  const firstPageHtml = reportClone.outerHTML
+  const hasOperationalPage = Boolean(operationalHtml)
+
   const title =
     activeSection.dataset.reportTitle?.trim() ||
     reportPage
@@ -138,7 +151,34 @@ function printReport() {
       display: none !important;
     }
 
-    .reports-page {
+    .reports-print-document {
+      width: 100%;
+    }
+
+    .reports-print-page {
+      width: 100%;
+      min-height: 190mm;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 0;
+    }
+
+    .reports-print-page-first {
+      break-before: auto;
+      page-break-before: auto;
+    }
+
+    .reports-print-page-operational {
+      break-before: page;
+      page-break-before: always;
+    }
+
+    .reports-print-page > .reports-header,
+    .reports-print-page > .reports-section,
+    .reports-print-page > .reports-disbursement-block,
+    .reports-print-page > .print-footer {
       width: 100%;
     }
 
@@ -176,19 +216,19 @@ function printReport() {
       width: 100%;
     }
 
-    .reports-overall-operational-block {
-      break-before: page;
-      page-break-before: always;
-      break-inside: avoid;
-      page-break-inside: avoid;
-      margin-top: 0 !important;
-    }
-
     .reports-operational-note {
       margin-top: 5px;
       font-size: 8.5px;
       line-height: 1.3;
       color: #637A96;
+    }
+
+    .reports-subsection-title {
+      color: #111827 !important;
+      font-weight: 800 !important;
+      margin-bottom: 22px !important;
+      break-after: avoid;
+      page-break-after: avoid;
     }
 
     .reports-summary-grid {
@@ -358,6 +398,17 @@ function printReport() {
       line-height: 1.15 !important;
     }
 
+    .reports-table th {
+      color: #111827 !important;
+      font-weight: 800 !important;
+      background: #ECF0F6 !important;
+    }
+
+    .reports-table-overall-operational th {
+      font-size: 8.5px !important;
+      line-height: 1.15 !important;
+    }
+
     .reports-table td {
       font-size: 10px !important;
       padding: 6px 5px !important;
@@ -412,7 +463,7 @@ function printReport() {
     }
 
     .print-footer {
-      margin-top: 18px;
+      margin-top: 14px;
       text-align: right;
       font-size: 10px;
       color: #637A96;
@@ -421,23 +472,38 @@ function printReport() {
 </head>
 
 <body>
-  <div class="reports-page">
-    <header class="reports-header">
-      <h1>${escapeHtml(title)}</h1>
-      <p>${escapeHtml(subtitle)}</p>
+  <div class="reports-print-document">
+    <div class="reports-print-page reports-print-page-first">
+      <header class="reports-header">
+        <h1>${escapeHtml(title)}</h1>
+        <p>${escapeHtml(subtitle)}</p>
 
-      <div class="print-meta">
-        ${period ? `<span>${escapeHtml(period)}</span>` : ''}
-        ${kitchen ? `<span>${escapeHtml(kitchen)}</span>` : ''}
-      </div>
-    </header>
+        <div class="print-meta">
+          ${period ? `<span>${escapeHtml(period)}</span>` : ''}
+          ${kitchen ? `<span>${escapeHtml(kitchen)}</span>` : ''}
+        </div>
+      </header>
 
-    ${reportClone.outerHTML}
+      ${firstPageHtml}
 
-    <div class="print-footer">
-      Dicetak:
-      ${printedAtText}
+      ${!hasOperationalPage ? `
+        <div class="print-footer">
+          Dicetak:
+          ${printedAtText}
+        </div>
+      ` : ''}
     </div>
+
+    ${hasOperationalPage ? `
+      <div class="reports-print-page reports-print-page-operational">
+        ${operationalHtml}
+
+        <div class="print-footer">
+          Dicetak:
+          ${printedAtText}
+        </div>
+      </div>
+    ` : ''}
   </div>
 </body>
 </html>
