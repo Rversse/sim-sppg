@@ -254,7 +254,13 @@ export async function getSupplierOptions(
   }
 
   if (filters.flowType === 'operational_disbursement') {
-    return []
+    return [
+      { value: 'relawan_salary', label: 'Gaji Relawan' },
+      { value: 'school_pic_incentive', label: 'Insentif PIC Sekolah' },
+      { value: 'kader_incentive', label: 'Insentif Kader' },
+      { value: 'vehicle_rent', label: 'Sewa Kendaraan' },
+      { value: 'sppg_rent', label: 'Sewa SPPG' }
+    ]
   }
 
   if (filters.flowType === 'expense') {
