@@ -636,7 +636,6 @@ export async function getSppgRentReport(
       | {
           id: string
           name: string
-          operational_recipient_name: string | null
         }[]
       | null
   }> = []
