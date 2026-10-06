@@ -57,6 +57,9 @@ SET
 WHERE flow_type = 'sppg_rent';
 
 ALTER TABLE public.transactions
+  DROP CONSTRAINT IF EXISTS transactions_operational_type_check;
+
+ALTER TABLE public.transactions
   ADD CONSTRAINT transactions_operational_type_check
   CHECK (
     operational_type IS NULL
@@ -174,6 +177,4 @@ begin
 end;
 $function$;
 
-DELETE FROM public.disbursement_checklists;
-
-DROP TABLE public.disbursement_checklists;
+DROP TABLE IF EXISTS public.disbursement_checklists;
