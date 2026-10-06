@@ -5,6 +5,8 @@ import {
   getIncomeReport,
   getSupplierReport,
   getSppgRentReport,
+  getOperationalDisbursementReport,
+  getOperationalTypeLabel,
   getOperationalKitchenLabel
 } from '@/features/report/reports-service'
 
@@ -35,7 +37,7 @@ function loadSupplierReport(startDate: string, endDate: string) {
 
 type PencairanReport = {
   belanja: Awaited<ReturnType<typeof getIncomeReport>>
-  operasional: Awaited<ReturnType<typeof getSppgRentReport>>
+  operasional: Awaited<ReturnType<typeof getOperationalDisbursementReport>>
 }
 
 function loadPencairanReport(
@@ -44,7 +46,7 @@ function loadPencairanReport(
 ): Promise<PencairanReport> {
   return Promise.all([
     getIncomeReport({ startDate, endDate }),
-    getSppgRentReport({ startDate, endDate, kitchenId: '' })
+    getOperationalDisbursementReport({ startDate, endDate, kitchenId: '' })
   ]).then(([belanja, operasional]) => ({
     belanja,
     operasional
@@ -698,8 +700,13 @@ function PencairanReportView() {
                   <tbody>
                     {report.operasional.rows.map((row) => (
                       <tr key={row.kitchenId}>
-                        <td>{getOperationalKitchenLabel(row.kitchenName)}</td>
-                        <td>Sewa SPPG</td>
+                        <td>
+                          {getOperationalKitchenLabel(
+                            row.kitchenName,
+                            row.recipientName
+                          )}
+                        </td>
+                        <td>{getOperationalTypeLabel(row.operationalType)}</td>
                         <td>{formatCurrency(row.total)}</td>
                       </tr>
                     ))}
