@@ -9,7 +9,6 @@ import {
 
 import {
   exportOverallReport,
-  exportIncomeReport,
   exportSupplierReport
 } from '@/features/report/report-export'
 import { printReport } from '@/features/report/report-print'
@@ -26,10 +25,6 @@ type ReportLoader<T> = (startDate: string, endDate: string) => Promise<T>
 
 function loadOverallReport(startDate: string, endDate: string) {
   return getOverallReport({ startDate, endDate, kitchenId: '' })
-}
-
-function loadIncomeReport(startDate: string, endDate: string) {
-  return getIncomeReport({ startDate, endDate })
 }
 
 function loadSupplierReport(startDate: string, endDate: string) {
