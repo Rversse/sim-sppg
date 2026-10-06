@@ -384,11 +384,19 @@ function printReport() {
       font-weight: 900 !important;
     }
 
-    .reports-overall-belanja-block .reports-table td,
-    .reports-overall-belanja-block .reports-table td.positive,
-    .reports-overall-belanja-block .reports-table td.negative {
-      color: #111827 !important;
+    .reports-overall-belanja-block .reports-table td {
+      color: #18293F !important;
       font-weight: 600 !important;
+    }
+
+    .reports-overall-belanja-block .reports-table td.positive {
+      color: #1DB96A !important;
+      font-weight: bold !important;
+    }
+
+    .reports-overall-belanja-block .reports-table td.negative {
+      color: #E8404A !important;
+      font-weight: bold !important;
     }
 
     .reports-overall-belanja-block .reports-total-row td {
