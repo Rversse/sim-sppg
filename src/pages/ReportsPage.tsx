@@ -383,34 +383,28 @@ function OverallReportView() {
         <>
           <div className="reports-summary-grid reports-summary-overall">
             <SummaryCard
-              label="RAB / Pencairan"
-              value={report.totals.income}
-              note="Total pencairan RAB pada periode terpilih"
+              label="Total RAB"
+              value={report.totals.totalRAB}
+              note="Total bersih RAB pada periode terpilih"
             />
             <SummaryCard
-              label="RAB / Real"
-              value={report.totals.expense}
-              note="Total realisasi supplier pada periode terpilih"
+              label="Total OPS"
+              value={report.totals.totalOperational}
+              note="Total bersih operasional pada periode terpilih"
             />
             <SummaryCard
-              label="OPS / Pencairan"
-              value={report.totals.operational}
-              note="Total pencairan operasional masuk ke rekening Akuntan / Aslap pada periode terpilih"
+              label="Sewa SPPG"
+              value={report.totals.sppgRent}
+              note="Total sewa SPPG pada periode terpilih"
             />
             <SummaryCard
-              label="OPS / Real"
-              value={report.totals.realOperational}
-              note="Total realisasi operasional pada periode terpilih"
-            />
-            <SummaryCard
-              label="OPS / Arutala"
-              value={report.totals.gas}
-              note="Total operasional masuk ke rekening Arutala pada periode terpilih"
-            />
-            <SummaryCard
-              label="Pencairan Operasional"
-              value={report.totals.totalOperationalDisbursement}
-              note="Total pencairan operasional pada periode terpilih"
+              label="Gaji & Insentif"
+              value={
+                report.totals.relawanSalary +
+                report.totals.schoolPicIncentive +
+                report.totals.kaderIncentive
+              }
+              note="Gaji Relawan + Insentif PIC Sekolah + Insentif Kader"
             />
           </div>
 
@@ -426,7 +420,6 @@ function OverallReportView() {
                   <th className="reports-col-real-ops">OPS / REAL</th>
                   <th className="reports-col-total">TOTAL OPS</th>
                   <th className="reports-col-gas">OPS / ARUTALA</th>
-                  <th className="reports-col-sppg-rent">SEWA SPPG</th>
                 </tr>
               </thead>
               <tbody>
@@ -454,7 +447,6 @@ function OverallReportView() {
                       {formatCurrency(item.totalOperational)}
                     </td>
                     <td>{formatCurrency(item.gas)}</td>
-                    <td>{formatCurrency(item.sppgRent)}</td>
                   </tr>
                 ))}
                 <tr className="reports-total-row">
@@ -480,7 +472,6 @@ function OverallReportView() {
                     {formatCurrency(report.totals.totalOperational)}
                   </td>
                   <td>{formatCurrency(report.totals.gas)}</td>
-                  <td>{formatCurrency(report.totals.sppgRent)}</td>
                 </tr>
               </tbody>
             </table>
