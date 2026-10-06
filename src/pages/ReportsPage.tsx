@@ -507,7 +507,10 @@ function OverallReportView() {
                     .map((item) => (
                       <tr key={item.kitchenId}>
                         <td>
-                          {item.kitchenName}
+                          {getOperationalKitchenLabel(
+                            item.kitchenName,
+                            item.recipientName
+                          )}
                         </td>
                         <td>{formatCurrency(item.relawanSalary)}</td>
                         <td>{formatCurrency(item.schoolPicIncentive)}</td>
@@ -530,8 +533,12 @@ function OverallReportView() {
                   </tr>
                 </tbody>
               </table>
-            </div>
-          </div>
+
+              <p className="reports-operational-note">
+                Catatan: Pencairan operasional masing-masing dapur disalurkan
+                ke rekening yang tercantum dalam tanda kurung pada nama dapur.
+              </p>
+            </div>          </div>
         </>
       )}
     </section>
