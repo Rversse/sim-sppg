@@ -114,6 +114,42 @@ export type SppgRentReport = {
   grandTotal: number
 }
 
+export type OperationalType =
+  | 'relawan_salary'
+  | 'school_pic_incentive'
+  | 'kader_incentive'
+  | 'vehicle_rent'
+  | 'sppg_rent'
+
+export type OperationalDisbursementRow = {
+  kitchenId: string
+  kitchenName: string
+  recipientName: string | null
+  operationalType: OperationalType
+  total: number
+}
+
+export type OperationalDisbursementReport = {
+  rows: OperationalDisbursementRow[]
+  grandTotal: number
+}
+
+export function getOperationalTypeLabel(type: OperationalType) {
+  switch (type) {
+    case 'relawan_salary':
+      return 'Gaji Relawan'
+    case 'school_pic_incentive':
+      return 'Insentif PIC Sekolah'
+    case 'kader_incentive':
+      return 'Insentif Kader'
+    case 'vehicle_rent':
+      return 'Sewa Kendaraan'
+    case 'sppg_rent':
+      return 'Sewa SPPG'
+  }
+}
+
+
 export function getOperationalKitchenLabel(
   kitchenName: string,
   recipientName: string | null
@@ -660,6 +696,115 @@ export async function getSppgRentReport(
     rows,
     dailyRows,
     grandTotal: rows.reduce((total, row) => total + row.total, 0)
+  }
+}
+
+export async function getOperationalDisbursementReport(
+  filters: Pick<ReportFilters, 'startDate' | 'endDate' | 'kitchenId'>,
+  client: SupabaseClient = supabase
+): Promise<OperationalDisbursementReport> {
+  const pageSize = 1000
+  const rows: OperationalDisbursementRow[] = []
+
+  for (let from = 0; ; from += pageSize) {
+    let query = client
+      .from('transactions')
+      .select(
+        `
+        amount,
+        transaction_date,
+        operational_type,
+        kitchen_id,
+        kitchens (
+          id,
+          name,
+          operational_recipient_name
+        )
+      `
+      )
+      .eq('flow_type', 'operational_disbursement')
+      .gte('transaction_date', filters.startDate)
+      .lte('transaction_date', filters.endDate)
+      .order('transaction_date', { ascending: true })
+      .order('created_at', { ascending: true })
+      .range(from, from + pageSize - 1)
+
+    if (filters.kitchenId) {
+      query = query.eq('kitchen_id', filters.kitchenId)
+    }
+
+    const { data, error } = await query
+
+    if (error) throw error
+
+    const page = (data ?? []) as Array<{
+      amount: number | string | null
+      transaction_date: string
+      operational_type: OperationalType | null
+      kitchen_id: string | null
+      kitchens:
+        | {
+            id: string
+            name: string
+            operational_recipient_name: string | null
+          }
+        | {
+            id: string
+            name: string
+            operational_recipient_name: string | null
+          }[]
+        | null
+    }>
+
+    rows.push(
+      ...page.flatMap((transaction) => {
+        if (!transaction.kitchen_id || !transaction.operational_type) {
+          return []
+        }
+
+        const kitchen = Array.isArray(transaction.kitchens)
+          ? transaction.kitchens[0]
+          : transaction.kitchens
+
+        return [
+          {
+            kitchenId: transaction.kitchen_id,
+            kitchenName: kitchen?.name ?? 'Dapur tidak diketahui',
+            recipientName: kitchen?.operational_recipient_name ?? null,
+            operationalType: transaction.operational_type,
+            total: getAmount(transaction.amount)
+          }
+        ]
+      })
+    )
+
+    if (page.length < pageSize) {
+      break
+    }
+  }
+
+  const grouped = new Map<string, OperationalDisbursementRow>()
+
+  for (const row of rows) {
+    const key = row.kitchenId + '|' + row.operationalType
+    const current = grouped.get(key)
+
+    if (current) {
+      current.total += row.total
+    } else {
+      grouped.set(key, { ...row })
+    }
+  }
+
+  const resultRows = [...grouped.values()].sort(
+    (a, b) =>
+      a.kitchenName.localeCompare(b.kitchenName, 'id') ||
+      a.operationalType.localeCompare(b.operationalType, 'id')
+  )
+
+  return {
+    rows: resultRows,
+    grandTotal: resultRows.reduce((total, row) => total + row.total, 0)
   }
 }
 
