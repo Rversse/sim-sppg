@@ -20,7 +20,6 @@ const pageLoaders = {
   '/master/vehicle': () => import('@/pages/VehiclePage'),
   '/master/supplier': () => import('@/pages/SupplierPage'),
   '/bank': () => import('@/pages/BankPage'),
-  '/disbursement': () => import('@/pages/DisbursementPage'),
   '/reports': () => import('@/pages/ReportsPage')
 } as const
 
@@ -56,9 +55,5 @@ export const lazyPages = {
   SupplierPage: lazyNamed(() => import('@/pages/SupplierPage'), 'SupplierPage'),
   BankPage: lazyNamed(() => import('@/pages/BankPage'), 'BankPage'),
   ReportsPage: lazyNamed(() => import('@/pages/ReportsPage'), 'ReportsPage'),
-  DisbursementPage: lazyNamed(
-    () => import('@/pages/DisbursementPage'),
-    'DisbursementPage'
-  ),
   DefaultRoute: lazyNamed(() => import('@/pages/DefaultRoute'), 'DefaultRoute')
 } as const

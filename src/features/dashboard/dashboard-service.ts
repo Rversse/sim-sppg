@@ -9,7 +9,7 @@ export type DashboardFlow =
   | 'gas'
   | 'ops_disbursement'
   | 'real_ops'
-  | 'sppg_rent'
+  | 'operational_disbursement'
   | 'neutral'
 
 export type DashboardFilters = {
@@ -69,6 +69,13 @@ export type DashboardTransaction = {
   account_id: string | null
   supplier_id: string | null
   destination_label: string | null
+  operational_type:
+    | 'relawan_salary'
+    | 'school_pic_incentive'
+    | 'kader_incentive'
+    | 'vehicle_rent'
+    | 'sppg_rent'
+    | null
   created_at: string
   accounts:
     | DashboardTransactionAccount
@@ -246,6 +253,16 @@ export async function getSupplierOptions(
     )
   }
 
+  if (filters.flowType === 'operational_disbursement') {
+    return [
+      { value: 'relawan_salary', label: 'Gaji Relawan' },
+      { value: 'school_pic_incentive', label: 'Insentif PIC Sekolah' },
+      { value: 'kader_incentive', label: 'Insentif Kader' },
+      { value: 'vehicle_rent', label: 'Sewa Kendaraan' },
+      { value: 'sppg_rent', label: 'Sewa SPPG' }
+    ]
+  }
+
   if (filters.flowType === 'expense') {
     const kitchenName = filters.kitchenId
       ? await getSelectedKitchenName(filters.kitchenId, client)
@@ -340,6 +357,7 @@ export async function getDashboardTransactionPage(
         account_id,
         supplier_id,
         destination_label,
+        operational_type,
         created_at,
         accounts(
           id,
@@ -368,8 +386,8 @@ export async function getDashboardTransactionPage(
     query = query.eq('kitchen_id', filters.kitchenId)
   }
 
-  if (!includeSppgRent && filters.flowType !== 'sppg_rent') {
-    query = query.neq('flow_type', 'sppg_rent')
+  if (!includeSppgRent && filters.flowType !== 'operational_disbursement') {
+    query = query.neq('flow_type', 'operational_disbursement')
   }
 
   if (filters.flowType) {
@@ -397,6 +415,8 @@ export async function getDashboardTransactionPage(
       query = query.eq('account_id', filters.supplierFilter)
     } else if (filters.flowType === 'ops_disbursement') {
       query = query.eq('destination_label', filters.supplierFilter)
+    } else if (filters.flowType === 'operational_disbursement') {
+      query = query.eq('operational_type', filters.supplierFilter)
     } else if (filters.flowType === 'real_ops') {
       // Real / Ops intentionally has no account filter.
     } else {
@@ -455,13 +475,20 @@ export async function getDailyStatus(
       .from('transactions')
       .select('kitchen_id')
       .eq('transaction_date', selectedDate)
-      .in('flow_type', ['income', 'gas', 'neutral', 'ops_disbursement']),
+      .in('flow_type', [
+        'income',
+        'gas',
+        'neutral',
+        'ops_disbursement',
+        'operational_disbursement'
+      ]),
     includeSppgRent
       ? client
           .from('transactions')
           .select('kitchen_id')
           .eq('transaction_date', selectedDate)
-          .eq('flow_type', 'sppg_rent')
+          .eq('flow_type', 'operational_disbursement')
+          .eq('operational_type', 'sppg_rent')
       : Promise.resolve({ data: [], error: null })
   ])
 

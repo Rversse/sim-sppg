@@ -12,7 +12,6 @@ export type Permission =
   | 'bank.view'
   | 'bank.transaction.create'
   | 'bank.export'
-  | 'disbursement.view'
   | 'reports.view'
 
 const permissions: Record<Permission, readonly UserRole[]> = {
@@ -27,7 +26,6 @@ const permissions: Record<Permission, readonly UserRole[]> = {
   'bank.view': ['admin', 'operator', 'viewer'],
   'bank.transaction.create': ['admin', 'operator'],
   'bank.export': ['admin', 'operator'],
-  'disbursement.view': ['admin'],
   'reports.view': ['admin']
 }
 

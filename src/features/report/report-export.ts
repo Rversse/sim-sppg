@@ -4,10 +4,13 @@ import type {
   OverallReport,
   IncomeReport,
   SupplierReport,
-  SppgRentReport
+  OperationalDisbursementReport
 } from './reports-service'
 
-import { getOperationalKitchenLabel } from './reports-service'
+import {
+  getOperationalKitchenLabel,
+  getOperationalTypeLabel
+} from './reports-service'
 
 async function loadExcelJS() {
   return import('exceljs')
@@ -515,7 +518,7 @@ function createPencairanSheet(
   workbook: ExcelJS.Workbook,
   report: {
     belanja: IncomeReport
-    operasional: SppgRentReport
+    operasional: OperationalDisbursementReport
   },
   startDate: string,
   endDate: string
@@ -582,8 +585,8 @@ function createPencairanSheet(
 
   for (const row of report.operasional.rows) {
     worksheet.addRow([
-      getOperationalKitchenLabel(row.kitchenName),
-      'Sewa SPPG',
+      getOperationalKitchenLabel(row.kitchenName, row.recipientName),
+      getOperationalTypeLabel(row.operationalType),
       row.total
     ])
   }
@@ -680,7 +683,7 @@ function createSupplierSummarySheet(
 export async function exportPencairanReport(
   report: {
     belanja: IncomeReport
-    operasional: SppgRentReport
+    operasional: OperationalDisbursementReport
   },
   startDate: string,
   endDate: string

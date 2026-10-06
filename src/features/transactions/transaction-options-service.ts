@@ -15,6 +15,7 @@ export type TransactionFlow =
   | 'gas'
   | 'ops_disbursement'
   | 'real_ops'
+  | 'operational_disbursement'
 
 export type TransactionAccount = {
   id: string
@@ -293,7 +294,7 @@ export async function getAvailableTransactionFlows(
     flows.push('gas')
   }
 
-  flows.push('ops_disbursement', 'real_ops')
+  flows.push('ops_disbursement', 'real_ops', 'operational_disbursement')
 
   return flows
 }

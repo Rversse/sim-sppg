@@ -19,7 +19,6 @@ const {
   SupplierPage,
   BankPage,
   ReportsPage,
-  DisbursementPage,
   DefaultRoute
 } = lazyPages
 const pageFallback = createElement(
@@ -88,12 +87,6 @@ export const router = createBrowserRouter(
               element: <RoleRoute permission="reports.view" />,
               children: [{ path: 'reports', element: pageElement(ReportsPage) }]
             },
-            {
-              element: <RoleRoute permission="disbursement.view" />,
-              children: [
-                { path: 'disbursement', element: pageElement(DisbursementPage) }
-              ]
-            }
           ]
         }
       ]

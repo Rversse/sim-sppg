@@ -5,6 +5,7 @@ export type Kitchen = {
   pic: string | null
   foundation: string | null
   address: string | null
+  operational_recipient_name: string | null
   is_active: boolean
 }
 
@@ -14,6 +15,7 @@ export type KitchenInput = {
   pic: string
   foundation: string
   address: string
+  operational_recipient_name: string
   is_active: boolean
 }
 

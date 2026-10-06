@@ -8,7 +8,6 @@ import {
   FileText,
   LayoutDashboard,
   LogOut,
-  Wallet,
   type LucideIcon
 } from 'lucide-react'
 import { VehicleExpiryNotification } from '@/components/ui/VehicleExpiryNotification'
@@ -75,13 +74,6 @@ const navigationSections: NavigationSection[] = [
         icon: ArrowLeftRight,
         pageTitle: 'Transaksi Bank'
       },
-      {
-        label: 'Checklist Periode',
-        to: '/disbursement',
-        permission: 'disbursement.view',
-        icon: Wallet,
-        pageTitle: 'Checklist Periode'
-      }
     ]
   },
   {

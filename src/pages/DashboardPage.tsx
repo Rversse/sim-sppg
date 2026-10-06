@@ -58,7 +58,7 @@ const FLOW_OPTIONS: { value: DashboardFlow | ''; label: string }[] = [
   { value: 'gas', label: 'OPS / Arutala' },
   { value: 'ops_disbursement', label: 'OPS / Pencairan' },
   { value: 'real_ops', label: 'OPS / Real' },
-  { value: 'sppg_rent', label: 'Sewa SPPG' }
+  { value: 'operational_disbursement', label: 'Pencairan Operasional' }
 ]
 
 function flowLabel(flow: DashboardFlow) {
@@ -66,8 +66,27 @@ function flowLabel(flow: DashboardFlow) {
   if (flow === 'expense') return 'RAB / Real'
   if (flow === 'gas' || flow === 'neutral') return 'OPS / Arutala'
   if (flow === 'ops_disbursement') return 'OPS / Pencairan'
-  if (flow === 'sppg_rent') return 'Sewa SPPG'
+  if (flow === 'operational_disbursement') return 'Pencairan Operasional'
   return 'OPS / Real'
+}
+
+function operationalTypeLabel(
+  type: DashboardTransaction['operational_type']
+) {
+  switch (type) {
+    case 'relawan_salary':
+      return 'Gaji Relawan'
+    case 'school_pic_incentive':
+      return 'Insentif PIC Sekolah'
+    case 'kader_incentive':
+      return 'Insentif Kader'
+    case 'vehicle_rent':
+      return 'Sewa Kendaraan'
+    case 'sppg_rent':
+      return 'Sewa SPPG'
+    default:
+      return 'Pencairan Operasional'
+  }
 }
 
 function FlowIcon({ flow }: { flow: DashboardFlow }) {
@@ -83,7 +102,7 @@ function FlowIcon({ flow }: { flow: DashboardFlow }) {
     return <Landmark aria-hidden="true" />
   }
 
-  if (flow === 'sppg_rent') {
+  if (flow === 'operational_disbursement') {
     return <Building2 aria-hidden="true" />
   }
 
@@ -99,7 +118,7 @@ function flowClass(flow: DashboardFlow) {
   if (flow === 'ops_disbursement') {
     return 'dashboard-flow dashboard-flow-ops-disbursement'
   }
-  if (flow === 'sppg_rent') {
+  if (flow === 'operational_disbursement') {
     return 'dashboard-flow dashboard-flow-sppg-rent'
   }
   return 'dashboard-flow dashboard-flow-real-ops'
@@ -119,7 +138,7 @@ function getAvailableFlowsForKitchen(
   flows.push('ops_disbursement', 'real_ops')
 
   if (includeSppgRent) {
-    flows.push('sppg_rent')
+    flows.push('operational_disbursement')
   }
 
   return flows
@@ -243,6 +262,14 @@ export function DashboardPage() {
   )
   const [formAccountId, setFormAccountId] = useState('')
   const [formSupplierId, setFormSupplierId] = useState('')
+  const [formOperationalType, setFormOperationalType] = useState<
+    | 'relawan_salary'
+    | 'school_pic_incentive'
+    | 'kader_incentive'
+    | 'vehicle_rent'
+    | 'sppg_rent'
+    | ''
+  >('')
   const [formAmount, setFormAmount] = useState('')
   const [formNote, setFormNote] = useState('')
 
@@ -582,7 +609,6 @@ export function DashboardPage() {
     filters.flowType === 'gas' ||
     filters.flowType === 'ops_disbursement' ||
     filters.flowType === 'real_ops' ||
-    filters.flowType === 'sppg_rent' ||
     supplierLockedToArutala
 
   const supplierFilterLabel =
@@ -596,8 +622,8 @@ export function DashboardPage() {
             ? 'Tujuan Ops'
             : filters.flowType === 'real_ops'
               ? 'Rekening'
-              : filters.flowType === 'sppg_rent'
-                ? 'Tanpa Rekening'
+              : filters.flowType === 'operational_disbursement'
+                ? 'Jenis Operasional'
                 : 'Supplier / Rekening'
 
   const operationalDestination = getOperationalDestination(
@@ -609,8 +635,10 @@ export function DashboardPage() {
       ? 'KOPERASI ARUTALA BNI'
       : filters.flowType === 'ops_disbursement'
         ? (operationalDestination ?? 'Akuntan + Dapur')
-        : filters.flowType === 'real_ops' || filters.flowType === 'sppg_rent'
+        : filters.flowType === 'real_ops'
           ? 'Tidak diperlukan'
+          : filters.flowType === 'operational_disbursement'
+            ? 'Semua jenis operasional'
           : supplierDisabled
             ? 'Koperasi Arutala'
             : filters.flowType === 'expense' && isSukarajaFilterKitchen
@@ -704,6 +732,15 @@ export function DashboardPage() {
       return
     }
 
+    if (value === 'operational_disbursement') {
+      setFilters((current) => ({
+        ...current,
+        flowType: value,
+        supplierFilter: ''
+      }))
+      return
+    }
+
     if (value === 'gas') {
       try {
         const accounts = await getAccountsForFlow(filters.kitchenId, 'gas')
@@ -739,6 +776,7 @@ export function DashboardPage() {
     setAvailableFormFlows([])
     setFormAccountId('')
     setFormSupplierId('')
+    setFormOperationalType('')
     setFormAmount('')
     setFormNote('')
     setFormError(null)
@@ -769,12 +807,21 @@ export function DashboardPage() {
       return
     }
 
-    if (flowType === 'real_ops' || flowType === 'sppg_rent') {
+    if (flowType === 'real_ops') {
       setFormAccounts([])
       setFormSuppliers([])
       setFormAccountId('')
       setFormSupplierId('')
       setFormEntryUnlocked(true)
+      return
+    }
+
+    if (flowType === 'operational_disbursement') {
+      setFormAccounts([])
+      setFormSuppliers([])
+      setFormAccountId('')
+      setFormSupplierId('')
+      setFormEntryUnlocked(Boolean(formOperationalType))
       return
     }
 
@@ -863,6 +910,7 @@ export function DashboardPage() {
     setFormDate(transaction.transaction_date)
     setFormKitchenId(transaction.kitchen_id ?? '')
     setFormFlowType(transaction.flow_type === 'neutral' ? 'gas' : transaction.flow_type)
+    setFormOperationalType(transaction.operational_type ?? '')
     setFormAmount(formatIntegerInput(String(Number(transaction.amount) || 0)))
     setFormNote(transaction.note ?? '')
     setFormEntryUnlocked(true)
@@ -893,6 +941,9 @@ export function DashboardPage() {
         transaction.supplier_id ?? '',
         true
       )
+      if (editFlowType === 'operational_disbursement') {
+        setFormEntryUnlocked(Boolean(transaction.operational_type))
+      }
     } catch (loadError) {
       console.error(loadError)
       setFormError('Gagal memuat rekening atau supplier transaksi.')
@@ -905,6 +956,7 @@ export function DashboardPage() {
     setFormKitchenId(value)
     setFormAccountId('')
     setFormSupplierId('')
+    setFormOperationalType('')
     setFormAmount('')
     setFormNote('')
     setFormEntryUnlocked(false)
@@ -955,6 +1007,7 @@ export function DashboardPage() {
     setFormFlowType(value)
     setFormAccountId('')
     setFormSupplierId('')
+    setFormOperationalType('')
     setFormAmount('')
     setFormNote(
       value === 'gas'
@@ -990,7 +1043,7 @@ export function DashboardPage() {
         value === 'gas' ||
         value === 'ops_disbursement' ||
         value === 'real_ops' ||
-        value === 'sppg_rent'
+        value === 'operational_disbursement'
       ) {
         // These flows have a fixed account/destination or no account at all,
         // so the next editable field is always Nominal.
@@ -1032,9 +1085,11 @@ export function DashboardPage() {
               ? 'Rekening Operasional belum siap.'
               : formFlowType === 'ops_disbursement'
                 ? 'Tujuan operasional belum siap.'
-                : formFlowType === 'real_ops' || formFlowType === 'sppg_rent'
-                  ? 'Dapur belum siap.'
-                  : 'Lengkapi dapur dan jenis transaksi terlebih dahulu.'
+                : formFlowType === 'operational_disbursement'
+                  ? 'Jenis operasional belum dipilih.'
+                  : formFlowType === 'real_ops'
+                    ? 'Dapur belum siap.'
+                    : 'Lengkapi dapur dan jenis transaksi terlebih dahulu.'
       )
       return
     }
@@ -1068,12 +1123,18 @@ export function DashboardPage() {
       return
     }
 
+    if (formFlowType === 'operational_disbursement' && !formOperationalType) {
+      setFormError('Jenis operasional wajib dipilih.')
+      return
+    }
+
     const payload = {
       transaction_date: formDate,
       kitchen_id: formKitchenId,
       amount,
       note:
-        formFlowType === 'real_ops' || formFlowType === 'sppg_rent'
+        formFlowType === 'real_ops' ||
+        formFlowType === 'operational_disbursement'
           ? null
           : formNote.trim() || null,
       flow_type:
@@ -1086,10 +1147,10 @@ export function DashboardPage() {
             : formFlowType === 'gas'
               ? 'GAS'
               : formFlowType === 'real_ops'
-                ? 'REAL_OPS'
-                : formFlowType === 'sppg_rent'
-                  ? 'SEWA_SPPG'
-                  : 'OPS',
+              ? 'REAL_OPS'
+              : formFlowType === 'operational_disbursement'
+                ? 'OPERATIONAL'
+                : 'OPS',
       account_id:
         formFlowType === 'income' || formFlowType === 'gas'
           ? formAccountId || null
@@ -1098,6 +1159,10 @@ export function DashboardPage() {
       destination_label:
         formFlowType === 'ops_disbursement'
           ? getOperationalDestination(selectedFormKitchen?.name)
+          : null,
+      operational_type:
+        formFlowType === 'operational_disbursement'
+          ? formOperationalType || null
           : null
     } as const
 
@@ -1166,10 +1231,11 @@ export function DashboardPage() {
         } else if (formFlowType === 'ops_disbursement') {
           setFormAccountId('')
           setFormEntryUnlocked(true)
-        } else if (
-          formFlowType === 'real_ops' ||
-          formFlowType === 'sppg_rent'
-        ) {
+        } else if (formFlowType === 'operational_disbursement') {
+          setFormAccountId('')
+          setFormOperationalType('')
+          setFormEntryUnlocked(false)
+        } else if (formFlowType === 'real_ops') {
           setFormAccountId('')
           setFormEntryUnlocked(true)
         }
@@ -1264,9 +1330,7 @@ export function DashboardPage() {
   const flowFilterOptions = FLOW_OPTIONS.filter(
     (option) =>
       option.value === '' ||
-      (option.value !== 'sppg_rent' &&
-        availableFilterFlows.includes(option.value as DashboardFlow)) ||
-      (option.value === 'sppg_rent' && includeSppgRent)
+      availableFilterFlows.includes(option.value as DashboardFlow)
   )
 
   const supplierFilterOptions = [
@@ -1372,7 +1436,7 @@ export function DashboardPage() {
             onChange={(value) => void handleFlow(value as DashboardFlow | '')}
           />
 
-          {filters.flowType !== 'sppg_rent' ? (
+          {filters.flowType !== 'operational_disbursement' ? (
             <AnimatedSelect
               label={supplierFilterLabel}
               value={supplierFilterValue}
@@ -1686,15 +1750,16 @@ export function DashboardPage() {
                       ? temporaryDestination || 'Tujuan operasional'
                       : transaction.flow_type === 'real_ops'
                         ? 'OPS / Real'
-                        : transaction.flow_type === 'sppg_rent'
-                          ? 'Sewa SPPG'
+                        : transaction.flow_type === 'operational_disbursement'
+                          ? operationalTypeLabel(transaction.operational_type)
                           : accountSupplier?.business_name?.trim() ||
                             account?.name?.trim() ||
                             'Transaksi'
                 const ownerName =
                   transaction.flow_type === 'expense' ||
                   transaction.flow_type === 'ops_disbursement' ||
-                  transaction.flow_type === 'real_ops'
+                  transaction.flow_type === 'real_ops' ||
+                  transaction.flow_type === 'operational_disbursement'
                     ? ''
                     : accountSupplier?.owner_name?.trim() || ''
                 const bankAccount = account
@@ -1976,7 +2041,30 @@ export function DashboardPage() {
                 </select>
               </label>
 
-              {formFlowType === 'real_ops' || formFlowType === 'sppg_rent' ? null : formFlowType === 'ops_disbursement' ? (
+              {formFlowType === 'real_ops' ? null : formFlowType === 'operational_disbursement' ? (
+                <label>
+                  <span>Jenis Operasional</span>
+                  <select
+                    value={formOperationalType}
+                    disabled={modalMode === 'edit'}
+                    onChange={(event) => {
+                      const value = event.target.value as typeof formOperationalType
+                      setFormOperationalType(value)
+                      setFormEntryUnlocked(Boolean(value))
+                      if (value) {
+                        focusNominalInput()
+                      }
+                    }}
+                  >
+                    <option value="">Pilih jenis operasional</option>
+                    <option value="relawan_salary">Gaji Relawan</option>
+                    <option value="school_pic_incentive">Insentif PIC Sekolah</option>
+                    <option value="kader_incentive">Insentif Kader</option>
+                    <option value="vehicle_rent">Sewa Kendaraan</option>
+                    <option value="sppg_rent">Sewa SPPG</option>
+                  </select>
+                </label>
+              ) : formFlowType === 'ops_disbursement' ? (
                 <label>
                   <span>Tujuan Operasional</span>
                   <input
@@ -2084,7 +2172,8 @@ export function DashboardPage() {
                 />
               </label>
 
-              {formFlowType !== 'real_ops' && formFlowType !== 'sppg_rent' ? (
+              {formFlowType !== 'real_ops' &&
+              formFlowType !== 'operational_disbursement' ? (
                 <label className="dashboard-transaction-form-note">
                   <span>Catatan</span>
                   <textarea
