@@ -112,6 +112,17 @@ export type SppgRentReport = {
   grandTotal: number
 }
 
+const OPERATIONAL_RECIPIENT_BY_KITCHEN: Record<string, string> = {
+  cisepat: 'Robi Sulaeman'
+}
+
+export function getOperationalKitchenLabel(kitchenName: string) {
+  const recipient =
+    OPERATIONAL_RECIPIENT_BY_KITCHEN[kitchenName.trim().toLowerCase()]
+
+  return `${kitchenName} (${recipient ?? 'Belum ditentukan'})`
+}
+
 type ReportTransaction = {
   amount: number | string | null
   transaction_date: string
