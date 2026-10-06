@@ -595,8 +595,7 @@ function createPencairanSheet(
   ])
   styleTotalRow(operationalTotalRow)
 
-  setCurrencyColumns(worksheet, [4])
-  worksheet.getColumn(4).numFmt = '#,##0'
+  setCurrencyColumns(worksheet, [3, 4])
   setColumnWidths(worksheet, {
     1: 34,
     2: 28,
