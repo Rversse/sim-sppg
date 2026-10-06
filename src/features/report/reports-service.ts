@@ -705,7 +705,6 @@ export async function getSppgRentReport(
       kitchenMap.get(transaction.kitchen_id) ?? {
         kitchenId: transaction.kitchen_id,
         kitchenName,
-        recipientName: kitchen?.operational_recipient_name ?? null,
         daySet: new Set<string>(),
         total: 0
       }
@@ -718,7 +717,6 @@ export async function getSppgRentReport(
       date: transaction.transaction_date,
       kitchenId: transaction.kitchen_id,
       kitchenName,
-      recipientName: kitchen?.operational_recipient_name ?? null,
       amount
     })
   }
@@ -727,7 +725,6 @@ export async function getSppgRentReport(
     .map((row) => ({
       kitchenId: row.kitchenId,
       kitchenName: row.kitchenName,
-      recipientName: row.recipientName,
       dayCount: row.daySet.size,
       total: row.total
     }))
