@@ -105,7 +105,6 @@ export type SupplierReport = {
 export type SppgRentKitchenRow = {
   kitchenId: string
   kitchenName: string
-  recipientName: string | null
   dayCount: number
   total: number
 }
@@ -114,7 +113,6 @@ export type SppgRentDailyRow = {
   date: string
   kitchenId: string
   kitchenName: string
-  recipientName: string | null
   amount: number
 }
 
@@ -134,7 +132,6 @@ export type OperationalType =
 export type OperationalDisbursementRow = {
   kitchenId: string
   kitchenName: string
-  recipientName: string | null
   operationalType: OperationalType
   total: number
 }
@@ -751,8 +748,7 @@ export async function getOperationalDisbursementReport(
         kitchen_id,
         kitchens (
           id,
-          name,
-          operational_recipient_name
+          name
         )
       `
       )
@@ -780,7 +776,6 @@ export async function getOperationalDisbursementReport(
         | {
             id: string
             name: string
-            operational_recipient_name: string | null
           }
         | {
             id: string
@@ -804,7 +799,6 @@ export async function getOperationalDisbursementReport(
           {
             kitchenId: transaction.kitchen_id,
             kitchenName: kitchen?.name ?? 'Dapur tidak diketahui',
-            recipientName: kitchen?.operational_recipient_name ?? null,
             operationalType: transaction.operational_type,
             total: getAmount(transaction.amount)
           }
