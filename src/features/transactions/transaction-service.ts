@@ -42,13 +42,6 @@ export type TransactionPayload = {
   account_id: string | null
   supplier_id: string | null
   destination_label: string | null
-  operational_type:
-    | 'relawan_salary'
-    | 'school_pic_incentive'
-    | 'kader_incentive'
-    | 'vehicle_rent'
-    | 'sppg_rent'
-    | null
 }
 
 export type TransactionRecord = {
@@ -62,6 +55,13 @@ export type TransactionRecord = {
   account_id: string | null
   supplier_id: string | null
   destination_label: string | null
+  operational_type:
+    | 'relawan_salary'
+    | 'school_pic_incentive'
+    | 'kader_incentive'
+    | 'vehicle_rent'
+    | 'sppg_rent'
+    | null
   created_at: string
   is_disbursed: boolean
   kitchens: {
@@ -108,6 +108,7 @@ export async function getTransactions(
       created_at,
       is_disbursed,
       destination_label,
+      operational_type,
       kitchens(name),
       suppliers!transactions_supplier_id_fkey(
         name
