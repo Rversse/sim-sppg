@@ -10,6 +10,7 @@ import {
 
 import {
   exportOverallReport,
+  exportPencairanReport,
   exportSupplierReport
 } from '@/features/report/report-export'
 import { printReport } from '@/features/report/report-print'
@@ -37,7 +38,10 @@ type PencairanReport = {
   operasional: Awaited<ReturnType<typeof getSppgRentReport>>
 }
 
-function loadPencairanReport(startDate: string, endDate: string) {
+function loadPencairanReport(
+  startDate: string,
+  endDate: string
+): Promise<PencairanReport> {
   return Promise.all([
     getIncomeReport({ startDate, endDate }),
     getSppgRentReport({ startDate, endDate, kitchenId: '' })
@@ -622,14 +626,12 @@ function PencairanReportView() {
           onExport={() => {
             if (!report) return
 
-            void import('@/features/report/report-export')
-              .then(({ exportPencairanReport }) =>
-                exportPencairanReport(report, startDate, endDate)
-              )
-              .catch((exportError: unknown) => {
+            void exportPencairanReport(report, startDate, endDate).catch(
+              (exportError: unknown) => {
                 console.error(exportError)
                 setError('Gagal mengekspor laporan pencairan')
-              })
+              }
+            )
           }}
         />
       </div>
