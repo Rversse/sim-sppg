@@ -368,6 +368,37 @@ function printReport() {
       white-space: nowrap;
     }
 
+    .reports-overall-belanja-block .reports-subsection-title {
+      color: #111827 !important;
+    }
+
+    .reports-overall-belanja-block .reports-table th,
+    .reports-overall-belanja-block .reports-table th.reports-col-kitchen,
+    .reports-overall-belanja-block .reports-table th.reports-col-rab,
+    .reports-overall-belanja-block .reports-table th.reports-col-real-rab,
+    .reports-overall-belanja-block .reports-table th.reports-col-total,
+    .reports-overall-belanja-block .reports-table th.reports-col-ops,
+    .reports-overall-belanja-block .reports-table th.reports-col-real-ops,
+    .reports-overall-belanja-block .reports-table th.reports-col-gas {
+      color: #111827 !important;
+      font-weight: 900 !important;
+    }
+
+    .reports-overall-belanja-block .reports-table td,
+    .reports-overall-belanja-block .reports-table td.positive,
+    .reports-overall-belanja-block .reports-table td.negative {
+      color: #111827 !important;
+      font-weight: 600 !important;
+    }
+
+    .reports-overall-belanja-block .reports-total-row td {
+      color: #111827 !important;
+      background: #E2E8F0 !important;
+      border-top: 2px solid #334155 !important;
+      border-bottom: 2px solid #334155 !important;
+      font-weight: 900 !important;
+    }
+
     .reports-table-overall thead th.reports-col-kitchen,
     .reports-table-overall thead th.reports-col-total {
       color: #18293F !important;
