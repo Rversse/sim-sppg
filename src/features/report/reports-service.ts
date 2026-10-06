@@ -17,6 +17,7 @@ export type ReportFilters = {
 export type OverallKitchenReport = {
   kitchenId: string
   kitchenName: string
+  recipientName: string | null
   income: number
   expense: number
   gas: number
@@ -53,7 +54,12 @@ export type OverallReport = {
     gas: number
     operational: number
     realOperational: number
+    relawanSalary: number
+    schoolPicIncentive: number
+    kaderIncentive: number
+    vehicleRent: number
     sppgRent: number
+    totalOperationalDisbursement: number
     totalRAB: number
     totalOperational: number
   }
