@@ -759,7 +759,6 @@ export function DashboardPage() {
     setFormSupplierId('')
     setFormOperationalType('')
     setFormAmount('')
-    setFormOperationalType('')
     setFormNote('')
     setFormError(null)
     setFormAccounts([])
@@ -935,6 +934,7 @@ export function DashboardPage() {
     setFormKitchenId(value)
     setFormAccountId('')
     setFormSupplierId('')
+    setFormOperationalType('')
     setFormAmount('')
     setFormNote('')
     setFormEntryUnlocked(false)
@@ -985,6 +985,7 @@ export function DashboardPage() {
     setFormFlowType(value)
     setFormAccountId('')
     setFormSupplierId('')
+    setFormOperationalType('')
     setFormAmount('')
     setFormNote(
       value === 'gas'
@@ -1062,9 +1063,11 @@ export function DashboardPage() {
               ? 'Rekening Operasional belum siap.'
               : formFlowType === 'ops_disbursement'
                 ? 'Tujuan operasional belum siap.'
-                : formFlowType === 'real_ops' || formFlowType === 'sppg_rent'
-                  ? 'Dapur belum siap.'
-                  : 'Lengkapi dapur dan jenis transaksi terlebih dahulu.'
+                : formFlowType === 'operational_disbursement'
+                  ? 'Jenis operasional belum dipilih.'
+                  : formFlowType === 'real_ops'
+                    ? 'Dapur belum siap.'
+                    : 'Lengkapi dapur dan jenis transaksi terlebih dahulu.'
       )
       return
     }
@@ -1108,7 +1111,8 @@ export function DashboardPage() {
       kitchen_id: formKitchenId,
       amount,
       note:
-        formFlowType === 'real_ops' || formFlowType === 'sppg_rent'
+        formFlowType === 'real_ops' ||
+        formFlowType === 'operational_disbursement'
           ? null
           : formNote.trim() || null,
       flow_type:
