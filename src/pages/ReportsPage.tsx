@@ -404,7 +404,7 @@ function OverallReportView() {
                 report.totals.schoolPicIncentive +
                 report.totals.kaderIncentive
               }
-              note="Gaji Relawan + Insentif PIC Sekolah + Insentif Kader"
+              note="Gaji Relawan + Insentif PIC Sekolah + Insentif Kader — pencairan masuk ke rekening PIC Yayasan"
             />
           </div>
 
