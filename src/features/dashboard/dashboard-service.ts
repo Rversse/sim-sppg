@@ -487,7 +487,8 @@ export async function getDailyStatus(
           .from('transactions')
           .select('kitchen_id')
           .eq('transaction_date', selectedDate)
-          .eq('flow_type', 'sppg_rent')
+          .eq('flow_type', 'operational_disbursement')
+          .eq('operational_type', 'sppg_rent')
       : Promise.resolve({ data: [], error: null })
   ])
 
