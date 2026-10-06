@@ -70,6 +70,25 @@ function flowLabel(flow: DashboardFlow) {
   return 'OPS / Real'
 }
 
+function operationalTypeLabel(
+  type: DashboardTransaction['operational_type']
+) {
+  switch (type) {
+    case 'relawan_salary':
+      return 'Gaji Relawan'
+    case 'school_pic_incentive':
+      return 'Insentif PIC Sekolah'
+    case 'kader_incentive':
+      return 'Insentif Kader'
+    case 'vehicle_rent':
+      return 'Sewa Kendaraan'
+    case 'sppg_rent':
+      return 'Sewa SPPG'
+    default:
+      return 'Pencairan Operasional'
+  }
+}
+
 function FlowIcon({ flow }: { flow: DashboardFlow }) {
   if (flow === 'income') {
     return <WalletCards aria-hidden="true" />
@@ -1308,9 +1327,7 @@ export function DashboardPage() {
   const flowFilterOptions = FLOW_OPTIONS.filter(
     (option) =>
       option.value === '' ||
-      (option.value !== 'sppg_rent' &&
-        availableFilterFlows.includes(option.value as DashboardFlow)) ||
-      (option.value === 'sppg_rent' && includeSppgRent)
+      availableFilterFlows.includes(option.value as DashboardFlow)
   )
 
   const supplierFilterOptions = [
@@ -1416,7 +1433,7 @@ export function DashboardPage() {
             onChange={(value) => void handleFlow(value as DashboardFlow | '')}
           />
 
-          {filters.flowType !== 'sppg_rent' ? (
+          {filters.flowType !== 'operational_disbursement' ? (
             <AnimatedSelect
               label={supplierFilterLabel}
               value={supplierFilterValue}
@@ -1730,15 +1747,16 @@ export function DashboardPage() {
                       ? temporaryDestination || 'Tujuan operasional'
                       : transaction.flow_type === 'real_ops'
                         ? 'OPS / Real'
-                        : transaction.flow_type === 'sppg_rent'
-                          ? 'Sewa SPPG'
+                        : transaction.flow_type === 'operational_disbursement'
+                          ? operationalTypeLabel(transaction.operational_type)
                           : accountSupplier?.business_name?.trim() ||
                             account?.name?.trim() ||
                             'Transaksi'
                 const ownerName =
                   transaction.flow_type === 'expense' ||
                   transaction.flow_type === 'ops_disbursement' ||
-                  transaction.flow_type === 'real_ops'
+                  transaction.flow_type === 'real_ops' ||
+                  transaction.flow_type === 'operational_disbursement'
                     ? ''
                     : accountSupplier?.owner_name?.trim() || ''
                 const bankAccount = account
