@@ -232,6 +232,29 @@
   width: 25%;
 }
 
+.reports-table-overall-operational {
+  table-layout: fixed;
+}
+
+.reports-table-overall-operational th:first-child,
+.reports-table-overall-operational td:first-child {
+  width: 24%;
+}
+
+.reports-table-overall-operational th:not(:first-child),
+.reports-table-overall-operational td:not(:first-child) {
+  width: 12.666%;
+}
+
+.reports-overall-operational-block {
+  margin-top: 14px;
+}
+
+.reports-table-overall-operational th {
+  white-space: normal;
+  line-height: 1.2;
+}
+
 /* =========================================================
    SUMMARY
    ========================================================= */
@@ -795,6 +818,30 @@
   .reports-disbursement-block {
     break-inside: avoid;
     page-break-inside: avoid;
+  }
+
+  .reports-overall-operational-block {
+    margin-top: 8px;
+  }
+
+  .reports-table-overall-operational {
+    table-layout: fixed !important;
+  }
+
+  .reports-table-overall-operational th:first-child,
+  .reports-table-overall-operational td:first-child {
+    width: 24% !important;
+  }
+
+  .reports-table-overall-operational th:not(:first-child),
+  .reports-table-overall-operational td:not(:first-child) {
+    width: 12.666% !important;
+  }
+
+  .reports-table-overall-operational th {
+    white-space: normal !important;
+    line-height: 1.1 !important;
+    font-size: 7.5px !important;
   }
 
   .reports-subsection-title {
