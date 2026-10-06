@@ -3,8 +3,11 @@ import type ExcelJS from 'exceljs'
 import type {
   OverallReport,
   IncomeReport,
-  SupplierReport
+  SupplierReport,
+  SppgRentReport
 } from './reports-service'
+
+import { getOperationalKitchenLabel } from './reports-service'
 
 async function loadExcelJS() {
   return import('exceljs')
@@ -508,6 +511,101 @@ function createIncomeSummarySheet(
   styleBody(worksheet)
 }
 
+function createPencairanSheet(
+  workbook: ExcelJS.Workbook,
+  report: {
+    belanja: IncomeReport
+    operasional: SppgRentReport
+  },
+  startDate: string,
+  endDate: string
+) {
+  const worksheet = workbook.addWorksheet('Laporan Pencairan')
+
+  setupWorksheet(worksheet)
+
+  worksheet.addRow(['LAPORAN PENCAIRAN'])
+  worksheet.mergeCells(1, 1, 1, 4)
+  const titleCell = worksheet.getCell(1, 1)
+  titleCell.font = {
+    bold: true,
+    size: 16
+  }
+  titleCell.alignment = {
+    horizontal: 'center',
+    vertical: 'middle'
+  }
+
+  worksheet.addRow([`Periode: ${startDate} s/d ${endDate}`])
+  worksheet.mergeCells(2, 1, 2, 4)
+
+  worksheet.addRow(['PENCAIRAN BELANJA'])
+  worksheet.mergeCells(3, 1, 3, 4)
+
+  worksheet.addRow([
+    'Nama Supplier / Rekening',
+    'Nama Pemilik',
+    'Rekening Bank',
+    'Total'
+  ])
+  styleHeader(worksheet.getRow(4))
+
+  for (const row of report.belanja.rows) {
+    worksheet.addRow([row.supplierName, row.ownerName, row.bank, row.total])
+  }
+
+  const belanjaTotalRow = worksheet.addRow([
+    'GRAND TOTAL',
+    '',
+    '',
+    report.belanja.grandTotal
+  ])
+  styleTotalRow(belanjaTotalRow)
+
+  const operasionalTitleRow = worksheet.addRow([])
+  operasionalTitleRow.height = 8
+
+  worksheet.addRow(['PENCAIRAN OPERASIONAL'])
+  worksheet.mergeCells(
+    worksheet.lastRow?.number ?? 1,
+    1,
+    worksheet.lastRow?.number ?? 1,
+    3
+  )
+
+  const operationalHeaderRow = worksheet.addRow([
+    'Dapur (Rekening Penerima)',
+    'Jenis Pencairan',
+    'Total'
+  ])
+  styleHeader(operationalHeaderRow)
+
+  for (const row of report.operasional.rows) {
+    worksheet.addRow([
+      getOperationalKitchenLabel(row.kitchenName),
+      'Sewa SPPG',
+      row.total
+    ])
+  }
+
+  const operationalTotalRow = worksheet.addRow([
+    'GRAND TOTAL',
+    '',
+    report.operasional.grandTotal
+  ])
+  styleTotalRow(operationalTotalRow)
+
+  setCurrencyColumns(worksheet, [4])
+  worksheet.getColumn(4).numFmt = '#,##0'
+  setColumnWidths(worksheet, {
+    1: 34,
+    2: 28,
+    3: 32,
+    4: 20
+  })
+  styleBody(worksheet)
+}
+
 function createSupplierSummarySheet(
   workbook: ExcelJS.Workbook,
   report: SupplierReport,
@@ -578,6 +676,26 @@ function createSupplierSummarySheet(
   })
 
   styleBody(worksheet)
+}
+
+export async function exportPencairanReport(
+  report: {
+    belanja: IncomeReport
+    operasional: SppgRentReport
+  },
+  startDate: string,
+  endDate: string
+) {
+  const { default: ExcelJSRuntime } = await loadExcelJS()
+  const workbook = createWorkbook(ExcelJSRuntime)
+
+  createPencairanSheet(workbook, report, startDate, endDate)
+
+  const filename = `laporan-pencairan-${formatDateForFilename(
+    startDate
+  )}-${formatDateForFilename(endDate)}.xlsx`
+
+  await downloadWorkbook(workbook, filename)
 }
 
 export async function exportOverallReport(
