@@ -251,8 +251,7 @@ function addDailyDetailRows(
       row.operational,
       row.realOperational,
       row.totalOperational,
-      row.gas,
-      row.sppgRent
+      row.gas
     ])
   }
 }
@@ -272,8 +271,7 @@ function createOverallDetailSheet(
     'OPS / Pencairan',
     'OPS / Real',
     'Total Ops',
-    'OPS / Arutala',
-    'Sewa SPPG'
+    'OPS / Arutala'
   ])
   styleHeader(worksheet.getRow(1))
 
@@ -287,12 +285,11 @@ function createOverallDetailSheet(
     report.totals.operational,
     report.totals.realOperational,
     report.totals.totalOperational,
-    report.totals.gas,
-    report.totals.sppgRent
+    report.totals.gas
   ])
   styleTotalRow(totalRow)
 
-  setCurrencyColumns(worksheet, [2, 3, 4, 5, 6, 7, 8, 9])
+  setCurrencyColumns(worksheet, [2, 3, 4, 5, 6, 7, 8])
   setColumnWidths(worksheet, {
     1: 16,
     2: 18,
@@ -301,8 +298,7 @@ function createOverallDetailSheet(
     5: 18,
     6: 18,
     7: 20,
-    8: 22,
-    9: 20
+    8: 22
   })
   styleBody(worksheet)
 }
