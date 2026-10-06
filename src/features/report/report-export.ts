@@ -562,14 +562,14 @@ function createPencairanSheet(
   ])
   styleTotalRow(belanjaTotalRow)
 
-  const operasionalTitleRow = worksheet.addRow([])
-  operasionalTitleRow.height = 8
+  const operasionalSpacerRow = worksheet.addRow([])
+  operasionalSpacerRow.height = 8
 
-  worksheet.addRow(['PENCAIRAN OPERASIONAL'])
+  const operasionalTitleRow = worksheet.addRow(['PENCAIRAN OPERASIONAL'])
   worksheet.mergeCells(
-    worksheet.lastRow?.number ?? 1,
+    operasionalTitleRow.number,
     1,
-    worksheet.lastRow?.number ?? 1,
+    operasionalTitleRow.number,
     3
   )
 
