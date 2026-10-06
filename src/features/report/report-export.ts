@@ -472,7 +472,7 @@ function createOverallSummarySheet(
   )
 
   const operationalHeaderRow = worksheet.addRow([
-    'Dapur (Rekening Penerima)',
+    'Dapur',
     'Gaji Relawan',
     'Insentif PIC Sekolah',
     'Insentif Kader',
@@ -484,7 +484,7 @@ function createOverallSummarySheet(
 
   for (const row of report.kitchens) {
     worksheet.addRow([
-      row.kitchenName + ' (' + (row.recipientName?.trim() || 'Belum ditentukan') + ')',
+      row.kitchenName,
       row.relawanSalary,
       row.schoolPicIncentive,
       row.kaderIncentive,
