@@ -4,7 +4,8 @@ import {
   getOverallReport,
   getIncomeReport,
   getSupplierReport,
-  getSppgRentReport
+  getSppgRentReport,
+  getOperationalKitchenLabel
 } from '@/features/report/reports-service'
 
 import {
@@ -19,7 +20,7 @@ import {
 import { formatCurrency, getTodayLocal } from '@/lib/formatters'
 import { supabase } from '@/lib/supabase'
 
-type ReportTab = 'overall' | 'income' | 'supplier' | 'sppgRent'
+type ReportTab = 'overall' | 'pencairan' | 'supplier'
 
 type ReportLoader<T> = (startDate: string, endDate: string) => Promise<T>
 
@@ -31,9 +32,21 @@ function loadSupplierReport(startDate: string, endDate: string) {
   return getSupplierReport({ startDate, endDate, kitchenId: '' })
 }
 
-function loadSppgRentReport(startDate: string, endDate: string) {
-  return getSppgRentReport({ startDate, endDate, kitchenId: '' })
+type PencairanReport = {
+  belanja: Awaited<ReturnType<typeof getIncomeReport>>
+  operasional: Awaited<ReturnType<typeof getSppgRentReport>>
 }
+
+function loadPencairanReport(startDate: string, endDate: string) {
+  return Promise.all([
+    getIncomeReport({ startDate, endDate }),
+    getSppgRentReport({ startDate, endDate, kitchenId: '' })
+  ]).then(([belanja, operasional]) => ({
+    belanja,
+    operasional
+  }))
+}
+
 
 function useReportData<T>(
   loader: ReportLoader<T>,
@@ -484,97 +497,6 @@ function OverallReportView() {
   )
 }
 
-function IncomeReportView() {
-  const {
-    startDate,
-    endDate,
-    setStartDate,
-    setEndDate,
-    report,
-    loading,
-    error,
-    setError
-  } = useReportData(loadIncomeReport, 'Gagal memuat rekap pemasukan')
-
-  return (
-    <section
-      className="reports-section"
-      data-report-start-date={startDate}
-      data-report-end-date={endDate}
-    >
-      <div className="reports-filter-panel">
-        <ReportDateRange
-          startDate={startDate}
-          endDate={endDate}
-          setStartDate={setStartDate}
-          setEndDate={setEndDate}
-        />
-        <ReportActions
-          reportAvailable={Boolean(report)}
-          loading={loading}
-          onExport={() => {
-            if (!report) return
-            void exportIncomeReport(report, startDate, endDate).catch(
-              (error) => {
-                console.error(error)
-                setError('Gagal mengekspor rekap pemasukan')
-              }
-            )
-          }}
-        />
-      </div>
-
-      {loading && <LoadingState />}
-      {error && <ErrorState message={error} />}
-
-      {!loading && !error && report && (
-        <>
-          <div className="reports-summary-grid reports-summary-single">
-            <SummaryCard
-              label="Grand Total Pemasukan"
-              value={report.grandTotal}
-              note="Total pemasukan pada periode terpilih"
-            />
-          </div>
-
-          {report.rows.length === 0 ? (
-            <EmptyState />
-          ) : (
-            <div className="reports-table-wrapper">
-              <table className="reports-table">
-                <thead>
-                  <tr>
-                    <th>NAMA SUPPLIER</th>
-                    <th>NAMA PEMILIK</th>
-                    <th>REKENING BANK</th>
-                    <th>TOTAL</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {report.rows.map((row) => (
-                    <tr
-                      key={`${row.supplierName}-${row.ownerName}-${row.bank}`}
-                    >
-                      <td>{row.supplierName}</td>
-                      <td>{row.ownerName}</td>
-                      <td>{row.bank}</td>
-                      <td>{formatCurrency(row.total)}</td>
-                    </tr>
-                  ))}
-                  <tr className="reports-total-row">
-                    <td colSpan={3}>GRAND TOTAL</td>
-                    <td>{formatCurrency(report.grandTotal)}</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          )}
-        </>
-      )}
-    </section>
-  )
-}
-
 function SupplierReportView() {
   const {
     startDate,
@@ -665,7 +587,7 @@ function SupplierReportView() {
 }
 
 
-function SppgRentReportView() {
+function PencairanReportView() {
   const {
     startDate,
     endDate,
@@ -673,16 +595,17 @@ function SppgRentReportView() {
     setEndDate,
     report,
     loading,
-    error
+    error,
+    setError
   } = useReportData(
-    loadSppgRentReport,
-    'Gagal memuat laporan Sewa SPPG'
+    loadPencairanReport,
+    'Gagal memuat laporan pencairan'
   )
 
   return (
     <section
       className="reports-section"
-      data-report-title="Laporan Sewa SPPG"
+      data-report-title="Laporan Pencairan"
       data-report-start-date={startDate}
       data-report-end-date={endDate}
     >
@@ -693,13 +616,22 @@ function SppgRentReportView() {
           setStartDate={setStartDate}
           setEndDate={setEndDate}
         />
-        <button
-          type="button"
-          onClick={() => printReport()}
-          disabled={!report || loading}
-        >
-          Print
-        </button>
+        <ReportActions
+          reportAvailable={Boolean(report)}
+          loading={loading}
+          onExport={() => {
+            if (!report) return
+
+            void import('@/features/report/report-export')
+              .then(({ exportPencairanReport }) =>
+                exportPencairanReport(report, startDate, endDate)
+              )
+              .catch((exportError: unknown) => {
+                console.error(exportError)
+                setError('Gagal mengekspor laporan pencairan')
+              })
+          }}
+        />
       </div>
 
       {loading && <LoadingState />}
@@ -707,53 +639,83 @@ function SppgRentReportView() {
 
       {!loading && !error && report && (
         <>
-          <div className="reports-summary-grid reports-summary-single">
-            <SummaryCard
-              label="Total Sewa SPPG"
-              value={report.grandTotal}
-              note="Total pencairan sewa SPPG pada periode terpilih"
-            />
+          <div className="reports-disbursement-block">
+            <h2 className="reports-subsection-title">Pencairan Belanja</h2>
+
+            {report.belanja.rows.length === 0 ? (
+              <EmptyState />
+            ) : (
+              <div className="reports-table-wrapper">
+                <table className="reports-table">
+                  <thead>
+                    <tr>
+                      <th>NAMA SUPPLIER</th>
+                      <th>NAMA PEMILIK</th>
+                      <th>REKENING BANK</th>
+                      <th>TOTAL</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {report.belanja.rows.map((row) => (
+                      <tr
+                        key={`${row.supplierName}-${row.ownerName}-${row.bank}`}
+                      >
+                        <td>{row.supplierName}</td>
+                        <td>{row.ownerName}</td>
+                        <td>{row.bank}</td>
+                        <td>{formatCurrency(row.total)}</td>
+                      </tr>
+                    ))}
+                    <tr className="reports-total-row">
+                      <td colSpan={3}>GRAND TOTAL</td>
+                      <td>{formatCurrency(report.belanja.grandTotal)}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            )}
           </div>
 
-          {report.rows.length === 0 ? (
-            <EmptyState />
-          ) : (
-            <div className="reports-table-wrapper">
-              <table className="reports-table">
-                <thead>
-                  <tr>
-                    <th>DAPUR</th>
-                    <th>HARI TERISI</th>
-                    <th>TOTAL SEWA SPPG</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {report.rows.map((row) => (
-                    <tr key={row.kitchenId}>
-                      <td>{row.kitchenName}</td>
-                      <td>{row.dayCount}</td>
-                      <td>{formatCurrency(row.total)}</td>
+          <div className="reports-disbursement-block">
+            <h2 className="reports-subsection-title">
+              Pencairan Operasional
+            </h2>
+
+            {report.operasional.rows.length === 0 ? (
+              <EmptyState />
+            ) : (
+              <div className="reports-table-wrapper">
+                <table className="reports-table reports-table-operational">
+                  <thead>
+                    <tr>
+                      <th>DAPUR (REKENING PENERIMA)</th>
+                      <th>JENIS PENCAIRAN</th>
+                      <th>TOTAL</th>
                     </tr>
-                  ))}
-                  <tr className="reports-total-row">
-                    <td>GRAND TOTAL</td>
-                    <td>
-                      {report.rows.reduce(
-                        (total, row) => total + row.dayCount,
-                        0
-                      )}
-                    </td>
-                    <td>{formatCurrency(report.grandTotal)}</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          )}
+                  </thead>
+                  <tbody>
+                    {report.operasional.rows.map((row) => (
+                      <tr key={row.kitchenId}>
+                        <td>{getOperationalKitchenLabel(row.kitchenName)}</td>
+                        <td>Sewa SPPG</td>
+                        <td>{formatCurrency(row.total)}</td>
+                      </tr>
+                    ))}
+                    <tr className="reports-total-row">
+                      <td colSpan={2}>GRAND TOTAL</td>
+                      <td>{formatCurrency(report.operasional.grandTotal)}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
         </>
       )}
     </section>
   )
 }
+
 
 export function ReportsPage() {
   const [tab, setTab] = useState<ReportTab>('overall')
@@ -770,10 +732,10 @@ export function ReportsPage() {
         </button>
         <button
           type="button"
-          className={tab === 'income' ? 'active' : ''}
-          onClick={() => setTab('income')}
+          className={tab === 'pencairan' ? 'active' : ''}
+          onClick={() => setTab('pencairan')}
         >
-          Rekap Pemasukan
+          Pencairan
         </button>
         <button
           type="button"
@@ -782,19 +744,11 @@ export function ReportsPage() {
         >
           Rekap Pengeluaran
         </button>
-        <button
-          type="button"
-          className={tab === 'sppgRent' ? 'active' : ''}
-          onClick={() => setTab('sppgRent')}
-        >
-          Sewa SPPG
-        </button>
       </nav>
 
       {tab === 'overall' && <OverallReportView />}
-      {tab === 'income' && <IncomeReportView />}
+      {tab === 'pencairan' && <PencairanReportView />}
       {tab === 'supplier' && <SupplierReportView />}
-      {tab === 'sppgRent' && <SppgRentReportView />}
     </main>
   )
 }
