@@ -246,8 +246,12 @@
   width: 12.666%;
 }
 
+.reports-overall-belanja-block {
+  margin-top: 8px;
+}
+
 .reports-overall-operational-block {
-  margin-top: 14px;
+  margin-top: 24px;
 }
 
 .reports-table-overall-operational th {
@@ -812,8 +816,22 @@
     page-break-inside: avoid;
   }
 
+  .reports-overall-belanja-block {
+    margin-top: 10px;
+  }
+
   .reports-overall-operational-block {
-    margin-top: 8px;
+    margin-top: 22px;
+  }
+
+  .reports-subsection-title {
+    break-after: avoid;
+    page-break-after: avoid;
+    margin-bottom: 4px;
+  }
+
+  .reports-table thead {
+    display: table-header-group;
   }
 
   .reports-table-overall-operational {
