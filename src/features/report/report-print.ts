@@ -429,9 +429,16 @@ function printReport() {
       line-height: 1.15 !important;
     }
 
-    .reports-table th {
+    .reports-table th,
+    .reports-table-overall thead th.reports-col-kitchen,
+    .reports-table-overall thead th.reports-col-rab,
+    .reports-table-overall thead th.reports-col-real-rab,
+    .reports-table-overall thead th.reports-col-total,
+    .reports-table-overall thead th.reports-col-ops,
+    .reports-table-overall thead th.reports-col-real-ops,
+    .reports-table-overall thead th.reports-col-gas {
       color: #111827 !important;
-      font-weight: 800 !important;
+      font-weight: 900 !important;
       background: #ECF0F6 !important;
     }
 
