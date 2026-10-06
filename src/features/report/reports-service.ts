@@ -778,7 +778,6 @@ export async function getOperationalDisbursementReport(
         | {
             id: string
             name: string
-            operational_recipient_name: string | null
           }[]
         | null
     }>
