@@ -277,28 +277,6 @@ function ReportActions({
   )
 }
 
-function SummaryCard({
-  label,
-  value,
-  note,
-  negative = false
-}: {
-  label: string
-  value: number
-  note: string
-  negative?: boolean
-}) {
-  return (
-    <div className="reports-summary-card">
-      <span>{label}</span>
-      <strong className={negative ? 'negative' : ''}>
-        {formatCurrency(value)}
-      </strong>
-      <small>{note}</small>
-    </div>
-  )
-}
-
 function LoadingState() {
   return <div className="reports-empty">Memuat laporan...</div>
 }
