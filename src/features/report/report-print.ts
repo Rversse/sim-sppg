@@ -178,7 +178,7 @@ function printReport() {
 
     .reports-summary-grid {
       display: grid !important;
-      grid-template-columns: repeat(6, minmax(0, 1fr)) !important;
+      grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
       gap: 8px !important;
       margin-bottom: 14px !important;
     }
@@ -246,27 +246,17 @@ function printReport() {
 
     .reports-summary-overall .reports-summary-card:nth-child(2) > span,
     .reports-summary-overall .reports-summary-card:nth-child(2) > strong {
-      color: #DC2626 !important;
+      color: #7C3AED !important;
     }
 
     .reports-summary-overall .reports-summary-card:nth-child(3) > span,
     .reports-summary-overall .reports-summary-card:nth-child(3) > strong {
-      color: #7C3AED !important;
+      color: #A16207 !important;
     }
 
     .reports-summary-overall .reports-summary-card:nth-child(4) > span,
     .reports-summary-overall .reports-summary-card:nth-child(4) > strong {
-      color: #0891B2 !important;
-    }
-
-    .reports-summary-overall .reports-summary-card:nth-child(5) > span,
-    .reports-summary-overall .reports-summary-card:nth-child(5) > strong {
       color: #2563EB !important;
-    }
-
-    .reports-summary-overall .reports-summary-card:nth-child(6) > span,
-    .reports-summary-overall .reports-summary-card:nth-child(6) > strong {
-      color: #A16207 !important;
     }
 
     .reports-summary-card > small {
@@ -310,10 +300,6 @@ function printReport() {
     .reports-table-overall th:not(:first-child),
     .reports-table-overall td:not(:first-child) {
       width: 11.714%;
-    }
-
-    .reports-table-overall thead th.reports-col-sppg-rent {
-      color: #A16207 !important;
     }
 
     .reports-table th {
