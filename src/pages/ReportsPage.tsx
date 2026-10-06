@@ -3,8 +3,7 @@ import { useEffect, useState } from 'react'
 import {
   getOverallReport,
   getIncomeReport,
-  getSupplierReport,
-  getOperationalKitchenLabel
+  getSupplierReport
 } from '@/features/report/reports-service'
 
 import {
@@ -486,7 +485,7 @@ function OverallReportView() {
               <table className="reports-table reports-table-overall-operational">
                 <thead>
                   <tr>
-                    <th>DAPUR (REKENING PENERIMA)</th>
+                    <th>DAPUR</th>
                     <th>GAJI RELAWAN</th>
                     <th>INSENTIF PIC SEKOLAH</th>
                     <th>INSENTIF KADER</th>
@@ -501,10 +500,7 @@ function OverallReportView() {
                     .map((item) => (
                       <tr key={item.kitchenId}>
                         <td>
-                          {getOperationalKitchenLabel(
-                            item.kitchenName,
-                            item.recipientName
-                          )}
+                          {item.kitchenName}
                         </td>
                         <td>{formatCurrency(item.relawanSalary)}</td>
                         <td>{formatCurrency(item.schoolPicIncentive)}</td>
