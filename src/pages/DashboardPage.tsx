@@ -609,7 +609,6 @@ export function DashboardPage() {
     filters.flowType === 'gas' ||
     filters.flowType === 'ops_disbursement' ||
     filters.flowType === 'real_ops' ||
-    filters.flowType === 'operational_disbursement' ||
     supplierLockedToArutala
 
   const supplierFilterLabel =
@@ -636,9 +635,10 @@ export function DashboardPage() {
       ? 'KOPERASI ARUTALA BNI'
       : filters.flowType === 'ops_disbursement'
         ? (operationalDestination ?? 'Akuntan + Dapur')
-        : filters.flowType === 'real_ops' ||
-            filters.flowType === 'operational_disbursement'
+        : filters.flowType === 'real_ops'
           ? 'Tidak diperlukan'
+          : filters.flowType === 'operational_disbursement'
+            ? 'Semua jenis operasional'
           : supplierDisabled
             ? 'Koperasi Arutala'
             : filters.flowType === 'expense' && isSukarajaFilterKitchen
@@ -941,6 +941,9 @@ export function DashboardPage() {
         transaction.supplier_id ?? '',
         true
       )
+      if (editFlowType === 'operational_disbursement') {
+        setFormEntryUnlocked(Boolean(transaction.operational_type))
+      }
     } catch (loadError) {
       console.error(loadError)
       setFormError('Gagal memuat rekening atau supplier transaksi.')
