@@ -726,24 +726,24 @@ function PencairanReportView() {
 
 
 export function ReportsPage() {
-  const [tab, setTab] = useState<ReportTab>('overall')
+  const [tab, setTab] = useState<ReportTab>('pencairan')
 
   return (
     <main className="reports-page">
       <nav className="reports-tabs">
         <button
           type="button"
-          className={tab === 'overall' ? 'active' : ''}
-          onClick={() => setTab('overall')}
-        >
-          Keseluruhan
-        </button>
-        <button
-          type="button"
           className={tab === 'pencairan' ? 'active' : ''}
           onClick={() => setTab('pencairan')}
         >
           Pencairan
+        </button>
+        <button
+          type="button"
+          className={tab === 'overall' ? 'active' : ''}
+          onClick={() => setTab('overall')}
+        >
+          Keseluruhan
         </button>
         <button
           type="button"
@@ -754,8 +754,8 @@ export function ReportsPage() {
         </button>
       </nav>
 
-      {tab === 'overall' && <OverallReportView />}
       {tab === 'pencairan' && <PencairanReportView />}
+      {tab === 'overall' && <OverallReportView />}
       {tab === 'supplier' && <SupplierReportView />}
     </main>
   )
