@@ -305,6 +305,7 @@ export function KitchenPage() {
                   <Skeleton className="kitchen-skeleton-foundation" />
                   <Skeleton className="kitchen-skeleton-pic" />
                   <Skeleton className="kitchen-skeleton-address" />
+                  <Skeleton className="kitchen-skeleton-recipient" />
                   <Skeleton className="kitchen-skeleton-status" />
                   {canManage ? (
                     <div
