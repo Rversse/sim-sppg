@@ -4,8 +4,6 @@ import {
   getOverallReport,
   getIncomeReport,
   getSupplierReport,
-  getOperationalDisbursementReport,
-  getOperationalTypeLabel,
   getOperationalKitchenLabel
 } from '@/features/report/reports-service'
 
@@ -34,22 +32,13 @@ function loadSupplierReport(startDate: string, endDate: string) {
   return getSupplierReport({ startDate, endDate, kitchenId: '' })
 }
 
-type PencairanReport = {
-  belanja: Awaited<ReturnType<typeof getIncomeReport>>
-  operasional: Awaited<ReturnType<typeof getOperationalDisbursementReport>>
-}
+type PencairanReport = Awaited<ReturnType<typeof getIncomeReport>>
 
 function loadPencairanReport(
   startDate: string,
   endDate: string
 ): Promise<PencairanReport> {
-  return Promise.all([
-    getIncomeReport({ startDate, endDate }),
-    getOperationalDisbursementReport({ startDate, endDate, kitchenId: '' })
-  ]).then(([belanja, operasional]) => ({
-    belanja,
-    operasional
-  }))
+  return getIncomeReport({ startDate, endDate })
 }
 
 
@@ -419,9 +408,9 @@ function OverallReportView() {
               note="Total operasional masuk ke rekening Arutala pada periode terpilih"
             />
             <SummaryCard
-              label="Sewa SPPG"
-              value={report.totals.sppgRent}
-              note="Total sewa SPPG pada periode terpilih"
+              label="Pencairan Operasional"
+              value={report.totals.totalOperationalDisbursement}
+              note="Total pencairan operasional pada periode terpilih"
             />
           </div>
 
@@ -495,6 +484,59 @@ function OverallReportView() {
                 </tr>
               </tbody>
             </table>
+          </div>
+
+          <div className="reports-disbursement-block reports-overall-operational-block">
+            <h2 className="reports-subsection-title">
+              Pencairan Operasional
+            </h2>
+
+            <div className="reports-table-wrapper">
+              <table className="reports-table reports-table-overall-operational">
+                <thead>
+                  <tr>
+                    <th>DAPUR (REKENING PENERIMA)</th>
+                    <th>GAJI RELAWAN</th>
+                    <th>INSENTIF PIC SEKOLAH</th>
+                    <th>INSENTIF KADER</th>
+                    <th>SEWA KENDARAAN</th>
+                    <th>SEWA SPPG</th>
+                    <th>TOTAL OPERASIONAL</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {[...report.kitchens]
+                    .sort((a, b) => a.kitchenName.localeCompare(b.kitchenName, 'id'))
+                    .map((item) => (
+                      <tr key={item.kitchenId}>
+                        <td>
+                          {getOperationalKitchenLabel(
+                            item.kitchenName,
+                            item.recipientName
+                          )}
+                        </td>
+                        <td>{formatCurrency(item.relawanSalary)}</td>
+                        <td>{formatCurrency(item.schoolPicIncentive)}</td>
+                        <td>{formatCurrency(item.kaderIncentive)}</td>
+                        <td>{formatCurrency(item.vehicleRent)}</td>
+                        <td>{formatCurrency(item.sppgRent)}</td>
+                        <td className="positive">
+                          {formatCurrency(item.totalOperationalDisbursement)}
+                        </td>
+                      </tr>
+                    ))}
+                  <tr className="reports-total-row">
+                    <td>GRAND TOTAL</td>
+                    <td>{formatCurrency(report.totals.relawanSalary)}</td>
+                    <td>{formatCurrency(report.totals.schoolPicIncentive)}</td>
+                    <td>{formatCurrency(report.totals.kaderIncentive)}</td>
+                    <td>{formatCurrency(report.totals.vehicleRent)}</td>
+                    <td>{formatCurrency(report.totals.sppgRent)}</td>
+                    <td>{formatCurrency(report.totals.totalOperationalDisbursement)}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
           </div>
         </>
       )}
@@ -604,13 +646,13 @@ function PencairanReportView() {
     setError
   } = useReportData(
     loadPencairanReport,
-    'Gagal memuat laporan pencairan'
+    'Gagal memuat laporan pencairan belanja'
   )
 
   return (
     <section
       className="reports-section"
-      data-report-title="Laporan Pencairan"
+      data-report-title="Pencairan Belanja"
       data-report-start-date={startDate}
       data-report-end-date={endDate}
     >
@@ -630,7 +672,7 @@ function PencairanReportView() {
             void exportPencairanReport(report, startDate, endDate).catch(
               (exportError: unknown) => {
                 console.error(exportError)
-                setError('Gagal mengekspor laporan pencairan')
+                setError('Gagal mengekspor laporan pencairan belanja')
               }
             )
           }}
@@ -641,109 +683,68 @@ function PencairanReportView() {
       {error && <ErrorState message={error} />}
 
       {!loading && !error && report && (
-        <>
-          <div className="reports-disbursement-block">
-            <h2 className="reports-subsection-title">Pencairan Belanja</h2>
+        <div className="reports-disbursement-block">
+          <h2 className="reports-subsection-title">Pencairan Belanja</h2>
 
-            {report.belanja.rows.length === 0 ? (
-              <EmptyState />
-            ) : (
-              <div className="reports-table-wrapper">
-                <table className="reports-table">
-                  <thead>
-                    <tr>
-                      <th>NAMA SUPPLIER</th>
-                      <th>NAMA PEMILIK</th>
-                      <th>REKENING BANK</th>
-                      <th>TOTAL</th>
+          {report.rows.length === 0 ? (
+            <EmptyState />
+          ) : (
+            <div className="reports-table-wrapper">
+              <table className="reports-table">
+                <thead>
+                  <tr>
+                    <th>NAMA SUPPLIER</th>
+                    <th>NAMA PEMILIK</th>
+                    <th>REKENING BANK</th>
+                    <th>TOTAL</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {report.rows.map((row) => (
+                    <tr
+                      key={`${row.supplierName}-${row.ownerName}-${row.bank}`}
+                    >
+                      <td>{row.supplierName}</td>
+                      <td>{row.ownerName}</td>
+                      <td>{row.bank}</td>
+                      <td>{formatCurrency(row.total)}</td>
                     </tr>
-                  </thead>
-                  <tbody>
-                    {report.belanja.rows.map((row) => (
-                      <tr
-                        key={`${row.supplierName}-${row.ownerName}-${row.bank}`}
-                      >
-                        <td>{row.supplierName}</td>
-                        <td>{row.ownerName}</td>
-                        <td>{row.bank}</td>
-                        <td>{formatCurrency(row.total)}</td>
-                      </tr>
-                    ))}
-                    <tr className="reports-total-row">
-                      <td colSpan={3}>GRAND TOTAL</td>
-                      <td>{formatCurrency(report.belanja.grandTotal)}</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </div>
-
-          <div className="reports-disbursement-block">
-            <h2 className="reports-subsection-title">
-              Pencairan Operasional
-            </h2>
-
-            {report.operasional.rows.length === 0 ? (
-              <EmptyState />
-            ) : (
-              <div className="reports-table-wrapper">
-                <table className="reports-table reports-table-operational">
-                  <thead>
-                    <tr>
-                      <th>DAPUR (REKENING PENERIMA)</th>
-                      <th>JENIS PENCAIRAN</th>
-                      <th>TOTAL</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {report.operasional.rows.map((row) => (
-                      <tr key={row.kitchenId}>
-                        <td>
-                          {getOperationalKitchenLabel(
-                            row.kitchenName,
-                            row.recipientName
-                          )}
-                        </td>
-                        <td>{getOperationalTypeLabel(row.operationalType)}</td>
-                        <td>{formatCurrency(row.total)}</td>
-                      </tr>
-                    ))}
-                    <tr className="reports-total-row">
-                      <td colSpan={2}>GRAND TOTAL</td>
-                      <td>{formatCurrency(report.operasional.grandTotal)}</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </div>
-        </>
+                  ))}
+                  <tr className="reports-total-row">
+                    <td colSpan={3}>GRAND TOTAL</td>
+                    <td>{formatCurrency(report.grandTotal)}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
       )}
     </section>
   )
 }
 
 
+
 export function ReportsPage() {
-  const [tab, setTab] = useState<ReportTab>('pencairan')
+  const [tab, setTab] = useState<ReportTab>('overall')
 
   return (
     <main className="reports-page">
       <nav className="reports-tabs">
         <button
           type="button"
-          className={tab === 'pencairan' ? 'active' : ''}
-          onClick={() => setTab('pencairan')}
-        >
-          Pencairan
-        </button>
-        <button
-          type="button"
           className={tab === 'overall' ? 'active' : ''}
           onClick={() => setTab('overall')}
         >
           Keseluruhan
+        </button>
+        <button
+          type="button"
+          className={tab === 'pencairan' ? 'active' : ''}
+          onClick={() => setTab('pencairan')}
+        >
+          Pencairan
         </button>
         <button
           type="button"
