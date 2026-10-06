@@ -212,7 +212,7 @@
 
 .kitchen-table {
   width: 100%;
-  min-width: 840px;
+  min-width: 1000px;
   border-collapse: collapse;
   color: var(--theme-text-primary);
   font-size: 12px;
@@ -325,6 +325,7 @@
     minmax(120px, 1fr)
     minmax(120px, 1fr)
     minmax(150px, 1.25fr)
+    minmax(150px, 1.15fr)
     minmax(72px, 0.7fr)
     minmax(96px, 0.72fr);
   align-items: center;
@@ -380,6 +381,10 @@
 }
 
 .kitchen-skeleton-address {
+  width: min(150px, 100%);
+}
+
+  .kitchen-skeleton-recipient {
   width: min(150px, 100%);
 }
 
