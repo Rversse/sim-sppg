@@ -21,6 +21,7 @@ const EMPTY_INPUT: KitchenInput = {
   pic: '',
   foundation: '',
   address: '',
+  operational_recipient_name: '',
   is_active: true
 }
 
@@ -163,7 +164,13 @@ export function KitchenPage() {
     const keyword = search.trim().toLowerCase()
     const result = keyword
       ? kitchens.filter((kitchen) =>
-          [kitchen.name, kitchen.pic, kitchen.foundation, kitchen.address]
+          [
+            kitchen.name,
+            kitchen.pic,
+            kitchen.foundation,
+            kitchen.address,
+            kitchen.operational_recipient_name
+          ]
             .filter(Boolean)
             .some((value) => String(value).toLowerCase().includes(keyword))
         )
@@ -192,6 +199,7 @@ export function KitchenPage() {
       pic: kitchen.pic ?? '',
       foundation: kitchen.foundation ?? '',
       address: kitchen.address ?? '',
+      operational_recipient_name: kitchen.operational_recipient_name ?? '',
       is_active: kitchen.is_active
     })
     setIsFormOpen(true)
@@ -281,6 +289,7 @@ export function KitchenPage() {
                 'Yayasan',
                 'Perwakilan',
                 'Alamat',
+                'Penerima Operasional',
                 'Status'
               ].map((label) => (
                 <span key={label}>{label}</span>
@@ -323,6 +332,7 @@ export function KitchenPage() {
                 <th>Yayasan</th>
                 <th>Perwakilan</th>
                 <th>Alamat</th>
+                <th>Penerima Operasional</th>
                 <th>Status</th>
                 {canManage ? (
                   <th className="kitchen-action-column">Aksi</th>
@@ -339,6 +349,7 @@ export function KitchenPage() {
                   <td>{kitchen.foundation || '-'}</td>
                   <td>{kitchen.pic || '-'}</td>
                   <td>{kitchen.address || '-'}</td>
+                  <td>{kitchen.operational_recipient_name || '-'}</td>
                   <td>
                     <span
                       className={`kitchen-badge ${
@@ -486,6 +497,23 @@ export function KitchenPage() {
                         address: event.target.value
                       }))
                     }
+                  />
+                </div>
+
+                <div className="kitchen-field">
+                  <label htmlFor="kitchen-operational-recipient">
+                    Penerima Pencairan Operasional
+                  </label>
+                  <input
+                    id="kitchen-operational-recipient"
+                    value={form.operational_recipient_name}
+                    onChange={(event) =>
+                      setForm((current) => ({
+                        ...current,
+                        operational_recipient_name: event.target.value
+                      }))
+                    }
+                    placeholder="Contoh: Robi Sulaeman"
                   />
                 </div>
 
