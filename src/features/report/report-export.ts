@@ -429,8 +429,7 @@ function createOverallSummarySheet(
     'OPS / Pencairan',
     'OPS / Real',
     'Total Ops',
-    'OPS / Arutala',
-    'Sewa SPPG'
+    'OPS / Arutala'
   ])
 
   styleHeader(worksheet.getRow(headerRowNumber))
@@ -444,8 +443,7 @@ function createOverallSummarySheet(
       row.operational,
       row.realOperational,
       row.totalOperational,
-      row.gas,
-      row.sppgRent
+      row.gas
     ])
   }
 
@@ -457,8 +455,7 @@ function createOverallSummarySheet(
     report.totals.operational,
     report.totals.realOperational,
     report.totals.totalOperational,
-    report.totals.gas,
-    report.totals.sppgRent
+    report.totals.gas
   ])
 
   styleTotalRow(totalRow)
@@ -517,8 +514,7 @@ function createOverallSummarySheet(
     5: 18,
     6: 18,
     7: 20,
-    8: 22,
-    9: 20
+    8: 22
   })
   styleBody(worksheet)
 }
