@@ -466,11 +466,57 @@ function createOverallSummarySheet(
   ])
 
   styleTotalRow(totalRow)
-  setCurrencyColumns(worksheet, [2, 3, 4, 5, 6, 7, 8, 9])
+
+  const operationalSpacer = worksheet.addRow([])
+  operationalSpacer.height = 8
+
+  const operationalTitleRow = worksheet.addRow(['PENCAIRAN OPERASIONAL'])
+  worksheet.mergeCells(
+    operationalTitleRow.number,
+    1,
+    operationalTitleRow.number,
+    7
+  )
+
+  const operationalHeaderRow = worksheet.addRow([
+    'Dapur (Rekening Penerima)',
+    'Gaji Relawan',
+    'Insentif PIC Sekolah',
+    'Insentif Kader',
+    'Sewa Kendaraan',
+    'Sewa SPPG',
+    'Total Operasional'
+  ])
+  styleHeader(operationalHeaderRow)
+
+  for (const row of report.kitchens) {
+    worksheet.addRow([
+      row.kitchenName + ' (' + (row.recipientName?.trim() || 'Belum ditentukan') + ')',
+      row.relawanSalary,
+      row.schoolPicIncentive,
+      row.kaderIncentive,
+      row.vehicleRent,
+      row.sppgRent,
+      row.totalOperationalDisbursement
+    ])
+  }
+
+  const operationalTotalRow = worksheet.addRow([
+    'GRAND TOTAL',
+    report.totals.relawanSalary,
+    report.totals.schoolPicIncentive,
+    report.totals.kaderIncentive,
+    report.totals.vehicleRent,
+    report.totals.sppgRent,
+    report.totals.totalOperationalDisbursement
+  ])
+  styleTotalRow(operationalTotalRow)
+
+  setCurrencyColumns(worksheet, [2, 3, 4, 5, 6, 7])
   setColumnWidths(worksheet, {
-    1: 26,
+    1: 34,
     2: 18,
-    3: 18,
+    3: 20,
     4: 18,
     5: 18,
     6: 18,
@@ -510,34 +556,14 @@ function createIncomeSummarySheet(
 
 function createPencairanSheet(
   workbook: ExcelJS.Workbook,
-  report: {
-    belanja: IncomeReport
-    operasional: OperationalDisbursementReport
-  },
+  report: IncomeReport,
   startDate: string,
   endDate: string
 ) {
-  const worksheet = workbook.addWorksheet('Laporan Pencairan')
+  const worksheet = workbook.addWorksheet('Pencairan Belanja')
 
   setupWorksheet(worksheet)
-
-  worksheet.addRow(['LAPORAN PENCAIRAN'])
-  worksheet.mergeCells(1, 1, 1, 4)
-  const titleCell = worksheet.getCell(1, 1)
-  titleCell.font = {
-    bold: true,
-    size: 16
-  }
-  titleCell.alignment = {
-    horizontal: 'center',
-    vertical: 'middle'
-  }
-
-  worksheet.addRow([`Periode: ${startDate} s/d ${endDate}`])
-  worksheet.mergeCells(2, 1, 2, 4)
-
-  worksheet.addRow(['PENCAIRAN BELANJA'])
-  worksheet.mergeCells(3, 1, 3, 4)
+  addReportTitle(worksheet, 'PENCAIRAN BELANJA', startDate, endDate)
 
   worksheet.addRow([
     'Nama Supplier / Rekening',
@@ -545,62 +571,30 @@ function createPencairanSheet(
     'Rekening Bank',
     'Total'
   ])
-  styleHeader(worksheet.getRow(4))
+  styleHeader(worksheet.getRow(3))
 
-  for (const row of report.belanja.rows) {
+  for (const row of report.rows) {
     worksheet.addRow([row.supplierName, row.ownerName, row.bank, row.total])
   }
 
-  const belanjaTotalRow = worksheet.addRow([
+  const totalRow = worksheet.addRow([
     'GRAND TOTAL',
     '',
     '',
-    report.belanja.grandTotal
+    report.grandTotal
   ])
-  styleTotalRow(belanjaTotalRow)
+  styleTotalRow(totalRow)
 
-  const operasionalSpacerRow = worksheet.addRow([])
-  operasionalSpacerRow.height = 8
-
-  const operasionalTitleRow = worksheet.addRow(['PENCAIRAN OPERASIONAL'])
-  worksheet.mergeCells(
-    operasionalTitleRow.number,
-    1,
-    operasionalTitleRow.number,
-    3
-  )
-
-  const operationalHeaderRow = worksheet.addRow([
-    'Dapur (Rekening Penerima)',
-    'Jenis Pencairan',
-    'Total'
-  ])
-  styleHeader(operationalHeaderRow)
-
-  for (const row of report.operasional.rows) {
-    worksheet.addRow([
-      getOperationalKitchenLabel(row.kitchenName, row.recipientName),
-      getOperationalTypeLabel(row.operationalType),
-      row.total
-    ])
-  }
-
-  const operationalTotalRow = worksheet.addRow([
-    'GRAND TOTAL',
-    '',
-    report.operasional.grandTotal
-  ])
-  styleTotalRow(operationalTotalRow)
-
-  setCurrencyColumns(worksheet, [3, 4])
+  setCurrencyColumns(worksheet, [4])
   setColumnWidths(worksheet, {
-    1: 34,
+    1: 30,
     2: 28,
     3: 32,
     4: 20
   })
   styleBody(worksheet)
 }
+
 
 function createSupplierSummarySheet(
   workbook: ExcelJS.Workbook,
@@ -675,10 +669,7 @@ function createSupplierSummarySheet(
 }
 
 export async function exportPencairanReport(
-  report: {
-    belanja: IncomeReport
-    operasional: OperationalDisbursementReport
-  },
+  report: IncomeReport,
   startDate: string,
   endDate: string
 ) {
