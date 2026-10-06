@@ -381,33 +381,6 @@ function OverallReportView() {
 
       {!loading && !error && report && (
         <>
-          <div className="reports-summary-grid reports-summary-overall">
-            <SummaryCard
-              label="Total RAB"
-              value={report.totals.totalRAB}
-              note="Total bersih RAB pada periode terpilih"
-            />
-            <SummaryCard
-              label="Total OPS"
-              value={report.totals.totalOperational}
-              note="Total bersih operasional pada periode terpilih"
-            />
-            <SummaryCard
-              label="Sewa SPPG"
-              value={report.totals.sppgRent}
-              note="Total sewa SPPG pada periode terpilih"
-            />
-            <SummaryCard
-              label="Gaji & Insentif"
-              value={
-                report.totals.relawanSalary +
-                report.totals.schoolPicIncentive +
-                report.totals.kaderIncentive
-              }
-              note="Gaji Relawan + Insentif PIC Sekolah + Insentif Kader — pencairan masuk ke rekening PIC Yayasan"
-            />
-          </div>
-
           <div className="reports-disbursement-block reports-overall-belanja-block">
             <h2 className="reports-subsection-title">
               Pencairan Belanja Harian
