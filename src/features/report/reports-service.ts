@@ -624,7 +624,6 @@ export async function getSppgRentReport(
       | {
           id: string
           name: string
-          operational_recipient_name: string | null
         }[]
       | null
   }> = []
@@ -673,7 +672,6 @@ export async function getSppgRentReport(
     {
       kitchenId: string
       kitchenName: string
-      recipientName: string | null
       daySet: Set<string>
       total: number
     }
