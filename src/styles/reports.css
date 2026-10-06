@@ -516,6 +516,11 @@
   color: #0891B2;
 }
 
+.reports-overall-belanja-block .reports-table-overall thead th {
+  color: #111827;
+  font-weight: 900;
+}
+
 .reports-table thead th {
   color: #111827;
   font-weight: 900;
