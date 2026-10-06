@@ -130,9 +130,16 @@ type ReportTransaction = {
     | 'gas'
     | 'ops_disbursement'
     | 'real_ops'
-    | 'sppg_rent'
+    | 'operational_disbursement'
     | 'neutral'
   kitchen_id: string | null
+  operational_type:
+    | 'relawan_salary'
+    | 'school_pic_incentive'
+    | 'kader_incentive'
+    | 'vehicle_rent'
+    | 'sppg_rent'
+    | null
   created_at: string
   suppliers?:
     | {
@@ -220,7 +227,8 @@ async function getReportTransactions(
 
         kitchens (
           id,
-          name
+          name,
+          operational_recipient_name
         ),
 
         suppliers (
@@ -557,6 +565,7 @@ export async function getSppgRentReport(
         `
         amount,
         transaction_date,
+        operational_type,
         kitchen_id,
         kitchens (
           id,
@@ -594,6 +603,7 @@ export async function getSppgRentReport(
     {
       kitchenId: string
       kitchenName: string
+      recipientName: string | null
       daySet: Set<string>
       total: number
     }
