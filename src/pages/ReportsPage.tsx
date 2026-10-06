@@ -4,7 +4,6 @@ import {
   getOverallReport,
   getIncomeReport,
   getSupplierReport,
-  getSppgRentReport,
   getOperationalDisbursementReport,
   getOperationalTypeLabel,
   getOperationalKitchenLabel
