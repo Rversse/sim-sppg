@@ -364,22 +364,17 @@ function OverallReportView() {
               Pencairan Belanja Harian
             </h2>
 
+
             <div className="reports-summary-grid reports-summary-belanja">
-              <article className="reports-summary-card">
+              <article className="reports-summary-card reports-summary-card--rab">
                 <span>Total RAB</span>
-                <strong
-                  className={
-                    report.totals.totalRAB < 0 ? 'negative' : 'positive'
-                  }
-                >
+                <strong className={report.totals.totalRAB < 0 ? 'negative' : 'positive'}>
                   {formatCurrency(report.totals.totalRAB)}
                 </strong>
-                <small>
-                  Total belanja harian dikurangi belanja real
-                </small>
+                <small>Total belanja harian dikurangi belanja real</small>
               </article>
 
-              <article className="reports-summary-card">
+              <article className="reports-summary-card reports-summary-card--ops">
                 <span>Total OPS</span>
                 <strong
                   className={
@@ -390,20 +385,85 @@ function OverallReportView() {
                 >
                   {formatCurrency(report.totals.totalOperational)}
                 </strong>
-                <small>
-                  Operasional harian dikurangi operasional real
-                </small>
+                <small>Operasional harian dikurangi operasional real</small>
               </article>
 
-              <article className="reports-summary-card">
+              <article className="reports-summary-card reports-summary-card--arutala">
                 <span>OPS / Arutala</span>
                 <strong className="positive">
                   {formatCurrency(report.totals.gas)}
                 </strong>
-                <small>
-                  Semua pencairan yang masuk ke rekening Arutala
-                </small>
+                <small>Semua pencairan yang masuk ke rekening Arutala</small>
               </article>
+            </div>
+
+            <div className="reports-table-wrapper">
+              <table className="reports-table reports-table-overall">
+              <thead>
+                <tr>
+                  <th className="reports-col-kitchen">DAPUR</th>
+                  <th className="reports-col-rab">RAB / PENCAIRAN</th>
+                  <th className="reports-col-real-rab">RAB / REAL</th>
+                  <th className="reports-col-total">TOTAL RAB</th>
+                  <th className="reports-col-ops">OPS / PENCAIRAN</th>
+                  <th className="reports-col-real-ops">OPS / REAL</th>
+                  <th className="reports-col-total">TOTAL OPS</th>
+                  <th className="reports-col-gas">OPS / ARUTALA</th>
+                </tr>
+              </thead>
+              <tbody>
+                {[...report.kitchens]
+                  .sort((a, b) => a.totalRAB - b.totalRAB)
+                  .map((item) => (
+                    <tr key={item.kitchenId}>
+                      <td>
+                        <span className="reports-kitchen-name">
+                          {item.kitchenName}
+                        </span>
+                      </td>
+                    <td>{formatCurrency(item.income)}</td>
+                    <td>{formatCurrency(item.expense)}</td>
+                    <td className={item.totalRAB < 0 ? 'negative' : 'positive'}>
+                      {formatCurrency(item.totalRAB)}
+                    </td>
+                    <td>{formatCurrency(item.operational)}</td>
+                    <td>{formatCurrency(item.realOperational)}</td>
+                    <td
+                      className={
+                        item.totalOperational < 0 ? 'negative' : 'positive'
+                      }
+                    >
+                      {formatCurrency(item.totalOperational)}
+                    </td>
+                    <td>{formatCurrency(item.gas)}</td>
+                  </tr>
+                ))}
+                <tr className="reports-total-row">
+                  <td>GRAND TOTAL</td>
+                  <td>{formatCurrency(report.totals.income)}</td>
+                  <td>{formatCurrency(report.totals.expense)}</td>
+                  <td
+                    className={
+                      report.totals.totalRAB < 0 ? 'negative' : 'positive'
+                    }
+                  >
+                    {formatCurrency(report.totals.totalRAB)}
+                  </td>
+                  <td>{formatCurrency(report.totals.operational)}</td>
+                  <td>{formatCurrency(report.totals.realOperational)}</td>
+                  <td
+                    className={
+                      report.totals.totalOperational < 0
+                        ? 'negative'
+                        : 'positive'
+                    }
+                  >
+                    {formatCurrency(report.totals.totalOperational)}
+                  </td>
+                  <td>{formatCurrency(report.totals.gas)}</td>
+                </tr>
+              </tbody>
+              </table>
             </div>
           </div>
 
