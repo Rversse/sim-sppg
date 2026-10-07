@@ -217,9 +217,9 @@ function printReport() {
     }
 
     .reports-operational-note {
-      margin-top: 5px;
-      font-size: 8.5px;
-      line-height: 1.3;
+      margin-top: 6px;
+      font-size: 11px;
+      line-height: 1.4;
       color: #637A96;
     }
 
