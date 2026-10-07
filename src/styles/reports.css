@@ -495,34 +495,6 @@
   vertical-align: middle;
 }
 
-.reports-table .reports-currency {
-  position: relative;
-  display: block;
-  width: 100%;
-  min-width: 0;
-  min-height: 1.35em;
-  font-variant-numeric: tabular-nums;
-  text-align: right;
-}
-
-.reports-table .reports-currency-prefix {
-  position: absolute;
-  left: 0;
-  top: 50%;
-  transform: translateY(-50%);
-  white-space: nowrap;
-}
-
-.reports-table .reports-currency-value {
-  display: block;
-  width: 100%;
-  min-width: 0;
-  padding-left: 28px;
-  box-sizing: border-box;
-  text-align: right;
-  white-space: nowrap;
-}
-
 .reports-table thead th {
   background: var(--app-bg-soft);
   color: var(--app-text-muted);
