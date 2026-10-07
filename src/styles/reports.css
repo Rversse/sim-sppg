@@ -521,6 +521,7 @@
   box-sizing: border-box;
   text-align: right;
   white-space: nowrap;
+}
 
 .reports-table thead th {
   background: var(--app-bg-soft);
