@@ -34,6 +34,19 @@ function loadSupplierReport(startDate: string, endDate: string) {
 
 type PencairanReport = Awaited<ReturnType<typeof getIncomeReport>>
 
+function ReportCurrency({ value }: { value: number }) {
+  const formatted = formatCurrency(value)
+  const [currency, ...numberParts] = formatted.split(' ')
+  const amount = numberParts.join(' ')
+
+  return (
+    <span className="reports-currency">
+      <span className="reports-currency-prefix">{currency}</span>
+      <span className="reports-currency-value">{amount}</span>
+    </span>
+  )
+}
+
 function loadPencairanReport(
   startDate: string,
   endDate: string
@@ -388,36 +401,36 @@ function OverallReportView() {
                           {item.kitchenName}
                         </span>
                       </td>
-                    <td>{formatCurrency(item.income)}</td>
-                    <td>{formatCurrency(item.expense)}</td>
+                    <td><ReportCurrency value={item.income} /></td>
+                    <td><ReportCurrency value={item.expense} /></td>
                     <td className={item.totalRAB < 0 ? 'negative' : 'positive'}>
-                      {formatCurrency(item.totalRAB)}
+                      <ReportCurrency value={item.totalRAB} />
                     </td>
-                    <td>{formatCurrency(item.operational)}</td>
-                    <td>{formatCurrency(item.realOperational)}</td>
+                    <td><ReportCurrency value={item.operational} /></td>
+                    <td><ReportCurrency value={item.realOperational} /></td>
                     <td
                       className={
                         item.totalOperational < 0 ? 'negative' : 'positive'
                       }
                     >
-                      {formatCurrency(item.totalOperational)}
+                      <ReportCurrency value={item.totalOperational} />
                     </td>
-                    <td>{formatCurrency(item.gas)}</td>
+                    <td><ReportCurrency value={item.gas} /></td>
                   </tr>
                 ))}
                 <tr className="reports-total-row">
                   <td>GRAND TOTAL</td>
-                  <td>{formatCurrency(report.totals.income)}</td>
-                  <td>{formatCurrency(report.totals.expense)}</td>
+                  <td><ReportCurrency value={report.totals.income} /></td>
+                  <td><ReportCurrency value={report.totals.expense} /></td>
                   <td
                     className={
                       report.totals.totalRAB < 0 ? 'negative' : 'positive'
                     }
                   >
-                    {formatCurrency(report.totals.totalRAB)}
+                    <ReportCurrency value={report.totals.totalRAB} />
                   </td>
-                  <td>{formatCurrency(report.totals.operational)}</td>
-                  <td>{formatCurrency(report.totals.realOperational)}</td>
+                  <td><ReportCurrency value={report.totals.operational} /></td>
+                  <td><ReportCurrency value={report.totals.realOperational} /></td>
                   <td
                     className={
                       report.totals.totalOperational < 0
@@ -425,9 +438,9 @@ function OverallReportView() {
                         : 'positive'
                     }
                   >
-                    {formatCurrency(report.totals.totalOperational)}
+                    <ReportCurrency value={report.totals.totalOperational} />
                   </td>
-                  <td>{formatCurrency(report.totals.gas)}</td>
+                  <td><ReportCurrency value={report.totals.gas} /></td>
                 </tr>
               </tbody>
               </table>
@@ -463,24 +476,24 @@ function OverallReportView() {
                             item.recipientName
                           )}
                         </td>
-                        <td>{formatCurrency(item.relawanSalary)}</td>
-                        <td>{formatCurrency(item.schoolPicIncentive)}</td>
-                        <td>{formatCurrency(item.kaderIncentive)}</td>
-                        <td>{formatCurrency(item.vehicleRent)}</td>
-                        <td>{formatCurrency(item.sppgRent)}</td>
+                        <td><ReportCurrency value={item.relawanSalary} /></td>
+                        <td><ReportCurrency value={item.schoolPicIncentive} /></td>
+                        <td><ReportCurrency value={item.kaderIncentive} /></td>
+                        <td><ReportCurrency value={item.vehicleRent} /></td>
+                        <td><ReportCurrency value={item.sppgRent} /></td>
                         <td className="positive">
-                          {formatCurrency(item.totalOperationalDisbursement)}
+                          <ReportCurrency value={item.totalOperationalDisbursement} />
                         </td>
                       </tr>
                     ))}
                   <tr className="reports-total-row">
                     <td>GRAND TOTAL</td>
-                    <td>{formatCurrency(report.totals.relawanSalary)}</td>
-                    <td>{formatCurrency(report.totals.schoolPicIncentive)}</td>
-                    <td>{formatCurrency(report.totals.kaderIncentive)}</td>
-                    <td>{formatCurrency(report.totals.vehicleRent)}</td>
-                    <td>{formatCurrency(report.totals.sppgRent)}</td>
-                    <td>{formatCurrency(report.totals.totalOperationalDisbursement)}</td>
+                    <td><ReportCurrency value={report.totals.relawanSalary} /></td>
+                    <td><ReportCurrency value={report.totals.schoolPicIncentive} /></td>
+                    <td><ReportCurrency value={report.totals.kaderIncentive} /></td>
+                    <td><ReportCurrency value={report.totals.vehicleRent} /></td>
+                    <td><ReportCurrency value={report.totals.sppgRent} /></td>
+                    <td><ReportCurrency value={report.totals.totalOperationalDisbursement} /></td>
                   </tr>
                 </tbody>
               </table>
@@ -562,20 +575,20 @@ function SupplierReportView() {
                   {report.summaryRows.map((row) => (
                     <tr key={row.kitchenName}>
                       <td>{row.kitchenName}</td>
-                      <td>{formatCurrency(row.Arutala)}</td>
-                      <td>{formatCurrency(row.Sukalarang)}</td>
-                      <td>{formatCurrency(row.Aris)}</td>
-                      <td>{formatCurrency(row.Babinsa)}</td>
-                      <td>{formatCurrency(row.Total)}</td>
+                      <td><ReportCurrency value={row.Arutala} /></td>
+                      <td><ReportCurrency value={row.Sukalarang} /></td>
+                      <td><ReportCurrency value={row.Aris} /></td>
+                      <td><ReportCurrency value={row.Babinsa} /></td>
+                      <td><ReportCurrency value={row.Total} /></td>
                     </tr>
                   ))}
                   <tr className="reports-total-row">
                     <td>GRAND TOTAL</td>
-                    <td>{formatCurrency(report.totals.Arutala)}</td>
-                    <td>{formatCurrency(report.totals.Sukalarang)}</td>
-                    <td>{formatCurrency(report.totals.Aris)}</td>
-                    <td>{formatCurrency(report.totals.Babinsa)}</td>
-                    <td>{formatCurrency(report.totals.Total)}</td>
+                    <td><ReportCurrency value={report.totals.Arutala} /></td>
+                    <td><ReportCurrency value={report.totals.Sukalarang} /></td>
+                    <td><ReportCurrency value={report.totals.Aris} /></td>
+                    <td><ReportCurrency value={report.totals.Babinsa} /></td>
+                    <td><ReportCurrency value={report.totals.Total} /></td>
                   </tr>
                 </tbody>
               </table>
@@ -661,12 +674,12 @@ function PencairanReportView() {
                       <td>{row.supplierName}</td>
                       <td>{row.ownerName}</td>
                       <td>{row.bank}</td>
-                      <td>{formatCurrency(row.total)}</td>
+                      <td><ReportCurrency value={row.total} /></td>
                     </tr>
                   ))}
                   <tr className="reports-total-row">
                     <td colSpan={3}>GRAND TOTAL</td>
-                    <td>{formatCurrency(report.grandTotal)}</td>
+                    <td><ReportCurrency value={report.grandTotal} /></td>
                   </tr>
                 </tbody>
               </table>
