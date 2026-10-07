@@ -257,7 +257,7 @@ export async function getSupplierOptions(
     return [
       { value: 'relawan_salary', label: 'Gaji Relawan' },
       { value: 'school_pic_incentive', label: 'Insentif PIC Sekolah' },
-      { value: 'kader_incentive', label: 'Insentif Kader' },
+      { value: 'kader_incentive', label: 'Insentif PIC Posyandu' },
       { value: 'vehicle_rent', label: 'Sewa Kendaraan' },
       { value: 'sppg_rent', label: 'Sewa SPPG' }
     ]
