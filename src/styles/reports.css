@@ -744,6 +744,16 @@
 }
 
 @media (max-width: 760px) {
+  .reports-summary-grid.reports-summary-belanja {
+    grid-template-columns: 1fr;
+    width: min(100%, calc(100vw - 20px));
+    max-width: none;
+  }
+
+  .reports-summary-grid.reports-summary-belanja .reports-summary-card {
+    min-height: 132px;
+  }
+
   .reports-filter-panel {
     grid-template-columns: 1fr;
     width: calc(100vw - 20px);
