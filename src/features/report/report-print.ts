@@ -363,6 +363,28 @@ function printReport() {
       width: 11.714%;
     }
 
+    .reports-table .reports-currency {
+      display: grid;
+      width: 100%;
+      grid-template-columns: auto minmax(0, 1fr);
+      align-items: center;
+      gap: 6px;
+      text-align: initial;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .reports-table .reports-currency-prefix {
+      justify-self: start;
+      white-space: nowrap;
+    }
+
+    .reports-table .reports-currency-value {
+      min-width: 0;
+      justify-self: end;
+      text-align: right;
+      white-space: nowrap;
+    }
+
     .reports-table th {
       background: #ECF0F6 !important;
       vertical-align: middle;
