@@ -477,7 +477,7 @@ function createOverallSummarySheet(
     'Dapur',
     'Gaji Relawan',
     'Insentif PIC Sekolah',
-    'Insentif Kader',
+    'Insentif PIC Posyandu',
     'Sewa Kendaraan',
     'Sewa SPPG',
     'Total Operasional'
