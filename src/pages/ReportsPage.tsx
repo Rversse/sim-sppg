@@ -486,8 +486,9 @@ function OverallReportView() {
               </table>
 
               <p className="reports-operational-note">
-                Catatan: Pencairan operasional masing-masing dapur disalurkan
-                ke rekening yang tercantum dalam tanda kurung pada nama dapur.
+                Catatan: Pencairan operasional dapur disalurkan ke rekening PIC
+                Yayasan. Pencairan Sewa Kendaraan ke rekening Berkah Mandiri
+                Putra.
               </p>
             </div>
           </div>
