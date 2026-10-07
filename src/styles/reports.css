@@ -471,15 +471,28 @@
   white-space: nowrap;
 }
 
-.reports-table th:first-child,
+.reports-table th:first-child {
+  width: 31%;
+  text-align: center;
+  vertical-align: middle;
+}
+
 .reports-table td:first-child {
   width: 31%;
+  text-align: center;
+  vertical-align: middle;
+}
+
+.reports-table-overall td:first-child,
+.reports-table-overall-operational td:first-child {
   text-align: left;
 }
 
 .reports-table th:not(:first-child),
 .reports-table td:not(:first-child) {
   width: 17.25%;
+  text-align: center;
+  vertical-align: middle;
 }
 
 .reports-table thead th {
@@ -556,10 +569,7 @@
   color: var(--app-primary);
   font-weight: 900;
   text-align: center;
-}
-
-.reports-total-row td:first-child {
-  text-align: left;
+  vertical-align: middle;
 }
 
 /* Detail tables stay independently scrollable. */
