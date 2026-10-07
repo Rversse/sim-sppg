@@ -446,7 +446,7 @@ function OverallReportView() {
                     <th>DAPUR</th>
                     <th>GAJI RELAWAN</th>
                     <th>INSENTIF PIC SEKOLAH</th>
-                    <th>INSENTIF KADER</th>
+                    <th>INSENTIF PIC POSYANDU</th>
                     <th>SEWA KENDARAAN</th>
                     <th>SEWA SPPG</th>
                     <th>TOTAL OPERASIONAL</th>
