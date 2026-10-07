@@ -330,12 +330,63 @@
 
 .reports-summary-grid.reports-summary-belanja {
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  max-width: 1100px;
-  margin-inline: auto;
-  gap: 14px;
+  max-width: 860px;
+  margin: 0 auto 12px;
+  gap: 10px;
 }
 
 .reports-summary-grid.reports-summary-belanja .reports-summary-card {
+  min-height: 100px;
+  align-content: center;
+  justify-items: center;
+  gap: 5px;
+  padding: 12px 14px;
+  border-radius: 12px;
+}
+
+.reports-summary-grid.reports-summary-belanja .reports-summary-card > span {
+  font-size: 9px;
+}
+
+.reports-summary-grid.reports-summary-belanja .reports-summary-card > strong {
+  margin-top: 0;
+  font-size: clamp(18px, 1.7vw, 22px);
+}
+
+.reports-summary-grid.reports-summary-belanja .reports-summary-card > small {
+  max-width: 220px;
+  font-size: 8.5px;
+  line-height: 1.3;
+}
+
+.reports-summary-grid.reports-summary-belanja .reports-summary-card--rab {
+  border-left: 4px solid #0f766e;
+}
+
+.reports-summary-grid.reports-summary-belanja .reports-summary-card--rab > span,
+.reports-summary-grid.reports-summary-belanja .reports-summary-card--rab > strong {
+  color: #0f766e;
+}
+
+.reports-summary-grid.reports-summary-belanja .reports-summary-card--ops {
+  border-left: 4px solid #7c3aed;
+}
+
+.reports-summary-grid.reports-summary-belanja .reports-summary-card--ops > span,
+.reports-summary-grid.reports-summary-belanja .reports-summary-card--ops > strong {
+  color: #7c3aed;
+}
+
+.reports-summary-grid.reports-summary-belanja .reports-summary-card--arutala {
+  border-left: 4px solid #2563eb;
+}
+
+.reports-summary-grid.reports-summary-belanja .reports-summary-card--arutala > span,
+.reports-summary-grid.reports-summary-belanja .reports-summary-card--arutala > strong {
+  color: #2563eb;
+}
+
+.reports-summary-card {
   min-height: 154px;
   align-content: center;
   justify-items: center;
@@ -751,7 +802,7 @@
   }
 
   .reports-summary-grid.reports-summary-belanja .reports-summary-card {
-    min-height: 132px;
+    min-height: 96px;
   }
 
   .reports-filter-panel {
