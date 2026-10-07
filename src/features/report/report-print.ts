@@ -343,6 +343,12 @@ function printReport() {
       line-height: 1.35;
     }
 
+    .reports-table th,
+    .reports-table td {
+      text-align: center !important;
+      vertical-align: middle !important;
+    }
+
     .reports-table-overall {
       table-layout: fixed !important;
     }
@@ -479,9 +485,9 @@ function printReport() {
       white-space: nowrap;
     }
 
-    .reports-table th:first-child,
-    .reports-table td:first-child {
-      text-align: left;
+    .reports-table-overall td:first-child,
+    .reports-table-overall-operational td:first-child {
+      text-align: left !important;
     }
 
     .reports-total-row td {
@@ -489,6 +495,8 @@ function printReport() {
       background: #E2E8F0 !important;
       border-top: 2px solid #64748B !important;
       border-bottom: 2px solid #64748B !important;
+      text-align: center !important;
+      vertical-align: middle !important;
     }
 
     .reports-table .positive {
