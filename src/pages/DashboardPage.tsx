@@ -79,7 +79,7 @@ function operationalTypeLabel(
     case 'school_pic_incentive':
       return 'Insentif PIC Sekolah'
     case 'kader_incentive':
-      return 'Insentif Kader'
+      return 'Insentif PIC Posyandu'
     case 'vehicle_rent':
       return 'Sewa Kendaraan'
     case 'sppg_rent':
@@ -2059,7 +2059,7 @@ export function DashboardPage() {
                     <option value="">Pilih jenis operasional</option>
                     <option value="relawan_salary">Gaji Relawan</option>
                     <option value="school_pic_incentive">Insentif PIC Sekolah</option>
-                    <option value="kader_incentive">Insentif Kader</option>
+                    <option value="kader_incentive">Insentif PIC Posyandu</option>
                     <option value="vehicle_rent">Sewa Kendaraan</option>
                     <option value="sppg_rent">Sewa SPPG</option>
                   </select>
