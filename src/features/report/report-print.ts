@@ -244,31 +244,40 @@ function printReport() {
 
     .reports-summary-grid.reports-summary-belanja {
       grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
-      width: 100% !important;
-      max-width: none !important;
-      gap: 12px !important;
-      margin: 0 0 14px !important;
+      width: min(100%, 920px) !important;
+      max-width: 920px !important;
+      gap: 8px !important;
+      margin: 0 auto 10px !important;
     }
 
     .reports-summary-grid.reports-summary-belanja .reports-summary-card {
-      min-height: 112px !important;
+      min-height: 78px !important;
       align-content: center !important;
       justify-items: center !important;
-      padding: 12px !important;
+      gap: 4px !important;
+      padding: 8px 10px !important;
+      border-radius: 8px !important;
       break-inside: avoid;
       page-break-inside: avoid;
       text-align: center !important;
     }
 
-    .reports-summary-grid.reports-summary-belanja .reports-summary-card > span,
-    .reports-summary-grid.reports-summary-belanja .reports-summary-card > strong,
-    .reports-summary-grid.reports-summary-belanja .reports-summary-card > small {
+    .reports-summary-grid.reports-summary-belanja .reports-summary-card > span {
+      font-size: 8px !important;
+    }
+
+    .reports-summary-grid.reports-summary-belanja .reports-summary-card > strong {
+      margin-top: 0 !important;
+      font-size: 14px !important;
       text-align: center !important;
     }
 
     .reports-summary-grid.reports-summary-belanja .reports-summary-card > small {
-      max-width: 240px;
-      margin-inline: auto;
+      max-width: 180px !important;
+      margin-inline: auto !important;
+      font-size: 7px !important;
+      line-height: 1.25 !important;
+      text-align: center !important;
     }
 
     .reports-summary-card {
