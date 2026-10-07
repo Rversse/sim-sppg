@@ -157,7 +157,7 @@ export function getOperationalTypeLabel(type: OperationalType) {
     case 'school_pic_incentive':
       return 'Insentif PIC Sekolah'
     case 'kader_incentive':
-      return 'Insentif Kader'
+      return 'Insentif PIC Posyandu'
     case 'vehicle_rent':
       return 'Sewa Kendaraan'
     case 'sppg_rent':
