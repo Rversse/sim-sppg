@@ -265,9 +265,10 @@ function getIncomeAccountLabel(account: TransactionAccount): string {
     : account.income_suppliers
 
   const businessName = supplier?.business_name?.trim() || account.name
-  const ownerName = supplier?.owner_name?.trim()
+  const accountNumber = account.account_number?.trim() || '-'
+  const bank = account.bank?.trim() || '-'
 
-  return ownerName ? `${businessName} / ${ownerName}` : businessName
+  return `${businessName} / ${accountNumber} - ${bank}`
 }
 
 function getGasAccountLabel(account: TransactionAccount): string {
