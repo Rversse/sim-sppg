@@ -1128,8 +1128,8 @@ export function DashboardPage() {
 
     if (!transactionDetailsUnlocked) {
       setFormError(
-        formFlowType === 'income'
-          ? 'Pilih rekening supplier terlebih dahulu.'
+        formFlowType === 'income' || formFlowType === 'other_income'
+          ? 'Pilih rekening pemasukan terlebih dahulu.'
           : formFlowType === 'expense'
             ? 'Pilih supplier terlebih dahulu.'
             : formFlowType === 'gas'
@@ -2181,6 +2181,37 @@ export function DashboardPage() {
                       }}
                     >
                       <option value="">
+                        {!formKitchenId
+                          ? 'Pilih dapur terlebih dahulu'
+                          : 'Pilih supplier'}
+                      </option>
+
+                      {formSuppliers.map((supplier) => (
+                        <option key={supplier.value} value={supplier.value}>
+                          {supplier.label}
+                        </option>
+                      ))}
+                    </select>
+                  ) : (
+                    <select
+                      value={formAccountId}
+                      disabled={
+                        (!formKitchenId && formFlowType !== 'other_income') ||
+                        !formFlowType ||
+                        modalMode === 'edit' ||
+                        formFlowType === 'gas'
+                      }
+                      onChange={(event) => {
+                        const value = event.target.value
+                        setFormAccountId(value)
+                        setFormEntryUnlocked(Boolean(value))
+
+                        if (value) {
+                          focusNominalInput()
+                        }
+                      }}
+                    >
+                      <option value="">
                         {formFlowType === 'other_income'
                           ? 'Pilih rekening pemasukan'
                           : !formKitchenId
@@ -2191,7 +2222,6 @@ export function DashboardPage() {
                                 ? 'KOPERASI ARUTALA BNI'
                                 : 'Pilih rekening'}
                       </option>
-                      </option>
 
                       {formAccounts.map((account) => (
                         <option key={account.value} value={account.value}>
@@ -2199,8 +2229,7 @@ export function DashboardPage() {
                         </option>
                       ))}
                     </select>
-                  )}
-                </label>
+                  )}                </label>
               )}
               <label>
                 <span>Nominal</span>
@@ -2238,10 +2267,10 @@ export function DashboardPage() {
                       void handleTransactionSubmit()
                     }}
                     placeholder={
-                    formFlowType === 'other_income'
-                      ? 'Masukkan catatan pemasukan / pencairan'
-                      : 'Pilih dapur dan jenis transaksi terlebih dahulu'
-                  }
+                      formFlowType === 'other_income'
+                        ? 'Masukkan catatan pemasukan / pencairan'
+                        : 'Pilih dapur dan jenis transaksi terlebih dahulu'
+                    }
                   />
                 </label>
               ) : null}
