@@ -17,7 +17,7 @@ import {
   DateRangePicker,
   type DateRangeValue
 } from '@/components/ui/date-range-picker'
-import { formatCurrency, getTodayLocal } from '@/lib/formatters'
+import { formatCurrency, formatDate, getTodayLocal } from '@/lib/formatters'
 import { supabase } from '@/lib/supabase'
 
 type ReportTab = 'overall' | 'pencairan' | 'supplier'
