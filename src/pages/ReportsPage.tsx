@@ -465,6 +465,36 @@ function OverallReportView() {
               </tbody>
               </table>
             </div>
+
+            {report.otherIncome.length > 0 ? (
+              <div className="reports-transfer-other-block">
+                <h3 className="reports-transfer-other-title">
+                  Transfer Lainnya
+                </h3>
+
+                <div className="reports-transfer-other-list">
+                  {report.otherIncome.map((item) => (
+                    <div className="reports-transfer-other-row" key={item.id}>
+                      <div className="reports-transfer-other-main">
+                        <strong>
+                          {item.accountName} • {item.bank}
+                          {item.accountNumber
+                            ? ` • ${item.accountNumber}`
+                            : ''}
+                        </strong>
+                        <span>{item.note?.trim() || 'Tanpa catatan'}</span>
+                      </div>
+                      <span className="reports-transfer-other-date">
+                        {item.date}
+                      </span>
+                      <strong className="reports-transfer-other-amount">
+                        {formatCurrency(item.amount)}
+                      </strong>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : null}
           </div>
 
           <div className="reports-disbursement-block reports-overall-operational-block">
