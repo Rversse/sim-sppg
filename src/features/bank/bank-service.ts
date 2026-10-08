@@ -98,6 +98,9 @@ export type BankIncomeHistoryTransaction = {
   flow_type: 'income' | 'gas' | 'neutral'
   note: string | null
   kitchen_name: string | null
+  account_name: string | null
+  account_bank: string | null
+  account_number: string | null
 }
 
 export type BankHistoryItem =
@@ -538,7 +541,8 @@ export async function getBankHistoryPage(
             amount,
             flow_type,
             note,
-            kitchens(name)
+            kitchens(name),
+            accounts(name,bank,account_number)
           `
         )
         .eq('account_id', accountId)
@@ -561,6 +565,18 @@ export async function getBankHistoryPage(
         flow_type: 'income' | 'gas' | 'neutral'
         note: string | null
         kitchens: { name: string } | { name: string }[] | null
+        accounts:
+          | {
+              name: string | null
+              bank: string | null
+              account_number: string | null
+            }
+          | {
+              name: string | null
+              bank: string | null
+              account_number: string | null
+            }[]
+          | null
       }>
     })
   ])
@@ -632,7 +648,16 @@ export async function getBankHistoryPage(
         amount: Number(row.amount) || 0,
         flow_type: row.flow_type,
         note: row.note,
-        kitchen_name: kitchen?.name ?? null
+        kitchen_name: kitchen?.name ?? null,
+        account_name: Array.isArray(row.accounts)
+          ? row.accounts[0]?.name ?? null
+          : row.accounts?.name ?? null,
+        account_bank: Array.isArray(row.accounts)
+          ? row.accounts[0]?.bank ?? null
+          : row.accounts?.bank ?? null,
+        account_number: Array.isArray(row.accounts)
+          ? row.accounts[0]?.account_number ?? null
+          : row.accounts?.account_number ?? null
       }
     })
   }
