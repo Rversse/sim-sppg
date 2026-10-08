@@ -1833,7 +1833,7 @@ export function BankPage() {
                     const transaction = item.transaction
                     const title = transaction.kitchen_name
                       ? `Pencairan ${transaction.kitchen_name}`
-                      : 'Pencairan Dashboard'
+                      : 'Transfer Lainnya'
                     const isGas =
                       transaction.flow_type === 'gas' ||
                       transaction.flow_type === 'neutral'
