@@ -20,7 +20,7 @@ export type TransactionFilters = {
 
 export type TransactionPayload = {
   transaction_date: string
-  kitchen_id: string
+  kitchen_id: string | null
   amount: number
   note: string | null
   flow_type: TransactionFlow
@@ -265,7 +265,7 @@ export function validateTransactionPayload(
     return 'Tanggal wajib diisi'
   }
 
-  if (!payload.kitchen_id) {
+  if (!payload.kitchen_id && payload.flow_type !== 'income') {
     return 'Pilih dapur'
   }
 
@@ -313,9 +313,14 @@ export async function hasDuplicateTransaction(
       head: true
     })
     .eq('transaction_date', payload.transaction_date)
-    .eq('kitchen_id', payload.kitchen_id)
     .eq('flow_type', payload.flow_type)
     .eq('amount', payload.amount)
+
+  if (payload.kitchen_id) {
+    query = query.eq('kitchen_id', payload.kitchen_id)
+  } else {
+    query = query.is('kitchen_id', null)
+  }
 
   if (excludeId) {
     query = query.neq('id', excludeId)
