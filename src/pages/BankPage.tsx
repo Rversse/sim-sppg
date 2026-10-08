@@ -1831,16 +1831,26 @@ export function BankPage() {
                 historyTransactions.map((item) => {
                   if (item.kind === 'income') {
                     const transaction = item.transaction
-                    const title = transaction.kitchen_name
-                      ? `Pencairan ${transaction.kitchen_name}`
-                      : 'Pencairan Dashboard'
+                    const isOtherIncome =
+                      transaction.flow_type === 'other_income'
+                    const title = isOtherIncome
+                      ? 'Transfer Lainnya'
+                      : transaction.kitchen_name
+                        ? `Pencairan ${transaction.kitchen_name}`
+                        : 'Pencairan Dashboard'
                     const isGas =
                       transaction.flow_type === 'gas' ||
                       transaction.flow_type === 'neutral'
-                    const badge = isGas ? 'OPS / Arutala' : 'RAB / PENCAIRAN'
-                    const badgeClass = isGas
-                      ? 'bank-history-badge bank-history-badge--gas'
-                      : 'bank-history-badge bank-history-badge--rab'
+                    const badge = isOtherIncome
+                      ? 'TRANSFER LAINNYA'
+                      : isGas
+                        ? 'OPS / Arutala'
+                        : 'RAB / PENCAIRAN'
+                    const badgeClass = isOtherIncome
+                      ? 'bank-history-badge bank-history-badge--income'
+                      : isGas
+                        ? 'bank-history-badge bank-history-badge--gas'
+                        : 'bank-history-badge bank-history-badge--rab'
 
                     return (
                       <article
