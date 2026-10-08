@@ -95,7 +95,7 @@ export type BankIncomeHistoryTransaction = {
   transaction_date: string
   created_at: string
   amount: number
-  flow_type: 'income' | 'gas' | 'neutral'
+  flow_type: 'income' | 'gas' | 'neutral' | 'other_income'
   note: string | null
   kitchen_name: string | null
 }
@@ -335,7 +335,7 @@ export async function getBankIncomeTransactions(
     const { data, error } = await client
       .from('transactions')
       .select('account_id,amount')
-      .in('flow_type', ['income', 'gas', 'neutral'])
+      .in('flow_type', ['income', 'gas', 'neutral', 'other_income'])
       .gte('transaction_date', startDate)
       .lte('transaction_date', endDate)
       .order('transaction_date', { ascending: true })
@@ -542,7 +542,7 @@ export async function getBankHistoryPage(
           `
         )
         .eq('account_id', accountId)
-        .in('flow_type', ['income', 'gas', 'neutral'])
+        .in('flow_type', ['income', 'gas', 'neutral', 'other_income'])
         .gte('transaction_date', startDate)
         .lte('transaction_date', incomeEndDate)
         .order('transaction_date', { ascending: false })
@@ -558,7 +558,7 @@ export async function getBankHistoryPage(
         transaction_date: string
         created_at: string
         amount: number | string | null
-        flow_type: 'income' | 'gas' | 'neutral'
+        flow_type: 'income' | 'gas' | 'neutral' | 'other_income'
         note: string | null
         kitchens: { name: string } | { name: string }[] | null
       }>
@@ -936,7 +936,7 @@ export async function hasSufficientBalance(
       .from('transactions')
       .select('amount')
       .eq('account_id', accountId)
-      .in('flow_type', ['income', 'gas', 'neutral'])
+      .in('flow_type', ['income', 'gas', 'neutral', 'other_income'])
       .gte('transaction_date', BANK_MODULE_START_DATE)
       .lte('transaction_date', incomeEndDate)
       .order('transaction_date', { ascending: true })
@@ -1147,6 +1147,7 @@ export type BankExportTransaction = {
   mutationType:
     | 'RAB / PENCAIRAN'
     | 'OPS / ARUTALA'
+    | 'TRANSFER LAINNYA'
     | 'TRANSFER MASUK'
     | 'TRANSFER KELUAR'
   counterparty: string
@@ -1191,7 +1192,7 @@ type BankExportIncomeRow = {
   created_at: string
   account_id: string | null
   amount: number | string | null
-  flow_type: 'income' | 'gas' | 'neutral'
+  flow_type: 'income' | 'gas' | 'neutral' | 'other_income'
   note: string | null
   kitchen: { name: string } | { name: string }[] | null
 }
@@ -1322,7 +1323,7 @@ export async function getBankExportTransactions(
             kitchen:kitchens(name)
           `
         )
-        .in('flow_type', ['income', 'gas', 'neutral'])
+        .in('flow_type', ['income', 'gas', 'neutral', 'other_income'])
         .gte('transaction_date', BANK_MODULE_START_DATE)
         .lte('transaction_date', endDate)
         .order('transaction_date', { ascending: true })
@@ -1369,7 +1370,7 @@ export async function getBankExportTransactions(
         createdAt: string
         key: string
         accountId: string
-        mutationType: 'RAB / PENCAIRAN' | 'OPS / ARUTALA'
+        mutationType: 'RAB / PENCAIRAN' | 'OPS / ARUTALA' | 'TRANSFER LAINNYA'
         counterparty: string
         paymentFor: string
         transferAmount: number
@@ -1427,7 +1428,22 @@ export async function getBankExportTransactions(
 
     const kitchen = Array.isArray(row.kitchen) ? row.kitchen[0] : row.kitchen
     const amount = Number(row.amount) || 0
-    const isOperational = row.flow_type !== 'income'
+
+    const mutationType =
+      row.flow_type === 'other_income'
+        ? 'TRANSFER LAINNYA'
+        : row.flow_type === 'income'
+          ? 'RAB / PENCAIRAN'
+          : 'OPS / ARUTALA'
+
+    const counterparty =
+      row.flow_type === 'other_income'
+        ? 'Transfer Lainnya'
+        : kitchen?.name
+          ? `Pencairan ${kitchen.name}`
+          : row.flow_type === 'income'
+            ? 'Pencairan Dashboard'
+            : 'OPS / Arutala'
 
     events.push({
       kind: 'income',
@@ -1436,12 +1452,8 @@ export async function getBankExportTransactions(
       createdAt: row.created_at,
       key: `income:${row.id}`,
       accountId: row.account_id,
-      mutationType: isOperational ? 'OPS / ARUTALA' : 'RAB / PENCAIRAN',
-      counterparty: kitchen?.name
-        ? `Pencairan ${kitchen.name}`
-        : isOperational
-          ? 'OPS / Arutala'
-          : 'Pencairan Dashboard',
+      mutationType,
+      counterparty,
       paymentFor: row.note?.trim() || '-',
       transferAmount: amount,
       adminFee: 0
