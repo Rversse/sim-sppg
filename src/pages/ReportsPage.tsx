@@ -467,6 +467,53 @@ function OverallReportView() {
             </div>
           </div>
 
+          {report.otherIncome.length > 0 ? (
+            <div className="reports-disbursement-block reports-other-income-block">
+              <h2 className="reports-subsection-title">
+                Pemasukan Lainnya
+              </h2>
+
+              <div className="reports-other-income-summary">
+                <span>
+                  {report.otherIncome.length} transaksi langsung ke rekening
+                </span>
+                <strong>
+                  {formatCurrency(
+                    report.otherIncome.reduce(
+                      (total, item) => total + item.amount,
+                      0
+                    )
+                  )}
+                </strong>
+              </div>
+
+              <div className="reports-table-wrapper">
+                <table className="reports-table reports-table-other-income">
+                  <thead>
+                    <tr>
+                      <th>TANGGAL</th>
+                      <th>REKENING</th>
+                      <th>NOMINAL</th>
+                      <th>CATATAN</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {report.otherIncome.map((item, index) => (
+                      <tr key={`${item.date}-${item.accountName}-${index}`}>
+                        <td>{formatDate(item.date)}</td>
+                        <td>{item.accountName}</td>
+                        <td>{formatCurrency(item.amount)}</td>
+                        <td className="reports-other-income-note">
+                          {item.note}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          ) : null}
+,
           <div className="reports-disbursement-block reports-overall-operational-block">
             <h2 className="reports-subsection-title">
               Pencairan Operasional Harian
