@@ -216,6 +216,66 @@ function printReport() {
       width: 100%;
     }
 
+    .reports-transfer-other-block {
+      margin-top: 10px;
+      padding-top: 8px;
+      border-top: 1px solid #D2DAEA;
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
+
+    .reports-transfer-other-title {
+      margin: 0 0 6px;
+      font-size: 11px;
+      font-weight: 900;
+      color: #18293F;
+      text-align: left;
+    }
+
+    .reports-transfer-other-list {
+      display: grid;
+      gap: 4px;
+    }
+
+    .reports-transfer-other-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto auto;
+      align-items: center;
+      gap: 12px;
+      padding: 6px 8px;
+      border: 1px solid #D2DAEA;
+      border-radius: 6px;
+      background: #F8FAFC;
+      vertical-align: middle;
+    }
+
+    .reports-transfer-other-main {
+      min-width: 0;
+      display: grid;
+      gap: 1px;
+    }
+
+    .reports-transfer-other-main strong {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font-size: 8px;
+      color: #18293F;
+    }
+
+    .reports-transfer-other-main span,
+    .reports-transfer-other-date {
+      font-size: 7.5px;
+      color: #637A96;
+    }
+
+    .reports-transfer-other-amount {
+      min-width: 115px;
+      text-align: right;
+      font-size: 9px;
+      font-variant-numeric: tabular-nums;
+      color: #0F766E;
+    }
     .reports-operational-note {
       margin-top: 6px;
       font-size: 11px;
