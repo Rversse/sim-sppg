@@ -1628,6 +1628,28 @@
   color: var(--app-text-subtle);
 }
 
+.dashboard-transaction-special-select {
+  border-color: var(--app-accent) !important;
+  background: color-mix(
+    in srgb,
+    var(--app-accent) 7%,
+    var(--app-white)
+  ) !important;
+  color: var(--app-primary) !important;
+  font-weight: 800 !important;
+}
+
+.dashboard-transaction-special-select:focus {
+  border-color: var(--app-accent) !important;
+  box-shadow: var(--app-focus-ring);
+}
+
+.dashboard-transaction-form-grid select option.dashboard-transfer-lainnya-option {
+  color: var(--app-accent);
+  background: var(--app-bg-soft);
+  font-weight: 900;
+}
+
 .dashboard-transaction-modal-actions {
   border-bottom-left-radius: calc(var(--app-modal-radius) - 1px);
   border-bottom-right-radius: calc(var(--app-modal-radius) - 1px);
