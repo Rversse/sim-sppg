@@ -39,7 +39,6 @@ import {
   type TransactionOption
 } from '@/features/transactions/transaction-options-service'
 import {
-  createOtherIncomeTransaction,
   getOtherIncomeAccountOptions,
   getOtherIncomeTransactions,
   type OtherIncomeRecord
@@ -74,6 +73,7 @@ function flowLabel(flow: DashboardFlow) {
   if (flow === 'gas' || flow === 'neutral') return 'OPS / Arutala'
   if (flow === 'ops_disbursement') return 'OPS / Pencairan'
   if (flow === 'operational_disbursement') return 'Pencairan Operasional'
+  if (flow === 'other_income') return 'Transfer Lainnya'
   return 'OPS / Real'
 }
 
@@ -113,7 +113,7 @@ function FlowIcon({ flow }: { flow: DashboardFlow }) {
     return <Building2 aria-hidden="true" />
   }
 
-  return <Settings2 aria-hidden="true" />
+  return <WalletCards aria-hidden="true" />
 }
 
 function flowClass(flow: DashboardFlow) {
@@ -127,6 +127,9 @@ function flowClass(flow: DashboardFlow) {
   }
   if (flow === 'operational_disbursement') {
     return 'dashboard-flow dashboard-flow-sppg-rent'
+  }
+  if (flow === 'other_income') {
+    return 'dashboard-flow dashboard-flow-income'
   }
   return 'dashboard-flow dashboard-flow-real-ops'
 }
@@ -948,8 +951,14 @@ export function DashboardPage() {
     setEditingId(transaction.id)
     setFormError(null)
     setFormDate(transaction.transaction_date)
-    setFormKitchenId(transaction.kitchen_id ?? '')
-    setFormFlowType(transaction.flow_type === 'neutral' ? 'gas' : transaction.flow_type)
+    setFormKitchenId(
+      transaction.flow_type === 'other_income'
+        ? OTHER_INCOME_FORM_VALUE
+        : transaction.kitchen_id ?? ''
+    )
+    setFormFlowType(
+      transaction.flow_type === 'neutral' ? 'gas' : transaction.flow_type
+    )
     setFormOperationalType(transaction.operational_type ?? '')
     setFormAmount(formatIntegerInput(String(Number(transaction.amount) || 0)))
     setFormNote(transaction.note ?? '')
@@ -962,6 +971,15 @@ export function DashboardPage() {
     setModalOpen(true)
 
     try {
+      if (transaction.flow_type === 'other_income') {
+        const accounts = await getOtherIncomeAccountOptions()
+        setFormAccounts(accounts)
+        setFormSuppliers([])
+        setFormAccountId(transaction.account_id ?? '')
+        setFormEntryUnlocked(Boolean(transaction.account_id))
+        return
+      }
+
       const availableFlows = getAvailableFlowsForKitchen(
         kitchens.find((kitchen) => kitchen.id === transaction.kitchen_id)?.name,
         includeSppgRent
@@ -1136,19 +1154,60 @@ export function DashboardPage() {
         return
       }
 
+      const payload = {
+        transaction_date: formDate,
+        kitchen_id: null,
+        amount,
+        note: formNote.trim() || null,
+        flow_type: 'other_income',
+        category: 'OTHER_INCOME',
+        account_id: formAccountId,
+        supplier_id: null,
+        destination_label: null,
+        operational_type: null
+      } as const
+
       setSaving(true)
       setFormError(null)
 
       try {
-        await createOtherIncomeTransaction({
-          transactionDate: formDate,
-          accountId: formAccountId,
-          amount,
-          note: formNote
-        })
+        if (modalMode === 'create') {
+          const duplicate = await hasDuplicateTransaction(payload)
+          let allowDuplicate = false
+
+          if (duplicate) {
+            const confirmed = window.confirm(
+              'Transfer Lainnya dengan tanggal, rekening, dan nominal yang sama sudah ada.\\n\\nTetap simpan?'
+            )
+
+            if (!confirmed) {
+              setSaving(false)
+              return
+            }
+
+            allowDuplicate = true
+          }
+
+          await createTransaction(payload, supabase, { allowDuplicate })
+        } else {
+          if (!editingId) {
+            throw new Error('ID transaksi tidak ditemukan')
+          }
+
+          await updateTransaction(editingId, payload)
+        }
 
         setFormAmount('')
         setFormNote('')
+        setFormError(null)
+
+        if (modalMode === 'edit') {
+          setModalOpen(false)
+          setModalMode('create')
+          setEditingId(null)
+          resetTransactionForm()
+        }
+
         const rows = await getOtherIncomeTransactions(
           filters.startDate,
           filters.endDate
@@ -2147,7 +2206,7 @@ export function DashboardPage() {
               </div>
 
               <label>
-                <span>Dapur</span>
+                <span>{isOtherIncomeForm ? 'Transaksi' : 'Dapur'}</span>
                 <select
                   value={formKitchenId}
                   disabled={modalMode === 'edit'}
