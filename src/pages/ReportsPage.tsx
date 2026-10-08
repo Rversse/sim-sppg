@@ -513,7 +513,7 @@ function OverallReportView() {
               </div>
             </div>
           ) : null}
-,
+
           <div className="reports-disbursement-block reports-overall-operational-block">
             <h2 className="reports-subsection-title">
               Pencairan Operasional Harian
