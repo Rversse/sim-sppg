@@ -1460,6 +1460,11 @@ section.bank-history-modal {
   color: #2563EB;
 }
 
+.bank-history-badge--income {
+  background: color-mix(in srgb, #0F766E 12%, var(--theme-surface-raised));
+  color: #0F766E;
+}
+
 .bank-history-meta {
   margin-top: 1px;
   color: var(--theme-text-muted);
