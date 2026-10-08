@@ -1909,7 +1909,9 @@ export function DashboardPage() {
                   transaction.destination_label?.trim() ||
                   getOperationalDestination(kitchen?.name)
                 const businessName =
-                  transaction.flow_type === 'expense'
+                  transaction.flow_type === 'other_income'
+                    ? 'Transfer Lainnya'
+                    : transaction.flow_type === 'expense'
                     ? supplier?.name?.trim() || 'Supplier tidak diketahui'
                     : transaction.flow_type === 'ops_disbursement'
                       ? temporaryDestination || 'Tujuan operasional'
@@ -1924,7 +1926,8 @@ export function DashboardPage() {
                   transaction.flow_type === 'expense' ||
                   transaction.flow_type === 'ops_disbursement' ||
                   transaction.flow_type === 'real_ops' ||
-                  transaction.flow_type === 'operational_disbursement'
+                  transaction.flow_type === 'operational_disbursement' ||
+                  transaction.flow_type === 'other_income'
                     ? ''
                     : accountSupplier?.owner_name?.trim() || ''
                 const bankAccount = account
@@ -1936,7 +1939,9 @@ export function DashboardPage() {
                     <div className="dashboard-history-main">
                       <div className="dashboard-history-heading">
                         <strong className="dashboard-history-kitchen">
-                          {kitchen?.name ?? 'Dapur tidak diketahui'}
+                          {transaction.flow_type === 'other_income'
+                            ? 'Transfer Lainnya'
+                            : kitchen?.name ?? 'Dapur tidak diketahui'}
                           {kitchen?.id_sppg ? (
                             <>
                               <span className="dashboard-history-kitchen-separator">
