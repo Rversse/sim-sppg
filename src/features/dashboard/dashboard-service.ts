@@ -10,6 +10,7 @@ export type DashboardFlow =
   | 'ops_disbursement'
   | 'real_ops'
   | 'operational_disbursement'
+  | 'other_income'
   | 'neutral'
 
 export type DashboardFilters = {
