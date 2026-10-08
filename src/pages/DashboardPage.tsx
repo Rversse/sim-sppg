@@ -2052,6 +2052,47 @@ export function DashboardPage() {
         </section>
       </section>
 
+      <section className="dashboard-panel dashboard-other-income-panel">
+        <div className="dashboard-panel-header">
+          <div>
+            <h2>Transfer Lainnya</h2>
+            <span>Pemasukan langsung ke rekening pada periode terpilih.</span>
+          </div>
+        </div>
+
+        {otherIncomeRecords.length ? (
+          <div className="dashboard-other-income-list">
+            {otherIncomeRecords.map((item) => (
+              <article className="dashboard-other-income-row" key={item.id}>
+                <div>
+                  <strong>
+                    {item.account?.name ?? 'Rekening tidak diketahui'}
+                  </strong>
+                  <span>
+                    {item.account?.bank ?? '-'}
+                    {item.account?.account_number
+                      ? ' • ' + item.account.account_number
+                      : ''}
+                  </span>
+                  <small>
+                    {formatDate(item.transaction_date)} •{' '}
+                    {formatHistoryInputTimestamp(item.created_at)}
+                  </small>
+                  <p>Catatan: {item.note?.trim() || '-'}</p>
+                </div>
+                <strong className="dashboard-other-income-amount">
+                  +{formatCurrency(Number(item.amount) || 0)}
+                </strong>
+              </article>
+            ))}
+          </div>
+        ) : (
+          <div className="dashboard-empty">
+            Tidak ada Transfer Lainnya pada periode terpilih.
+          </div>
+        )}
+      </section>
+
       {modalOpen ? (
         <div
           className="dashboard-transaction-modal-backdrop"
@@ -2120,149 +2161,195 @@ export function DashboardPage() {
                       {kitchen.name}
                     </option>
                   ))}
+                  <option value={OTHER_INCOME_FORM_VALUE}>
+                    Transfer Lainnya
+                  </option>
                 </select>
               </label>
 
-              <label>
-                <span>Jenis transaksi</span>
-                <select
-                  value={formFlowType}
-                  disabled={!formKitchenId || modalMode === 'edit'}
-                  onChange={(event) =>
-                    void handleFormFlowChange(
-                      event.target.value as DashboardFlow | ''
-                    )
-                  }
-                >
-                  <option value="">Pilih jenis transaksi</option>
-                  {FLOW_OPTIONS.filter(
-                    (option) =>
-                      option.value !== '' &&
-                      availableFormFlows.includes(option.value as DashboardFlow)
-                  ).map((option) => (
-                    <option key={option.value} value={option.value}>
-                      {option.label}
-                    </option>
-                  ))}
-                </select>
-              </label>
-
-              {formFlowType === 'real_ops' ? null : formFlowType === 'operational_disbursement' ? (
+              {isOtherIncomeForm ? (
                 <label>
-                  <span>Jenis Operasional</span>
+                  <span>Rekening</span>
                   <select
-                    value={formOperationalType}
-                    disabled={modalMode === 'edit'}
+                    value={formAccountId}
+                    disabled={saving}
                     onChange={(event) => {
-                      const value = event.target.value as typeof formOperationalType
-                      setFormOperationalType(value)
+                      const value = event.target.value
+                      setFormAccountId(value)
                       setFormEntryUnlocked(Boolean(value))
-                      if (value) {
-                        focusNominalInput()
-                      }
+                      if (value) focusNominalInput()
                     }}
                   >
-                    <option value="">Pilih jenis operasional</option>
-                    <option value="relawan_salary">Gaji Relawan</option>
-                    <option value="school_pic_incentive">Insentif PIC Sekolah</option>
-                    <option value="kader_incentive">Insentif PIC Posyandu</option>
-                    <option value="vehicle_rent">Sewa Kendaraan</option>
-                    <option value="sppg_rent">Sewa SPPG</option>
+                    <option value="">Pilih rekening</option>
+                    {formAccounts.map((account) => (
+                      <option key={account.value} value={account.value}>
+                        {account.label}
+                      </option>
+                    ))}
                   </select>
                 </label>
-              ) : formFlowType === 'ops_disbursement' ? (
-                <label>
-                  <span>Tujuan Operasional</span>
-                  <input
-                    type="text"
-                    value={
-                      getOperationalDestination(selectedFormKitchen?.name) ?? ''
-                    }
-                    readOnly
-                    disabled
-                  />
-                </label>
               ) : (
-                <label>
-                  <span>
-                    {!formFlowType
-                      ? 'Supplier / Rekening'
-                      : formFlowType === 'expense'
-                        ? 'RAB / Real'
-                        : formFlowType === 'gas'
-                          ? 'Rekening Operasional'
-                          : 'Rekening'}
-                  </span>
-
-                  {formFlowType === 'expense' ? (
+                <>
+                  <label>
+                    <span>Jenis transaksi</span>
                     <select
-                      value={formSupplierId}
-                      disabled={
-                        !formKitchenId ||
-                        !formFlowType ||
-                        modalMode === 'edit' ||
-                        !isSukarajaFormKitchen
+                      value={formFlowType}
+                      disabled={!formKitchenId || modalMode === 'edit'}
+                      onChange={(event) =>
+                        void handleFormFlowChange(
+                          event.target.value as DashboardFlow | ''
+                        )
                       }
-                      onChange={(event) => {
-                        const value = event.target.value
-                        setFormSupplierId(value)
-                        setFormEntryUnlocked(Boolean(value))
-
-                        if (value) {
-                          focusNominalInput()
-                        }
-                      }}
                     >
-                      <option value="">
-                        {!formKitchenId
-                          ? 'Pilih dapur terlebih dahulu'
-                          : 'Pilih supplier'}
-                      </option>
-
-                      {formSuppliers.map((supplier) => (
-                        <option key={supplier.value} value={supplier.value}>
-                          {supplier.label}
+                      <option value="">Pilih jenis transaksi</option>
+                      {FLOW_OPTIONS.filter(
+                        (option) =>
+                          option.value !== '' &&
+                          availableFormFlows.includes(
+                            option.value as DashboardFlow
+                          )
+                      ).map((option) => (
+                        <option key={option.value} value={option.value}>
+                          {option.label}
                         </option>
                       ))}
                     </select>
-                  ) : (
-                    <select
-                      value={formAccountId}
-                      disabled={
-                        !formKitchenId ||
-                        !formFlowType ||
-                        modalMode === 'edit' ||
-                        formFlowType === 'gas'
-                      }
-                      onChange={(event) => {
-                        const value = event.target.value
-                        setFormAccountId(value)
-                        setFormEntryUnlocked(Boolean(value))
+                  </label>
 
-                        if (value) {
-                          focusNominalInput()
-                        }
-                      }}
-                    >
-                      <option value="">
-                        {!formKitchenId
-                          ? 'Pilih dapur terlebih dahulu'
-                          : !formFlowType
-                            ? 'Pilih jenis transaksi terlebih dahulu'
-                            : formFlowType === 'gas'
-                              ? 'KOPERASI ARUTALA BNI'
-                              : 'Pilih rekening'}
-                      </option>
+                  {formFlowType === 'real_ops'
+                    ? null
+                    : formFlowType === 'operational_disbursement'
+                      ? (
+                        <label>
+                          <span>Jenis Operasional</span>
+                          <select
+                            value={formOperationalType}
+                            disabled={modalMode === 'edit'}
+                            onChange={(event) => {
+                              const value =
+                                event.target.value as typeof formOperationalType
+                              setFormOperationalType(value)
+                              setFormEntryUnlocked(Boolean(value))
+                              if (value) focusNominalInput()
+                            }}
+                          >
+                            <option value="">Pilih jenis operasional</option>
+                            <option value="relawan_salary">
+                              Gaji Relawan
+                            </option>
+                            <option value="school_pic_incentive">
+                              Insentif PIC Sekolah
+                            </option>
+                            <option value="kader_incentive">
+                              Insentif PIC Posyandu
+                            </option>
+                            <option value="vehicle_rent">
+                              Sewa Kendaraan
+                            </option>
+                            <option value="sppg_rent">Sewa SPPG</option>
+                          </select>
+                        </label>
+                      )
+                      : formFlowType === 'ops_disbursement'
+                        ? (
+                          <label>
+                            <span>Tujuan Operasional</span>
+                            <input
+                              type="text"
+                              value={
+                                getOperationalDestination(
+                                  selectedFormKitchen?.name
+                                ) ?? ''
+                              }
+                              readOnly
+                              disabled
+                            />
+                          </label>
+                        )
+                        : (
+                          <label>
+                            <span>
+                              {!formFlowType
+                                ? 'Supplier / Rekening'
+                                : formFlowType === 'expense'
+                                  ? 'RAB / Real'
+                                  : formFlowType === 'gas'
+                                    ? 'Rekening Operasional'
+                                    : 'Rekening'}
+                            </span>
 
-                      {formAccounts.map((account) => (
-                        <option key={account.value} value={account.value}>
-                          {getFormAccountLabel(account, formFlowType)}
-                        </option>
-                      ))}
-                    </select>
-                  )}
-                </label>
+                            {formFlowType === 'expense' ? (
+                              <select
+                                value={formSupplierId}
+                                disabled={
+                                  !formKitchenId ||
+                                  !formFlowType ||
+                                  modalMode === 'edit' ||
+                                  !isSukarajaFormKitchen
+                                }
+                                onChange={(event) => {
+                                  const value = event.target.value
+                                  setFormSupplierId(value)
+                                  setFormEntryUnlocked(Boolean(value))
+                                  if (value) focusNominalInput()
+                                }}
+                              >
+                                <option value="">
+                                  {!formKitchenId
+                                    ? 'Pilih dapur terlebih dahulu'
+                                    : 'Pilih supplier'}
+                                </option>
+
+                                {formSuppliers.map((supplier) => (
+                                  <option
+                                    key={supplier.value}
+                                    value={supplier.value}
+                                  >
+                                    {supplier.label}
+                                  </option>
+                                ))}
+                              </select>
+                            ) : (
+                              <select
+                                value={formAccountId}
+                                disabled={
+                                  !formKitchenId ||
+                                  !formFlowType ||
+                                  modalMode === 'edit' ||
+                                  formFlowType === 'gas'
+                                }
+                                onChange={(event) => {
+                                  const value = event.target.value
+                                  setFormAccountId(value)
+                                  setFormEntryUnlocked(Boolean(value))
+                                  if (value) focusNominalInput()
+                                }}
+                              >
+                                <option value="">
+                                  {!formKitchenId
+                                    ? 'Pilih dapur terlebih dahulu'
+                                    : !formFlowType
+                                      ? 'Pilih jenis transaksi terlebih dahulu'
+                                      : formFlowType === 'gas'
+                                        ? 'KOPERASI ARUTALA BNI'
+                                        : 'Pilih rekening'}
+                                </option>
+
+                                {formAccounts.map((account) => (
+                                  <option
+                                    key={account.value}
+                                    value={account.value}
+                                  >
+                                    {getFormAccountLabel(account, formFlowType)}
+                                  </option>
+                                ))}
+                              </select>
+                            )}
+                          </label>
+                        )}
+                </>
               )}
+
               <label>
                 <span>Nominal</span>
                 <input
@@ -2278,8 +2365,9 @@ export function DashboardPage() {
                 />
               </label>
 
-              {formFlowType !== 'real_ops' &&
-              formFlowType !== 'operational_disbursement' ? (
+              {isOtherIncomeForm ||
+              (formFlowType !== 'real_ops' &&
+                formFlowType !== 'operational_disbursement') ? (
                 <label className="dashboard-transaction-form-note">
                   <span>Catatan</span>
                   <textarea
@@ -2298,7 +2386,11 @@ export function DashboardPage() {
                       event.preventDefault()
                       void handleTransactionSubmit()
                     }}
-                    placeholder="Pilih dapur dan jenis transaksi terlebih dahulu"
+                    placeholder={
+                      isOtherIncomeForm
+                        ? 'Catatan Transfer Lainnya'
+                        : 'Pilih dapur dan jenis transaksi terlebih dahulu'
+                    }
                   />
                 </label>
               ) : null}
