@@ -92,34 +92,37 @@ export async function createOtherIncomeTransaction(
   const accountId = payload.accountId.trim()
   const amount = Number(payload.amount)
 
-  if (!transactionDate) {
-    throw new Error('Tanggal wajib dipilih.')
-  }
-
-  if (!accountId) {
-    throw new Error('Rekening wajib dipilih.')
-  }
-
+  if (!transactionDate) throw new Error('Tanggal wajib dipilih.')
+  if (!accountId) throw new Error('Rekening wajib dipilih.')
   if (!Number.isFinite(amount) || amount <= 0) {
     throw new Error('Nominal harus lebih dari 0.')
   }
 
   const { data, error } = await client
-    .from('other_income_transactions')
+    .from('transactions')
     .insert({
       transaction_date: transactionDate,
+      kitchen_id: null,
+      flow_type: 'other_income',
+      category: 'OTHER_INCOME',
       account_id: accountId,
+      supplier_id: null,
       amount,
-      note: payload.note?.trim() || null
+      note: payload.note?.trim() || null,
+      operational_type: null,
+      destination_label: null
     })
     .select(
-      'id,transaction_date,account_id,amount,note,created_by,created_at,account:accounts!other_income_transactions_account_id_fkey(id,name,bank,account_number)'
+      'id,transaction_date,account_id,amount,note,created_by,created_at,accounts!transactions_account_id_fkey(id,name,bank,account_number)'
     )
     .single()
 
   if (error) throw error
 
-  return data as unknown as OtherIncomeRecord
+  return {
+    ...data,
+    account: Array.isArray(data.accounts) ? data.accounts[0] ?? null : data.accounts
+  } as unknown as OtherIncomeRecord
 }
 
 export async function getOtherIncomeTransactions(
@@ -130,10 +133,11 @@ export async function getOtherIncomeTransactions(
   if (!startDate || !endDate) return []
 
   const { data, error } = await client
-    .from('other_income_transactions')
+    .from('transactions')
     .select(
-      'id,transaction_date,account_id,amount,note,created_by,created_at,account:accounts!other_income_transactions_account_id_fkey(id,name,bank,account_number)'
+      'id,transaction_date,account_id,amount,note,created_by,created_at,accounts!transactions_account_id_fkey(id,name,bank,account_number)'
     )
+    .eq('flow_type', 'other_income')
     .gte('transaction_date', startDate)
     .lte('transaction_date', endDate)
     .order('transaction_date', { ascending: false })
@@ -141,5 +145,8 @@ export async function getOtherIncomeTransactions(
 
   if (error) throw error
 
-  return (data ?? []) as unknown as OtherIncomeRecord[]
+  return (data ?? []).map((row) => ({
+    ...row,
+    account: Array.isArray(row.accounts) ? row.accounts[0] ?? null : row.accounts
+  })) as unknown as OtherIncomeRecord[]
 }
