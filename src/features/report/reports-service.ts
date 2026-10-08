@@ -168,7 +168,7 @@ export function getOperationalTypeLabel(type: OperationalType) {
 }
 
 
-type ReportTransaction {
+type ReportTransaction = {
   id: string
   amount: number | string | null
   transaction_date: string
