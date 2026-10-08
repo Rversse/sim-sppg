@@ -63,6 +63,7 @@ export type OverallReport = {
     totalOperationalDisbursement: number
     totalRAB: number
     totalOperational: number
+    otherIncomeTotal: number
   }
 }
 
@@ -167,7 +168,8 @@ export function getOperationalTypeLabel(type: OperationalType) {
 }
 
 
-type ReportTransaction = {
+type ReportTransaction {
+  id: string
   amount: number | string | null
   transaction_date: string
   flow_type:
@@ -180,6 +182,7 @@ type ReportTransaction = {
     | 'other_income'
     | 'neutral'
   kitchen_id: string | null
+  account_id: string | null
   operational_type:
     | 'relawan_salary'
     | 'school_pic_incentive'
@@ -553,7 +556,8 @@ export async function getOverallReport(
       sppgRent: totalSppgRent,
       totalOperationalDisbursement,
       totalRAB,
-      totalOperational: totalOperationalNet
+      totalOperational: totalOperationalNet,
+      otherIncomeTotal: otherIncome.reduce((sum, item) => sum + item.amount, 0)
     }
   }
 }
