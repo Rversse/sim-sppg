@@ -32,6 +32,7 @@ import {
 
 import {
   getAccountsForFlow,
+  getIncomeAccountOptions,
   getDefaultGasAccount,
   getDefaultSupplier,
   getSuppliersForKitchen,
@@ -164,9 +165,11 @@ function formatHistoryInputTimestamp(value: string) {
   return `Input: ${formatDateTimeWithSeconds(value)}`
 }
 
+type DashboardEntryFlow = DashboardFlow | 'other_income' | ''
+
 function getFormAccountLabel(
   option: TransactionOption,
-  flowType: DashboardFlow | ''
+  flowType: DashboardEntryFlow
 ) {
   if (flowType !== 'income') {
     return option.label
@@ -256,7 +259,7 @@ export function DashboardPage() {
 
   const [formDate, setFormDate] = useState(today)
   const [formKitchenId, setFormKitchenId] = useState('')
-  const [formFlowType, setFormFlowType] = useState<DashboardFlow | ''>('')
+  const [formFlowType, setFormFlowType] = useState<DashboardEntryFlow>('')
   const [availableFormFlows, setAvailableFormFlows] = useState<DashboardFlow[]>(
     []
   )
@@ -796,11 +799,33 @@ export function DashboardPage() {
 
   async function loadFormOptions(
     kitchenId: string,
-    flowType: DashboardFlow | '',
+    flowType: DashboardEntryFlow,
     preserveAccountId = '',
     preserveSupplierId = '',
     preserveAccountSelection = false
   ) {
+    if (flowType === 'other_income') {
+      const accounts = await getIncomeAccountOptions()
+
+      setFormAccounts(accounts)
+      setFormSuppliers([])
+      setFormAccountId(
+        preserveAccountSelection &&
+        preserveAccountId &&
+        accounts.some((item) => item.value === preserveAccountId)
+          ? preserveAccountId
+          : ''
+      )
+      setFormEntryUnlocked(
+        preserveAccountSelection &&
+        Boolean(
+          preserveAccountId &&
+          accounts.some((item) => item.value === preserveAccountId)
+        )
+      )
+      return
+    }
+
     if (!kitchenId || !flowType) {
       setFormAccounts([])
       setFormSuppliers([])
@@ -908,8 +933,16 @@ export function DashboardPage() {
     setEditingId(transaction.id)
     setFormError(null)
     setFormDate(transaction.transaction_date)
+    const isOtherIncomeTransaction =
+      transaction.flow_type === 'income' && !transaction.kitchen_id
     setFormKitchenId(transaction.kitchen_id ?? '')
-    setFormFlowType(transaction.flow_type === 'neutral' ? 'gas' : transaction.flow_type)
+    setFormFlowType(
+      isOtherIncomeTransaction
+        ? 'other_income'
+        : transaction.flow_type === 'neutral'
+          ? 'gas'
+          : transaction.flow_type
+    )
     setFormOperationalType(transaction.operational_type ?? '')
     setFormAmount(formatIntegerInput(String(Number(transaction.amount) || 0)))
     setFormNote(transaction.note ?? '')
@@ -929,10 +962,12 @@ export function DashboardPage() {
 
       setAvailableFormFlows(availableFlows)
 
-      const editFlowType =
-        transaction.flow_type === 'neutral'
-          ? 'gas'
-          : transaction.flow_type
+      const editFlowType: DashboardEntryFlow =
+        isOtherIncomeTransaction
+          ? 'other_income'
+          : transaction.flow_type === 'neutral'
+            ? 'gas'
+            : transaction.flow_type
 
       await loadFormOptions(
         transaction.kitchen_id ?? '',
@@ -1003,7 +1038,7 @@ export function DashboardPage() {
     }
   }
 
-  async function handleFormFlowChange(value: DashboardFlow | '') {
+  async function handleFormFlowChange(value: DashboardEntryFlow) {
     setFormFlowType(value)
     setFormAccountId('')
     setFormSupplierId('')
@@ -1021,7 +1056,27 @@ export function DashboardPage() {
     setFormSuppliers([])
     setFormError(null)
 
-    if (!formKitchenId || !value) {
+    if (!value) {
+      return
+    }
+
+    if (value === 'other_income') {
+      setFormKitchenId('')
+      setAvailableFormFlows([])
+
+      try {
+        await loadFormOptions('', 'other_income')
+      } catch (loadError) {
+        console.error(loadError)
+        setFormError('Gagal memuat rekening pemasukan.')
+      }
+
+      return
+    }
+
+    if (!formKitchenId) {
+      setFormFlowType('')
+      setFormError('Pilih dapur terlebih dahulu.')
       return
     }
 
@@ -1034,8 +1089,6 @@ export function DashboardPage() {
         )
         const isSukaraja = selectedKitchen?.name?.includes('Sukaraja') ?? false
 
-        // Non-Sukaraja supplier payments use the fixed/default supplier,
-        // so jump directly to the amount field for rapid entry.
         if (!isSukaraja) {
           focusNominalInput()
         }
@@ -1045,8 +1098,6 @@ export function DashboardPage() {
         value === 'real_ops' ||
         value === 'operational_disbursement'
       ) {
-        // These flows have a fixed account/destination or no account at all,
-        // so the next editable field is always Nominal.
         focusNominalInput()
       }
     } catch (loadError) {
@@ -1063,7 +1114,7 @@ export function DashboardPage() {
       return
     }
 
-    if (!formKitchenId) {
+    if (!formKitchenId && formFlowType !== 'other_income') {
       setFormError('Dapur wajib dipilih.')
       return
     }
@@ -1130,7 +1181,7 @@ export function DashboardPage() {
 
     const payload = {
       transaction_date: formDate,
-      kitchen_id: formKitchenId,
+      kitchen_id: formFlowType === 'other_income' ? null : formKitchenId,
       amount,
       note:
         formFlowType === 'real_ops' ||
@@ -1138,9 +1189,13 @@ export function DashboardPage() {
           ? null
           : formNote.trim() || null,
       flow_type:
-        formFlowType === 'gas' ? 'neutral' : formFlowType,
+        formFlowType === 'gas'
+          ? 'neutral'
+          : formFlowType === 'other_income'
+            ? 'income'
+            : formFlowType,
       category:
-        formFlowType === 'income'
+        formFlowType === 'income' || formFlowType === 'other_income'
           ? 'RAB'
           : formFlowType === 'expense'
             ? 'Supplier'
@@ -1152,7 +1207,9 @@ export function DashboardPage() {
                 ? 'OPERATIONAL'
                 : 'OPS',
       account_id:
-        formFlowType === 'income' || formFlowType === 'gas'
+        formFlowType === 'income' ||
+        formFlowType === 'other_income' ||
+        formFlowType === 'gas'
           ? formAccountId || null
           : null,
       supplier_id: formFlowType === 'expense' ? formSupplierId || null : null,
@@ -1214,6 +1271,9 @@ export function DashboardPage() {
           // RAB: choose a different supplier account for the next entry.
           setFormAccountId('')
           setFormEntryUnlocked(false)
+        } else if (formFlowType === 'other_income') {
+          // Keep the destination account selected for rapid multi-entry input.
+          setFormEntryUnlocked(Boolean(formAccountId))
         } else if (formFlowType === 'expense') {
           const isSukaraja = isSukarajaFormKitchen
 
@@ -1743,8 +1803,11 @@ export function DashboardPage() {
                 const temporaryDestination =
                   transaction.destination_label?.trim() ||
                   getOperationalDestination(kitchen?.name)
-                const businessName =
-                  transaction.flow_type === 'expense'
+                const isOtherIncomeTransaction =
+                  transaction.flow_type === 'income' && !transaction.kitchen_id
+                const businessName = isOtherIncomeTransaction
+                  ? account?.name?.trim() || 'Rekening'
+                  : transaction.flow_type === 'expense'
                     ? supplier?.name?.trim() || 'Supplier tidak diketahui'
                     : transaction.flow_type === 'ops_disbursement'
                       ? temporaryDestination || 'Tujuan operasional'
@@ -1771,8 +1834,10 @@ export function DashboardPage() {
                     <div className="dashboard-history-main">
                       <div className="dashboard-history-heading">
                         <strong className="dashboard-history-kitchen">
-                          {kitchen?.name ?? 'Dapur tidak diketahui'}
-                          {kitchen?.id_sppg ? (
+                          {isOtherIncomeTransaction
+                            ? 'Transfer Lainnya'
+                            : kitchen?.name ?? 'Dapur tidak diketahui'}
+                          {!isOtherIncomeTransaction && kitchen?.id_sppg ? (
                             <>
                               <span className="dashboard-history-kitchen-separator">
                                 /
@@ -1999,6 +2064,7 @@ export function DashboardPage() {
                 />
               </div>
 
+              {formFlowType !== 'other_income' ? (
               <label>
                 <span>Dapur</span>
                 <select
@@ -2017,11 +2083,13 @@ export function DashboardPage() {
                 </select>
               </label>
 
+              ) : null}
+
               <label>
                 <span>Jenis transaksi</span>
                 <select
                   value={formFlowType}
-                  disabled={!formKitchenId || modalMode === 'edit'}
+                  disabled={modalMode === 'edit'}
                   onChange={(event) =>
                     void handleFormFlowChange(
                       event.target.value as DashboardFlow | ''
@@ -2029,15 +2097,18 @@ export function DashboardPage() {
                   }
                 >
                   <option value="">Pilih jenis transaksi</option>
-                  {FLOW_OPTIONS.filter(
-                    (option) =>
-                      option.value !== '' &&
-                      availableFormFlows.includes(option.value as DashboardFlow)
-                  ).map((option) => (
-                    <option key={option.value} value={option.value}>
-                      {option.label}
-                    </option>
-                  ))}
+                  <option value="other_income">Transfer Lainnya</option>
+                  {formKitchenId
+                    ? FLOW_OPTIONS.filter(
+                        (option) =>
+                          option.value !== '' &&
+                          availableFormFlows.includes(option.value as DashboardFlow)
+                      ).map((option) => (
+                        <option key={option.value} value={option.value}>
+                          {option.label}
+                        </option>
+                      ))
+                    : null}
                 </select>
               </label>
 
@@ -2079,8 +2150,10 @@ export function DashboardPage() {
               ) : (
                 <label>
                   <span>
-                    {!formFlowType
-                      ? 'Supplier / Rekening'
+                  {!formFlowType
+                    ? 'Supplier / Rekening'
+                    : formFlowType === 'other_income'
+                      ? 'Rekening Pemasukan'
                       : formFlowType === 'expense'
                         ? 'RAB / Real'
                         : formFlowType === 'gas'
@@ -2108,44 +2181,16 @@ export function DashboardPage() {
                       }}
                     >
                       <option value="">
-                        {!formKitchenId
-                          ? 'Pilih dapur terlebih dahulu'
-                          : 'Pilih supplier'}
+                        {formFlowType === 'other_income'
+                          ? 'Pilih rekening pemasukan'
+                          : !formKitchenId
+                            ? 'Pilih dapur terlebih dahulu'
+                            : !formFlowType
+                              ? 'Pilih jenis transaksi terlebih dahulu'
+                              : formFlowType === 'gas'
+                                ? 'KOPERASI ARUTALA BNI'
+                                : 'Pilih rekening'}
                       </option>
-
-                      {formSuppliers.map((supplier) => (
-                        <option key={supplier.value} value={supplier.value}>
-                          {supplier.label}
-                        </option>
-                      ))}
-                    </select>
-                  ) : (
-                    <select
-                      value={formAccountId}
-                      disabled={
-                        !formKitchenId ||
-                        !formFlowType ||
-                        modalMode === 'edit' ||
-                        formFlowType === 'gas'
-                      }
-                      onChange={(event) => {
-                        const value = event.target.value
-                        setFormAccountId(value)
-                        setFormEntryUnlocked(Boolean(value))
-
-                        if (value) {
-                          focusNominalInput()
-                        }
-                      }}
-                    >
-                      <option value="">
-                        {!formKitchenId
-                          ? 'Pilih dapur terlebih dahulu'
-                          : !formFlowType
-                            ? 'Pilih jenis transaksi terlebih dahulu'
-                            : formFlowType === 'gas'
-                              ? 'KOPERASI ARUTALA BNI'
-                              : 'Pilih rekening'}
                       </option>
 
                       {formAccounts.map((account) => (
@@ -2192,7 +2237,11 @@ export function DashboardPage() {
                       event.preventDefault()
                       void handleTransactionSubmit()
                     }}
-                    placeholder="Pilih dapur dan jenis transaksi terlebih dahulu"
+                    placeholder={
+                    formFlowType === 'other_income'
+                      ? 'Masukkan catatan pemasukan / pencairan'
+                      : 'Pilih dapur dan jenis transaksi terlebih dahulu'
+                  }
                   />
                 </label>
               ) : null}
