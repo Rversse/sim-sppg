@@ -38,6 +38,12 @@ import {
   getOperationalDestination,
   type TransactionOption
 } from '@/features/transactions/transaction-options-service'
+import {
+  createOtherIncomeTransaction,
+  getOtherIncomeAccountOptions,
+  getOtherIncomeTransactions,
+  type OtherIncomeRecord
+} from '@/features/other-income/other-income-service'
 import { DateRangePicker } from '@/components/ui/date-range-picker'
 import { SingleDatePicker } from '@/components/ui/date-picker'
 import { AnimatedSelect } from '@/components/ui/animated-select'
@@ -50,6 +56,7 @@ import {
 } from '@/lib/formatters'
 
 const DASHBOARD_HISTORY_PAGE_SIZE = 5
+const OTHER_INCOME_FORM_VALUE = '__other_income__'
 
 const FLOW_OPTIONS: { value: DashboardFlow | ''; label: string }[] = [
   { value: '', label: 'Semua transaksi' },
@@ -276,6 +283,9 @@ export function DashboardPage() {
   const [formAccounts, setFormAccounts] = useState<TransactionOption[]>([])
   const [formSuppliers, setFormSuppliers] = useState<TransactionOption[]>([])
   const [formEntryUnlocked, setFormEntryUnlocked] = useState(false)
+  const [otherIncomeRecords, setOtherIncomeRecords] = useState<
+    OtherIncomeRecord[]
+  >([])
   const nominalInputRef = useRef<HTMLInputElement | null>(null)
   const transactionPageRef = useRef(1)
   const dashboardInitializedRef = useRef(false)
@@ -289,6 +299,8 @@ export function DashboardPage() {
       })
     })
   }
+
+  const isOtherIncomeForm = formKitchenId === OTHER_INCOME_FORM_VALUE
   const loadDashboardData = useCallback(
     async (page: number) => {
       const kitchenPromise = kitchensRef.current.length
@@ -346,6 +358,23 @@ export function DashboardPage() {
       cancelled = true
     }
   }, [filters.kitchenId, filters.flowType])
+
+  useEffect(() => {
+    let cancelled = false
+
+    void getOtherIncomeTransactions(filters.startDate, filters.endDate)
+      .then((rows) => {
+        if (!cancelled) setOtherIncomeRecords(rows)
+      })
+      .catch((loadError) => {
+        console.error('Gagal memuat Transfer Lainnya:', loadError)
+        if (!cancelled) setOtherIncomeRecords([])
+      })
+
+    return () => {
+      cancelled = true
+    }
+  }, [filters.startDate, filters.endDate])
 
   const applyDashboardData = useCallback(
     (data: Awaited<ReturnType<typeof loadDashboardData>>) => {
@@ -575,6 +604,17 @@ export function DashboardPage() {
           event: '*',
           schema: 'public',
           table: 'transactions'
+        },
+        () => {
+          scheduleRealtimeRefresh()
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'other_income_transactions'
         },
         () => {
           scheduleRealtimeRefresh()
@@ -971,6 +1011,26 @@ export function DashboardPage() {
       return
     }
 
+    if (value === OTHER_INCOME_FORM_VALUE) {
+      try {
+        const accounts = await getOtherIncomeAccountOptions()
+        setAvailableFormFlows([])
+        setFormFlowType('')
+        setFormAccounts(accounts)
+        setFormSuppliers([])
+        setFormAccountId('')
+        setFormEntryUnlocked(false)
+        setFormError(null)
+      } catch (loadError) {
+        console.error(loadError)
+        setAvailableFormFlows([])
+        setFormFlowType('')
+        setFormAccounts([])
+        setFormError('Gagal memuat daftar rekening.')
+      }
+      return
+    }
+
     try {
       const selectedKitchen = kitchens.find((kitchen) => kitchen.id === value)
       const availableFlows = getAvailableFlowsForKitchen(
@@ -1060,6 +1120,51 @@ export function DashboardPage() {
 
     if (!formDate) {
       setFormError('Tanggal wajib dipilih.')
+      return
+    }
+
+    if (isOtherIncomeForm) {
+      const amount = parseIntegerInput(formAmount)
+
+      if (!formAccountId) {
+        setFormError('Rekening wajib dipilih.')
+        return
+      }
+
+      if (!Number.isFinite(amount) || amount <= 0) {
+        setFormError('Nominal harus lebih dari 0.')
+        return
+      }
+
+      setSaving(true)
+      setFormError(null)
+
+      try {
+        await createOtherIncomeTransaction({
+          transactionDate: formDate,
+          accountId: formAccountId,
+          amount,
+          note: formNote
+        })
+
+        setFormAmount('')
+        setFormNote('')
+        const rows = await getOtherIncomeTransactions(
+          filters.startDate,
+          filters.endDate
+        )
+        setOtherIncomeRecords(rows)
+      } catch (saveError) {
+        console.error(saveError)
+        setFormError(
+          saveError instanceof Error
+            ? saveError.message
+            : 'Gagal menyimpan Transfer Lainnya.'
+        )
+      } finally {
+        setSaving(false)
+      }
+
       return
     }
 
@@ -1308,7 +1413,8 @@ export function DashboardPage() {
     }
   }
 
-  const transactionDetailsUnlocked = modalMode === 'edit' || formEntryUnlocked
+  const transactionDetailsUnlocked =
+    modalMode === 'edit' || formEntryUnlocked
 
   const totalTransactionPages = Math.max(
     1,
