@@ -48,6 +48,7 @@ export type OverallDailyReport = {
 export type OverallReport = {
   kitchens: OverallKitchenReport[]
   daily: OverallDailyReport[]
+  otherIncome: OtherIncomeReportRow[]
   totals: {
     income: number
     expense: number
@@ -176,6 +177,7 @@ type ReportTransaction = {
     | 'ops_disbursement'
     | 'real_ops'
     | 'operational_disbursement'
+    | 'other_income'
     | 'neutral'
   kitchen_id: string | null
   operational_type:
@@ -185,6 +187,7 @@ type ReportTransaction = {
     | 'vehicle_rent'
     | 'sppg_rent'
     | null
+  note: string | null
   created_at: string
   suppliers?:
     | {
@@ -267,6 +270,7 @@ async function getReportTransactions(
         flow_type,
         operational_type,
         kitchen_id,
+        note,
         created_at,
 
         kitchens (
@@ -347,6 +351,8 @@ export async function getOverallReport(
     getReportTransactions(filters, client)
   ])
 
+  const otherIncome: OtherIncomeReportRow[] = []
+
   const grouped = new Map<string, OverallKitchenReport>()
 
   for (const kitchen of kitchens) {
@@ -370,9 +376,38 @@ export async function getOverallReport(
     })
   }
 
+  for (const transaction of transactions) {
+    if (transaction.flow_type !== 'other_income' || !transaction.account_id) {
+      continue
+    }
+
+    const account = Array.isArray(transaction.accounts)
+      ? transaction.accounts[0]
+      : transaction.accounts
+
+    otherIncome.push({
+      id: transaction.id,
+      date: transaction.transaction_date,
+      amount: getAmount(transaction.amount),
+      accountName: account?.name ?? 'Rekening tidak diketahui',
+      bank: account?.bank ?? '-',
+      accountNumber: account?.account_number ?? null,
+      note: transaction.note?.trim() || null
+    })
+  }
+
+  otherIncome.sort((a, b) => {
+    const dateCompare = b.date.localeCompare(a.date)
+    return dateCompare !== 0 ? dateCompare : b.id.localeCompare(a.id)
+  })
+
   const daily = new Map<string, OverallDailyReport>()
 
   for (const transaction of transactions) {
+    if (transaction.flow_type === 'other_income') {
+      continue
+    }
+
     if (!transaction.kitchen_id) {
       continue
     }
