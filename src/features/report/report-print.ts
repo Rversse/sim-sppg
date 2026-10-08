@@ -527,6 +527,62 @@ function printReport() {
       line-height: 1.15 !important;
     }
 
+    .reports-other-income-block {
+      margin-top: 10px;
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
+
+    .reports-other-income-summary {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 6px 9px;
+      margin-bottom: 6px;
+      border: 1px solid #D2DAEA;
+      border-radius: 7px;
+      background: #F8FAFC;
+      color: #637A96;
+      font-size: 8px;
+      font-weight: 700;
+    }
+
+    .reports-other-income-summary strong {
+      color: #18293F;
+      font-size: 10px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .reports-table-other-income {
+      table-layout: fixed !important;
+    }
+
+    .reports-table-other-income th:nth-child(1),
+    .reports-table-other-income td:nth-child(1) {
+      width: 13%;
+    }
+
+    .reports-table-other-income th:nth-child(2),
+    .reports-table-other-income td:nth-child(2) {
+      width: 24%;
+    }
+
+    .reports-table-other-income th:nth-child(3),
+    .reports-table-other-income td:nth-child(3) {
+      width: 18%;
+    }
+
+    .reports-table-other-income th:nth-child(4),
+    .reports-table-other-income td:nth-child(4) {
+      width: 45%;
+    }
+
+    .reports-other-income-note {
+      white-space: normal !important;
+      text-align: left !important;
+    }
+
     .reports-table td {
       font-size: 10px !important;
       padding: 6px 5px !important;
