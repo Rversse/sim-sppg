@@ -9,6 +9,7 @@ export type TransactionFlow =
   | 'ops_disbursement'
   | 'real_ops'
   | 'operational_disbursement'
+  | 'other_income'
   | 'neutral'
 
 export type TransactionFilters = {
@@ -20,7 +21,7 @@ export type TransactionFilters = {
 
 export type TransactionPayload = {
   transaction_date: string
-  kitchen_id: string
+  kitchen_id: string | null
   amount: number
   note: string | null
   flow_type: TransactionFlow
@@ -255,6 +256,18 @@ export function buildTransactionPayload(
         destination_label: null,
         note: null
       }
+
+    case 'other_income':
+      return {
+        ...base,
+        kitchen_id: null,
+        flow_type: 'other_income',
+        category: 'OTHER_INCOME',
+        operational_type: null,
+        account_id: input.accountId || null,
+        supplier_id: null,
+        destination_label: null
+      }
   }
 }
 
@@ -265,7 +278,7 @@ export function validateTransactionPayload(
     return 'Tanggal wajib diisi'
   }
 
-  if (!payload.kitchen_id) {
+  if (payload.flow_type !== 'other_income' && !payload.kitchen_id) {
     return 'Pilih dapur'
   }
 
@@ -274,7 +287,7 @@ export function validateTransactionPayload(
   }
 
   if (
-    (payload.flow_type === 'income' || payload.flow_type === 'gas') &&
+    (payload.flow_type === 'income' || payload.flow_type === 'gas' || payload.flow_type === 'other_income') &&
     !payload.account_id
   ) {
     return 'Rekening wajib dipilih'
@@ -292,6 +305,10 @@ export function validateTransactionPayload(
     !payload.operational_type
   ) {
     return 'Jenis pencairan operasional wajib dipilih'
+  }
+
+  if (payload.flow_type === 'other_income' && !payload.account_id) {
+    return 'Rekening wajib dipilih'
   }
 
   if (payload.flow_type === 'expense' && !payload.supplier_id) {
@@ -313,9 +330,14 @@ export async function hasDuplicateTransaction(
       head: true
     })
     .eq('transaction_date', payload.transaction_date)
-    .eq('kitchen_id', payload.kitchen_id)
     .eq('flow_type', payload.flow_type)
     .eq('amount', payload.amount)
+
+  if (payload.flow_type !== 'other_income') {
+    query = query.eq('kitchen_id', payload.kitchen_id)
+  } else {
+    query = query.is('kitchen_id', null)
+  }
 
   if (excludeId) {
     query = query.neq('id', excludeId)
@@ -329,7 +351,7 @@ export async function hasDuplicateTransaction(
     query = query.eq('operational_type', payload.operational_type)
   }
 
-  if (payload.flow_type === 'income' || payload.flow_type === 'gas') {
+  if (payload.flow_type === 'income' || payload.flow_type === 'gas' || payload.flow_type === 'other_income') {
     query = query.eq('account_id', payload.account_id)
   } else if (payload.flow_type === 'ops_disbursement') {
     query = query
