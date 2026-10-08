@@ -299,6 +299,61 @@ export async function getAvailableTransactionFlows(
   return flows
 }
 
+export async function getIncomeAccountOptions(
+  client: SupabaseClient = supabase
+): Promise<TransactionOption[]> {
+  return withTransactionOptionsCache(
+    'income-accounts:all',
+    client,
+    async () => {
+      const { data, error } = await client
+        .from('accounts')
+        .select(
+          `
+            id,
+            name,
+            bank,
+            account_number,
+            account_category,
+            income_suppliers(
+              business_name,
+              owner_name
+            )
+          `
+        )
+        .eq('account_category', 'supplier')
+        .order('name')
+
+      if (error) {
+        throw error
+      }
+
+      const accounts = new Map<string, TransactionAccount>()
+
+      for (const row of (data ?? []) as unknown as Array<
+        TransactionAccount & { account_category?: string | null }
+      >) {
+        const supplier = Array.isArray(row.income_suppliers)
+          ? row.income_suppliers[0]
+          : row.income_suppliers
+
+        if (!supplier) {
+          continue
+        }
+
+        accounts.set(row.id, row)
+      }
+
+      return [...accounts.values()]
+        .sort((a, b) => a.name.localeCompare(b.name, 'id'))
+        .map((account) => ({
+          value: account.id,
+          label: getIncomeAccountLabel(account)
+        }))
+    }
+  )
+}
+
 export async function getAccountsForFlow(
   kitchenId: string,
   flowType: 'income' | 'gas',
