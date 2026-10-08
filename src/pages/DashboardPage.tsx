@@ -64,7 +64,8 @@ const FLOW_OPTIONS: { value: DashboardFlow | ''; label: string }[] = [
   { value: 'gas', label: 'OPS / Arutala' },
   { value: 'ops_disbursement', label: 'OPS / Pencairan' },
   { value: 'real_ops', label: 'OPS / Real' },
-  { value: 'operational_disbursement', label: 'Pencairan Operasional' }
+  { value: 'operational_disbursement', label: 'Pencairan Operasional' },
+  { value: 'other_income', label: 'Transfer Lainnya' }
 ]
 
 function flowLabel(flow: DashboardFlow) {
