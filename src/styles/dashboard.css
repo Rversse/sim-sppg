@@ -1337,6 +1337,59 @@
   opacity: 0.55;
 }
 
+.dashboard-other-income-panel {
+  grid-column: 1 / -1;
+}
+
+.dashboard-other-income-list {
+  display: grid;
+  gap: 8px;
+}
+
+.dashboard-other-income-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 11px 13px;
+  border: 1px solid var(--app-border);
+  border-radius: 10px;
+  background: var(--app-surface);
+}
+
+.dashboard-other-income-row > div {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+}
+
+.dashboard-other-income-row strong {
+  color: var(--app-text);
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.dashboard-other-income-row span,
+.dashboard-other-income-row small,
+.dashboard-other-income-row p {
+  margin: 0;
+  color: var(--app-text-muted);
+  font-size: 9px;
+  line-height: 1.35;
+}
+
+.dashboard-other-income-row p {
+  margin-top: 3px;
+}
+
+.dashboard-other-income-amount {
+  flex: 0 0 auto;
+  color: var(--app-success) !important;
+  font-size: 13px !important;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
 .dashboard-pagination {
   display: flex;
   width: min(820px, 100%);
