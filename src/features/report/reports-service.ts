@@ -45,9 +45,17 @@ export type OverallDailyReport = {
   totalOperational: number
 }
 
+export type OtherIncomeReportRow = {
+  date: string
+  accountName: string
+  amount: number
+  note: string
+}
+
 export type OverallReport = {
   kitchens: OverallKitchenReport[]
   daily: OverallDailyReport[]
+  otherIncome: OtherIncomeReportRow[]
   totals: {
     income: number
     expense: number
@@ -178,6 +186,7 @@ type ReportTransaction = {
     | 'operational_disbursement'
     | 'neutral'
   kitchen_id: string | null
+  note: string | null
   operational_type:
     | 'relawan_salary'
     | 'school_pic_incentive'
@@ -265,6 +274,7 @@ async function getReportTransactions(
         amount,
         transaction_date,
         flow_type,
+        note,
         operational_type,
         kitchen_id,
         created_at,
@@ -371,9 +381,20 @@ export async function getOverallReport(
   }
 
   const daily = new Map<string, OverallDailyReport>()
+  const otherIncomeRows: OtherIncomeReportRow[] = []
 
   for (const transaction of transactions) {
     if (!transaction.kitchen_id) {
+      if (transaction.flow_type === 'income') {
+        otherIncomeRows.push({
+          date: transaction.transaction_date,
+          accountName:
+            transaction.accounts?.name?.trim() || 'Rekening tidak diketahui',
+          amount: getAmount(transaction.amount),
+          note: transaction.note?.trim() || '-'
+        })
+      }
+
       continue
     }
 
@@ -504,6 +525,12 @@ export async function getOverallReport(
     ),
 
     daily: [...daily.values()].sort((a, b) => b.date.localeCompare(a.date)),
+
+    otherIncome: otherIncomeRows.sort((a, b) => {
+      const dateDelta = b.date.localeCompare(a.date)
+      if (dateDelta !== 0) return dateDelta
+      return a.accountName.localeCompare(b.accountName, 'id')
+    }),
 
     totals: {
       income: totalIncome,
