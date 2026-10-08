@@ -33,6 +33,7 @@ export type TransactionPayload = {
     | 'GAS'
     | 'REAL_OPS'
     | 'OPERATIONAL'
+    | 'OTHER_INCOME'
   operational_type:
     | 'relawan_salary'
     | 'school_pic_incentive'
