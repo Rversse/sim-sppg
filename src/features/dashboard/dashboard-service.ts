@@ -71,6 +71,7 @@ export type DashboardTransaction = {
   destination_label: string | null
   operational_type:
     | 'relawan_salary'
+    | 'pic_incentive'
     | 'school_pic_incentive'
     | 'kader_incentive'
     | 'vehicle_rent'
