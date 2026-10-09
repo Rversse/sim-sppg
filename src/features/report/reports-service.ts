@@ -24,11 +24,10 @@ export type OverallKitchenReport = {
   operational: number
   realOperational: number
   relawanSalary: number
-  schoolPicIncentive: number
-  kaderIncentive: number
+  picIncentive: number
   vehicleRent: number
   sppgRent: number
-  totalOperationalDisbursement: number
+  totalSalaryAndIncentive: number
   totalRAB: number
   totalOperational: number
 }
@@ -63,11 +62,10 @@ export type OverallReport = {
     operational: number
     realOperational: number
     relawanSalary: number
-    schoolPicIncentive: number
-    kaderIncentive: number
+    picIncentive: number
     vehicleRent: number
     sppgRent: number
-    totalOperationalDisbursement: number
+    totalSalaryAndIncentive: number
     totalRAB: number
     totalOperational: number
   }
@@ -134,15 +132,31 @@ export type SppgRentReport = {
 
 export type OperationalType =
   | 'relawan_salary'
+  | 'pic_incentive'
   | 'school_pic_incentive'
   | 'kader_incentive'
   | 'vehicle_rent'
   | 'sppg_rent'
 
+type UnifiedOperationalType = Exclude<
+  OperationalType,
+  'school_pic_incentive' | 'kader_incentive'
+>
+
+function normalizeOperationalType(
+  type: OperationalType
+): UnifiedOperationalType {
+  if (type === 'school_pic_incentive' || type === 'kader_incentive') {
+    return 'pic_incentive'
+  }
+
+  return type
+}
+
 export type OperationalDisbursementRow = {
   kitchenId: string
   kitchenName: string
-  operationalType: OperationalType
+  operationalType: UnifiedOperationalType
   total: number
 }
 
@@ -162,10 +176,10 @@ export function getOperationalTypeLabel(type: OperationalType) {
   switch (type) {
     case 'relawan_salary':
       return 'Gaji Relawan'
+    case 'pic_incentive':
     case 'school_pic_incentive':
-      return 'Insentif PIC Sekolah'
     case 'kader_incentive':
-      return 'Insentif PIC Posyandu'
+      return 'Insentif PIC'
     case 'vehicle_rent':
       return 'Sewa Kendaraan'
     case 'sppg_rent':
@@ -189,6 +203,7 @@ type ReportTransaction = {
   note: string | null
   operational_type:
     | 'relawan_salary'
+    | 'pic_incentive'
     | 'school_pic_incentive'
     | 'kader_incentive'
     | 'vehicle_rent'
@@ -370,11 +385,10 @@ export async function getOverallReport(
       operational: 0,
       realOperational: 0,
       relawanSalary: 0,
-      schoolPicIncentive: 0,
-      kaderIncentive: 0,
+      picIncentive: 0,
       vehicleRent: 0,
       sppgRent: 0,
-      totalOperationalDisbursement: 0,
+      totalSalaryAndIncentive: 0,
       totalRAB: 0,
       totalOperational: 0
     })
@@ -424,11 +438,10 @@ export async function getOverallReport(
         case 'relawan_salary':
           kitchen.relawanSalary += amount
           break
+        case 'pic_incentive':
         case 'school_pic_incentive':
-          kitchen.schoolPicIncentive += amount
-          break
         case 'kader_incentive':
-          kitchen.kaderIncentive += amount
+          kitchen.picIncentive += amount
           break
         case 'vehicle_rent':
           kitchen.vehicleRent += amount
@@ -438,7 +451,6 @@ export async function getOverallReport(
           break
       }
 
-      kitchen.totalOperationalDisbursement += amount
     }
 
     let dailyRow = daily.get(transaction.transaction_date)
@@ -486,11 +498,10 @@ export async function getOverallReport(
   let totalOperational = 0
   let totalRealOperational = 0
   let totalRelawanSalary = 0
-  let totalSchoolPicIncentive = 0
-  let totalKaderIncentive = 0
+  let totalPicIncentive = 0
   let totalVehicleRent = 0
   let totalSppgRent = 0
-  let totalOperationalDisbursement = 0
+  let totalSalaryAndIncentive = 0
   let totalRAB = 0
   let totalOperationalNet = 0
 
@@ -504,12 +515,12 @@ export async function getOverallReport(
     totalGas += kitchen.gas
     totalOperational += kitchen.operational
     totalRealOperational += kitchen.realOperational
+    kitchen.totalSalaryAndIncentive = kitchen.relawanSalary + kitchen.picIncentive
     totalRelawanSalary += kitchen.relawanSalary
-    totalSchoolPicIncentive += kitchen.schoolPicIncentive
-    totalKaderIncentive += kitchen.kaderIncentive
+    totalPicIncentive += kitchen.picIncentive
     totalVehicleRent += kitchen.vehicleRent
     totalSppgRent += kitchen.sppgRent
-    totalOperationalDisbursement += kitchen.totalOperationalDisbursement
+    totalSalaryAndIncentive += kitchen.totalSalaryAndIncentive
     totalRAB += kitchen.totalRAB
     totalOperationalNet += kitchen.totalOperational
   }
@@ -539,11 +550,10 @@ export async function getOverallReport(
       operational: totalOperational,
       realOperational: totalRealOperational,
       relawanSalary: totalRelawanSalary,
-      schoolPicIncentive: totalSchoolPicIncentive,
-      kaderIncentive: totalKaderIncentive,
+      picIncentive: totalPicIncentive,
       vehicleRent: totalVehicleRent,
       sppgRent: totalSppgRent,
-      totalOperationalDisbursement,
+      totalSalaryAndIncentive,
       totalRAB,
       totalOperational: totalOperationalNet
     }
@@ -835,7 +845,7 @@ export async function getOperationalDisbursementReport(
           {
             kitchenId: transaction.kitchen_id,
             kitchenName: kitchen?.name ?? 'Dapur tidak diketahui',
-            operationalType: transaction.operational_type,
+            operationalType: normalizeOperationalType(transaction.operational_type),
             total: getAmount(transaction.amount)
           }
         ]
