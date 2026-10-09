@@ -251,11 +251,13 @@ function DateFilter({
 function ReportActions({
   reportAvailable,
   loading,
-  onExport
+  onExport,
+  splitPrint = false
 }: {
   reportAvailable: boolean
   loading: boolean
   onExport: () => void
+  splitPrint?: boolean
 }) {
   return (
     <>
@@ -266,13 +268,33 @@ function ReportActions({
       >
         Export Excel
       </button>
-      <button
-        type="button"
-        onClick={() => printReport()}
-        disabled={!reportAvailable || loading}
-      >
-        Print
-      </button>
+
+      {splitPrint ? (
+        <div className="reports-print-actions">
+          <button
+            type="button"
+            onClick={() => printReport('belanja')}
+            disabled={!reportAvailable || loading}
+          >
+            Print Belanja + Pemasukan
+          </button>
+          <button
+            type="button"
+            onClick={() => printReport('operational')}
+            disabled={!reportAvailable || loading}
+          >
+            Print Operasional
+          </button>
+        </div>
+      ) : (
+        <button
+          type="button"
+          onClick={() => printReport()}
+          disabled={!reportAvailable || loading}
+        >
+          Print
+        </button>
+      )}
     </>
   )
 }
@@ -342,6 +364,7 @@ function OverallReportView() {
         <ReportActions
           reportAvailable={Boolean(report)}
           loading={loading}
+          splitPrint
           onExport={() => {
             if (!report) return
             void exportOverallReport(report, startDate, endDate).catch(
