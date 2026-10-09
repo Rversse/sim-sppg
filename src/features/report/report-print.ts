@@ -94,7 +94,7 @@ function printReport(mode: ReportPrintMode = 'default') {
 
     if (operationalNote) {
       operationalNote.textContent =
-        'Catatan: Sewa SPPG tetap dicantumkan dan disalurkan ke rekening PIC Yayasan. Komponen lainnya merupakan daftar nominal transfer keluar per dapur. Sewa Kendaraan ditransfer ke rekening Berkah Mandiri Putra.'
+        'Catatan: Pencairan operasional dapur disalurkan ke rekening PIC Yayasan. Pencairan Sewa Kendaraan ke rekening Berkah Mandiri Putra. Pencairan selain yang disalurkan ke rekening PIC Yayasan tidak dicantumkan.'
     }
 
     firstPageHtml = operationalBlock?.outerHTML ?? ''
