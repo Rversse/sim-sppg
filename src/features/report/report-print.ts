@@ -61,6 +61,42 @@ function printReport(mode: ReportPrintMode = 'default') {
 
   if (mode === 'operational') {
     operationalBlock?.classList.remove('reports-overall-operational-block')
+
+    const operationalTable = operationalBlock?.querySelector<HTMLTableElement>(
+      '.reports-table-overall-operational'
+    )
+
+    if (operationalTable) {
+      const excludedHeaders = new Set(['SEWA SPPG', 'TOTAL OPERASIONAL'])
+      const excludedColumnIndexes = Array.from(
+        operationalTable.querySelectorAll('thead th')
+      )
+        .map((header, index) => ({
+          index,
+          label: header.textContent?.trim().toUpperCase() ?? ''
+        }))
+        .filter((header) => excludedHeaders.has(header.label))
+        .map((header) => header.index)
+        .sort((a, b) => b - a)
+
+      operationalTable.querySelectorAll('tr').forEach((row) => {
+        const cells = Array.from(row.children)
+        excludedColumnIndexes.forEach((index) => cells[index]?.remove())
+      })
+
+      operationalTable
+        .querySelectorAll('tbody tr.reports-total-row')
+        .forEach((row) => row.remove())
+    }
+
+    const operationalNote =
+      operationalBlock?.querySelector<HTMLElement>('.reports-operational-note')
+
+    if (operationalNote) {
+      operationalNote.textContent =
+        'Catatan: Tabel ini berisi komponen transfer keluar per dapur. Sewa SPPG tidak ditampilkan karena disalurkan langsung ke rekening PIC Yayasan. Sewa Kendaraan ditransfer ke rekening Berkah Mandiri Putra.'
+    }
+
     firstPageHtml = operationalBlock?.outerHTML ?? ''
   } else {
     if (operationalBlock) {
