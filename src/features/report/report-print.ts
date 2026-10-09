@@ -67,7 +67,7 @@ function printReport(mode: ReportPrintMode = 'default') {
     )
 
     if (operationalTable) {
-      const excludedHeaders = new Set(['SEWA SPPG', 'TOTAL OPERASIONAL'])
+      const excludedHeaders = new Set(['TOTAL OPERASIONAL'])
       const excludedColumnIndexes = Array.from(
         operationalTable.querySelectorAll('thead th')
       )
@@ -94,7 +94,7 @@ function printReport(mode: ReportPrintMode = 'default') {
 
     if (operationalNote) {
       operationalNote.textContent =
-        'Catatan: Tabel ini berisi komponen transfer keluar per dapur. Sewa SPPG tidak ditampilkan karena disalurkan langsung ke rekening PIC Yayasan. Sewa Kendaraan ditransfer ke rekening Berkah Mandiri Putra.'
+        'Catatan: Sewa SPPG tetap dicantumkan dan disalurkan ke rekening PIC Yayasan. Komponen lainnya merupakan daftar nominal transfer keluar per dapur. Sewa Kendaraan ditransfer ke rekening Berkah Mandiri Putra.'
     }
 
     firstPageHtml = operationalBlock?.outerHTML ?? ''
