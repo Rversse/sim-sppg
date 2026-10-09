@@ -84,15 +84,16 @@ export const resilientSupabaseFetch: typeof fetch = async (input, init) => {
 
       const retryableFetchError = didTimeout || error instanceof TypeError
 
-      if (attempt === 0 && retryableFetchError) {
-      } else if (retryableFetchError) {
-        const exhaustedError = new Error(
-          'Supabase read request failed after one retry.',
-          { cause: error }
-        )
-        exhaustedError.name = 'AbortError'
-        throw exhaustedError
-      } else {
+      if (!(attempt === 0 && retryableFetchError)) {
+        if (retryableFetchError) {
+          const exhaustedError = new Error(
+            'Supabase read request failed after one retry.',
+            { cause: error }
+          )
+          exhaustedError.name = 'AbortError'
+          throw exhaustedError
+        }
+
         throw error
       }
     } finally {
