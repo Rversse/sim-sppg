@@ -2093,9 +2093,7 @@ export function DashboardPage() {
                       {kitchen.name}
                     </option>
                   ))}
-                  <option
-                    value={TRANSFER_LAINNYA_KITCHEN_VALUE}
-                    >
+                  <option value={TRANSFER_LAINNYA_KITCHEN_VALUE}>
                     Transfer Lainnya
                   </option>
                 </select>
