@@ -60,6 +60,7 @@ function printReport(mode: ReportPrintMode = 'default') {
   let hasOperationalPage = false
 
   if (mode === 'operational') {
+    operationalBlock?.classList.remove('reports-overall-operational-block')
     firstPageHtml = operationalBlock?.outerHTML ?? ''
   } else {
     if (operationalBlock) {
