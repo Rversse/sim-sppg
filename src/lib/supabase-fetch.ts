@@ -63,7 +63,6 @@ export const resilientSupabaseFetch: typeof fetch = async (input, init) => {
     callerSignal?.addEventListener('abort', abortFromCaller, { once: true })
 
     let didTimeout = false
-    let shouldRetry = false
     const timeoutId = setTimeout(() => {
       didTimeout = true
       controller.abort()
@@ -76,7 +75,6 @@ export const resilientSupabaseFetch: typeof fetch = async (input, init) => {
       })
 
       if (attempt === 0 && RETRYABLE_HTTP_STATUSES.has(response.status)) {
-        shouldRetry = true
         void response.body?.cancel().catch(() => undefined)
       } else {
         return response
@@ -87,7 +85,6 @@ export const resilientSupabaseFetch: typeof fetch = async (input, init) => {
       const retryableFetchError = didTimeout || error instanceof TypeError
 
       if (attempt === 0 && retryableFetchError) {
-        shouldRetry = true
       } else if (retryableFetchError) {
         const exhaustedError = new Error(
           'Supabase read request failed after one retry.',
@@ -103,9 +100,7 @@ export const resilientSupabaseFetch: typeof fetch = async (input, init) => {
       callerSignal?.removeEventListener('abort', abortFromCaller)
     }
 
-    if (shouldRetry) {
-      await delay(RETRY_DELAY_MS)
-    }
+    await delay(RETRY_DELAY_MS)
   }
 
   throw new Error('Supabase read request could not be completed.')
