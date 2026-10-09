@@ -84,15 +84,17 @@ export const resilientSupabaseFetch: typeof fetch = async (input, init) => {
     } catch (error) {
       if (callerSignal?.aborted) throw error
 
-      if (attempt === 0 && didTimeout) {
+      const retryableFetchError = didTimeout || error instanceof TypeError
+
+      if (attempt === 0 && retryableFetchError) {
         shouldRetry = true
-      } else if (didTimeout) {
-        const timeoutError = new Error(
-          'Supabase read request timed out after one retry.',
+      } else if (retryableFetchError) {
+        const exhaustedError = new Error(
+          'Supabase read request failed after one retry.',
           { cause: error }
         )
-        timeoutError.name = 'AbortError'
-        throw timeoutError
+        exhaustedError.name = 'AbortError'
+        throw exhaustedError
       } else {
         throw error
       }
