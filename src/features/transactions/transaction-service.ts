@@ -34,8 +34,7 @@ export type TransactionPayload = {
     | 'OPERATIONAL'
   operational_type:
     | 'relawan_salary'
-    | 'school_pic_incentive'
-    | 'kader_incentive'
+    | 'pic_incentive'
     | 'vehicle_rent'
     | 'sppg_rent'
     | null
@@ -57,6 +56,7 @@ export type TransactionRecord = {
   destination_label: string | null
   operational_type:
     | 'relawan_salary'
+    | 'pic_incentive'
     | 'school_pic_incentive'
     | 'kader_incentive'
     | 'vehicle_rent'
@@ -162,8 +162,7 @@ export function buildTransactionPayload(
     destinationLabel?: string | null
     operationalType?:
       | 'relawan_salary'
-      | 'school_pic_incentive'
-      | 'kader_incentive'
+      | 'pic_incentive'
       | 'vehicle_rent'
       | 'sppg_rent'
       | null
