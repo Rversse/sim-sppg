@@ -470,53 +470,48 @@ function createOverallSummarySheet(
     operationalTitleRow.number,
     1,
     operationalTitleRow.number,
-    7
+    6
   )
 
   const operationalHeaderRow = worksheet.addRow([
     'Dapur',
-    'Gaji Relawan',
-    'Insentif PIC Sekolah',
-    'Insentif PIC Posyandu',
-    'Sewa Kendaraan',
     'Sewa SPPG',
-    'Total Operasional'
+    'Sewa Kendaraan',
+    'Gaji Relawan',
+    'Insentif PIC',
+    'Total Gaji dan Insentif'
   ])
   styleHeader(operationalHeaderRow)
 
   for (const row of report.kitchens) {
     worksheet.addRow([
       getOperationalKitchenLabel(row.kitchenName, row.recipientName),
-      row.relawanSalary,
-      row.schoolPicIncentive,
-      row.kaderIncentive,
-      row.vehicleRent,
       row.sppgRent,
-      row.totalOperationalDisbursement
+      row.vehicleRent,
+      row.relawanSalary,
+      row.picIncentive,
+      row.totalSalaryAndIncentive
     ])
   }
 
   const operationalTotalRow = worksheet.addRow([
     'GRAND TOTAL',
-    report.totals.relawanSalary,
-    report.totals.schoolPicIncentive,
-    report.totals.kaderIncentive,
-    report.totals.vehicleRent,
     report.totals.sppgRent,
-    report.totals.totalOperationalDisbursement
+    report.totals.vehicleRent,
+    report.totals.relawanSalary,
+    report.totals.picIncentive,
+    report.totals.totalSalaryAndIncentive
   ])
   styleTotalRow(operationalTotalRow)
 
-  setCurrencyColumns(worksheet, [2, 3, 4, 5, 6, 7])
+  setCurrencyColumns(worksheet, [2, 3, 4, 5, 6])
   setColumnWidths(worksheet, {
     1: 34,
     2: 18,
-    3: 20,
+    3: 18,
     4: 18,
     5: 18,
-    6: 18,
-    7: 20,
-    8: 22
+    6: 24
   })
   styleBody(worksheet)
 }
