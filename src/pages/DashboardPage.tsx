@@ -2081,11 +2081,6 @@ export function DashboardPage() {
               <label>
                 <span>Dapur</span>
                 <select
-                  className={
-                    formKitchenId === TRANSFER_LAINNYA_KITCHEN_VALUE
-                      ? 'dashboard-transaction-special-select'
-                      : undefined
-                  }
                   value={formKitchenId}
                   disabled={modalMode === 'edit'}
                   onChange={(event) =>
@@ -2100,8 +2095,7 @@ export function DashboardPage() {
                   ))}
                   <option
                     value={TRANSFER_LAINNYA_KITCHEN_VALUE}
-                    className="dashboard-transfer-lainnya-option"
-                  >
+                    >
                     Transfer Lainnya
                   </option>
                 </select>
@@ -2112,6 +2106,7 @@ export function DashboardPage() {
                 <select
                   value={formFlowType}
                   disabled={
+                    !formKitchenId ||
                     modalMode === 'edit' ||
                     formKitchenId === TRANSFER_LAINNYA_KITCHEN_VALUE
                   }
@@ -2125,7 +2120,11 @@ export function DashboardPage() {
                     <option value="income">RAB / Pencairan</option>
                   ) : (
                     <>
-                      <option value="">Pilih jenis transaksi</option>
+                      <option value="">
+                        {!formKitchenId
+                          ? 'Pilih dapur terlebih dahulu'
+                          : 'Pilih jenis transaksi'}
+                      </option>
                       {formKitchenId
                         ? FLOW_OPTIONS.filter(
                             (option) =>
