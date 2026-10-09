@@ -1,4 +1,6 @@
-function printReport() {
+type ReportPrintMode = 'default' | 'belanja' | 'operational'
+
+function printReport(mode: ReportPrintMode = 'default') {
   const reportPage = document.querySelector<HTMLElement>('.reports-page')
 
   if (!reportPage) {
@@ -54,20 +56,37 @@ function printReport() {
   )
 
   let operationalHtml = ''
-  if (operationalBlock) {
-    operationalHtml = operationalBlock.outerHTML
-    operationalBlock.remove()
+  let firstPageHtml = ''
+  let hasOperationalPage = false
+
+  if (mode === 'operational') {
+    firstPageHtml = operationalBlock?.outerHTML ?? ''
+  } else {
+    if (operationalBlock) {
+      if (mode === 'default') {
+        operationalHtml = operationalBlock.outerHTML
+      }
+
+      operationalBlock.remove()
+    }
+
+    firstPageHtml = reportClone.outerHTML
+    hasOperationalPage = mode === 'default' && Boolean(operationalHtml)
   }
 
-  const firstPageHtml = reportClone.outerHTML
-  const hasOperationalPage = Boolean(operationalHtml)
-
-  const title =
+  const defaultTitle =
     activeSection.dataset.reportTitle?.trim() ||
     reportPage
       .querySelector<HTMLElement>('.reports-header h1')
       ?.textContent?.trim() ||
     'Laporan & Rekap'
+
+  const title =
+    mode === 'belanja'
+      ? 'Pencairan Belanja Harian dan Pemasukan Lainnya'
+      : mode === 'operational'
+        ? 'Pencairan Operasional Harian'
+        : defaultTitle
 
   const subtitle =
     reportPage
