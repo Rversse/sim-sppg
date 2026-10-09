@@ -547,12 +547,11 @@ function OverallReportView() {
                 <thead>
                   <tr>
                     <th>DAPUR</th>
-                    <th>GAJI RELAWAN</th>
-                    <th>INSENTIF PIC SEKOLAH</th>
-                    <th>INSENTIF PIC POSYANDU</th>
-                    <th>SEWA KENDARAAN</th>
                     <th>SEWA SPPG</th>
-                    <th>TOTAL OPERASIONAL</th>
+                    <th>SEWA KENDARAAN</th>
+                    <th>GAJI RELAWAN</th>
+                    <th>INSENTIF PIC</th>
+                    <th>TOTAL GAJI DAN INSENTIF</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -566,24 +565,22 @@ function OverallReportView() {
                             item.recipientName
                           )}
                         </td>
-                        <td>{formatCurrency(item.relawanSalary)}</td>
-                        <td>{formatCurrency(item.schoolPicIncentive)}</td>
-                        <td>{formatCurrency(item.kaderIncentive)}</td>
-                        <td>{formatCurrency(item.vehicleRent)}</td>
                         <td>{formatCurrency(item.sppgRent)}</td>
+                        <td>{formatCurrency(item.vehicleRent)}</td>
+                        <td>{formatCurrency(item.relawanSalary)}</td>
+                        <td>{formatCurrency(item.picIncentive)}</td>
                         <td className="positive">
-                          {formatCurrency(item.totalOperationalDisbursement)}
+                          {formatCurrency(item.totalSalaryAndIncentive)}
                         </td>
                       </tr>
                     ))}
                   <tr className="reports-total-row">
                     <td>GRAND TOTAL</td>
-                    <td>{formatCurrency(report.totals.relawanSalary)}</td>
-                    <td>{formatCurrency(report.totals.schoolPicIncentive)}</td>
-                    <td>{formatCurrency(report.totals.kaderIncentive)}</td>
-                    <td>{formatCurrency(report.totals.vehicleRent)}</td>
                     <td>{formatCurrency(report.totals.sppgRent)}</td>
-                    <td>{formatCurrency(report.totals.totalOperationalDisbursement)}</td>
+                    <td>{formatCurrency(report.totals.vehicleRent)}</td>
+                    <td>{formatCurrency(report.totals.relawanSalary)}</td>
+                    <td>{formatCurrency(report.totals.picIncentive)}</td>
+                    <td>{formatCurrency(report.totals.totalSalaryAndIncentive)}</td>
                   </tr>
                 </tbody>
               </table>
