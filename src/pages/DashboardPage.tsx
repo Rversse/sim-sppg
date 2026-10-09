@@ -77,10 +77,10 @@ function operationalTypeLabel(
   switch (type) {
     case 'relawan_salary':
       return 'Gaji Relawan'
+    case 'pic_incentive':
     case 'school_pic_incentive':
-      return 'Insentif PIC Sekolah'
     case 'kader_incentive':
-      return 'Insentif PIC Posyandu'
+      return 'Insentif PIC'
     case 'vehicle_rent':
       return 'Sewa Kendaraan'
     case 'sppg_rent':
@@ -260,8 +260,7 @@ export function DashboardPage() {
   const [formSupplierId, setFormSupplierId] = useState('')
   const [formOperationalType, setFormOperationalType] = useState<
     | 'relawan_salary'
-    | 'school_pic_incentive'
-    | 'kader_incentive'
+    | 'pic_incentive'
     | 'vehicle_rent'
     | 'sppg_rent'
     | ''
@@ -936,7 +935,12 @@ export function DashboardPage() {
     setFormFlowType(
       transaction.flow_type === 'neutral' ? 'gas' : transaction.flow_type
     )
-    setFormOperationalType(transaction.operational_type ?? '')
+    setFormOperationalType(
+      transaction.operational_type === 'school_pic_incentive' ||
+      transaction.operational_type === 'kader_incentive'
+        ? 'pic_incentive'
+        : transaction.operational_type ?? ''
+    )
     setFormAmount(formatIntegerInput(String(Number(transaction.amount) || 0)))
     setFormNote(transaction.note ?? '')
     setFormEntryUnlocked(true)
@@ -2157,8 +2161,7 @@ export function DashboardPage() {
                   >
                     <option value="">Pilih jenis operasional</option>
                     <option value="relawan_salary">Gaji Relawan</option>
-                    <option value="school_pic_incentive">Insentif PIC Sekolah</option>
-                    <option value="kader_incentive">Insentif PIC Posyandu</option>
+                    <option value="pic_incentive">Insentif PIC</option>
                     <option value="vehicle_rent">Sewa Kendaraan</option>
                     <option value="sppg_rent">Sewa SPPG</option>
                   </select>
