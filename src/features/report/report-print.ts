@@ -56,7 +56,7 @@ function printReport(mode: ReportPrintMode = 'default') {
   )
 
   let operationalHtml = ''
-  let firstPageHtml = ''
+  let firstPageHtml: string
   let hasOperationalPage = false
 
   if (mode === 'operational') {
