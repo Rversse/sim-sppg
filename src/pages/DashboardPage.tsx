@@ -39,6 +39,11 @@ import {
   getOperationalDestination,
   type TransactionOption
 } from '@/features/transactions/transaction-options-service'
+import {
+  getAvailableOperationalTypes,
+  isOperationalTypeAvailable,
+  OPERATIONAL_TYPE_OPTIONS
+} from '@/features/transactions/operational-policy'
 import { DateRangePicker } from '@/components/ui/date-range-picker'
 import { SingleDatePicker } from '@/components/ui/date-picker'
 import { AnimatedSelect } from '@/components/ui/animated-select'
@@ -647,6 +652,9 @@ export function DashboardPage() {
   )
   const isSukarajaFormKitchen =
     selectedFormKitchen?.name?.includes('Sukaraja') ?? false
+  const availableOperationalTypes = getAvailableOperationalTypes(
+    selectedFormKitchen?.name
+  )
 
   function updateFilter<K extends keyof DashboardFilters>(
     key: K,
