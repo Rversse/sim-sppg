@@ -574,7 +574,8 @@ function OverallReportView() {
                         <td>
                           {isOperationalTypeAvailable(
                             item.kitchenName,
-                            'relawan_salary'
+                            'relawan_salary',
+                            endDate
                           )
                             ? formatCurrency(item.relawanSalary)
                             : '—'}
@@ -582,13 +583,17 @@ function OverallReportView() {
                         <td>
                           {isOperationalTypeAvailable(
                             item.kitchenName,
-                            'pic_incentive'
+                            'pic_incentive',
+                            endDate
                           )
                             ? formatCurrency(item.picIncentive)
                             : '—'}
                         </td>
                         <td className="positive">
-                          {getAvailableOperationalTypes(item.kitchenName).some(
+                          {getAvailableOperationalTypes(
+                            item.kitchenName,
+                            endDate
+                          ).some(
                             (type) =>
                               type === 'relawan_salary' ||
                               type === 'pic_incentive'
@@ -611,8 +616,9 @@ function OverallReportView() {
 
               <p className="reports-operational-note">
                 Catatan: Pencairan operasional dapur disalurkan ke rekening PIC
-                Yayasan. Pencairan Sewa Kendaraan ke rekening Berkah Mandiri
-                Putra.
+                Yayasan. Khusus Cipetir, mulai 12 Oktober 2026, Gaji Relawan,
+                Insentif PIC, dan Sewa SPPG disalurkan ke rekening PIC Yayasan.
+                Pencairan Sewa Kendaraan ke rekening Berkah Mandiri Putra.
               </p>
             </div>
           </div>
