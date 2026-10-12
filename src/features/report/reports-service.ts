@@ -438,7 +438,8 @@ export async function getOverallReport(
       if (
         isOperationalTypeAvailable(
           kitchen.kitchenName,
-          transaction.operational_type
+          transaction.operational_type,
+          transaction.transaction_date
         )
       ) {
         switch (transaction.operational_type) {
@@ -852,7 +853,8 @@ export async function getOperationalDisbursementReport(
         if (
           !isOperationalTypeAvailable(
             kitchenName,
-            transaction.operational_type
+            transaction.operational_type,
+            transaction.transaction_date
           )
         ) {
           return []

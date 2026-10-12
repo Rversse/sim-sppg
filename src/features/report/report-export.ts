@@ -489,17 +489,18 @@ function createOverallSummarySheet(
 
   for (const row of report.kitchens) {
     const hasSalaryOrIncentive = getAvailableOperationalTypes(
-      row.kitchenName
+      row.kitchenName,
+      endDate
     ).some((type) => type === 'relawan_salary' || type === 'pic_incentive')
 
     worksheet.addRow([
       getOperationalKitchenLabel(row.kitchenName, row.recipientName),
       row.sppgRent,
       row.vehicleRent,
-      isOperationalTypeAvailable(row.kitchenName, 'relawan_salary')
+      isOperationalTypeAvailable(row.kitchenName, 'relawan_salary', endDate)
         ? row.relawanSalary
         : '—',
-      isOperationalTypeAvailable(row.kitchenName, 'pic_incentive')
+      isOperationalTypeAvailable(row.kitchenName, 'pic_incentive', endDate)
         ? row.picIncentive
         : '—',
       hasSalaryOrIncentive ? row.totalSalaryAndIncentive : '—'

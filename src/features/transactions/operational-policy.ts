@@ -1,3 +1,5 @@
+export const CIPETIR_OPERATIONAL_POLICY_START_DATE = '2026-10-12'
+
 export type EditableOperationalType =
   | 'relawan_salary'
   | 'pic_incentive'
@@ -23,7 +25,6 @@ const RENT_ONLY_KITCHENS = new Set([
   'campakamulya',
   'cikondang',
   'kertajadi',
-  'cipetir',
   'cihaur'
 ])
 
@@ -32,9 +33,26 @@ function normalizeKitchenName(name: string | null | undefined): string {
 }
 
 export function getAvailableOperationalTypes(
-  kitchenName: string | null | undefined
+  kitchenName: string | null | undefined,
+  transactionDate?: string
 ): EditableOperationalType[] {
   const normalizedName = normalizeKitchenName(kitchenName)
+
+  if (normalizedName === 'cipetir') {
+    if (
+      transactionDate &&
+      transactionDate < CIPETIR_OPERATIONAL_POLICY_START_DATE
+    ) {
+      return ['vehicle_rent', 'sppg_rent']
+    }
+
+    return [
+      'relawan_salary',
+      'pic_incentive',
+      'vehicle_rent',
+      'sppg_rent'
+    ]
+  }
 
   if (RENT_ONLY_KITCHENS.has(normalizedName)) {
     return ['vehicle_rent', 'sppg_rent']
@@ -49,7 +67,8 @@ export function getAvailableOperationalTypes(
 
 export function isOperationalTypeAvailable(
   kitchenName: string | null | undefined,
-  type: OperationalType | null | undefined
+  type: OperationalType | null | undefined,
+  transactionDate?: string
 ): boolean {
   if (!type) return false
 
@@ -58,5 +77,34 @@ export function isOperationalTypeAvailable(
       ? 'pic_incentive'
       : type
 
-  return getAvailableOperationalTypes(kitchenName).includes(normalizedType)
+  return getAvailableOperationalTypes(kitchenName, transactionDate).includes(
+    normalizedType
+  )
+}
+
+export function getOperationalDestinationLabel(
+  kitchenName: string | null | undefined,
+  type: OperationalType | null | undefined,
+  transactionDate?: string
+): string | null {
+  if (!type) return null
+
+  const normalizedName = normalizeKitchenName(kitchenName)
+  const normalizedType =
+    type === 'school_pic_incentive' || type === 'kader_incentive'
+      ? 'pic_incentive'
+      : type
+
+  if (
+    normalizedName === 'cipetir' &&
+    transactionDate &&
+    transactionDate < CIPETIR_OPERATIONAL_POLICY_START_DATE &&
+    (normalizedType === 'relawan_salary' || normalizedType === 'pic_incentive')
+  ) {
+    return null
+  }
+
+  return normalizedType === 'vehicle_rent'
+    ? 'Rekening Berkah Mandiri Putra'
+    : 'Rekening PIC Yayasan'
 }
