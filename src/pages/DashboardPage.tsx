@@ -41,6 +41,7 @@ import {
 } from '@/features/transactions/transaction-options-service'
 import {
   getAvailableOperationalTypes,
+  getOperationalDestinationLabel,
   isOperationalTypeAvailable,
   OPERATIONAL_TYPE_OPTIONS
 } from '@/features/transactions/operational-policy'
@@ -653,7 +654,8 @@ export function DashboardPage() {
   const isSukarajaFormKitchen =
     selectedFormKitchen?.name?.includes('Sukaraja') ?? false
   const availableOperationalTypes = getAvailableOperationalTypes(
-    selectedFormKitchen?.name
+    selectedFormKitchen?.name,
+    formDate
   )
 
   function updateFilter<K extends keyof DashboardFilters>(
@@ -1213,7 +1215,8 @@ export function DashboardPage() {
       formOperationalType &&
       !isOperationalTypeAvailable(
         selectedFormKitchen?.name,
-        formOperationalType
+        formOperationalType,
+        formDate
       )
     ) {
       setFormError('Jenis operasional tidak tersedia untuk dapur ini.')
@@ -1868,12 +1871,17 @@ export function DashboardPage() {
                             account?.name?.trim() ||
                             'Transaksi'
                 const ownerName =
-                  transaction.flow_type === 'expense' ||
-                  transaction.flow_type === 'ops_disbursement' ||
-                  transaction.flow_type === 'real_ops' ||
                   transaction.flow_type === 'operational_disbursement'
-                    ? ''
-                    : accountSupplier?.owner_name?.trim() || ''
+                    ? getOperationalDestinationLabel(
+                        kitchen?.name,
+                        transaction.operational_type,
+                        transaction.transaction_date
+                      ) ?? ''
+                    : transaction.flow_type === 'expense' ||
+                        transaction.flow_type === 'ops_disbursement' ||
+                        transaction.flow_type === 'real_ops'
+                      ? ''
+                      : accountSupplier?.owner_name?.trim() || ''
                 const bankAccount = account
                   ? account.bank + ' - ' + account.account_number
                   : ''
@@ -2194,11 +2202,24 @@ export function DashboardPage() {
                     <option value="">Pilih jenis operasional</option>
                     {OPERATIONAL_TYPE_OPTIONS.filter((option) =>
                       availableOperationalTypes.includes(option.value)
-                    ).map((option) => (
-                      <option key={option.value} value={option.value}>
-                        {option.label}
-                      </option>
-                    ))}
+                    ).map((option) => {
+                      const recipientLabel = getOperationalDestinationLabel(
+                        selectedFormKitchen?.name,
+                        option.value,
+                        formDate
+                      )
+                      const isCipetir =
+                        selectedFormKitchen?.name?.trim().toLowerCase() ===
+                        'cipetir'
+
+                      return (
+                        <option key={option.value} value={option.value}>
+                          {isCipetir && recipientLabel
+                            ? `${option.label} — ${recipientLabel}`
+                            : option.label}
+                        </option>
+                      )
+                    })}
                     {modalMode === 'edit' &&
                     formOperationalType !== '' &&
                     !availableOperationalTypes.includes(formOperationalType) ? (
