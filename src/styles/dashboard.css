@@ -2202,3 +2202,52 @@
   color: #a16207;
   padding: 0;
 }
+
+
+/* A sole mapped RAB destination is shown as a fixed value instead of a dropdown. */
+.dashboard-transaction-fixed-account {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  width: 100%;
+  min-width: 0;
+  height: 38px;
+  min-height: 38px;
+  padding: 0 10px;
+  border: 1px solid var(--app-border-strong);
+  border-radius: var(--app-control-radius);
+  background: var(--app-surface);
+  color: var(--app-text);
+  font-size: 11px;
+  line-height: 1.35;
+}
+
+.dashboard-transaction-fixed-account > span {
+  min-width: 0;
+  overflow: hidden;
+  font-weight: 650;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dashboard-transaction-fixed-account > small {
+  flex: 0 0 auto;
+  color: var(--theme-text-secondary);
+  font-size: 9px;
+  font-weight: 850;
+  letter-spacing: 0.045em;
+}
+
+.dashboard-transaction-fixed-account.is-unavailable {
+  display: flex;
+  align-items: center;
+  height: auto;
+  min-height: 38px;
+  padding: 8px 10px;
+  border-style: dashed;
+  border-color: color-mix(in srgb, var(--theme-danger) 42%, var(--app-border-strong));
+  background: color-mix(in srgb, var(--theme-danger) 6%, var(--app-surface));
+  color: var(--theme-text-secondary);
+  white-space: normal;
+}

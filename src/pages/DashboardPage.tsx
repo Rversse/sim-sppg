@@ -870,13 +870,22 @@ export function DashboardPage() {
           accounts.some((item) => item.value === preserveAccountId)
             ? preserveAccountId
             : ''
+        const autoSelectedIncomeAccount =
+          flowType === 'income' && accounts.length === 1
+            ? accounts[0].value
+            : ''
+        const nextAccountId = preservedAccount || autoSelectedIncomeAccount
 
-        setFormAccountId(preservedAccount)
-        setFormEntryUnlocked(Boolean(preservedAccount))
+        setFormAccountId(nextAccountId)
+        setFormEntryUnlocked(Boolean(nextAccountId))
       } else if (flowType === 'gas') {
         const gasAccount = getDefaultGasAccount(accounts)
         setFormAccountId(gasAccount)
         setFormEntryUnlocked(Boolean(gasAccount))
+      } else if (flowType === 'income' && accounts.length === 1) {
+        // One mapped RAB / Pencairan destination is unambiguous: select it automatically.
+        setFormAccountId(accounts[0].value)
+        setFormEntryUnlocked(true)
       } else {
         setFormAccountId('')
         setFormEntryUnlocked(false)
@@ -1282,9 +1291,14 @@ export function DashboardPage() {
         setFormError(null)
 
         if (formFlowType === 'income') {
-          // RAB: choose a different supplier account for the next entry.
-          setFormAccountId('')
-          setFormEntryUnlocked(false)
+          // Reuse a sole mapped destination; ask again only when multiple mappings exist.
+          if (formAccounts.length === 1) {
+            setFormAccountId(formAccounts[0].value)
+            setFormEntryUnlocked(true)
+          } else {
+            setFormAccountId('')
+            setFormEntryUnlocked(false)
+          }
         } else if (formFlowType === 'other_income') {
           // Keep the destination account selected for rapid multi-entry input.
           setFormEntryUnlocked(Boolean(formAccountId))
@@ -2184,9 +2198,11 @@ export function DashboardPage() {
                       ? 'Rekening Pemasukan'
                       : formFlowType === 'expense'
                         ? 'RAB / Real'
-                        : formFlowType === 'gas'
-                          ? 'Rekening Operasional'
-                          : 'Rekening'}
+                        : formFlowType === 'income'
+                          ? 'Rekening Tujuan RAB / Pencairan'
+                          : formFlowType === 'gas'
+                            ? 'Rekening Operasional'
+                            : 'Rekening'}
                   </span>
 
                   {formFlowType === 'expense' ? (
@@ -2220,6 +2236,24 @@ export function DashboardPage() {
                         </option>
                       ))}
                     </select>
+                  ) : formFlowType === 'income' && formAccounts.length === 1 ? (
+                    <div
+                      className="dashboard-transaction-fixed-account"
+                      title={getFormAccountLabel(formAccounts[0])}
+                      aria-label={`Rekening tujuan otomatis: ${getFormAccountLabel(formAccounts[0])}`}
+                      aria-live="polite"
+                    >
+                      <span>{getFormAccountLabel(formAccounts[0])}</span>
+                      <small>OTOMATIS</small>
+                    </div>
+                  ) : formFlowType === 'income' && formAccounts.length === 0 ? (
+                    <div
+                      className="dashboard-transaction-fixed-account is-unavailable"
+                      role="status"
+                      aria-live="polite"
+                    >
+                      Belum ada rekening tujuan yang dimapping untuk dapur ini.
+                    </div>
                   ) : (
                     <select
                       value={formAccountId}
