@@ -1207,6 +1207,19 @@ export function DashboardPage() {
       return
     }
 
+    if (
+      modalMode === 'create' &&
+      formFlowType === 'operational_disbursement' &&
+      formOperationalType &&
+      !isOperationalTypeAvailable(
+        selectedFormKitchen?.name,
+        formOperationalType
+      )
+    ) {
+      setFormError('Jenis operasional tidak tersedia untuk dapur ini.')
+      return
+    }
+
     const payload = {
       transaction_date: formDate,
       kitchen_id:
@@ -2179,10 +2192,20 @@ export function DashboardPage() {
                     }}
                   >
                     <option value="">Pilih jenis operasional</option>
-                    <option value="relawan_salary">Gaji Relawan</option>
-                    <option value="pic_incentive">Insentif PIC</option>
-                    <option value="vehicle_rent">Sewa Kendaraan</option>
-                    <option value="sppg_rent">Sewa SPPG</option>
+                    {OPERATIONAL_TYPE_OPTIONS.filter((option) =>
+                      availableOperationalTypes.includes(option.value)
+                    ).map((option) => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                    {modalMode === 'edit' &&
+                    formOperationalType !== '' &&
+                    !availableOperationalTypes.includes(formOperationalType) ? (
+                      <option value={formOperationalType}>
+                        {operationalTypeLabel(formOperationalType)} (riwayat)
+                      </option>
+                    ) : null}
                   </select>
                 </label>
               ) : formFlowType === 'ops_disbursement' ? (
