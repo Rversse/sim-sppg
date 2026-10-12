@@ -19,6 +19,10 @@ import {
 } from '@/components/ui/date-range-picker'
 import { formatCurrency, formatDate, getTodayLocal } from '@/lib/formatters'
 import { supabase } from '@/lib/supabase'
+import {
+  getAvailableOperationalTypes,
+  isOperationalTypeAvailable
+} from '@/features/transactions/operational-policy'
 
 type ReportTab = 'overall' | 'pencairan' | 'supplier'
 
@@ -567,10 +571,30 @@ function OverallReportView() {
                         </td>
                         <td>{formatCurrency(item.sppgRent)}</td>
                         <td>{formatCurrency(item.vehicleRent)}</td>
-                        <td>{formatCurrency(item.relawanSalary)}</td>
-                        <td>{formatCurrency(item.picIncentive)}</td>
+                        <td>
+                          {isOperationalTypeAvailable(
+                            item.kitchenName,
+                            'relawan_salary'
+                          )
+                            ? formatCurrency(item.relawanSalary)
+                            : '—'}
+                        </td>
+                        <td>
+                          {isOperationalTypeAvailable(
+                            item.kitchenName,
+                            'pic_incentive'
+                          )
+                            ? formatCurrency(item.picIncentive)
+                            : '—'}
+                        </td>
                         <td className="positive">
-                          {formatCurrency(item.totalSalaryAndIncentive)}
+                          {getAvailableOperationalTypes(item.kitchenName).some(
+                            (type) =>
+                              type === 'relawan_salary' ||
+                              type === 'pic_incentive'
+                          )
+                            ? formatCurrency(item.totalSalaryAndIncentive)
+                            : '—'}
                         </td>
                       </tr>
                     ))}

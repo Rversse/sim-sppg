@@ -7,6 +7,10 @@ import type {
 } from './reports-service'
 
 import { getOperationalKitchenLabel } from './reports-service'
+import {
+  getAvailableOperationalTypes,
+  isOperationalTypeAvailable
+} from '@/features/transactions/operational-policy'
 
 async function loadExcelJS() {
   return import('exceljs')
@@ -484,13 +488,21 @@ function createOverallSummarySheet(
   styleHeader(operationalHeaderRow)
 
   for (const row of report.kitchens) {
+    const hasSalaryOrIncentive = getAvailableOperationalTypes(
+      row.kitchenName
+    ).some((type) => type === 'relawan_salary' || type === 'pic_incentive')
+
     worksheet.addRow([
       getOperationalKitchenLabel(row.kitchenName, row.recipientName),
       row.sppgRent,
       row.vehicleRent,
-      row.relawanSalary,
-      row.picIncentive,
-      row.totalSalaryAndIncentive
+      isOperationalTypeAvailable(row.kitchenName, 'relawan_salary')
+        ? row.relawanSalary
+        : '—',
+      isOperationalTypeAvailable(row.kitchenName, 'pic_incentive')
+        ? row.picIncentive
+        : '—',
+      hasSalaryOrIncentive ? row.totalSalaryAndIncentive : '—'
     ])
   }
 

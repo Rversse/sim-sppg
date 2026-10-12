@@ -1,6 +1,7 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
 
 import { supabase } from '@/lib/supabase'
+import { isOperationalTypeAvailable } from '@/features/transactions/operational-policy'
 
 export type ReportKitchen = {
   id: string
@@ -434,23 +435,29 @@ export async function getOverallReport(
     } else if (transaction.flow_type === 'real_ops') {
       kitchen.realOperational += amount
     } else if (transaction.flow_type === 'operational_disbursement') {
-      switch (transaction.operational_type) {
-        case 'relawan_salary':
-          kitchen.relawanSalary += amount
-          break
-        case 'pic_incentive':
-        case 'school_pic_incentive':
-        case 'kader_incentive':
-          kitchen.picIncentive += amount
-          break
-        case 'vehicle_rent':
-          kitchen.vehicleRent += amount
-          break
-        case 'sppg_rent':
-          kitchen.sppgRent += amount
-          break
+      if (
+        isOperationalTypeAvailable(
+          kitchen.kitchenName,
+          transaction.operational_type
+        )
+      ) {
+        switch (transaction.operational_type) {
+          case 'relawan_salary':
+            kitchen.relawanSalary += amount
+            break
+          case 'pic_incentive':
+          case 'school_pic_incentive':
+          case 'kader_incentive':
+            kitchen.picIncentive += amount
+            break
+          case 'vehicle_rent':
+            kitchen.vehicleRent += amount
+            break
+          case 'sppg_rent':
+            kitchen.sppgRent += amount
+            break
+        }
       }
-
     }
 
     let dailyRow = daily.get(transaction.transaction_date)
@@ -840,11 +847,21 @@ export async function getOperationalDisbursementReport(
         const kitchen = Array.isArray(transaction.kitchens)
           ? transaction.kitchens[0]
           : transaction.kitchens
+        const kitchenName = kitchen?.name ?? 'Dapur tidak diketahui'
+
+        if (
+          !isOperationalTypeAvailable(
+            kitchenName,
+            transaction.operational_type
+          )
+        ) {
+          return []
+        }
 
         return [
           {
             kitchenId: transaction.kitchen_id,
-            kitchenName: kitchen?.name ?? 'Dapur tidak diketahui',
+            kitchenName,
             operationalType: normalizeOperationalType(transaction.operational_type),
             total: getAmount(transaction.amount)
           }

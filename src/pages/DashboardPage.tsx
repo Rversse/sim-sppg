@@ -39,6 +39,11 @@ import {
   getOperationalDestination,
   type TransactionOption
 } from '@/features/transactions/transaction-options-service'
+import {
+  getAvailableOperationalTypes,
+  isOperationalTypeAvailable,
+  OPERATIONAL_TYPE_OPTIONS
+} from '@/features/transactions/operational-policy'
 import { DateRangePicker } from '@/components/ui/date-range-picker'
 import { SingleDatePicker } from '@/components/ui/date-picker'
 import { AnimatedSelect } from '@/components/ui/animated-select'
@@ -647,6 +652,9 @@ export function DashboardPage() {
   )
   const isSukarajaFormKitchen =
     selectedFormKitchen?.name?.includes('Sukaraja') ?? false
+  const availableOperationalTypes = getAvailableOperationalTypes(
+    selectedFormKitchen?.name
+  )
 
   function updateFilter<K extends keyof DashboardFilters>(
     key: K,
@@ -1196,6 +1204,19 @@ export function DashboardPage() {
 
     if (formFlowType === 'operational_disbursement' && !formOperationalType) {
       setFormError('Jenis operasional wajib dipilih.')
+      return
+    }
+
+    if (
+      modalMode === 'create' &&
+      formFlowType === 'operational_disbursement' &&
+      formOperationalType &&
+      !isOperationalTypeAvailable(
+        selectedFormKitchen?.name,
+        formOperationalType
+      )
+    ) {
+      setFormError('Jenis operasional tidak tersedia untuk dapur ini.')
       return
     }
 
@@ -2171,10 +2192,20 @@ export function DashboardPage() {
                     }}
                   >
                     <option value="">Pilih jenis operasional</option>
-                    <option value="relawan_salary">Gaji Relawan</option>
-                    <option value="pic_incentive">Insentif PIC</option>
-                    <option value="vehicle_rent">Sewa Kendaraan</option>
-                    <option value="sppg_rent">Sewa SPPG</option>
+                    {OPERATIONAL_TYPE_OPTIONS.filter((option) =>
+                      availableOperationalTypes.includes(option.value)
+                    ).map((option) => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                    {modalMode === 'edit' &&
+                    formOperationalType !== '' &&
+                    !availableOperationalTypes.includes(formOperationalType) ? (
+                      <option value={formOperationalType}>
+                        {operationalTypeLabel(formOperationalType)} (riwayat)
+                      </option>
+                    ) : null}
                   </select>
                 </label>
               ) : formFlowType === 'ops_disbursement' ? (
