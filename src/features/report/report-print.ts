@@ -94,7 +94,7 @@ function printReport(mode: ReportPrintMode = 'default') {
 
     if (operationalNote) {
       operationalNote.textContent =
-        'Catatan: Pencairan operasional dapur disalurkan ke rekening PIC Yayasan. Pencairan Sewa Kendaraan ke rekening Berkah Mandiri Putra. Pencairan selain yang disalurkan ke rekening PIC Yayasan tidak dicantumkan.'
+        'Catatan: Pencairan operasional dapur disalurkan ke rekening PIC Yayasan. Khusus Cipetir, mulai 12 Oktober 2026, Gaji Relawan, Insentif PIC, dan Sewa SPPG disalurkan ke rekening PIC Yayasan. Pencairan Sewa Kendaraan ke rekening Berkah Mandiri Putra. Pencairan selain yang disalurkan ke rekening PIC Yayasan tidak dicantumkan.'
     }
 
     firstPageHtml = operationalBlock?.outerHTML ?? ''
