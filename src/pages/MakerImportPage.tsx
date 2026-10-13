@@ -114,6 +114,9 @@ function getRowOperationalType(
 }
 
 function getOperationalRuleType(row: MakerImportDraftRow): string | null {
+  // Realized Ops rows (including manually classified Lain-lain) must map to
+  // the registered Ops Harian account before they can be imported.
+  if (getRowFlow(row) === 'real_ops') return 'ops_harian'
   return operationalRuleTypeForKind(row.kind, getRowOperationalType(row))
 }
 
@@ -332,7 +335,7 @@ function getValidation(
     ) {
       errors.push('Nama penerima pada teks asli Maker berbeda dari mapping operasional database.')
     }
-  } else if (row.kind === 'ops_harian') {
+  } else if (flow === 'real_ops') {
     matchedOperationalRule = refs.operationalRules.find((rule) =>
       rule.id === row.operationalRuleId &&
       rule.kitchen_id === kitchenId &&
@@ -844,7 +847,7 @@ export function MakerImportPage() {
                       </label>
                     ) : null}
 
-                    {(flow === 'operational_disbursement' || row.kind === 'ops_harian') ? (
+                    {(flow === 'operational_disbursement' || flow === 'real_ops') ? (
                       <label className="maker-import-account-select">
                         <span>Mapping rekening operasional database</span>
                         <select
