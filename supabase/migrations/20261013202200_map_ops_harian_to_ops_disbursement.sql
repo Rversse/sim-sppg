@@ -205,6 +205,13 @@ begin
     end if;
     v_source_category := v_source_label;
 
+    -- The server canonicalizes Ops Harian even if an older browser sends the legacy REAL_OPS flow.
+    if v_kind = 'ops_harian' then
+      v_flow := 'ops_disbursement';
+      v_category := 'OPS';
+      v_operational_type := null;
+    end if;
+
     v_source_amount_text := btrim(regexp_replace(v_raw_line, '^.*·[[:space:]]*', ''));
     if v_source_amount_text !~ '^[0-9]+(\.[0-9]{3})*$' then
       raise exception 'Nominal sumber baris % tidak valid. Perbaiki di Maker.', v_line_number;
