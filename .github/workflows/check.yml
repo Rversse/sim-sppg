@@ -34,21 +34,10 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Apply compatible dependency security fixes
-        run: npm audit fix
-
       - name: Dependency vulnerability report
         run: |
           npm audit --json > /tmp/npm-audit.json || true
           node -e 'const r = require("/tmp/npm-audit.json"); const v = r.vulnerabilities || {}; console.log("Dependency vulnerabilities:", JSON.stringify(r.metadata?.vulnerabilities || {})); for (const [name, item] of Object.entries(v)) console.log(JSON.stringify({name, severity:item.severity, isDirect:item.isDirect, range:item.range, fixAvailable:item.fixAvailable, via:(item.via || []).map(x => typeof x === "string" ? x : x.title)}))'
-
-      - name: Upload patched dependency lockfile
-        uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: npm-security-patched-lock
-          path: package-lock.json
-          if-no-files-found: error
 
       - name: Lint and build
         run: npm run check
