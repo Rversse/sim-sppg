@@ -54,6 +54,7 @@ test('Maker parser classifies common output and retains the exact integer amount
   assert.equal(parsed.rows[3].amount, 1000000)
   assert.equal(parsed.rows[4].kind, 'vehicle_rent')
   assert.equal(parsed.rows[5].kind, 'ops_harian')
+  assert.equal(parsed.rows[5].manualFlow, 'ops_disbursement')
   assert.equal(parsed.rows[5].recipientName, 'Petugas Test')
   assert.equal(parsed.rows[6].kind, 'lain_lain')
   assert.equal(parsed.rows[6].details, 'Biaya Ops Harian')
