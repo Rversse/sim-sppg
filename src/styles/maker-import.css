@@ -290,7 +290,7 @@
 }
 .maker-import-row.is-invalid { border-left-color: #d97706; }
 .maker-import-row.is-valid { border-left-color: #16a34a; }
-.maker-import-row.is-excluded { border-left-color: #64748b; background: color-mix(in srgb, #64748b 5%, var(--theme-surface-soft)); }
+.maker-import-row.is-blocked { border-color: color-mix(in srgb, #dc2626 35%, var(--theme-border)); border-left-color: #dc2626; background: color-mix(in srgb, #dc2626 5%, var(--theme-surface-soft)); }
 .maker-import-row-head {
   display: flex;
   align-items: flex-start;
@@ -328,9 +328,9 @@
   background: color-mix(in srgb, #16a34a 10%, var(--theme-surface));
   color: #16a34a;
 }
-.maker-import-row-status.is-excluded {
-  background: color-mix(in srgb, #64748b 12%, var(--theme-surface));
-  color: var(--theme-text-secondary);
+.maker-import-row-status.is-blocked {
+  background: color-mix(in srgb, #dc2626 12%, var(--theme-surface));
+  color: #dc2626;
 }
 .maker-import-original {
   overflow-wrap: anywhere;
@@ -344,7 +344,19 @@
   line-height: 1.5;
 }
 .maker-import-original strong { color: var(--theme-text); font-family: inherit; }
-.maker-import-excluded-reason { display: flex; align-items: flex-start; gap: 8px; margin: 0 0 11px; padding: 10px; border: 1px solid var(--theme-border-strong); border-radius: 8px; background: color-mix(in srgb, #64748b 9%, var(--theme-surface)); color: var(--theme-text-secondary); font-size: 10px; line-height: 1.5; }
+.maker-import-excluded-reason {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 0 0 11px;
+  padding: 10px;
+  border: 1px solid color-mix(in srgb, #dc2626 38%, var(--theme-border));
+  border-radius: 8px;
+  background: color-mix(in srgb, #dc2626 7%, var(--theme-surface));
+  color: #b91c1c;
+  font-size: 10px;
+  line-height: 1.5;
+}
 .maker-import-excluded-reason svg { flex: 0 0 14px; width: 14px; height: 14px; margin-top: 1px; }
 .maker-import-readonly-kind {
   margin: 0 0 10px;
@@ -356,7 +368,18 @@
   color: var(--theme-text);
   font-weight: 750;
 }
-.maker-import-account-select { margin: 10px 0; }
+.maker-import-account-select {
+  margin: 10px 0;
+  padding: 10px;
+  border: 1px solid color-mix(in srgb, var(--theme-primary) 42%, var(--theme-border));
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--theme-primary) 7%, var(--theme-surface));
+}
+.maker-import-account-select > span { color: var(--theme-primary); }
+.maker-import-account-select select {
+  border-color: color-mix(in srgb, var(--theme-primary) 30%, var(--theme-border-strong));
+  background: var(--theme-surface);
+}
 .maker-import-fields {
   display: grid;
   grid-template-columns: minmax(0, 1.2fr) minmax(100px, .6fr) minmax(130px, .8fr) minmax(130px, .7fr);

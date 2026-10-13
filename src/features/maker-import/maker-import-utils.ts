@@ -240,10 +240,8 @@ function makeRow(
 
   const details =
     kind === 'vehicle_rent'
-      ? 'Periode sewa: ' + (vehicleMatch?.[2] ?? '')
-      : kind === 'rab'
-        ? parsed.details
-        : parsed.details
+      ? 'Jenis kendaraan: ' + (vehicleMatch?.[1] ?? '—') + ' · Periode sewa: ' + (vehicleMatch?.[2] ?? '')
+      : parsed.details
 
   return {
     ...unrecognized,
@@ -384,11 +382,25 @@ export function getMakerImportOperationalExclusionReason(
   kitchenName: string | null | undefined,
   operationalType: MakerOperationalType | null | undefined
 ): string | null {
-  if (!operationalType || normalizeMakerText(kitchenName) !== 'campakamulya') {
-    return null
+  if (!operationalType) return null
+
+  const kitchen = normalizeMakerText(kitchenName)
+  const rentOnlyPayrollKitchens = new Set([
+    'campakamulya',
+    'cikondang',
+    'kertajadi'
+  ])
+
+  if (
+    rentOnlyPayrollKitchens.has(kitchen) &&
+    (operationalType === 'relawan_salary' || operationalType === 'pic_incentive')
+  ) {
+    return 'Untuk ' + kitchenName + ', Gaji Relawan dan kedua Insentif PIC dibayarkan melalui rekening akuntan. Baris diblokir dan tidak masuk database program. Sewa SPPG dan Sewa Kendaraan tetap diperbolehkan.'
   }
 
-  if (operationalType === 'sppg_rent') return null
+  if (kitchen === 'sukaraja' && operationalType === 'pic_incentive') {
+    return 'Untuk Sukaraja, kedua Insentif PIC dibayarkan melalui rekening akuntan. Baris diblokir dan tidak masuk database program. Sewa SPPG dan Gaji Relawan tetap diperbolehkan.'
+  }
 
-  return 'Untuk Campakamulya, hanya Sewa SPPG yang masuk laporan Pencairan Operasional. Jenis pencairan lain dibayarkan melalui rekening akuntan dan dikecualikan dari database program.'
+  return null
 }
