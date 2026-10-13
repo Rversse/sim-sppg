@@ -779,7 +779,7 @@ export function MakerImportPage() {
                       )
                     )
                   : []
-                const ruleType = getOperationalRuleType(row)
+                const ruleType = flow === 'real_ops' ? 'ops_harian' : getOperationalRuleType(row)
                 const rowOperationalRules = ruleType
                   ? refs.operationalRules.filter((rule) =>
                       rule.kitchen_id === kitchenId && rule.rule_type === ruleType
@@ -861,9 +861,9 @@ export function MakerImportPage() {
                       </label>
                     ) : null}
 
-                    {(flow === 'operational_disbursement' || row.kind === 'ops_harian') ? (
+                    {(flow === 'operational_disbursement' || flow === 'real_ops') ? (
                       <label className="maker-import-account-select">
-                        <span>Mapping rekening operasional database</span>
+                        <span>{flow === 'real_ops' ? 'Mapping rekening Ops Harian database' : 'Mapping rekening operasional database'}</span>
                         <select
                           value={row.operationalRuleId}
                           onChange={(event) => chooseOperationalRule(row, event.target.value)}
