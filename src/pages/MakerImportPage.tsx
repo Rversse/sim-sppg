@@ -898,14 +898,7 @@ export function MakerImportPage() {
                       </label>
                     ) : null}
 
-                    {usesAutomaticRecipientMapping(row) ? (
-                      <p className="maker-import-identity-help">
-                        <strong>Rekening terdeteksi otomatis dari penerima:</strong>{' '}
-                        {expectedOperational
-                          ? expectedOperational.owner_name + ' — ' + expectedOperational.bank + ' / ' + expectedOperational.account_number
-                          : 'Belum ada mapping aktif yang cocok untuk nama penerima, bank, nomor rekening, dan jenis transaksi ini.'}
-                      </p>
-                    ) : (flow === 'operational_disbursement' || flow === 'real_ops' || flow === 'ops_disbursement') ? (
+                    {(flow === 'operational_disbursement' || flow === 'real_ops' || flow === 'ops_disbursement') && !usesAutomaticRecipientMapping(row) ? (
                       <label className="maker-import-account-select">
                         <span>{flow === 'real_ops' || flow === 'ops_disbursement' ? 'Mapping rekening Ops Harian database' : 'Mapping rekening operasional database'}</span>
                         <select
