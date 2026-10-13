@@ -8,7 +8,6 @@ import {
   normalizeMakerBank,
   normalizeMakerText,
   operationalRuleTypeForKind,
-  parseMakerAmount,
   parseMakerDocument,
   type MakerImportDraftRow,
   type MakerImportKind,
@@ -83,9 +82,6 @@ function formatAmount(value: number | null): string {
   return value === null ? '' : moneyFormatter.format(value)
 }
 
-function parseEditableAmount(value: string): number | null {
-  return value.trim() ? parseMakerAmount(value) : null
-}
 
 function getAccountSupplier(account: AccountRef) {
   return Array.isArray(account.income_suppliers)
