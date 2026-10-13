@@ -70,3 +70,13 @@ test('Maker parser rejects invalid headers and preserves physical source line nu
   assert.equal(valid.rows.length, 1)
   assert.equal(valid.rows[0].lineNumber, 3)
 })
+
+
+test('operational account mapping is resolved by recipient name and exact account identity', async () => {
+  const { matchesMakerOperationalAccount } = await import('../src/features/maker-import/maker-import-utils.ts')
+  const mapping = { ownerName: 'Yusgar Anggara Dinata', bank: 'MANDIRI', accountNumber: '1820018916205' }
+  assert.equal(matchesMakerOperationalAccount('YUSGAR ANGGARA DINATA', 'Mandiri', '1820018916205', mapping), true)
+  assert.equal(matchesMakerOperationalAccount('Nama Berbeda', 'MANDIRI', '1820018916205', mapping), false)
+  assert.equal(matchesMakerOperationalAccount('Yusgar Anggara Dinata', 'BRI', '1820018916205', mapping), false)
+  assert.equal(matchesMakerOperationalAccount('Yusgar Anggara Dinata', 'MANDIRI', '999999', mapping), false)
+})

@@ -78,6 +78,23 @@ export function normalizeMakerBank(value: string | null | undefined): string {
   return (value ?? '').trim().replace(/\s+/g, ' ').toUpperCase()
 }
 
+export function matchesMakerOperationalAccount(
+  recipientName: string | null | undefined,
+  bank: string | null | undefined,
+  accountNumber: string | null | undefined,
+  mapping: {
+    ownerName: string | null | undefined
+    bank: string | null | undefined
+    accountNumber: string | null | undefined
+  }
+): boolean {
+  return (
+    normalizeMakerText(recipientName) === normalizeMakerText(mapping.ownerName) &&
+    normalizeMakerBank(bank) === normalizeMakerBank(mapping.bank) &&
+    normalizeMakerAccountNumber(accountNumber) === normalizeMakerAccountNumber(mapping.accountNumber)
+  )
+}
+
 export function normalizeMakerAccountNumber(
   value: string | null | undefined
 ): string {

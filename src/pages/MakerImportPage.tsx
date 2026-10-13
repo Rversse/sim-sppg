@@ -7,6 +7,7 @@ import {
   normalizeMakerAccountNumber,
   normalizeMakerBank,
   normalizeMakerText,
+  matchesMakerOperationalAccount,
   operationalRuleTypeForKind,
   parseMakerDocument,
   type MakerImportDraftRow,
@@ -141,15 +142,19 @@ function accountMatchesRow(
   )
 }
 
+function usesAutomaticRecipientMapping(row: MakerImportDraftRow): boolean {
+  return ['sppg_rent', 'relawan_salary', 'pic_school', 'pic_posyandu'].includes(row.kind)
+}
+
 function operationalRuleMatchesRow(
   rule: OperationalAccountRule,
   row: MakerImportDraftRow
 ): boolean {
-  return (
-    normalizeMakerBank(rule.bank) === normalizeMakerBank(row.bank) &&
-    normalizeMakerAccountNumber(rule.account_number) ===
-      normalizeMakerAccountNumber(row.accountNumber)
-  )
+  return matchesMakerOperationalAccount(row.recipientName, row.bank, row.accountNumber, {
+    ownerName: rule.owner_name,
+    bank: rule.bank,
+    accountNumber: rule.account_number
+  })
 }
 
 function applyInitialMappings(
@@ -202,13 +207,32 @@ function getRowDisposition(
     }
   }
 
+  // Fixed Maker categories identify the intended account from the source line.
+  // Resolve by recipient + bank + account number + transaction type, not by the
+  // generic PIC Yayasan name saved on the kitchen master.
+  if (usesAutomaticRecipientMapping(row)) {
+    const ruleType = getOperationalRuleType(row)
+    const matches = refs.operationalRules.filter((rule) =>
+      rule.kitchen_id === kitchenId &&
+      rule.rule_type === ruleType &&
+      operationalRuleMatchesRow(rule, row)
+    )
+    if (matches.length === 1) return { status: 'import', reason: null }
+    return {
+      status: 'excluded',
+      reason: matches.length === 0
+        ? 'Mapping aktif berdasarkan nama penerima, bank, nomor rekening, dan jenis pencairan belum ditemukan. Baris tidak masuk database program; periksa mapping rekening untuk jenis transaksi ini.'
+        : 'Lebih dari satu mapping aktif cocok dengan nama penerima dan rekening untuk jenis pencairan ini. Baris tidak masuk database program sampai mapping duplikat dibereskan.'
+    }
+  }
+
   const flow = getRowFlow(row)
   const operationalType = getRowOperationalType(row)
-  const protectedKind = ['sppg_rent', 'relawan_salary', 'pic_school', 'pic_posyandu'].includes(row.kind)
   const protectedManualType = flow === 'operational_disbursement' &&
     ['sppg_rent', 'relawan_salary', 'pic_incentive'].includes(operationalType)
-  if (!protectedKind && !protectedManualType) return { status: 'import', reason: null }
+  if (!protectedManualType) return { status: 'import', reason: null }
 
+  // Keep the PIC guard for manually classified Lain-lain rows only.
   const kitchen = refs.kitchens.find((item) => item.id === kitchenId)
   const expectedPic = kitchen?.operational_recipient_name?.trim() ?? ''
   if (!expectedPic) {
@@ -220,7 +244,7 @@ function getRowDisposition(
   if (normalizeMakerText(row.recipientName) !== normalizeMakerText(expectedPic)) {
     return {
       status: 'excluded',
-      reason: 'Nama penerima pada teks Maker tidak sama dengan PIC Yayasan (' + expectedPic + '). Baris dikecualikan dari database program; serahkan ke akuntan.'
+      reason: 'Nama penerima pada transaksi manual tidak sama dengan PIC Yayasan (' + expectedPic + '). Baris dikecualikan dari database program; serahkan ke akuntan.'
     }
   }
 
@@ -235,7 +259,7 @@ function getRowDisposition(
   if (!matchingRule) {
     return {
       status: 'excluded',
-      reason: 'Bank/nomor rekening pada teks Maker tidak cocok dengan mapping rekening PIC Yayasan untuk dapur ini. Baris dikecualikan dari database program; serahkan ke akuntan.'
+      reason: 'Bank/nomor rekening pada teks Maker tidak cocok dengan mapping rekening PIC Yayasan untuk transaksi manual ini. Baris dikecualikan dari database program; serahkan ke akuntan.'
     }
   }
   return { status: 'import', reason: null }
@@ -317,7 +341,14 @@ function getValidation(
     }
 
     const ruleType = getOperationalRuleType(row)
-    if (ruleType && row.operationalRuleId) {
+    if (usesAutomaticRecipientMapping(row)) {
+      const matches = refs.operationalRules.filter((rule) =>
+        rule.kitchen_id === kitchenId &&
+        rule.rule_type === ruleType &&
+        operationalRuleMatchesRow(rule, row)
+      )
+      matchedOperationalRule = matches.length === 1 ? matches[0] : undefined
+    } else if (ruleType && row.operationalRuleId) {
       matchedOperationalRule = refs.operationalRules.find((rule) =>
         rule.id === row.operationalRuleId &&
         rule.kitchen_id === kitchenId &&
@@ -326,9 +357,11 @@ function getValidation(
     }
 
     if (!matchedOperationalRule) {
-      errors.push('Mapping rekening operasional belum cocok. Pilih mapping database yang sesuai.')
+      errors.push(usesAutomaticRecipientMapping(row)
+        ? 'Mapping aktif berdasarkan nama penerima, bank, nomor rekening, dan jenis pencairan tidak ditemukan atau ambigu.'
+        : 'Mapping rekening operasional belum cocok. Pilih mapping database yang sesuai.')
     } else if (!operationalRuleMatchesRow(matchedOperationalRule, row)) {
-      errors.push('Bank/nomor rekening berbeda dari mapping operasional database. Pilih ulang mapping.')
+      errors.push('Nama penerima, bank, atau nomor rekening berbeda dari mapping operasional database. Periksa identitas sumber.')
     } else if (
       normalizeMakerText(matchedOperationalRule.owner_name) !==
       normalizeMakerText(row.recipientName)
@@ -768,7 +801,7 @@ export function MakerImportPage() {
                 <span>LANGKAH 3</span>
                 <h3>Verifikasi tiap transaksi</h3>
               </div>
-              <p>Nomor rekening harus cocok dengan mapping dapur. Baris Lain-lain memerlukan klasifikasi dan centang verifikasi manual.</p>
+              <p>Sewa SPPG, Gaji Relawan, dan insentif PIC dipetakan otomatis dari nama penerima, bank, nomor rekening, dan jenis transaksi. Baris Lain-lain tetap memerlukan klasifikasi serta verifikasi manual.</p>
             </div>
             <div className="maker-import-row-list">
               {checks.map(({ row, validation, flowInfo, disposition }) => {
@@ -865,7 +898,14 @@ export function MakerImportPage() {
                       </label>
                     ) : null}
 
-                    {(flow === 'operational_disbursement' || flow === 'real_ops' || flow === 'ops_disbursement') ? (
+                    {usesAutomaticRecipientMapping(row) ? (
+                      <p className="maker-import-identity-help">
+                        <strong>Rekening terdeteksi otomatis dari penerima:</strong>{' '}
+                        {expectedOperational
+                          ? expectedOperational.owner_name + ' — ' + expectedOperational.bank + ' / ' + expectedOperational.account_number
+                          : 'Belum ada mapping aktif yang cocok untuk nama penerima, bank, nomor rekening, dan jenis transaksi ini.'}
+                      </p>
+                    ) : (flow === 'operational_disbursement' || flow === 'real_ops' || flow === 'ops_disbursement') ? (
                       <label className="maker-import-account-select">
                         <span>{flow === 'real_ops' || flow === 'ops_disbursement' ? 'Mapping rekening Ops Harian database' : 'Mapping rekening operasional database'}</span>
                         <select
