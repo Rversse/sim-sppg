@@ -205,6 +205,14 @@ function getValidation(
   const kitchen = refs.kitchens.find((item) => item.id === kitchenId)
   const flow = getRowFlow(row)
   const operationalType = getRowOperationalType(row)
+
+  if (row.amount === null || !Number.isSafeInteger(row.amount) || row.amount <= 0) {
+    return {
+      errors: ['Nominal pada teks sumber tidak valid. Perbaiki teks Maker, lalu parse ulang.'],
+      confirmations
+    }
+  }
+
   if (row.kind === 'combined_payroll') {
     return {
       errors,
@@ -872,8 +880,9 @@ export function MakerImportPage() {
                         <input value={row.accountNumber} readOnly disabled={saving} aria-readonly="true" />
                       </label>
                       <label>
-                        <span>Nominal (integer sesuai database)</span>
-                        <input inputMode="numeric" value={formatAmount(row.amount)} onChange={(event) => updateRow(row.id, { amount: parseEditableAmount(event.target.value) })} disabled={saving} />
+                        <span>Nominal dari teks Maker (integer IDR)</span>
+                        <input inputMode="numeric" value={formatAmount(row.amount)} readOnly aria-readonly="true" disabled={saving} />
+                        <small>Nominal mengikuti teks sumber. Jika perlu koreksi, edit teks sumber lalu parse ulang.</small>
                       </label>
                       <label className="maker-import-detail-field">
                         <span>Detail / produk / periode / keperluan</span>
