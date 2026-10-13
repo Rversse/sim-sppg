@@ -325,33 +325,21 @@ function getValidation(
       )
     }
 
-    if (row.kind !== 'lain_lain') {
-      if (!matchedOperationalRule) {
-        errors.push('Mapping rekening operasional belum cocok. Pilih mapping database yang sesuai.')
-      } else if (!operationalRuleMatchesRow(matchedOperationalRule, row)) {
-        errors.push('Bank/nomor rekening berbeda dari mapping operasional database. Pilih ulang mapping.')
-      } else if (
-        normalizeMakerText(matchedOperationalRule.owner_name) !==
-        normalizeMakerText(row.recipientName)
-      ) {
-        confirmations.push('Nama penerima berbeda dari mapping operasional database.')
-      }
-    } else if (ruleType && matchedOperationalRule) {
-      if (!operationalRuleMatchesRow(matchedOperationalRule, row)) {
-        errors.push('Bank/nomor rekening berbeda dari mapping database. Pilih ulang mapping atau verifikasi sebagai Lain-lain manual.')
-      } else if (
-        normalizeMakerText(matchedOperationalRule.owner_name) !==
-        normalizeMakerText(row.recipientName)
-      ) {
-        confirmations.push('Nama penerima berbeda dari mapping operasional database.')
-      }
+    if (!matchedOperationalRule) {
+      errors.push('Mapping rekening operasional belum cocok. Pilih mapping database yang sesuai.')
+    } else if (!operationalRuleMatchesRow(matchedOperationalRule, row)) {
+      errors.push('Bank/nomor rekening berbeda dari mapping operasional database. Pilih ulang mapping.')
+    } else if (
+      normalizeMakerText(matchedOperationalRule.owner_name) !==
+      normalizeMakerText(row.recipientName)
+    ) {
+      errors.push('Nama penerima tidak sama dengan pemilik rekening pada mapping operasional database. Baris ini tidak dapat diimpor.')
     }
-  } else if (row.kind === 'ops_harian') {
-    const ruleType = 'ops_harian'
+  } else if (flow === 'real_ops') {
     matchedOperationalRule = refs.operationalRules.find((rule) =>
       rule.id === row.operationalRuleId &&
       rule.kitchen_id === kitchenId &&
-      rule.rule_type === ruleType
+      rule.rule_type === 'ops_harian'
     )
     if (!matchedOperationalRule) {
       errors.push('Mapping rekening Ops Harian belum tersedia untuk dapur ini.')
@@ -361,7 +349,7 @@ function getValidation(
       normalizeMakerText(matchedOperationalRule.owner_name) !==
       normalizeMakerText(row.recipientName)
     ) {
-      confirmations.push('Nama penerima berbeda dari mapping Ops Harian di database.')
+      errors.push('Nama penerima tidak sama dengan pemilik rekening Ops Harian pada mapping database.')
     }
   }
 
@@ -436,6 +424,7 @@ export function MakerImportPage() {
             supabase
               .from('kitchen_operational_account_rules')
               .select('id,kitchen_id,rule_type,owner_name,bank,account_number')
+              .eq('is_active', true)
           ])
 
         const failed = [
@@ -710,7 +699,12 @@ export function MakerImportPage() {
         <textarea
           className="maker-import-source"
           value={sourceText}
-          onChange={(event) => setSourceText(event.target.value)}
+          onChange={(event) => {
+            setSourceText(event.target.value)
+            setDraftReady(false)
+            setSaveError('')
+            setSuccessMessage('')
+          }}
           placeholder={'Cisepat, 05-Oct-2026\nRAB : CV KRAMAT - BNI / 1908102325 · Beras · 241.000\nGAS : KOPERASI ARUTALA - BNI / 1985322260 · 124.000'}
           spellCheck={false}
           disabled={loadingRefs || saving}
