@@ -262,7 +262,7 @@ function getExcludedBaselineValidation(
   kitchenId: string,
   transactionDate: string,
   refs: ImportReferences
-): { errors: string[]; confirmations: string[] } {
+): { errors: string[]; confirmations: string[]; account?: AccountRef; operationalRule?: OperationalAccountRule } {
   const errors: string[] = []
   if (!kitchenId || !refs.kitchens.some((item) => item.id === kitchenId)) errors.push('Pilih dapur yang terdaftar di database.')
   if (!transactionDate) errors.push('Tanggal transaksi belum valid.')
@@ -920,7 +920,7 @@ export function MakerImportPage() {
 
                     {(flow === 'operational_disbursement' || flow === 'real_ops') && !usesAutomaticRecipientMapping(row) ? (
                       <label className="maker-import-account-select">
-                        <span>{flow === 'real_ops' || flow === 'ops_disbursement' ? 'Mapping rekening Ops Harian database' : 'Mapping rekening operasional database'}</span>
+                        <span>{flow === 'real_ops' ? 'Mapping rekening Ops Harian database' : 'Mapping rekening operasional database'}</span>
                         <select
                           value={row.operationalRuleId}
                           onChange={(event) => chooseOperationalRule(row, event.target.value)}
