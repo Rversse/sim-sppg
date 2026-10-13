@@ -1,4 +1,5 @@
 export const CIPETIR_OPERATIONAL_POLICY_START_DATE = '2026-10-12'
+export const CIHAUR_OPERATIONAL_POLICY_START_DATE = '2026-10-12'
 
 export type EditableOperationalType =
   | 'relawan_salary'
@@ -24,8 +25,7 @@ export const OPERATIONAL_TYPE_OPTIONS: ReadonlyArray<{
 const RENT_ONLY_KITCHENS = new Set([
   'campakamulya',
   'cikondang',
-  'kertajadi',
-  'cihaur'
+  'kertajadi'
 ])
 
 function normalizeKitchenName(name: string | null | undefined): string {
@@ -52,6 +52,17 @@ export function getAvailableOperationalTypes(
       'vehicle_rent',
       'sppg_rent'
     ]
+  }
+
+  if (normalizedName === 'cihaur') {
+    if (
+      transactionDate &&
+      transactionDate < CIHAUR_OPERATIONAL_POLICY_START_DATE
+    ) {
+      return ['vehicle_rent', 'sppg_rent']
+    }
+
+    return OPERATIONAL_TYPE_OPTIONS.map((option) => option.value)
   }
 
   if (RENT_ONLY_KITCHENS.has(normalizedName)) {
@@ -96,9 +107,13 @@ export function getOperationalDestinationLabel(
       : type
 
   if (
-    normalizedName === 'cipetir' &&
     transactionDate &&
-    transactionDate < CIPETIR_OPERATIONAL_POLICY_START_DATE &&
+    (
+      (normalizedName === 'cipetir' &&
+        transactionDate < CIPETIR_OPERATIONAL_POLICY_START_DATE) ||
+      (normalizedName === 'cihaur' &&
+        transactionDate < CIHAUR_OPERATIONAL_POLICY_START_DATE)
+    ) &&
     (normalizedType === 'relawan_salary' || normalizedType === 'pic_incentive')
   ) {
     return null

@@ -40,6 +40,7 @@ import {
   type TransactionOption
 } from '@/features/transactions/transaction-options-service'
 import {
+  CIHAUR_OPERATIONAL_POLICY_START_DATE,
   getAvailableOperationalTypes,
   getOperationalDestinationLabel,
   isOperationalTypeAvailable,
@@ -2208,13 +2209,22 @@ export function DashboardPage() {
                         option.value,
                         formDate
                       )
-                      const isCipetir =
-                        selectedFormKitchen?.name?.trim().toLowerCase() ===
-                        'cipetir'
+                      const normalizedKitchenName =
+                        selectedFormKitchen?.name?.trim().toLowerCase()
+                      const isCipetir = normalizedKitchenName === 'cipetir'
+                      const isCihaurSalaryOrIncentive =
+                        normalizedKitchenName === 'cihaur' &&
+                        formDate >= CIHAUR_OPERATIONAL_POLICY_START_DATE &&
+                        (option.value === 'relawan_salary' ||
+                          option.value === 'pic_incentive')
+                      const showRecipientLabel = Boolean(
+                        recipientLabel &&
+                          (isCipetir || isCihaurSalaryOrIncentive)
+                      )
 
                       return (
                         <option key={option.value} value={option.value}>
-                          {isCipetir && recipientLabel
+                          {showRecipientLabel
                             ? `${option.label} — ${recipientLabel}`
                             : option.label}
                         </option>
