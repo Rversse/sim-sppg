@@ -109,7 +109,7 @@
 .maker-import-source-footer {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-end;
   gap: 13px;
   margin-top: 12px;
 }
@@ -347,11 +347,15 @@
 .maker-import-excluded-reason { display: flex; align-items: flex-start; gap: 8px; margin: 0 0 11px; padding: 10px; border: 1px solid var(--theme-border-strong); border-radius: 8px; background: color-mix(in srgb, #64748b 9%, var(--theme-surface)); color: var(--theme-text-secondary); font-size: 10px; line-height: 1.5; }
 .maker-import-excluded-reason svg { flex: 0 0 14px; width: 14px; height: 14px; margin-top: 1px; }
 .maker-import-readonly-kind {
-  margin: 0 0 11px;
+  margin: 0 0 10px;
   color: var(--theme-text-secondary);
-  font-size: 10px;
+  font-size: 13px;
+  line-height: 1.45;
 }
-.maker-import-readonly-kind strong { color: var(--theme-text); }
+.maker-import-readonly-kind strong {
+  color: var(--theme-text);
+  font-weight: 750;
+}
 .maker-import-account-select { margin: 10px 0; }
 .maker-import-fields {
   display: grid;
