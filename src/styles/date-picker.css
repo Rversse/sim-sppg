@@ -123,7 +123,9 @@
   left: 0;
   z-index: 3000;
   width: min(280px, calc(100vw - 24px));
-  overflow: hidden;
+  max-height: calc(100dvh - 24px);
+  overflow-x: hidden;
+  overflow-y: auto;
   border: 1px solid var(--theme-border-strong);
   border-radius: 12px;
   background: var(--theme-surface-raised);

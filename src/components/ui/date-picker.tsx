@@ -231,17 +231,23 @@ export function SingleDatePicker({
 
       const spaceBelow = window.innerHeight - triggerRect.bottom
       const spaceAbove = triggerRect.top
-
-      const top =
-        spaceBelow >= popoverHeight + gap || spaceBelow >= spaceAbove
-          ? Math.min(
-              window.innerHeight - popoverHeight - viewportPadding,
-              triggerRect.bottom + gap
-            )
-          : Math.max(
-              viewportPadding,
-              triggerRect.top - popoverHeight - gap
-            )
+      const fitsBelow = spaceBelow >= popoverHeight + gap
+      const fitsAbove = spaceAbove >= popoverHeight + gap
+      const preferredTop = fitsBelow
+        ? triggerRect.bottom + gap
+        : fitsAbove
+          ? triggerRect.top - popoverHeight - gap
+          : spaceBelow >= spaceAbove
+            ? triggerRect.bottom + gap
+            : triggerRect.top - popoverHeight - gap
+      const maxTop = Math.max(
+        viewportPadding,
+        window.innerHeight - popoverHeight - viewportPadding
+      )
+      const top = Math.min(
+        Math.max(viewportPadding, preferredTop),
+        maxTop
+      )
 
       popover.style.top = top + 'px'
       popover.style.left = left + 'px'
