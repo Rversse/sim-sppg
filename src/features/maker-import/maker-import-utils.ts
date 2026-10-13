@@ -13,6 +13,7 @@ export type MakerImportKind =
 export type MakerManualFlow =
   | ''
   | 'real_ops'
+  | 'ops_disbursement'
   | 'income'
   | 'gas'
   | 'operational_disbursement'
@@ -243,7 +244,7 @@ function makeRow(
 export function defaultManualFlow(kind: MakerImportKind): MakerManualFlow {
   if (kind === 'rab') return 'income'
   if (kind === 'gas') return 'gas'
-  if (kind === 'ops_harian') return 'real_ops'
+  if (kind === 'ops_harian') return 'ops_disbursement'
   if (
     kind === 'sppg_rent' ||
     kind === 'relawan_salary' ||
