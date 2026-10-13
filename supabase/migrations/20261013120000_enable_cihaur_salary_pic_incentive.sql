@@ -12,8 +12,6 @@ ALTER TABLE public.transactions
       ARRAY[
         'relawan_salary'::text,
         'pic_incentive'::text,
-        'school_pic_incentive'::text,
-        'kader_incentive'::text,
         'vehicle_rent'::text,
         'sppg_rent'::text
       ]
@@ -28,7 +26,7 @@ AS $function$
 DECLARE
   kitchen_name text;
 BEGIN
-  IF new.flow_type <> 'operational_disbursement'
+  IF new.flow_type IS DISTINCT FROM 'operational_disbursement'
      OR new.operational_type IS NULL THEN
     RETURN new;
   END IF;
@@ -45,9 +43,7 @@ BEGIN
 
   IF new.operational_type NOT IN (
     'relawan_salary',
-    'pic_incentive',
-    'school_pic_incentive',
-    'kader_incentive'
+    'pic_incentive'
   ) THEN
     RETURN new;
   END IF;
