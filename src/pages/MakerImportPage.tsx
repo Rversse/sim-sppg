@@ -57,12 +57,12 @@ type ImportRowPayload = {
   maker_kind: MakerImportKind
   disposition: 'import' | 'excluded'
   excluded_reason: string | null
-  flow_type: 'income' | 'neutral' | 'real_ops' | 'operational_disbursement' | null
-  category: 'RAB' | 'GAS' | 'REAL_OPS' | 'OPERATIONAL' | null
+  flow_type: 'income' | 'neutral' | 'ops_disbursement' | 'real_ops' | 'operational_disbursement' | null
+  category: 'RAB' | 'GAS' | 'OPS' | 'REAL_OPS' | 'OPERATIONAL' | null
   operational_type: Exclude<MakerOperationalType, ''> | null
   account_id: string | null
   supplier_id: null
-  destination_label: null
+  destination_label: string | null
   maker_source_line: string
   maker_source_category: string
   maker_recipient_name: string | null
@@ -335,7 +335,7 @@ function getValidation(
     ) {
       errors.push('Nama penerima tidak sama dengan pemilik rekening pada mapping operasional database. Baris ini tidak dapat diimpor.')
     }
-  } else if (flow === 'real_ops') {
+  } else if (flow === 'real_ops' || flow === 'ops_disbursement') {
     matchedOperationalRule = refs.operationalRules.find((rule) =>
       rule.id === row.operationalRuleId &&
       rule.kitchen_id === kitchenId &&
@@ -373,6 +373,9 @@ function effectiveDatabaseFlow(row: MakerImportDraftRow): {
   }
   if (flow === 'gas') {
     return { flow_type: 'neutral', category: 'GAS', operational_type: null }
+  }
+  if (flow === 'ops_disbursement') {
+    return { flow_type: 'ops_disbursement', category: 'OPS', operational_type: null }
   }
   if (flow === 'real_ops') {
     return { flow_type: 'real_ops', category: 'REAL_OPS', operational_type: null }
@@ -602,6 +605,7 @@ export function MakerImportPage() {
         const isIncome = flow === 'income'
         const isGas = flow === 'neutral'
         const isOperational = flow === 'operational_disbursement'
+        const isOpsDisbursement = flow === 'ops_disbursement'
         return {
           transaction_date: transactionDate,
           kitchen_id: activeKitchen.id,
@@ -610,13 +614,13 @@ export function MakerImportPage() {
           disposition: disposition.status,
           excluded_reason: disposition.reason,
           amount: row.amount as number,
-          note: isIncome ? (row.details.trim() || null) : null,
+          note: isIncome ? (row.details.trim() || null) : isOpsDisbursement ? 'Ops Harian' : null,
           flow_type: disposition.status === 'excluded' ? null : flow,
           category: disposition.status === 'excluded' ? null : flowInfo.category,
           operational_type: disposition.status === 'excluded' || !isOperational ? null : flowInfo.operational_type,
           account_id: disposition.status === 'excluded' || (!isIncome && !isGas) ? null : row.accountId,
           supplier_id: null,
-          destination_label: null,
+          destination_label: disposition.status === 'excluded' || !isOpsDisbursement ? null : 'Akuntan ' + activeKitchen.name,
           maker_source_line: row.rawLine,
           maker_source_category: row.sourceCategory || 'Lain-lain',
           maker_recipient_name: row.recipientName.trim() || null,
@@ -779,7 +783,7 @@ export function MakerImportPage() {
                       )
                     )
                   : []
-                const ruleType = flow === 'real_ops' ? 'ops_harian' : getOperationalRuleType(row)
+                const ruleType = flow === 'real_ops' || flow === 'ops_disbursement' ? 'ops_harian' : getOperationalRuleType(row)
                 const rowOperationalRules = ruleType
                   ? refs.operationalRules.filter((rule) =>
                       rule.kitchen_id === kitchenId && rule.rule_type === ruleType
@@ -841,7 +845,7 @@ export function MakerImportPage() {
                       </div>
                     ) : (
                       <div className="maker-import-readonly-kind">
-                        Jenis transaksi terdeteksi: <strong>{row.kind === 'combined_payroll' ? 'Payroll gabungan — wajib dikecualikan karena satu nominal mencakup beberapa jenis' : flow === 'income' ? 'RAB / Pencairan' : flow === 'gas' ? 'GAS' : flow === 'real_ops' ? 'Realisasi Ops' : 'Pencairan Operasional — ' + operationalTypeLabel(row.operationalType || defaultOperationalType(row.kind))}</strong>
+                        Jenis transaksi terdeteksi: <strong>{row.kind === 'combined_payroll' ? 'Payroll gabungan — wajib dikecualikan karena satu nominal mencakup beberapa jenis' : flow === 'income' ? 'RAB / Pencairan' : flow === 'gas' ? 'GAS' : flow === 'ops_disbursement' ? 'OPS / Pencairan' : flow === 'real_ops' ? 'Realisasi Ops' : 'Pencairan Operasional — ' + operationalTypeLabel(row.operationalType || defaultOperationalType(row.kind))}</strong>
                       </div>
                     )}
 
@@ -861,9 +865,9 @@ export function MakerImportPage() {
                       </label>
                     ) : null}
 
-                    {(flow === 'operational_disbursement' || flow === 'real_ops') ? (
+                    {(flow === 'operational_disbursement' || flow === 'real_ops' || flow === 'ops_disbursement') ? (
                       <label className="maker-import-account-select">
-                        <span>{flow === 'real_ops' ? 'Mapping rekening Ops Harian database' : 'Mapping rekening operasional database'}</span>
+                        <span>{flow === 'real_ops' || flow === 'ops_disbursement' ? 'Mapping rekening Ops Harian database' : 'Mapping rekening operasional database'}</span>
                         <select
                           value={row.operationalRuleId}
                           onChange={(event) => chooseOperationalRule(row, event.target.value)}
