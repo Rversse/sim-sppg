@@ -4,6 +4,7 @@ import { isOperationalTypeAvailable } from '@/features/transactions/operational-
 import {
   defaultManualFlow,
   defaultOperationalType,
+  getMakerImportOperationalExclusionReason,
   normalizeMakerAccountNumber,
   normalizeMakerBank,
   normalizeMakerText,
@@ -205,6 +206,14 @@ function getRowDisposition(
       status: 'excluded',
       reason: 'Maker menggabungkan Gaji Relawan dan Insentif PIC dalam satu nominal. Baris ini tidak boleh masuk ke database program; teruskan ke akuntan.'
     }
+  }
+
+  const rowFlow = getRowFlow(row)
+  const rowOperationalType = getRowOperationalType(row)
+  if (rowFlow === 'operational_disbursement' && row.kind !== 'lain_lain') {
+    const kitchenName = refs.kitchens.find((item) => item.id === kitchenId)?.name
+    const exclusionReason = getMakerImportOperationalExclusionReason(kitchenName, rowOperationalType)
+    if (exclusionReason) return { status: 'excluded', reason: exclusionReason }
   }
 
   // Fixed Maker categories identify the intended account from the source line.
@@ -780,10 +789,9 @@ export function MakerImportPage() {
               </label>
               <label>
                 <span>Tanggal transaksi</span>
-                <input type="date" value={transactionDate} readOnly disabled={saving} aria-describedby="maker-import-date-help" />
+                <input type="date" value={transactionDate} readOnly disabled={saving} />
               </label>
             </div>
-            <p id="maker-import-date-help" className="maker-import-identity-help">Dapur dan tanggal harus mengikuti header teks Maker. Kalau salah, koreksi di Maker lalu tempel ulang.</p>
             {sourceIdentityMismatch ? <div className="maker-import-message is-error"><AlertTriangle aria-hidden="true" /> Header sumber ({sourceKitchenName}, {sourceDate}) tidak sama dengan dapur/tanggal terpilih. Batch tidak dapat disimpan; reset dan tempel output yang benar.</div> : null}
             <div className="maker-import-summary">
               <div><small>Total pencairan</small><strong>{rows.length}</strong></div>

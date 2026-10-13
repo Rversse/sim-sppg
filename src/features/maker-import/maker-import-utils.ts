@@ -378,3 +378,17 @@ export function parseMakerDocument(text: string): ParsedMakerDocument {
     error: null
   }
 }
+
+
+export function getMakerImportOperationalExclusionReason(
+  kitchenName: string | null | undefined,
+  operationalType: MakerOperationalType | null | undefined
+): string | null {
+  if (!operationalType || normalizeMakerText(kitchenName) !== 'campakamulya') {
+    return null
+  }
+
+  if (operationalType === 'sppg_rent') return null
+
+  return 'Untuk Campakamulya, hanya Sewa SPPG yang masuk laporan Pencairan Operasional. Jenis pencairan lain dibayarkan melalui rekening akuntan dan dikecualikan dari database program.'
+}

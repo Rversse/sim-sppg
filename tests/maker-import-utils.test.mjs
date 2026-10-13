@@ -3,7 +3,8 @@ import assert from 'node:assert/strict'
 import {
   parseMakerAmount,
   parseMakerDate,
-  parseMakerDocument
+  parseMakerDocument,
+  getMakerImportOperationalExclusionReason
 } from '../src/features/maker-import/maker-import-utils.ts'
 
 test('IDR amounts preserve scale and reject malformed separators', () => {
@@ -79,4 +80,28 @@ test('operational account mapping is resolved by recipient name and exact accoun
   assert.equal(matchesMakerOperationalAccount('Nama Berbeda', 'MANDIRI', '1820018916205', mapping), false)
   assert.equal(matchesMakerOperationalAccount('Yusgar Anggara Dinata', 'BRI', '1820018916205', mapping), false)
   assert.equal(matchesMakerOperationalAccount('Yusgar Anggara Dinata', 'MANDIRI', '999999', mapping), false)
+})
+
+
+test('Campakamulya Maker import only reports Sewa SPPG among operational disbursements', () => {
+  assert.equal(
+    getMakerImportOperationalExclusionReason('Campakamulya', 'sppg_rent'),
+    null
+  )
+  assert.match(
+    getMakerImportOperationalExclusionReason('Campakamulya', 'relawan_salary') ?? '',
+    /hanya Sewa SPPG yang masuk laporan/i
+  )
+  assert.match(
+    getMakerImportOperationalExclusionReason('Campakamulya', 'pic_incentive') ?? '',
+    /rekening akuntan/i
+  )
+  assert.match(
+    getMakerImportOperationalExclusionReason('Campakamulya', 'vehicle_rent') ?? '',
+    /dikecualikan dari database program/i
+  )
+  assert.equal(
+    getMakerImportOperationalExclusionReason('Cisepat', 'relawan_salary'),
+    null
+  )
 })
