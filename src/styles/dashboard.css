@@ -2183,6 +2183,30 @@
 }
 
 
+.dashboard-status-flags .status-flag-relawan-salary {
+  color: var(--flow-inactive);
+}
+
+.dashboard-status-flags .status-flag-relawan-salary.is-done {
+  color: var(--flow-pencairan-ops);
+}
+
+.dashboard-status-flags .status-flag-pic-incentive {
+  color: var(--flow-inactive);
+}
+
+.dashboard-status-flags .status-flag-pic-incentive.is-done {
+  color: #7c3aed;
+}
+
+.dashboard-status-flags span[aria-label='Gaji Relawan']::after {
+  content: 'Gaji Relawan';
+}
+
+.dashboard-status-flags span[aria-label='Insentif PIC']::after {
+  content: 'Insentif PIC';
+}
+
 .dashboard-status-flags .status-flag-sppg-rent {
   color: var(--flow-inactive);
 }

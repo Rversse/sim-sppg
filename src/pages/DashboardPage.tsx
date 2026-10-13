@@ -1,9 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 
 import {
+  BadgePercent,
   Building2,
   Landmark,
   Settings2,
+  Users,
   WalletCards
 } from 'lucide-react'
 
@@ -1764,6 +1766,26 @@ export function DashboardPage() {
                           >
                             <Settings2 aria-hidden="true" />
                           </span>
+                          {row.relawanSalaryAvailable ? (
+                            <span
+                              className={`status-flag-relawan-salary ${
+                                row.relawanSalary ? 'is-done' : ''
+                              }`}
+                              aria-label="Gaji Relawan"
+                            >
+                              <Users aria-hidden="true" />
+                            </span>
+                          ) : null}
+                          {row.picIncentiveAvailable ? (
+                            <span
+                              className={`status-flag-pic-incentive ${
+                                row.picIncentive ? 'is-done' : ''
+                              }`}
+                              aria-label="Insentif PIC"
+                            >
+                              <BadgePercent aria-hidden="true" />
+                            </span>
+                          ) : null}
                           {includeSppgRent ? (
                             <span
                               className={`status-flag-sppg-rent ${

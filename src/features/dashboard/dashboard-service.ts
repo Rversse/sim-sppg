@@ -2,6 +2,7 @@ import type { SupabaseClient } from '@supabase/supabase-js'
 
 import { supabase } from '@/lib/supabase'
 import { MANUAL_DISBURSEMENT_STATUS_START_DATE } from '@/lib/app-config'
+import { getAvailableOperationalTypes } from '@/features/transactions/operational-policy'
 
 export type DashboardFlow =
   | 'income'
@@ -456,6 +457,10 @@ export async function getDailyStatus(
     operational: boolean
     realOperational: boolean
     sppgRent: boolean
+    relawanSalaryAvailable: boolean
+    picIncentiveAvailable: boolean
+    relawanSalary: boolean
+    picIncentive: boolean
     hasTransactions: boolean
     canToggle: boolean
     disbursed: boolean
@@ -466,6 +471,7 @@ export async function getDailyStatus(
   const [
     { data, error },
     { data: incomeRows, error: incomeError },
+    { data: operationalRows, error: operationalError },
     { data: sppgRentRows, error: sppgRentError }
   ] = await Promise.all([
     client.rpc('get_dashboard_daily_status', {
@@ -482,6 +488,12 @@ export async function getDailyStatus(
         'ops_disbursement',
         'operational_disbursement'
       ]),
+    client
+      .from('transactions')
+      .select('kitchen_id, operational_type')
+      .eq('transaction_date', selectedDate)
+      .eq('flow_type', 'operational_disbursement')
+      .in('operational_type', ['relawan_salary', 'pic_incentive']),
     includeSppgRent
       ? client
           .from('transactions')
@@ -494,6 +506,7 @@ export async function getDailyStatus(
 
   if (error) throw error
   if (incomeError) throw incomeError
+  if (operationalError) throw operationalError
   if (sppgRentError) throw sppgRentError
 
   type DashboardDailyStatusRpcRow = {
@@ -510,6 +523,7 @@ export async function getDailyStatus(
   const typedData = (data ?? []) as DashboardDailyStatusRpcRow[]
   const disbursementTransactionCountByKitchen = new Map<string, number>()
   const sppgRentByKitchen = new Set<string>()
+  const operationalTypesByKitchen = new Map<string, Set<string>>()
 
   for (const row of incomeRows ?? []) {
     if (!row.kitchen_id) continue
@@ -524,6 +538,15 @@ export async function getDailyStatus(
     if (row.kitchen_id) {
       sppgRentByKitchen.add(row.kitchen_id)
     }
+  }
+
+  for (const row of operationalRows ?? []) {
+    if (!row.kitchen_id || !row.operational_type) continue
+
+    const operationalTypes =
+      operationalTypesByKitchen.get(row.kitchen_id) ?? new Set<string>()
+    operationalTypes.add(row.operational_type)
+    operationalTypesByKitchen.set(row.kitchen_id, operationalTypes)
   }
 
   let disbursed = 0
@@ -546,6 +569,22 @@ export async function getDailyStatus(
     const operational = Boolean(row.operational)
     const realOperational = Boolean(row.real_operational)
     const sppgRent = includeSppgRent && sppgRentByKitchen.has(row.kitchen_id)
+    const availableOperationalTypes = getAvailableOperationalTypes(
+      row.kitchen_name,
+      selectedDate
+    )
+    const recordedOperationalTypes =
+      operationalTypesByKitchen.get(row.kitchen_id)
+    const relawanSalaryAvailable =
+      availableOperationalTypes.includes('relawan_salary')
+    const picIncentiveAvailable =
+      availableOperationalTypes.includes('pic_incentive')
+    const relawanSalary =
+      relawanSalaryAvailable &&
+      Boolean(recordedOperationalTypes?.has('relawan_salary'))
+    const picIncentive =
+      picIncentiveAvailable &&
+      Boolean(recordedOperationalTypes?.has('pic_incentive'))
 
     // Status pencairan hanya digerakkan oleh Pencairan / RAB (income).
     const hasTransactions = income
@@ -574,6 +613,10 @@ export async function getDailyStatus(
       operational,
       realOperational,
       sppgRent,
+      relawanSalaryAvailable,
+      picIncentiveAvailable,
+      relawanSalary,
+      picIncentive,
       hasTransactions,
       canToggle: income && selectedDate >= cutoffDate,
       disbursed: rowDisbursed
