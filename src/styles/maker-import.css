@@ -210,6 +210,9 @@
   color: var(--theme-text-secondary);
   font-size: 10px;
   font-weight: 750;
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: .025em;
 }
 .maker-import-batch-grid input,
 .maker-import-batch-grid select,

@@ -262,7 +262,7 @@ function getExcludedBaselineValidation(
   kitchenId: string,
   transactionDate: string,
   refs: ImportReferences
-): { errors: string[]; confirmations: string[] } {
+): { errors: string[]; confirmations: string[]; account?: AccountRef; operationalRule?: OperationalAccountRule } {
   const errors: string[] = []
   if (!kitchenId || !refs.kitchens.some((item) => item.id === kitchenId)) errors.push('Pilih dapur yang terdaftar di database.')
   if (!transactionDate) errors.push('Tanggal transaksi belum valid.')
@@ -306,20 +306,31 @@ function getValidation(
         )
         .map((rule) => rule.account_id)
     )
-    matchedAccount = refs.accounts.find((account) => account.id === row.accountId)
 
-    if (!matchedAccount || !ruleAccountIds.has(row.accountId)) {
-      errors.push(
-        flow === 'income'
-          ? 'Rekening ini belum dimapping sebagai RAB/Pencairan untuk dapur terpilih.'
-          : 'Rekening ini belum dimapping sebagai GAS untuk dapur terpilih.'
+    if (flow === 'gas') {
+      // GAS uses the kitchen's single Koperasi Arutala BNI mapping; no manual dropdown.
+      const automaticMatches = refs.accounts.filter((account) =>
+        ruleAccountIds.has(account.id) && accountMatchesRow(account, row)
       )
-    } else if (!accountMatchesRow(matchedAccount, row)) {
-      errors.push('Bank/nomor rekening pada draft tidak sama dengan mapping database. Pilih ulang rekening yang benar.')
-    } else {
-      if (normalizeMakerText(getAccountLabel(matchedAccount)) !== normalizeMakerText(row.recipientName)) {
-        confirmations.push('Nama penerima berbeda dari nama rekening di database.')
+      matchedAccount = automaticMatches.length === 1 ? automaticMatches[0] : undefined
+      if (!matchedAccount) {
+        errors.push(automaticMatches.length === 0
+          ? 'Rekening GAS otomatis tidak cocok dengan mapping Koperasi Arutala — BNI untuk dapur ini.'
+          : 'Mapping GAS tidak tunggal untuk dapur ini. Periksa mapping Koperasi Arutala di database.')
       }
+    } else {
+      matchedAccount = refs.accounts.find((account) => account.id === row.accountId)
+      if (!matchedAccount || !ruleAccountIds.has(matchedAccount.id)) {
+        errors.push('Rekening ini belum dimapping sebagai RAB/Pencairan untuk dapur terpilih.')
+      }
+    }
+
+    if (matchedAccount && !accountMatchesRow(matchedAccount, row)) {
+      errors.push('Bank/nomor rekening pada draft tidak sama dengan mapping database. Periksa data sumber.')
+    } else if (matchedAccount &&
+      normalizeMakerText(getAccountLabel(matchedAccount)) !== normalizeMakerText(row.recipientName)
+    ) {
+      confirmations.push('Nama penerima berbeda dari nama rekening di database.')
     }
 
     if (flow === 'gas' && kitchen && ['sukaraja', 'cihaur'].includes(normalizeMakerText(kitchen.name))) {
@@ -369,7 +380,19 @@ function getValidation(
     ) {
       errors.push('Nama penerima tidak sama dengan pemilik rekening pada mapping operasional database. Baris ini tidak dapat diimpor.')
     }
-  } else if (flow === 'real_ops' || flow === 'ops_disbursement') {
+  } else if (flow === 'ops_disbursement') {
+    const opsMatches = refs.operationalRules.filter((rule) =>
+      rule.kitchen_id === kitchenId &&
+      rule.rule_type === 'ops_harian' &&
+      operationalRuleMatchesRow(rule, row)
+    )
+    matchedOperationalRule = opsMatches.length === 1 ? opsMatches[0] : undefined
+    if (!matchedOperationalRule) {
+      errors.push(opsMatches.length === 0
+        ? 'Mapping Ops Harian tidak cocok otomatis. Periksa nama penerima, bank, dan nomor rekening pada sumber Maker.'
+        : 'Mapping Ops Harian lebih dari satu. Periksa mapping aktif di database.')
+    }
+  } else if (flow === 'real_ops') {
     matchedOperationalRule = refs.operationalRules.find((rule) =>
       rule.id === row.operationalRuleId &&
       rule.kitchen_id === kitchenId &&
@@ -652,7 +675,7 @@ export function MakerImportPage() {
           flow_type: disposition.status === 'excluded' ? null : flow,
           category: disposition.status === 'excluded' ? null : flowInfo.category,
           operational_type: disposition.status === 'excluded' || !isOperational ? null : flowInfo.operational_type,
-          account_id: disposition.status === 'excluded' || (!isIncome && !isGas) ? null : row.accountId,
+          account_id: disposition.status === 'excluded' || (!isIncome && !isGas) ? null : isGas ? (validation.account?.id ?? null) : row.accountId,
           supplier_id: null,
           destination_label: disposition.status === 'excluded' || !isOpsDisbursement ? null : 'Akuntan ' + activeKitchen.name,
           maker_source_line: row.rawLine,
@@ -879,7 +902,7 @@ export function MakerImportPage() {
                       </div>
                     )}
 
-                    {(flow === 'income' || flow === 'gas') ? (
+                    {flow === 'income' ? (
                       <label className="maker-import-account-select">
                         <span>Rekening terhubung ke mapping dapur</span>
                         <select
@@ -895,9 +918,9 @@ export function MakerImportPage() {
                       </label>
                     ) : null}
 
-                    {(flow === 'operational_disbursement' || flow === 'real_ops' || flow === 'ops_disbursement') && !usesAutomaticRecipientMapping(row) ? (
+                    {(flow === 'operational_disbursement' || flow === 'real_ops') && !usesAutomaticRecipientMapping(row) ? (
                       <label className="maker-import-account-select">
-                        <span>{flow === 'real_ops' || flow === 'ops_disbursement' ? 'Mapping rekening Ops Harian database' : 'Mapping rekening operasional database'}</span>
+                        <span>{flow === 'real_ops' ? 'Mapping rekening Ops Harian database' : 'Mapping rekening operasional database'}</span>
                         <select
                           value={row.operationalRuleId}
                           onChange={(event) => chooseOperationalRule(row, event.target.value)}
