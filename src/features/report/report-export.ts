@@ -34,7 +34,7 @@ async function downloadWorkbook(workbook: ExcelJS.Workbook, filename: string) {
   anchor.download = filename
   anchor.click()
 
-  URL.revokeObjectURL(url)
+  window.setTimeout(() => URL.revokeObjectURL(url), 1000)
 }
 
 function setupWorksheet(worksheet: ExcelJS.Worksheet, landscape = true) {

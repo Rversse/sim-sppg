@@ -52,6 +52,7 @@ jobs:
             "dashboard"
             "bank"
             "reports"
+            "maker-import"
             "disbursement"
             "master/kitchen"
             "master/vehicle"
