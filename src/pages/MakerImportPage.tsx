@@ -144,7 +144,7 @@ function accountMatchesRow(
 }
 
 function usesAutomaticRecipientMapping(row: MakerImportDraftRow): boolean {
-  return ['sppg_rent', 'relawan_salary', 'pic_school', 'pic_posyandu'].includes(row.kind)
+  return ['sppg_rent', 'relawan_salary', 'pic_school', 'pic_posyandu', 'vehicle_rent'].includes(row.kind)
 }
 
 function operationalRuleMatchesRow(
@@ -210,7 +210,7 @@ function getRowDisposition(
 
   const rowFlow = getRowFlow(row)
   const rowOperationalType = getRowOperationalType(row)
-  if (rowFlow === 'operational_disbursement' && row.kind !== 'lain_lain') {
+  if (rowFlow === 'operational_disbursement') {
     const kitchenName = refs.kitchens.find((item) => item.id === kitchenId)?.name
     const exclusionReason = getMakerImportOperationalExclusionReason(kitchenName, rowOperationalType)
     if (exclusionReason) return { status: 'excluded', reason: exclusionReason }
@@ -227,12 +227,7 @@ function getRowDisposition(
       operationalRuleMatchesRow(rule, row)
     )
     if (matches.length === 1) return { status: 'import', reason: null }
-    return {
-      status: 'excluded',
-      reason: matches.length === 0
-        ? 'Mapping aktif berdasarkan nama penerima, bank, nomor rekening, dan jenis pencairan belum ditemukan. Baris tidak masuk database program; periksa mapping rekening untuk jenis transaksi ini.'
-        : 'Lebih dari satu mapping aktif cocok dengan nama penerima dan rekening untuk jenis pencairan ini. Baris tidak masuk database program sampai mapping duplikat dibereskan.'
-    }
+    return { status: 'import', reason: null }
   }
 
   const flow = getRowFlow(row)
@@ -244,17 +239,8 @@ function getRowDisposition(
   // Keep the PIC guard for manually classified Lain-lain rows only.
   const kitchen = refs.kitchens.find((item) => item.id === kitchenId)
   const expectedPic = kitchen?.operational_recipient_name?.trim() ?? ''
-  if (!expectedPic) {
-    return {
-      status: 'excluded',
-      reason: 'Nama PIC Yayasan belum terisi di master dapur. Tidak masuk database program; serahkan ke akuntan.'
-    }
-  }
-  if (normalizeMakerText(row.recipientName) !== normalizeMakerText(expectedPic)) {
-    return {
-      status: 'excluded',
-      reason: 'Nama penerima pada transaksi manual tidak sama dengan PIC Yayasan (' + expectedPic + '). Baris dikecualikan dari database program; serahkan ke akuntan.'
-    }
+  if (!expectedPic || normalizeMakerText(row.recipientName) !== normalizeMakerText(expectedPic)) {
+    return { status: 'import', reason: null }
   }
 
   const ruleType = getOperationalRuleType(row)
@@ -266,10 +252,7 @@ function getRowDisposition(
     normalizeMakerAccountNumber(rule.account_number) === normalizeMakerAccountNumber(row.accountNumber)
   )
   if (!matchingRule) {
-    return {
-      status: 'excluded',
-      reason: 'Bank/nomor rekening pada teks Maker tidak cocok dengan mapping rekening PIC Yayasan untuk transaksi manual ini. Baris dikecualikan dari database program; serahkan ke akuntan.'
-    }
+    return { status: 'import', reason: null }
   }
   return { status: 'import', reason: null }
 }
@@ -343,6 +326,15 @@ function getValidation(
       errors.push('GAS tidak tersedia untuk dapur Sukaraja dan Cihaur.')
     }
   } else if (flow === 'operational_disbursement') {
+    if (row.kind === 'lain_lain' && ['sppg_rent', 'relawan_salary', 'pic_incentive'].includes(operationalType)) {
+      const expectedPic = kitchen?.operational_recipient_name?.trim() ?? ''
+      if (!expectedPic) {
+        errors.push('Nama PIC Yayasan belum diisi di master dapur.')
+      } else if (normalizeMakerText(row.recipientName) !== normalizeMakerText(expectedPic)) {
+        errors.push('Nama penerima transaksi manual harus sama dengan PIC Yayasan (' + expectedPic + '). Koreksi sumber di Maker.')
+      }
+    }
+
     if (!operationalType) {
       errors.push('Pilih jenis pencairan operasional.')
     } else if (kitchen && !isOperationalTypeAvailable(kitchen.name, operationalType, transactionDate)) {
@@ -837,23 +829,24 @@ export function MakerImportPage() {
                   ? Boolean(expectedAccount && normalizeMakerText(getAccountLabel(expectedAccount)) !== normalizeMakerText(row.recipientName))
                   : Boolean(expectedOperational && normalizeMakerText(expectedOperational.owner_name) !== normalizeMakerText(row.recipientName))
                 const manualRequired = row.kind === 'lain_lain' || hasNameMismatch
-                const rowInvalid = disposition.status === 'import' && (validation.errors.length > 0 ||
+                const rowBlocked = disposition.status === 'excluded'
+                const rowInvalid = !rowBlocked && (validation.errors.length > 0 ||
                   (validation.confirmations.length > 0 && !row.verified) ||
                   !flowInfo.flow_type || !flowInfo.category)
                 const title = row.sourceCategory === 'Lain-lain' ? 'Lain-lain • verifikasi manual' : row.sourceCategory
 
                 return (
-                  <article className={'maker-import-row' + (disposition.status === 'excluded' ? ' is-excluded' : rowInvalid ? ' is-invalid' : ' is-valid')} key={row.id}>
+                  <article className={'maker-import-row' + (rowBlocked ? ' is-blocked' : rowInvalid ? ' is-invalid' : ' is-valid')} key={row.id}>
                     <div className="maker-import-row-head">
                       <div>
                         <span className="maker-import-row-number">BARIS {row.lineNumber}</span>
                         <h4>{title}</h4>
                       </div>
-                      <span className={'maker-import-row-status' + (disposition.status === 'excluded' ? ' is-excluded' : rowInvalid ? ' is-invalid' : ' is-valid')}>
-                        {disposition.status === 'excluded' ? <><ShieldAlert aria-hidden="true" /> Di luar database program</> : rowInvalid ? <><AlertTriangle aria-hidden="true" /> Perlu ditinjau</> : <><CheckCircle2 aria-hidden="true" /> Valid</>}
+                      <span className={'maker-import-row-status' + (rowBlocked ? ' is-blocked' : rowInvalid ? ' is-invalid' : ' is-valid')}>
+                        {rowBlocked ? <><ShieldAlert aria-hidden="true" /> Diblok — tidak masuk program</> : rowInvalid ? <><AlertTriangle aria-hidden="true" /> Perlu koreksi</> : <><CheckCircle2 aria-hidden="true" /> Valid</>}
                       </span>
                     </div>
-                    {disposition.status === 'excluded' && disposition.reason ? <div className="maker-import-excluded-reason"><ShieldAlert aria-hidden="true" /><span>{disposition.reason}</span></div> : null}
+                    {rowBlocked && disposition.reason ? <div className="maker-import-excluded-reason is-blocked"><ShieldAlert aria-hidden="true" /><span>{disposition.reason}</span></div> : null}
 
                     {row.kind === 'lain_lain' ? (
                       <div className="maker-import-fields maker-import-fields--manual">
@@ -934,7 +927,7 @@ export function MakerImportPage() {
                         <input value={row.accountNumber} readOnly title="Data sumber. Koreksi di Maker lalu tempel ulang." disabled={saving} />
                       </label>
                       <label>
-                        <span>Nominal (integer sesuai database)</span>
+                        <span>Nominal</span>
                         <input inputMode="numeric" value={formatAmount(row.amount)} readOnly title="Nominal harus sesuai teks asli Maker. Koreksi di Maker lalu tempel ulang." disabled={saving} />
                       </label>
 {row.details.trim() ? (
