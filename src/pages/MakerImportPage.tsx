@@ -848,7 +848,7 @@ export function MakerImportPage() {
                 const hasNameMismatch = flow === 'income' || flow === 'gas'
                   ? Boolean(expectedAccount && normalizeMakerText(getAccountLabel(expectedAccount)) !== normalizeMakerText(row.recipientName))
                   : Boolean(expectedOperational && normalizeMakerText(expectedOperational.owner_name) !== normalizeMakerText(row.recipientName))
-                const manualRequired = row.kind === 'lain_lain' || hasNameMismatch
+                const manualRequired = row.kind === 'lain_lain' || hasNameMismatch || validation.confirmations.length > 0
                 const rowBlocked = disposition.status === 'excluded'
                 const rowInvalid = !rowBlocked && (validation.errors.length > 0 ||
                   (validation.confirmations.length > 0 && !row.verified) ||
