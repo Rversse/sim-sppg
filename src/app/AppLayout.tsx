@@ -6,6 +6,7 @@ import {
   Car,
   ChefHat,
   FileText,
+  ClipboardPaste,
   LayoutDashboard,
   LogOut,
   type LucideIcon
@@ -73,6 +74,13 @@ const navigationSections: NavigationSection[] = [
         permission: 'bank.view',
         icon: ArrowLeftRight,
         pageTitle: 'Transaksi Bank'
+      },
+      {
+        label: 'Impor Maker',
+        to: '/maker-import',
+        permission: 'maker-import.view',
+        icon: ClipboardPaste,
+        pageTitle: 'Impor Maker-Pencairan'
       },
     ]
   },
