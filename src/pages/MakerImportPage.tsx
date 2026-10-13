@@ -373,7 +373,7 @@ function effectiveDatabaseFlow(row: MakerImportDraftRow): {
     return {
       flow_type: 'operational_disbursement',
       category: 'OPERATIONAL',
-      operational_type: getRowOperationalType(row)
+      operational_type: getRowOperationalType(row) || null
     }
   }
   return { flow_type: null, category: null, operational_type: null }
