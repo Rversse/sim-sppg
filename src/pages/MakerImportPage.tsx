@@ -389,11 +389,14 @@ function effectiveDatabaseFlow(row: MakerImportDraftRow): {
   if (flow === 'real_ops') {
     return { flow_type: 'real_ops', category: 'REAL_OPS', operational_type: null }
   }
-  if (flow === 'operational_disbursement' && getRowOperationalType(row)) {
-    return {
-      flow_type: 'operational_disbursement',
-      category: 'OPERATIONAL',
-      operational_type: getRowOperationalType(row)
+  if (flow === 'operational_disbursement') {
+    const operationalType = getRowOperationalType(row)
+    if (operationalType) {
+      return {
+        flow_type: 'operational_disbursement',
+        category: 'OPERATIONAL',
+        operational_type: operationalType
+      }
     }
   }
   return { flow_type: null, category: null, operational_type: null }
@@ -739,7 +742,7 @@ export function MakerImportPage() {
             <div className="maker-import-batch-grid">
               <label>
                 <span>Dapur</span>
-                <select value={kitchenId} onChange={(event) => handleKitchenChange(event.target.value)} disabled={saving || (Boolean(activeKitchen) && normalizeMakerText(activeKitchen.name) === normalizeMakerText(sourceKitchenName))}>
+                <select value={kitchenId} onChange={(event) => handleKitchenChange(event.target.value)} disabled={saving || (activeKitchen !== undefined && normalizeMakerText(activeKitchen.name) === normalizeMakerText(sourceKitchenName))}>
                   <option value="">Pilih dapur sesuai database</option>
                   {availableKitchens.map((kitchen) => (
                     <option key={kitchen.id} value={kitchen.id}>{kitchen.name}</option>
