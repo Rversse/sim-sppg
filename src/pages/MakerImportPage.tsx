@@ -704,7 +704,6 @@ export function MakerImportPage() {
         <div>
           <span className="maker-import-eyebrow">ENCODER → DECODER</span>
           <h2>Impor dari Maker-Pencairan</h2>
-          <p>Tempel teks WhatsApp Maker, cocokkan mapping database, tinjau dan koreksi draft, baru simpan transaksi.</p>
         </div>
       </div>
 
@@ -715,7 +714,7 @@ export function MakerImportPage() {
         <div className="maker-import-panel-head">
           <div>
             <span>LANGKAH 1</span>
-            <h3>Tempel output Maker-Pencairan</h3>
+            <h3>Input Data</h3>
           </div>
           <button
             type="button"
@@ -742,12 +741,11 @@ export function MakerImportPage() {
             setSaveError('')
             setSuccessMessage('')
           }}
-          placeholder={'Cisepat, 05-Oct-2026\nRAB : CV KRAMAT - BNI / 1908102325 · Beras · 241.000\nGAS : KOPERASI ARUTALA - BNI / 1985322260 · 124.000'}
+          placeholder="Paste data disini..."
           spellCheck={false}
           disabled={loadingRefs || saving}
         />
         <div className="maker-import-source-footer">
-          <span>Format nominal mengikuti integer database: <strong>241</strong> tetap 241; <strong>241.000</strong> menjadi 241.000.</span>
           <button
             type="button"
             className="maker-import-primary"
@@ -788,8 +786,8 @@ export function MakerImportPage() {
             <p id="maker-import-date-help" className="maker-import-identity-help">Dapur dan tanggal harus mengikuti header teks Maker. Kalau salah, koreksi di Maker lalu tempel ulang.</p>
             {sourceIdentityMismatch ? <div className="maker-import-message is-error"><AlertTriangle aria-hidden="true" /> Header sumber ({sourceKitchenName}, {sourceDate}) tidak sama dengan dapur/tanggal terpilih. Batch tidak dapat disimpan; reset dan tempel output yang benar.</div> : null}
             <div className="maker-import-summary">
-              <div><small>Baris total</small><strong>{rows.length}</strong></div>
-              <div><small>Masuk program</small><strong>{importableChecks.length}</strong><small>Rp {formatAmount(importableAmount)}</small></div>
+              <div><small>Total pencairan</small><strong>{rows.length}</strong></div>
+              <div><small>Pencairan masuk</small><strong>{importableChecks.length}</strong><small>Rp {formatAmount(importableAmount)}</small></div>
               <div className={excludedChecks.length > 0 ? 'is-attention' : 'is-ready'}><small>Dikecualikan</small><strong>{excludedChecks.length}</strong><small>Rp {formatAmount(excludedAmount)}</small></div>
               <div className={blockingCount > 0 ? 'is-attention' : 'is-ready'}><small>Status validasi</small><strong>{blockingCount > 0 ? blockingCount + ' perlu koreksi' : 'Siap disimpan'}</strong></div>
             </div>
@@ -801,7 +799,6 @@ export function MakerImportPage() {
                 <span>LANGKAH 3</span>
                 <h3>Verifikasi tiap transaksi</h3>
               </div>
-              <p>Sewa SPPG, Gaji Relawan, dan insentif PIC dipetakan otomatis dari nama penerima, bank, nomor rekening, dan jenis transaksi. Baris Lain-lain tetap memerlukan klasifikasi serta verifikasi manual.</p>
             </div>
             <div className="maker-import-row-list">
               {checks.map(({ row, validation, flowInfo, disposition }) => {
@@ -848,7 +845,6 @@ export function MakerImportPage() {
                         {disposition.status === 'excluded' ? <><ShieldAlert aria-hidden="true" /> Di luar database program</> : rowInvalid ? <><AlertTriangle aria-hidden="true" /> Perlu ditinjau</> : <><CheckCircle2 aria-hidden="true" /> Valid</>}
                       </span>
                     </div>
-                    <p className="maker-import-original"><strong>Teks asli:</strong> {row.rawLine}</p>
                     {disposition.status === 'excluded' && disposition.reason ? <div className="maker-import-excluded-reason"><ShieldAlert aria-hidden="true" /><span>{disposition.reason}</span></div> : null}
 
                     {row.kind === 'lain_lain' ? (
@@ -878,7 +874,7 @@ export function MakerImportPage() {
                       </div>
                     ) : (
                       <div className="maker-import-readonly-kind">
-                        Jenis transaksi terdeteksi: <strong>{row.kind === 'combined_payroll' ? 'Payroll gabungan — wajib dikecualikan karena satu nominal mencakup beberapa jenis' : flow === 'income' ? 'RAB / Pencairan' : flow === 'gas' ? 'GAS' : flow === 'ops_disbursement' ? 'OPS / Pencairan' : flow === 'real_ops' ? 'Realisasi Ops' : 'Pencairan Operasional — ' + operationalTypeLabel(row.operationalType || defaultOperationalType(row.kind))}</strong>
+                        Jenis transaksi: <strong>{row.kind === 'combined_payroll' ? 'Payroll gabungan — wajib dikecualikan karena satu nominal mencakup beberapa jenis' : flow === 'income' ? 'RAB / Pencairan' : flow === 'gas' ? 'GAS' : flow === 'ops_disbursement' ? 'OPS / Pencairan' : flow === 'real_ops' ? 'Realisasi Ops' : 'Pencairan Operasional — ' + operationalTypeLabel(row.operationalType || defaultOperationalType(row.kind))}</strong>
                       </div>
                     )}
 
@@ -933,10 +929,12 @@ export function MakerImportPage() {
                         <span>Nominal (integer sesuai database)</span>
                         <input inputMode="numeric" value={formatAmount(row.amount)} readOnly title="Nominal harus sesuai teks asli Maker. Koreksi di Maker lalu tempel ulang." disabled={saving} />
                       </label>
+{row.details.trim() ? (
                       <label className="maker-import-detail-field">
                         <span>Detail / produk / periode / keperluan</span>
                         <input value={row.details} readOnly title="Detail dari output Maker. Koreksi di Maker lalu tempel ulang." disabled={saving} />
                       </label>
+                    ) : null}
                     </div>
 
                     {validation.errors.length > 0 || validation.confirmations.length > 0 ? (
