@@ -19,6 +19,7 @@ const {
   SupplierPage,
   BankPage,
   ReportsPage,
+  MakerImportPage,
   DefaultRoute
 } = lazyPages
 const pageFallback = createElement(
@@ -86,6 +87,10 @@ export const router = createBrowserRouter(
             {
               element: <RoleRoute permission="reports.view" />,
               children: [{ path: 'reports', element: pageElement(ReportsPage) }]
+            },
+            {
+              element: <RoleRoute permission="maker-import.view" />,
+              children: [{ path: 'maker-import', element: pageElement(MakerImportPage) }]
             },
           ]
         }
