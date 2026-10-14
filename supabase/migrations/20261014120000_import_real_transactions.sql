@@ -189,6 +189,13 @@ begin
     end if;
 
     if v_disposition = 'import' then
+      -- Serialize the same-source transaction identity across different documents.
+      -- Cianjur and Cidaun intentionally use separate locks so their purchases can stay separate.
+      perform pg_advisory_xact_lock(hashtext(
+        p_source_type || ':' || p_transaction_date::text || ':' ||
+        v_kitchen_id::text || ':' || v_supplier_id::text || ':' || v_amount::text
+      )::bigint);
+
       -- Refuse matching transactions already present, except a matching row
       -- explicitly audited as the other source (Cianjur vs Cidaun).
       if exists (
