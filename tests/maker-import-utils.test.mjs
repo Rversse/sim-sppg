@@ -23,7 +23,10 @@ test('Maker dates accept valid abbreviated months and reject impossible dates', 
   assert.equal(parseMakerDate('29-Feb-2024'), '2024-02-29')
   assert.equal(parseMakerDate('29-Feb-2025'), null)
   assert.equal(parseMakerDate('32-Oct-2026'), null)
-  assert.equal(parseMakerDate('05-Okt-2026'), null)
+  assert.equal(parseMakerDate('05-Okt-2026'), '2026-10-05')
+  assert.equal(parseMakerDate('05-Mei-2026'), '2026-05-05')
+  assert.equal(parseMakerDate('05-Agu-2026'), '2026-08-05')
+  assert.equal(parseMakerDate('05-Des-2026'), '2026-12-05')
 })
 
 test('Maker parser classifies common output and retains the exact integer amount', () => {
