@@ -34,6 +34,30 @@ test('RAB Real parser reads Cianjur numeric date and kitchen aliases', () => {
   assert.deepEqual(parsed.rows.slice(-2).map((row) => row.kitchenName), ['Sukaraharja', 'Sukaraharja'])
 })
 
+test('Cianjur parser ignores daily expense title even with common typo', () => {
+  const parsed = parseRealImportDocument('cianjur', [
+    'Belanaja Harian Rabu 14/10/2026',
+    '',
+    'Ereng           18.836.000',
+    'Warbit          23.247.500',
+    'Bunder          26.037.500',
+    'Cipetir         17.256.500',
+    'Cimanggu        16.678.000',
+    'Camul           11.240.000',
+    'Cikondang       11.528.300',
+    'Sukaraharja      3.960.000'
+  ].join('\\n'))
+
+  assert.equal(parsed.error, null)
+  assert.equal(parsed.transactionDate, '2026-10-14')
+  assert.equal(parsed.rows.length, 8)
+  assert.equal(parsed.warnings.length, 0)
+  assert.deepEqual(parsed.rows.map((row) => row.kitchenName), [
+    'Cihaur', 'Warungbitung', 'Cibaregbeg', 'Cipetir',
+    'Cimanggu', 'Campakamulya', 'Cikondang', 'Sukaraharja'
+  ])
+})
+
 test('RAB Real parser reads Cidaun Indonesian long month and source total', () => {
   const source = [
     "Assalamu'alaikum pak Haji punten tagihan dinten minggu kangge dinten senin kaping 12 oktober  2026",
