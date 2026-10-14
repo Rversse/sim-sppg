@@ -608,7 +608,12 @@ export async function getOverallReport(
       dailyRow.realOperational += amount
     } else if (
       transaction.flow_type === 'operational_disbursement' &&
-      transaction.operational_type === 'sppg_rent'
+      transaction.operational_type === 'sppg_rent' &&
+      isOperationalMappingEnabled(
+        rulesByKitchen,
+        transaction.kitchen_id,
+        transaction.operational_type
+      )
     ) {
       dailyRow.sppgRent += amount
     }
