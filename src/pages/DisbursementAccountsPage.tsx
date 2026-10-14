@@ -373,51 +373,50 @@ export function DisbursementAccountsPage() {
 
   return (
     <main className="disbursement-accounts-page">
-      <header className="disbursement-accounts-header">
-        <div className="disbursement-accounts-heading">
-          <span className="disbursement-accounts-heading-icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none">
-              <rect x="3" y="6" width="18" height="14" rx="3" stroke="currentColor" strokeWidth="1.7" />
-              <path d="M3.5 10h17M7 6V4.5A1.5 1.5 0 0 1 8.5 3h10" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
-              <circle cx="16.5" cy="15" r="1.2" fill="currentColor" />
-            </svg>
-          </span>
-          <div>
-            <h1>Data Rekening</h1>
-            <p>Satu sumber mapping rekening yang dibaca Maker-Pencairan dan SIM-SPPG.</p>
-          </div>
-        </div>
-        <div className="disbursement-header-actions">
-          <label className="disbursement-kitchen-picker">
-            <span>Dapur</span>
-            <select
-              value={selectedKitchenId}
-              onChange={(event) => setSelectedKitchenId(event.target.value)}
-              disabled={loading || kitchens.length === 0}
-            >
-              {kitchens.map((kitchen) => (
-                <option key={kitchen.id} value={kitchen.id}>
-                  {kitchen.name}{kitchen.is_active ? '' : ' — Nonaktif'}
-                </option>
-              ))}
-            </select>
-          </label>
-          <button
-            type="button"
-            className="app-action-button app-action-button--secondary"
-            onClick={() => {
-              const nextOpen = !addMappingOpen
-              setAddMappingOpen(nextOpen)
-              setAddingKitchenId(selectedKitchenId)
-              setAddingRuleType('')
-            }}
+      <section className="disbursement-toolbar-grid" aria-label="Pengaturan dapur">
+        <label className="disbursement-kitchen-picker">
+          <span>DAPUR</span>
+          <select
+            value={selectedKitchenId}
+            onChange={(event) => setSelectedKitchenId(event.target.value)}
             disabled={loading || kitchens.length === 0}
           >
-            {addMappingOpen ? <X aria-hidden="true" /> : <Plus aria-hidden="true" />}
-            <span>{addMappingOpen ? 'Tutup' : 'Tambah Mapping'}</span>
-          </button>
+            {kitchens.map((kitchen) => (
+              <option key={kitchen.id} value={kitchen.id}>
+                {kitchen.name}{kitchen.is_active ? '' : ' — Nonaktif'}
+              </option>
+            ))}
+          </select>
+        </label>
+        <div className="disbursement-status-field">
+          <span>STATUS DAPUR</span>
+          {selectedKitchen ? (
+            <div className="disbursement-status-control">
+              <span
+                className={'disbursement-status-dot ' + (selectedKitchen.is_active ? 'is-allowed' : 'is-blocked')}
+                aria-hidden="true"
+              />
+              <strong>{selectedKitchen.is_active ? 'Aktif' : 'Nonaktif'}</strong>
+            </div>
+          ) : (
+            <div className="disbursement-status-control is-empty">—</div>
+          )}
         </div>
-      </header>
+        <button
+          type="button"
+          className="app-action-button app-action-button--secondary disbursement-add-mapping-button"
+          onClick={() => {
+            const nextOpen = !addMappingOpen
+            setAddMappingOpen(nextOpen)
+            setAddingKitchenId(selectedKitchenId)
+            setAddingRuleType('')
+          }}
+          disabled={loading || kitchens.length === 0}
+        >
+          {addMappingOpen ? <X aria-hidden="true" /> : <Plus aria-hidden="true" />}
+          <span>{addMappingOpen ? 'Tutup' : 'Tambah Mapping'}</span>
+        </button>
+      </section>
 
       {error ? <div className="disbursement-page-error">{error}</div> : null}
 
@@ -491,36 +490,31 @@ export function DisbursementAccountsPage() {
         <div className="disbursement-empty-state">Belum ada data dapur.</div>
       ) : (
         <>
-          <div className="disbursement-kitchen-status">
-            <span>Status dapur</span>
-            <strong className={selectedKitchen.is_active ? 'is-active' : 'is-inactive'}>
-              {selectedKitchen.is_active ? 'Aktif' : 'Nonaktif'}
-            </strong>
-            <small>{selectedKitchen.is_active ? 'Dapur ini tersedia di Maker-Pencairan.' : 'Dapur ini tidak ditawarkan untuk transaksi baru di Maker-Pencairan.'}</small>
-          </div>
 
-          <section className="disbursement-global-card">
-            <div>
-              <h2>Sewa Kendaraan</h2>
-            </div>
-            {vehicleReference ? (
-              <div className="disbursement-fixed-account">
-                <strong>{vehicleReference.owner_name}</strong>
-                <span>{vehicleReference.bank} · {vehicleReference.account_number}</span>
-                {!vehicleConsistent ? (
-                  <small className="is-warning">Perhatian: rekening Sewa Kendaraan berbeda antar-dapur. Samakan sebelum digunakan.</small>
-                ) : null}
-              </div>
-            ) : (
-              <div className="disbursement-page-error">Mapping rekening Sewa Kendaraan belum tersedia.</div>
-            )}
-          </section>
+
+
 
           <div className="disbursement-accounts-intro">
             <h2>Mapping untuk {selectedKitchen.name}</h2>
           </div>
 
           <div className="disbursement-mapping-groups">
+            <section className="disbursement-mapping-group disbursement-vehicle-group">
+              <header>
+                <h3>SEWA KENDARAAN</h3>
+              </header>
+              {vehicleReference ? (
+                <div className="disbursement-fixed-account">
+                  <strong>{vehicleReference.owner_name}</strong>
+                  <span>{vehicleReference.bank} · {vehicleReference.account_number}</span>
+                  {!vehicleConsistent ? (
+                    <small className="is-warning">Rekening Sewa Kendaraan berbeda antar-dapur. Samakan sebelum digunakan.</small>
+                  ) : null}
+                </div>
+              ) : (
+                <div className="disbursement-page-error">Mapping rekening Sewa Kendaraan belum tersedia.</div>
+              )}
+            </section>
             {RULE_GROUPS.map((group) => (
               <section className="disbursement-mapping-group" key={group.id}>
                 <header>
