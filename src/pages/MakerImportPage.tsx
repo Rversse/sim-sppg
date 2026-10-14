@@ -453,6 +453,7 @@ export function MakerImportPage() {
   const [confirmOpen, setConfirmOpen] = useState(false)
   const [checkingDuplicates, setCheckingDuplicates] = useState(false)
   const [duplicateRows, setDuplicateRows] = useState<Record<string, string>>({})
+  const [duplicateBatch, setDuplicateBatch] = useState(false)
   const [duplicateBatchMessage, setDuplicateBatchMessage] = useState('')
   const [duplicateCheckError, setDuplicateCheckError] = useState('')
 
