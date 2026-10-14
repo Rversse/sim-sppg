@@ -22,7 +22,8 @@ const pageLoaders = {
   '/master/supplier': () => import('@/pages/SupplierPage'),
   '/bank': () => import('@/pages/BankPage'),
   '/reports': () => import('@/pages/ReportsPage'),
-  '/maker-import': () => import('@/pages/MakerImportPage')
+  '/maker-import': () => import('@/pages/MakerImportPage'),
+  '/real-import': () => import('@/pages/RealImportPage')
 } as const
 
 type AppRoutePath = keyof typeof pageLoaders
@@ -59,5 +60,6 @@ export const lazyPages = {
   BankPage: lazyNamed(() => import('@/pages/BankPage'), 'BankPage'),
   ReportsPage: lazyNamed(() => import('@/pages/ReportsPage'), 'ReportsPage'),
   MakerImportPage: lazyNamed(() => import('@/pages/MakerImportPage'), 'MakerImportPage'),
+  RealImportPage: lazyNamed(() => import('@/pages/RealImportPage'), 'RealImportPage'),
   DefaultRoute: lazyNamed(() => import('@/pages/DefaultRoute'), 'DefaultRoute')
 } as const

@@ -7,6 +7,7 @@ import {
   ChefHat,
   FileText,
   ClipboardPaste,
+  FileSpreadsheet,
   LayoutDashboard,
   Landmark,
   LogOut,
@@ -89,6 +90,13 @@ const navigationSections: NavigationSection[] = [
         permission: 'maker-import.view',
         icon: ClipboardPaste,
         pageTitle: 'Import Maker'
+      },
+      {
+        label: 'Import RAB / Real',
+        to: '/real-import',
+        permission: 'real-import.view',
+        icon: FileSpreadsheet,
+        pageTitle: 'Import RAB / Real'
       },
     ]
   },

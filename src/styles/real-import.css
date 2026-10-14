@@ -1,0 +1,242 @@
+.real-import-page {
+  display: grid;
+  min-width: 0;
+  gap: 16px;
+  padding-bottom: 32px;
+}
+
+.real-import-source-panel {
+  position: sticky;
+  top: 10px;
+  z-index: 22;
+  align-self: start;
+  border-color: color-mix(in srgb, var(--theme-primary) 24%, var(--theme-border));
+  background: var(--theme-surface);
+  box-shadow: 0 16px 38px color-mix(in srgb, var(--theme-text) 9%, transparent), var(--theme-shadow-card);
+}
+
+.real-import-source-tools {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(260px, 0.8fr);
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.real-import-source-tools > label,
+.real-import-fixed-supplier {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+}
+.real-import-source-tools label > span,
+.real-import-fixed-supplier > span {
+  color: var(--theme-text-secondary);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: .025em;
+}
+.real-import-source-tools select {
+  width: 100%;
+  min-width: 0;
+  min-height: 40px;
+  padding: 0 12px;
+  border: 1px solid var(--theme-border-strong);
+  border-radius: 10px;
+  background: var(--theme-surface-raised);
+  color: var(--theme-text-primary);
+  font: inherit;
+  font-size: 12px;
+}
+.real-import-fixed-supplier {
+  padding: 10px 12px;
+  border: 1px solid var(--theme-border);
+  border-radius: 10px;
+  background: var(--theme-surface-soft);
+}
+.real-import-fixed-supplier strong {
+  color: var(--theme-text-primary);
+  font-size: 13px;
+  font-weight: 900;
+}
+.real-import-fixed-supplier small {
+  color: var(--theme-text-muted);
+  font-size: 10px;
+  line-height: 1.45;
+}
+
+.real-import-summary {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 9px;
+  margin: 2px 0 14px;
+}
+.real-import-summary > div {
+  display: grid;
+  min-width: 0;
+  gap: 5px;
+  padding: 12px;
+  border: 1px solid var(--theme-border);
+  border-radius: 11px;
+  background: var(--theme-surface-soft);
+}
+.real-import-summary span {
+  color: var(--theme-text-muted);
+  font-size: 10px;
+  font-weight: 750;
+}
+.real-import-summary strong {
+  color: var(--theme-text-primary);
+  font-size: 15px;
+  font-weight: 900;
+  overflow-wrap: anywhere;
+  font-variant-numeric: tabular-nums;
+}
+.real-import-summary small {
+  color: var(--theme-text-secondary);
+  font-size: 10px;
+  overflow-wrap: anywhere;
+}
+
+.real-import-rows {
+  display: grid;
+  gap: 11px;
+  min-width: 0;
+}
+.real-import-row {
+  min-width: 0;
+  padding: 14px;
+  border: 1px solid var(--theme-border);
+  border-left: 3px solid var(--theme-success);
+  border-radius: 12px;
+  background: var(--theme-surface-raised);
+}
+.real-import-row.is-duplicate {
+  border-left-color: var(--theme-danger);
+}
+.real-import-row.is-excluded {
+  border-left-color: var(--theme-text-muted);
+  opacity: .85;
+}
+.real-import-row-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.real-import-row-head > div { min-width: 0; }
+.real-import-row-head > div > span {
+  color: var(--theme-text-muted);
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: .075em;
+}
+.real-import-row-head h4 {
+  margin: 3px 0 4px;
+  color: var(--theme-text-primary);
+  font-size: 14px;
+  font-weight: 900;
+}
+.real-import-row-head p {
+  margin: 0;
+  color: var(--theme-text-muted);
+  font-size: 10px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.real-import-status {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 8px;
+  border-radius: 8px;
+  font-size: 10px;
+  font-weight: 850;
+}
+.real-import-status svg { width: 13px; height: 13px; }
+.real-import-status.is-ok { background: var(--theme-success-soft); color: var(--theme-success); }
+.real-import-status.is-error { background: var(--theme-danger-soft); color: var(--theme-danger); }
+.real-import-status.is-muted { background: var(--theme-surface-soft); color: var(--theme-text-muted); }
+
+.real-import-row-fields {
+  display: grid;
+  grid-template-columns: minmax(180px, .85fr) minmax(180px, .75fr) minmax(220px, 1fr);
+  gap: 10px;
+}
+.real-import-row-fields label {
+  display: grid;
+  min-width: 0;
+  gap: 6px;
+}
+.real-import-row-fields label > span {
+  color: var(--theme-text-secondary);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .035em;
+}
+.real-import-row-fields input,
+.real-import-row-fields select {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  height: 39px;
+  padding: 0 10px;
+  border: 1px solid var(--theme-border-strong);
+  border-radius: 9px;
+  background: var(--theme-surface);
+  color: var(--theme-text-primary);
+  font: inherit;
+  font-size: 12px;
+}
+.real-import-row-fields input { font-variant-numeric: tabular-nums; }
+
+.real-import-duplicate-warning {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin-top: 11px;
+  padding: 10px;
+  border: 1px solid color-mix(in srgb, var(--theme-danger) 28%, var(--theme-border));
+  border-radius: 9px;
+  background: var(--theme-danger-soft);
+  color: var(--theme-text-secondary);
+}
+.real-import-duplicate-warning > svg {
+  width: 15px;
+  height: 15px;
+  flex: 0 0 15px;
+  margin-top: 1px;
+  color: var(--theme-danger);
+}
+.real-import-duplicate-warning p { flex: 1; margin: 0; font-size: 11px; line-height: 1.45; }
+.real-import-duplicate-warning button {
+  flex: 0 0 auto;
+  padding: 6px 9px;
+  border: 1px solid var(--theme-border-strong);
+  border-radius: 8px;
+  background: var(--theme-surface);
+  color: var(--theme-text-primary);
+  font: inherit;
+  font-size: 10px;
+  font-weight: 800;
+  cursor: pointer;
+}
+.real-import-duplicate-warning button:hover { border-color: var(--theme-primary); }
+
+@media (max-width: 900px) {
+  .real-import-source-panel { position: static; }
+  .real-import-summary { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .real-import-row-fields { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .real-import-note { grid-column: 1 / -1; }
+}
+@media (max-width: 620px) {
+  .real-import-source-tools,
+  .real-import-summary,
+  .real-import-row-fields { grid-template-columns: minmax(0, 1fr); }
+  .real-import-note { grid-column: 1; }
+  .real-import-row { padding: 11px; }
+  .real-import-row-head { flex-direction: column; }
+  .real-import-duplicate-warning { flex-wrap: wrap; }
+  .real-import-duplicate-warning button { width: 100%; }
+}
