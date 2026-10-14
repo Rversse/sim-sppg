@@ -103,7 +103,7 @@ begin
     raise exception using errcode = '42501', message = 'Hanya Admin yang boleh mengimpor RAB / Real.';
   end if;
 
-  if p_source_type not in ('cianjur','cidaun') then
+  if p_source_type is null or p_source_type not in ('cianjur','cidaun') then
     raise exception 'Sumber laporan tidak dikenali.';
   end if;
   if p_content_hash is null or p_content_hash !~ '^[a-f0-9]{64}$' then
@@ -112,7 +112,10 @@ begin
   if p_transaction_date is null or nullif(btrim(p_source_text),'') is null then
     raise exception 'Tanggal dan teks sumber wajib diisi.';
   end if;
-  if jsonb_typeof(p_rows) <> 'array' or jsonb_array_length(p_rows) = 0 then
+  if p_rows is null or jsonb_typeof(p_rows) is distinct from 'array' then
+    raise exception 'Format baris impor tidak valid.';
+  end if;
+  if jsonb_array_length(p_rows) = 0 then
     raise exception 'Tidak ada baris transaksi untuk disimpan.';
   end if;
 
