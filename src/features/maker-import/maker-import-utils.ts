@@ -234,14 +234,22 @@ function makeRow(
     return {
       ...unrecognized,
       sourceCategory: kind === 'lain_lain' ? 'Lain-lain' : label,
-      details: body.trim() || line
+      details: kind === 'gas'
+        ? 'Gas'
+        : kind === 'ops_harian'
+          ? 'Ops Harian'
+          : body.trim() || line
     }
   }
 
   const details =
     kind === 'vehicle_rent'
       ? 'Jenis kendaraan: ' + (vehicleMatch?.[1] ?? '—') + ' · Periode sewa: ' + (vehicleMatch?.[2] ?? '')
-      : parsed.details
+      : kind === 'gas'
+        ? 'Gas'
+        : kind === 'ops_harian'
+          ? 'Ops Harian'
+          : parsed.details
 
   return {
     ...unrecognized,
