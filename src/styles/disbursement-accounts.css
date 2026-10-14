@@ -45,14 +45,87 @@
   letter-spacing: -0.035em;
 }
 
-.disbursement-accounts-heading p,
-.disbursement-accounts-intro p,
-.disbursement-global-card p,
-.disbursement-mapping-group header p {
+.disbursement-accounts-heading p {
   margin: 4px 0 0;
   color: var(--theme-text-muted);
   font-size: 12px;
   line-height: 1.5;
+}
+
+.disbursement-header-actions {
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+  gap: 10px;
+  flex-wrap: wrap;
+  min-width: 0;
+}
+
+.disbursement-header-actions > .app-action-button {
+  height: 40px;
+  min-height: 40px;
+  flex: 0 0 auto;
+}
+
+.disbursement-add-panel {
+  display: grid;
+  gap: 14px;
+  padding: 16px;
+  border: 1px solid var(--theme-border-strong);
+  border-radius: 15px;
+  background: var(--theme-surface);
+}
+
+.disbursement-add-panel-header h2 {
+  margin: 0;
+  color: var(--theme-text-primary);
+  font-size: 14px;
+  font-weight: 850;
+}
+
+.disbursement-add-panel-header p {
+  margin: 4px 0 0;
+  color: var(--theme-text-muted);
+  font-size: 11px;
+}
+
+.disbursement-add-form-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.disbursement-add-form-fields label {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+}
+
+.disbursement-add-form-fields label > span {
+  color: var(--theme-text-secondary);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.07em;
+  text-align: center;
+}
+
+.disbursement-add-form-fields select {
+  width: 100%;
+  min-width: 0;
+  height: 40px;
+  padding: 0 12px;
+  border: 1px solid var(--theme-border-strong);
+  border-radius: var(--app-control-radius);
+  background-color: var(--theme-surface-raised);
+  color: var(--theme-text-primary);
+  font: inherit;
+  font-size: 12px;
+}
+
+.disbursement-add-hint {
+  margin: 0;
+  color: var(--theme-text-muted);
+  font-size: 11px;
 }
 
 .disbursement-kitchen-picker {
@@ -154,6 +227,8 @@
   color: var(--theme-text-primary);
   font-size: 15px;
   font-weight: 850;
+  text-transform: uppercase;
+  letter-spacing: 0.035em;
 }
 
 .disbursement-fixed-account {
@@ -177,9 +252,13 @@
 }
 
 .disbursement-fixed-account small {
-  color: var(--theme-text-muted);
+  color: var(--theme-danger);
   font-size: 10px;
   line-height: 1.4;
+}
+
+.disbursement-fixed-account small.is-warning {
+  color: var(--theme-danger);
 }
 
 .disbursement-accounts-intro {
@@ -205,34 +284,19 @@
 
 .disbursement-mapping-group > header {
   display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
+  align-items: center;
+  justify-content: flex-start;
   gap: 12px;
+  padding: 0 2px;
 }
 
 .disbursement-mapping-group > header h3 {
   margin: 0;
   color: var(--theme-text-primary);
-  font-size: 13px;
-  font-weight: 850;
-}
-
-.disbursement-mapping-group > header p {
-  font-size: 10px;
-}
-
-.disbursement-mapping-group > header .app-action-button {
-  min-height: 32px;
-  height: 32px;
-  flex: 0 0 auto;
-  gap: 5px;
-  padding: 0 9px;
-  font-size: 10px;
-}
-
-.disbursement-mapping-group > header .app-action-button svg {
-  width: 13px;
-  height: 13px;
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.055em;
+  text-transform: uppercase;
 }
 
 .disbursement-unconfigured {
@@ -285,24 +349,23 @@
   font-size: 11px;
 }
 
-.disbursement-status {
-  display: inline-flex;
-  align-items: center;
-  min-height: 21px;
-  padding: 2px 7px;
-  border-radius: 7px;
-  font-size: 9px;
-  font-weight: 800;
+.disbursement-status-dot {
+  display: inline-block;
+  width: 9px;
+  height: 9px;
+  flex: 0 0 9px;
+  border-radius: 50%;
+  vertical-align: middle;
 }
 
-.disbursement-status.is-active {
-  background: var(--theme-success-soft);
-  color: var(--theme-success);
+.disbursement-status-dot.is-allowed {
+  background: var(--theme-success);
+  box-shadow: 0 0 0 3px var(--theme-success-soft);
 }
 
-.disbursement-status.is-excluded {
-  background: var(--theme-danger-soft);
-  color: var(--theme-danger);
+.disbursement-status-dot.is-blocked {
+  background: var(--theme-danger);
+  box-shadow: 0 0 0 3px var(--theme-danger-soft);
 }
 
 .disbursement-mapping-row-head .app-action-button {
@@ -332,7 +395,10 @@
 .disbursement-mapping-fields label > span {
   color: var(--theme-text-secondary);
   font-size: 10px;
-  font-weight: 750;
+  font-weight: 800;
+  letter-spacing: 0.055em;
+  text-align: center;
+  text-transform: uppercase;
 }
 
 .disbursement-mapping-fields input,
@@ -398,8 +464,23 @@
     align-items: stretch;
   }
 
+  .disbursement-header-actions {
+    width: 100%;
+    align-items: stretch;
+    flex-direction: column;
+  }
+
   .disbursement-kitchen-picker {
     width: 100%;
+  }
+
+  .disbursement-header-actions > .app-action-button {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .disbursement-add-form-fields {
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .disbursement-global-card {
