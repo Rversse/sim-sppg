@@ -16,6 +16,7 @@ import {
   type MakerOperationalType
 } from '@/features/maker-import/maker-import-utils'
 import { supabase } from '@/lib/supabase'
+import { useToast } from '@/features/ui/toast-context'
 
 type KitchenRef = { id: string; name: string; is_active: boolean; operational_recipient_name: string | null }
 type AccountRef = {
@@ -434,6 +435,7 @@ function effectiveDatabaseFlow(row: MakerImportDraftRow): {
 }
 
 export function MakerImportPage() {
+  const { success: toastSuccess } = useToast()
   const [refs, setRefs] = useState<ImportReferences>(EMPTY_REFERENCES)
   const [loadingRefs, setLoadingRefs] = useState(true)
   const [refsError, setRefsError] = useState('')
@@ -447,7 +449,6 @@ export function MakerImportPage() {
   const [parseError, setParseError] = useState('')
   const [saveError, setSaveError] = useState('')
   const [saving, setSaving] = useState(false)
-  const [successMessage, setSuccessMessage] = useState('')
 
   useEffect(() => {
     let cancelled = false
@@ -505,7 +506,6 @@ export function MakerImportPage() {
   function handleParse() {
     setParseError('')
     setSaveError('')
-    setSuccessMessage('')
 
     const parsed = parseMakerDocument(sourceText)
     if (parsed.error) {
@@ -535,7 +535,6 @@ export function MakerImportPage() {
   function updateRow(id: string, patch: Partial<MakerImportDraftRow>) {
     setRows((current) => current.map((row) => row.id === id ? { ...row, ...patch } : row))
     setSaveError('')
-    setSuccessMessage('')
   }
 
   function handleKitchenChange(nextKitchenId: string) {
@@ -613,7 +612,6 @@ export function MakerImportPage() {
   async function handleSave() {
     if (!canSave || !activeKitchen) return
     setSaveError('')
-    setSuccessMessage('')
     if (!window.confirm(
       'Simpan batch Maker untuk ' + activeKitchen.name + ' tanggal ' + transactionDate + '?\n\n' +
       'Masuk database program: ' + importableChecks.length + ' baris (Rp ' + formatAmount(importableAmount) + ').\n' +
@@ -699,10 +697,11 @@ export function MakerImportPage() {
       if (result?.duplicate) {
         setSaveError('Batch ini sudah pernah diinput ke database. Tidak ada transaksi baru yang ditambahkan.')
       } else {
-        setSuccessMessage(
-          'Batch berhasil diaudit. ' + (result?.inserted_count ?? importableChecks.length) +
+        toastSuccess(
+          'Batch berhasil diimpor',
+          (result?.inserted_count ?? importableChecks.length) +
           ' transaksi masuk database program (Rp ' + formatAmount(result?.total_amount ?? importableAmount) + '); ' +
-          (result?.excluded_count ?? excludedChecks.length) + ' baris dikecualikan untuk akuntan (Rp ' +
+          (result?.excluded_count ?? excludedChecks.length) + ' baris dikecualikan (Rp ' +
           formatAmount(result?.excluded_total_amount ?? excludedAmount) + ').'
         )
       }
@@ -731,7 +730,7 @@ export function MakerImportPage() {
       {refsError ? <div className="maker-import-message is-error"><AlertTriangle /> {refsError}</div> : null}
       {loadingRefs ? <div className="maker-import-loading"><LoaderCircle className="is-spinning" /> Mengambil dapur dan mapping rekening dari database…</div> : null}
 
-      <section className="maker-import-panel">
+      <section className="maker-import-panel maker-import-source-panel">
         <div className="maker-import-panel-head">
           <div>
             <span>LANGKAH 1</span>
@@ -746,7 +745,6 @@ export function MakerImportPage() {
               setDraftReady(false)
               setParseError('')
               setSaveError('')
-              setSuccessMessage('')
             }}
             disabled={!sourceText && rows.length === 0}
           >
@@ -760,7 +758,6 @@ export function MakerImportPage() {
             setSourceText(event.target.value)
             setDraftReady(false)
             setSaveError('')
-            setSuccessMessage('')
           }}
           placeholder="Paste data disini..."
           spellCheck={false}
@@ -948,7 +945,7 @@ export function MakerImportPage() {
                       </label>
                       <label>
                         <span>Nominal (Rp)</span>
-                        <input inputMode="numeric" value={row.amount === null ? '' : String(row.amount)} onChange={(event) => {
+                        <input inputMode="numeric" value={formatAmount(row.amount)} onChange={(event) => {
                           const digits = event.target.value.replace(/[^0-9]/g, '')
                           const amount = digits ? Number(digits) : null
                           updateRow(row.id, { amount: amount !== null && Number.isSafeInteger(amount) ? amount : null, verified: false })
@@ -983,7 +980,6 @@ export function MakerImportPage() {
               })}
             </div>
             {saveError ? <div className="maker-import-message is-error"><AlertTriangle /> {saveError}</div> : null}
-            {successMessage ? <div className="maker-import-message is-success"><CheckCircle2 /> {successMessage}</div> : null}
             <div className="maker-import-save-footer">
               <div>
                 <strong>{importableChecks.length} baris masuk program</strong>
