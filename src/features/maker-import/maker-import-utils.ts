@@ -271,6 +271,7 @@ function makeRow(
 }
 
 export function defaultManualFlow(kind: MakerImportKind): MakerManualFlow {
+  if (kind === 'lain_lain') return 'ops_disbursement'
   if (kind === 'rab') return 'income'
   if (kind === 'gas') return 'gas'
   if (kind === 'ops_harian') return 'ops_disbursement'
