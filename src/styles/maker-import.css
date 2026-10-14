@@ -499,3 +499,28 @@
   .maker-import-secondary,
   .is-spinning { transition: none; animation: none; }
 }
+
+
+/* Compact, consistent import layout shared with the Real importer. */
+.maker-import-page {
+  width: min(100%, 1000px);
+  padding-inline: 12px;
+  gap: 12px;
+}
+.maker-import-hero { padding: 14px 16px; }
+.maker-import-source-panel { position: static; }
+.maker-import-source { min-height: 150px; }
+.maker-import-row-list {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: start;
+  gap: 10px;
+}
+.maker-import-row { padding: 12px; }
+@media (max-width: 760px) {
+  .maker-import-page { padding-inline: 8px; }
+  .maker-import-row-list { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 660px) {
+  .maker-import-hero { padding: 12px; }
+  .maker-import-source { min-height: 125px; }
+}
