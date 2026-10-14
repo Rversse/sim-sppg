@@ -162,8 +162,6 @@ declare
   v_rule_type text;
   v_mapping_status text;
   v_destination_role text;
-  v_protected boolean;
-  v_expected_pic text;
   v_source_lines text[];
   v_expected_row_count integer;
   v_requested_disposition text;
@@ -348,11 +346,15 @@ begin
     if v_source_amount_numeric <= 0 or v_source_amount_numeric > 9223372036854775807 then
       raise exception 'Nominal sumber baris % berada di luar rentang integer database.', v_line_number;
     end if;
-    v_amount := v_source_amount_numeric::bigint;
+    -- Keep the original Maker line/hash as immutable audit evidence, but allow an Admin
+    -- to correct the draft amount before saving. The corrected value is still range-checked.
     v_payload_amount_text := coalesce(v_row->>'amount','');
-    if v_payload_amount_text !~ '^[0-9]+$' or v_payload_amount_text::numeric <> v_source_amount_numeric then
-      raise exception 'Nominal preview baris % berbeda dari teks sumber Maker.', v_line_number;
+    if v_payload_amount_text !~ '^[0-9]+$'
+      or v_payload_amount_text::numeric <= 0
+      or v_payload_amount_text::numeric > 9223372036854775807 then
+      raise exception 'Nominal draft baris % tidak valid. Gunakan bilangan bulat IDR positif.', v_line_number;
     end if;
+    v_amount := v_payload_amount_text::numeric::bigint;
 
     v_source_match := regexp_match(v_raw_line, ' - ([A-Za-z][A-Za-z0-9 ]*) / ([^[:space:]·]+)');
     if v_source_match is null then
@@ -368,17 +370,15 @@ begin
       v_source_recipient := v_source_prefix;
     end if;
     if v_source_recipient = '' then raise exception 'Nama penerima pada sumber baris % kosong.', v_line_number; end if;
-    v_recipient := v_source_recipient;
-    v_bank := v_source_bank;
-    v_account_number := v_source_account_number;
+
 
     if v_kind = 'combined_payroll' then
       v_disposition := 'excluded';
       v_exclusion_reason := 'Maker menggabungkan beberapa jenis gaji/insentif dalam satu nominal. Pecah per jenis sebelum memasukkan sebagai transaksi program.';
     end if;
 
-    -- Resolve every operational target from the shared per-kitchen mapping table.
-    -- Exclusions are intentional audit-only rows; a missing or mismatched mapping blocks the batch.
+    -- Resolve every operational target from Data Rekening. This is the single source of truth
+    -- for import eligibility; mismatches block save rather than being silently excluded.
     v_rule_type := case
       when v_kind = 'ops_harian' then 'ops_harian'
       when v_kind = 'sppg_rent' then 'sppg_rent'
@@ -445,84 +445,14 @@ begin
       end if;
     end if;
 
-    v_protected := (
-      (v_flow = 'operational_disbursement' and v_operational_type in ('relawan_salary','pic_incentive','sppg_rent'))
-      or (v_kind in ('sppg_rent','relawan_salary','pic_school','pic_posyandu'))
-    );
-
-    if v_protected and v_disposition <> 'excluded' then
-      if v_kind in ('sppg_rent','relawan_salary','pic_school','pic_posyandu') then
-        v_rule_type := case
-          when v_kind = 'sppg_rent' then 'sppg_rent'
-          when v_kind = 'relawan_salary' then 'gaji_relawan'
-          when v_kind = 'pic_school' then 'pic_incentive_school'
-          when v_kind = 'pic_posyandu' then 'pic_incentive_posyandu'
-          else null
-        end;
-
-        if v_rule_type is null or not exists (
-          select 1 from public.kitchen_operational_account_rules r
-          where r.kitchen_id = p_kitchen_id and r.is_active and coalesce(r.mapping_status, 'active') = 'active'
-            and r.rule_type = v_rule_type
-            and lower(regexp_replace(btrim(r.owner_name), '\s+', ' ', 'g')) =
-                lower(regexp_replace(btrim(v_recipient), '\s+', ' ', 'g'))
-            and upper(regexp_replace(btrim(r.bank), '\s+', ' ', 'g')) = v_bank
-            and regexp_replace(btrim(r.account_number), '\s+', '', 'g') = v_account_number
-        ) then
-          v_disposition := 'excluded';
-          v_exclusion_reason := 'Mapping aktif untuk nama penerima, bank, nomor rekening, dan jenis pencairan ini belum cocok. Dikecualikan dari database program; serahkan ke akuntan.';
-        end if;
-      else
-        v_expected_pic := btrim(coalesce(v_kitchen.operational_recipient_name, ''));
-        if v_expected_pic = '' or
-          lower(regexp_replace(v_expected_pic, '\s+', ' ', 'g')) <>
-          lower(regexp_replace(v_recipient, '\s+', ' ', 'g')) then
-          v_disposition := 'excluded';
-          if v_expected_pic = '' then
-            v_exclusion_reason := 'PIC Yayasan belum diisi pada master dapur. Tidak masuk transaksi database program; serahkan ke akuntan.';
-          else
-            v_exclusion_reason := 'Nama penerima pada transaksi manual bukan PIC Yayasan ' || v_expected_pic || '. Dikecualikan dari database program; serahkan ke akuntan.';
-          end if;
-        else
-          v_rule_type := case
-            when v_operational_type = 'sppg_rent' then 'sppg_rent'
-            when v_operational_type = 'relawan_salary' then 'gaji_relawan'
-            when v_operational_type = 'pic_incentive' then 'pic_incentive_school'
-            else null
-          end;
-
-          if v_rule_type is null or not exists (
-            select 1 from public.kitchen_operational_account_rules r
-            where r.kitchen_id = p_kitchen_id and r.is_active and coalesce(r.mapping_status, 'active') = 'active'
-              and (
-                r.rule_type = v_rule_type
-                or (v_kind = 'lain_lain' and v_operational_type = 'pic_incentive'
-                    and r.rule_type in ('pic_incentive_school','pic_incentive_posyandu'))
-              )
-              and lower(regexp_replace(btrim(r.owner_name), '\s+', ' ', 'g')) =
-                  lower(regexp_replace(v_expected_pic, '\s+', ' ', 'g'))
-              and upper(regexp_replace(btrim(r.bank), '\s+', ' ', 'g')) = v_bank
-              and regexp_replace(btrim(r.account_number), '\s+', '', 'g') = v_account_number
-          ) then
-            v_disposition := 'excluded';
-            v_exclusion_reason := 'Bank/nomor rekening pada teks Maker tidak cocok dengan mapping rekening PIC Yayasan untuk transaksi manual. Dikecualikan dari database program; serahkan ke akuntan.';
-          end if;
-        end if;
-      end if;
+    if v_disposition <> 'excluded' and
+      (v_recipient = '' or v_bank = '' or v_account_number = '') then
+      raise exception 'Identitas rekening draft pada baris % belum lengkap.', v_line_number;
     end if;
 
     if v_requested_disposition = 'excluded' and v_disposition <> 'excluded' then
       raise exception 'Baris % tidak memenuhi aturan pengecualian yang diizinkan.', v_line_number;
     end if;
-    if v_disposition <> 'excluded' then
-      if lower(regexp_replace(btrim(coalesce(v_row->>'maker_recipient_name','')), '\s+', ' ', 'g')) <>
-           lower(regexp_replace(btrim(v_recipient), '\s+', ' ', 'g'))
-        or upper(regexp_replace(btrim(coalesce(v_row->>'maker_bank','')), '\s+', ' ', 'g')) <> v_bank
-        or regexp_replace(btrim(coalesce(v_row->>'maker_account_number','')), '\s+', '', 'g') <> v_account_number then
-        raise exception 'Nama/bank/nomor rekening preview baris % berbeda dari sumber. Tempel ulang output Maker tanpa mengubah data sumber.', v_line_number;
-      end if;
-    end if;
-
     if v_disposition = 'excluded' then
       if v_amount is not null then
         v_excluded_total := v_excluded_total + v_amount;
@@ -560,7 +490,7 @@ begin
         and (
           (v_flow in ('income','neutral') and t.account_id is not distinct from v_account_id)
           or (v_flow = 'real_ops' and t.account_id is null)
-          or (v_flow = 'ops_disbursement' and t.account_id is null and t.destination_label = 'Akuntan ' || v_kitchen.name)
+          or (v_flow = 'ops_disbursement' and t.account_id is null and t.destination_label in ('Akuntan ' || v_kitchen.name, 'Aslap ' || v_kitchen.name, 'PIC Yayasan ' || v_kitchen.name, 'Pihak Luar ' || v_kitchen.name, 'OPS ' || v_kitchen.name))
           or (v_flow = 'operational_disbursement' and t.operational_type is not distinct from v_operational_type)
         )
         -- Do not flag a previous row inserted by this same batch as an existing duplicate.
@@ -619,7 +549,7 @@ begin
       end if;
       if not exists (
         select 1 from public.kitchen_operational_account_rules r
-        where r.kitchen_id = p_kitchen_id and r.rule_type = 'ops_harian' and r.is_active
+        where r.kitchen_id = p_kitchen_id and r.rule_type = 'ops_harian' and r.is_active and coalesce(r.mapping_status, 'active') = 'active'
           and lower(regexp_replace(btrim(r.owner_name), '\s+', ' ', 'g')) = lower(regexp_replace(v_recipient, '\s+', ' ', 'g'))
           and upper(regexp_replace(btrim(r.bank), '\s+', ' ', 'g')) = v_bank
           and regexp_replace(btrim(r.account_number), '\s+', '', 'g') = v_account_number
@@ -632,7 +562,7 @@ begin
       end if;
       if not exists (
         select 1 from public.kitchen_operational_account_rules r
-        where r.kitchen_id = p_kitchen_id and r.rule_type = 'ops_harian' and r.is_active
+        where r.kitchen_id = p_kitchen_id and r.rule_type = 'ops_harian' and r.is_active and coalesce(r.mapping_status, 'active') = 'active'
           and lower(regexp_replace(btrim(r.owner_name), '\s+', ' ', 'g')) = lower(regexp_replace(v_recipient, '\s+', ' ', 'g'))
           and upper(regexp_replace(btrim(r.bank), '\s+', ' ', 'g')) = v_bank
           and regexp_replace(btrim(r.account_number), '\s+', '', 'g') = v_account_number
@@ -642,11 +572,6 @@ begin
     elsif v_flow = 'operational_disbursement' then
       if v_category <> 'OPERATIONAL' or v_operational_type not in ('relawan_salary','pic_incentive','vehicle_rent','sppg_rent') then
         raise exception 'Klasifikasi pencairan operasional baris % tidak valid.', v_line_number;
-      end if;
-      if (lower(v_kitchen.name) in ('campakamulya','cikondang','kertajadi') and v_operational_type not in ('vehicle_rent','sppg_rent'))
-        or (lower(v_kitchen.name) in ('cipetir','cihaur') and p_transaction_date < date '2026-10-12' and v_operational_type in ('relawan_salary','pic_incentive'))
-        or (lower(v_kitchen.name) = 'sukaraja' and v_operational_type = 'pic_incentive') then
-        raise exception 'Jenis operasional baris % tidak diizinkan untuk dapur/tanggal tersebut.', v_line_number;
       end if;
 
       v_rule_type := case
@@ -692,6 +617,10 @@ begin
         case v_destination_role
           when 'aslap' then 'Aslap ' || v_kitchen.name
           when 'akuntan' then 'Akuntan ' || v_kitchen.name
+          when 'pic_yayasan' then 'PIC Yayasan ' || v_kitchen.name
+          when 'berkah_mandiri_putra' then 'Berkah Mandiri Putra ' || v_kitchen.name
+          when 'supplier' then 'Pihak Luar ' || v_kitchen.name
+          when 'other' then 'OPS ' || v_kitchen.name
           else 'Akuntan ' || v_kitchen.name
         end
       else null end,
@@ -735,7 +664,6 @@ begin
     'excluded_total_amount', v_excluded_total
   );
 end;
-$function$
-
+$function$;
 revoke all on function public.import_maker_transactions(text, uuid, date, text, jsonb) from public, anon, authenticated;
 grant execute on function public.import_maker_transactions(text, uuid, date, text, jsonb) to authenticated;
