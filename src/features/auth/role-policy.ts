@@ -5,6 +5,7 @@ export type Permission =
   | 'dashboard.transaction.create'
   | 'kitchen.view'
   | 'kitchen.manage'
+  | 'disbursement-accounts.view'
   | 'vehicle.view'
   | 'vehicle.manage'
   | 'supplier.view'
@@ -20,6 +21,7 @@ const permissions: Record<Permission, readonly UserRole[]> = {
   'dashboard.transaction.create': ['admin'],
   'kitchen.view': ['admin', 'operator'],
   'kitchen.manage': ['admin'],
+  'disbursement-accounts.view': ['admin'],
   'vehicle.view': ['admin', 'operator'],
   'vehicle.manage': ['admin', 'operator'],
   'supplier.view': ['admin', 'operator'],
