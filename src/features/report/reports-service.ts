@@ -798,6 +798,13 @@ export async function getSppgRentReport(
         }[]
       | null
   }> = []
+  const operationalRules = await getOperationalAccountRules(client)
+  const rulesByKitchen = new Map<string, ReportOperationalRule[]>()
+  for (const rule of operationalRules) {
+    const current = rulesByKitchen.get(rule.kitchen_id) ?? []
+    current.push(rule)
+    rulesByKitchen.set(rule.kitchen_id, current)
+  }
 
   for (let from = 0; ; from += pageSize) {
     let query = client
@@ -852,6 +859,7 @@ export async function getSppgRentReport(
 
   for (const transaction of transactions) {
     if (!transaction.kitchen_id) continue
+    if (!isOperationalMappingEnabled(rulesByKitchen, transaction.kitchen_id, 'sppg_rent')) continue
 
     const kitchen = Array.isArray(transaction.kitchens)
       ? transaction.kitchens[0]
@@ -905,6 +913,13 @@ export async function getOperationalDisbursementReport(
 ): Promise<OperationalDisbursementReport> {
   const pageSize = 1000
   const rows: OperationalDisbursementRow[] = []
+  const operationalRules = await getOperationalAccountRules(client)
+  const rulesByKitchen = new Map<string, ReportOperationalRule[]>()
+  for (const rule of operationalRules) {
+    const current = rulesByKitchen.get(rule.kitchen_id) ?? []
+    current.push(rule)
+    rulesByKitchen.set(rule.kitchen_id, current)
+  }
 
   for (let from = 0; ; from += pageSize) {
     let query = client
@@ -969,6 +984,11 @@ export async function getOperationalDisbursementReport(
             kitchenName,
             transaction.operational_type,
             transaction.transaction_date
+          ) ||
+          !isOperationalMappingEnabled(
+            rulesByKitchen,
+            transaction.kitchen_id,
+            transaction.operational_type
           )
         ) {
           return []
