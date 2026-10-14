@@ -1,8 +1,62 @@
 .disbursement-accounts-page {
   display: grid;
-  gap: 18px;
+  gap: 16px;
   min-width: 0;
   padding-bottom: 28px;
+}
+
+.disbursement-toolbar-grid {
+  display: grid;
+  grid-template-columns: minmax(240px, 1.15fr) minmax(190px, 0.9fr) auto;
+  align-items: end;
+  gap: 12px;
+  min-width: 0;
+}
+
+.disbursement-toolbar-grid .disbursement-kitchen-picker {
+  width: 100%;
+}
+
+.disbursement-status-field {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+}
+
+.disbursement-status-field > span {
+  color: var(--theme-text-secondary);
+  font-size: 11px;
+  font-weight: 750;
+  letter-spacing: 0.035em;
+}
+
+.disbursement-status-control {
+  display: flex;
+  height: 40px;
+  min-width: 0;
+  align-items: center;
+  gap: 11px;
+  padding: 0 13px;
+  border: 1px solid var(--theme-border-strong);
+  border-radius: var(--app-control-radius);
+  background: var(--theme-surface-raised);
+  color: var(--theme-text-primary);
+  font-size: 12px;
+}
+
+.disbursement-status-control strong {
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.disbursement-status-control.is-empty {
+  color: var(--theme-text-muted);
+}
+
+.disbursement-add-mapping-button {
+  height: 40px;
+  min-height: 40px;
+  white-space: nowrap;
 }
 
 .disbursement-accounts-header {
@@ -240,6 +294,26 @@
   background: var(--theme-surface-soft);
 }
 
+.disbursement-vehicle-group .disbursement-fixed-account {
+  display: flex;
+  min-height: 48px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 14px;
+  flex-wrap: wrap;
+  padding: 10px 12px;
+}
+
+.disbursement-vehicle-group .disbursement-fixed-account strong,
+.disbursement-vehicle-group .disbursement-fixed-account span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.disbursement-vehicle-group .disbursement-fixed-account small {
+  flex-basis: 100%;
+}
+
 .disbursement-fixed-account strong {
   color: var(--theme-text-primary);
   font-size: 13px;
@@ -459,24 +533,25 @@
   }
 }
 
-@media (max-width: 640px) {
-  .disbursement-accounts-header {
-    align-items: stretch;
+@media (max-width: 700px) {
+  .disbursement-toolbar-grid {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   }
 
-  .disbursement-header-actions {
-    width: 100%;
-    align-items: stretch;
-    flex-direction: column;
-  }
-
-  .disbursement-kitchen-picker {
-    width: 100%;
-  }
-
-  .disbursement-header-actions > .app-action-button {
+  .disbursement-add-mapping-button {
+    grid-column: 1 / -1;
     width: 100%;
     justify-content: center;
+  }
+}
+
+@media (max-width: 640px) {
+  .disbursement-toolbar-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .disbursement-add-mapping-button {
+    grid-column: 1;
   }
 
   .disbursement-add-form-fields {
