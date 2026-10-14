@@ -67,10 +67,11 @@ test('RAB Real parser rejects malformed amounts and maps alias names predictably
 })
 
 test('Cidaun parser supports kitchen and amount on the same line without mistaking B3 for money', () => {
-  const parsed = parseRealImportDocument(
-    'Punten kaping 12 oktober 2026\\n1. Cisepat - basahan b3 + sekolah: 12.784.000\\n*Total: 12.784.000*'
-      .replace('\\\\n', '\\n')
-  )
+  const parsed = parseRealImportDocument('cidaun', [
+    'Punten kaping 12 oktober 2026',
+    '1. Cisepat - basahan b3 + sekolah: 12.784.000',
+    '*Total: 12.784.000*'
+  ].join('\\n'))
   assert.equal(parsed.error, null)
   assert.equal(parsed.rows.length, 1)
   assert.equal(parsed.rows[0].kitchenName, 'Cisepat')
