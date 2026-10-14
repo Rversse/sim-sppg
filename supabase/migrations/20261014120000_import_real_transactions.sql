@@ -26,7 +26,7 @@ create table if not exists public.real_import_batch_rows (
   supplier_id uuid not null references public.suppliers(id) on delete restrict,
   amount bigint not null check (amount > 0),
   note text not null,
-  disposition text not null check (disposition in ('import','excluded')),
+  disposition text not null check (disposition in ('imported','excluded')),
   exclusion_reason text,
   transaction_id uuid references public.transactions(id) on delete set null,
   created_at timestamptz not null default now(),
