@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { Landmark, Plus, Save, Trash2, X } from 'lucide-react'
+import { Plus, Save, Trash2, X } from 'lucide-react'
 
 import { supabase } from '@/lib/supabase'
 import { canAccess } from '@/features/auth/role-policy'
