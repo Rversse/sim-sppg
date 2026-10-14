@@ -100,6 +100,10 @@ export const router = createBrowserRouter(
               element: <RoleRoute permission="maker-import.view" />,
               children: [{ path: 'maker-import', element: pageElement(MakerImportPage) }]
             },
+            {
+              element: <RoleRoute permission="real-import.view" />,
+              children: [{ path: 'real-import', element: pageElement(RealImportPage) }]
+            },
           ]
         }
       ]
