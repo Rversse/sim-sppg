@@ -516,7 +516,7 @@ export function DisbursementAccountsPage() {
               )}
             </section>
             {RULE_GROUPS.map((group) => (
-              <section className="disbursement-mapping-group" key={group.id}>
+              <section className={`disbursement-mapping-group disbursement-group-${group.id}`} key={group.id}>
                 <header>
                   <h3>{group.title}</h3>
                 </header>
