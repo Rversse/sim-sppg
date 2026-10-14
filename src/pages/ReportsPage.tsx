@@ -19,14 +19,14 @@ import {
 } from '@/components/ui/date-range-picker'
 import { formatCurrency, formatDate, getTodayLocal } from '@/lib/formatters'
 import { supabase } from '@/lib/supabase'
-import {
-  getAvailableOperationalTypes,
-  isOperationalTypeAvailable
-} from '@/features/transactions/operational-policy'
 
 type ReportTab = 'overall' | 'pencairan' | 'supplier'
 
 type ReportLoader<T> = (startDate: string, endDate: string) => Promise<T>
+
+function formatCurrencyOrDash(value: number): string {
+  return value === 0 ? '—' : formatCurrency(value)
+}
 
 function loadOverallReport(startDate: string, endDate: string) {
   return getOverallReport({ startDate, endDate, kitchenId: '' })
@@ -448,36 +448,36 @@ function OverallReportView() {
                           {item.kitchenName}
                         </span>
                       </td>
-                    <td>{formatCurrency(item.income)}</td>
-                    <td>{formatCurrency(item.expense)}</td>
+                    <td>{formatCurrencyOrDash(item.income)}</td>
+                    <td>{formatCurrencyOrDash(item.expense)}</td>
                     <td className={item.totalRAB < 0 ? 'negative' : 'positive'}>
-                      {formatCurrency(item.totalRAB)}
+                      {formatCurrencyOrDash(item.totalRAB)}
                     </td>
-                    <td>{formatCurrency(item.operational)}</td>
-                    <td>{formatCurrency(item.realOperational)}</td>
+                    <td>{formatCurrencyOrDash(item.operational)}</td>
+                    <td>{formatCurrencyOrDash(item.realOperational)}</td>
                     <td
                       className={
                         item.totalOperational < 0 ? 'negative' : 'positive'
                       }
                     >
-                      {formatCurrency(item.totalOperational)}
+                      {formatCurrencyOrDash(item.totalOperational)}
                     </td>
-                    <td>{formatCurrency(item.gas)}</td>
+                    <td>{formatCurrencyOrDash(item.gas)}</td>
                   </tr>
                 ))}
                 <tr className="reports-total-row">
                   <td>GRAND TOTAL</td>
-                  <td>{formatCurrency(report.totals.income)}</td>
-                  <td>{formatCurrency(report.totals.expense)}</td>
+                  <td>{formatCurrencyOrDash(report.totals.income)}</td>
+                  <td>{formatCurrencyOrDash(report.totals.expense)}</td>
                   <td
                     className={
                       report.totals.totalRAB < 0 ? 'negative' : 'positive'
                     }
                   >
-                    {formatCurrency(report.totals.totalRAB)}
+                    {formatCurrencyOrDash(report.totals.totalRAB)}
                   </td>
-                  <td>{formatCurrency(report.totals.operational)}</td>
-                  <td>{formatCurrency(report.totals.realOperational)}</td>
+                  <td>{formatCurrencyOrDash(report.totals.operational)}</td>
+                  <td>{formatCurrencyOrDash(report.totals.realOperational)}</td>
                   <td
                     className={
                       report.totals.totalOperational < 0
@@ -485,9 +485,9 @@ function OverallReportView() {
                         : 'positive'
                     }
                   >
-                    {formatCurrency(report.totals.totalOperational)}
+                    {formatCurrencyOrDash(report.totals.totalOperational)}
                   </td>
-                  <td>{formatCurrency(report.totals.gas)}</td>
+                  <td>{formatCurrencyOrDash(report.totals.gas)}</td>
                 </tr>
               </tbody>
               </table>
@@ -569,35 +569,29 @@ function OverallReportView() {
                             item.recipientName
                           )}
                         </td>
-                        <td>{formatCurrency(item.sppgRent)}</td>
-                        <td>{formatCurrency(item.vehicleRent)}</td>
                         <td>
-                          {isOperationalTypeAvailable(
-                            item.kitchenName,
-                            'relawan_salary',
-                            endDate
-                          )
+                          {item.sppgRentMapped && item.sppgRent !== 0
+                            ? formatCurrency(item.sppgRent)
+                            : '—'}
+                        </td>
+                        <td>
+                          {item.vehicleRentMapped && item.vehicleRent !== 0
+                            ? formatCurrency(item.vehicleRent)
+                            : '—'}
+                        </td>
+                        <td>
+                          {item.relawanSalaryMapped && item.relawanSalary !== 0
                             ? formatCurrency(item.relawanSalary)
                             : '—'}
                         </td>
                         <td>
-                          {isOperationalTypeAvailable(
-                            item.kitchenName,
-                            'pic_incentive',
-                            endDate
-                          )
+                          {item.picIncentiveMapped && item.picIncentive !== 0
                             ? formatCurrency(item.picIncentive)
                             : '—'}
                         </td>
                         <td className="positive">
-                          {getAvailableOperationalTypes(
-                            item.kitchenName,
-                            endDate
-                          ).some(
-                            (type) =>
-                              type === 'relawan_salary' ||
-                              type === 'pic_incentive'
-                          )
+                          {(item.relawanSalaryMapped || item.picIncentiveMapped) &&
+                          item.totalSalaryAndIncentive !== 0
                             ? formatCurrency(item.totalSalaryAndIncentive)
                             : '—'}
                         </td>
@@ -605,11 +599,11 @@ function OverallReportView() {
                     ))}
                   <tr className="reports-total-row">
                     <td>GRAND TOTAL</td>
-                    <td>{formatCurrency(report.totals.sppgRent)}</td>
-                    <td>{formatCurrency(report.totals.vehicleRent)}</td>
-                    <td>{formatCurrency(report.totals.relawanSalary)}</td>
-                    <td>{formatCurrency(report.totals.picIncentive)}</td>
-                    <td>{formatCurrency(report.totals.totalSalaryAndIncentive)}</td>
+                    <td>{formatCurrencyOrDash(report.totals.sppgRent)}</td>
+                    <td>{formatCurrencyOrDash(report.totals.vehicleRent)}</td>
+                    <td>{formatCurrencyOrDash(report.totals.relawanSalary)}</td>
+                    <td>{formatCurrencyOrDash(report.totals.picIncentive)}</td>
+                    <td>{formatCurrencyOrDash(report.totals.totalSalaryAndIncentive)}</td>
                   </tr>
                 </tbody>
               </table>
