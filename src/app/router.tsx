@@ -15,6 +15,7 @@ const {
   UnauthorizedPage,
   DashboardPage,
   KitchenPage,
+  DisbursementAccountsPage,
   VehiclePage,
   SupplierPage,
   BankPage,
@@ -66,6 +67,12 @@ export const router = createBrowserRouter(
               element: <RoleRoute permission="kitchen.view" />,
               children: [
                 { path: 'master/kitchen', element: pageElement(KitchenPage) }
+              ]
+            },
+            {
+              element: <RoleRoute permission="disbursement-accounts.view" />,
+              children: [
+                { path: 'master/disbursement-accounts', element: pageElement(DisbursementAccountsPage) }
               ]
             },
             {

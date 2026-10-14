@@ -38,6 +38,8 @@ import {
   getDefaultSupplier,
   getSuppliersForKitchen,
   getOperationalDestination,
+  getOperationalDestinationRoles,
+  type OperationalDestinationRoleMapping,
   type TransactionOption
 } from '@/features/transactions/transaction-options-service'
 import {
@@ -227,6 +229,7 @@ export function DashboardPage() {
   })
 
   const [kitchens, setKitchens] = useState<DashboardKitchen[]>([])
+  const [operationalDestinationRoles, setOperationalDestinationRoles] = useState<OperationalDestinationRoleMapping[]>([])
   const kitchensRef = useRef<DashboardKitchen[]>([])
   const [supplierOptions, setSupplierOptions] = useState<
     { value: string; label: string }[]
@@ -275,6 +278,22 @@ export function DashboardPage() {
   >('')
   const [formAmount, setFormAmount] = useState('')
   const [formNote, setFormNote] = useState('')
+
+  useEffect(() => {
+    let cancelled = false
+
+    void getOperationalDestinationRoles()
+      .then((roles) => {
+        if (!cancelled) setOperationalDestinationRoles(roles)
+      })
+      .catch((loadError) => {
+        console.error('Gagal memuat tujuan OPS / Pencairan:', loadError)
+      })
+
+    return () => {
+      cancelled = true
+    }
+  }, [])
 
   const [formAccounts, setFormAccounts] = useState<TransactionOption[]>([])
   const [formSuppliers, setFormSuppliers] = useState<TransactionOption[]>([])
@@ -597,6 +616,14 @@ export function DashboardPage() {
     }
   }, [refreshDashboard])
 
+  function getMappedOperationalDestination(kitchenName: string | null | undefined) {
+    const kitchen = kitchens.find(
+      (item) => item.name.trim().toLocaleLowerCase('id-ID') === (kitchenName ?? '').trim().toLocaleLowerCase('id-ID')
+    )
+    const role = operationalDestinationRoles.find((item) => item.kitchen_id === kitchen?.id)?.target_role
+    return getOperationalDestination(kitchenName, role)
+  }
+
   const selectedFilterKitchen = kitchens.find(
     (kitchen) => kitchen.id === filters.kitchenId
   )
@@ -629,7 +656,7 @@ export function DashboardPage() {
                 ? 'Jenis Operasional'
                 : 'Supplier / Rekening'
 
-  const operationalDestination = getOperationalDestination(
+  const operationalDestination = getMappedOperationalDestination(
     selectedFilterKitchen?.name
   )
 
@@ -729,7 +756,7 @@ export function DashboardPage() {
       const selectedKitchenName = kitchens.find(
         (kitchen) => kitchen.id === filters.kitchenId
       )?.name
-      const destination = getOperationalDestination(selectedKitchenName) ?? ''
+      const destination = getMappedOperationalDestination(selectedKitchenName) ?? ''
 
       setFilters((current) => ({
         ...current,
@@ -861,7 +888,7 @@ export function DashboardPage() {
       setFormSupplierId('')
       setFormEntryUnlocked(
         Boolean(
-          getOperationalDestination(
+          getMappedOperationalDestination(
             kitchens.find((kitchen) => kitchen.id === kitchenId)?.name
           )
         )
@@ -1191,7 +1218,7 @@ export function DashboardPage() {
     }
 
     if (formFlowType === 'ops_disbursement') {
-      const operationalDestination = getOperationalDestination(
+      const operationalDestination = getMappedOperationalDestination(
         selectedFormKitchen?.name
       )
 
@@ -1264,7 +1291,7 @@ export function DashboardPage() {
       supplier_id: formFlowType === 'expense' ? formSupplierId || null : null,
       destination_label:
         formFlowType === 'ops_disbursement'
-          ? getOperationalDestination(selectedFormKitchen?.name)
+          ? getMappedOperationalDestination(selectedFormKitchen?.name)
           : null,
       operational_type:
         formFlowType === 'operational_disbursement'
@@ -1614,20 +1641,6 @@ export function DashboardPage() {
           <small>Total pencairan operasional masuk ke rekening Akuntan / Aslap pada periode terpilih</small>
         </article>
 
-        <article
-          className={`dashboard-kpi ${
-            filters.flowType === 'real_ops' ? 'dashboard-kpi-primary' : ''
-          }`}
-        >
-          <span className="dashboard-kpi-icon">
-            <Settings2 aria-hidden="true" />
-          </span>
-          <span>OPS / Real</span>
-          <strong>
-            {loading ? 'Memuat…' : formatCurrency(summary.realOperational)}
-          </strong>
-          <small>Total realisasi operasional pada periode terpilih</small>
-        </article>
       </section>
 
       <section className="dashboard-main-grid">
@@ -1810,7 +1823,7 @@ export function DashboardPage() {
                   : null
                 const temporaryDestination =
                   transaction.destination_label?.trim() ||
-                  getOperationalDestination(kitchen?.name)
+                  getMappedOperationalDestination(kitchen?.name)
                 const isOtherIncomeTransaction =
                   transaction.flow_type === 'income' && !transaction.kitchen_id
                 const businessName = isOtherIncomeTransaction
@@ -2200,7 +2213,7 @@ export function DashboardPage() {
                   <input
                     type="text"
                     value={
-                      getOperationalDestination(selectedFormKitchen?.name) ?? ''
+                      getMappedOperationalDestination(selectedFormKitchen?.name) ?? ''
                     }
                     readOnly
                     disabled

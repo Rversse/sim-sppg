@@ -135,12 +135,50 @@ async function getKitchenName(
   )
 }
 
+export type OperationalDestinationRole =
+  | 'aslap'
+  | 'akuntan'
+  | 'pic_yayasan'
+  | 'berkah_mandiri_putra'
+  | 'supplier'
+  | 'other'
+
+export type OperationalDestinationRoleMapping = {
+  kitchen_id: string
+  target_role: OperationalDestinationRole
+}
+
+export async function getOperationalDestinationRoles(): Promise<OperationalDestinationRoleMapping[]> {
+  return withTransactionOptionsCache(
+    'operational-destination-roles',
+    supabase,
+    async () => {
+      const { data, error } = await supabase.rpc('get_operational_destination_roles')
+
+      if (error) throw error
+
+      return (data ?? []) as OperationalDestinationRoleMapping[]
+    }
+  )
+}
+
 export function getOperationalDestination(
-  kitchenName: string | null | undefined
+  kitchenName: string | null | undefined,
+  targetRole?: OperationalDestinationRole | null
 ): string | null {
   const normalized = kitchenName?.trim()
+  if (!normalized) return null
 
-  return normalized ? `Akuntan ${normalized}` : null
+  const destinationPrefix: Record<OperationalDestinationRole, string> = {
+    aslap: 'Aslap',
+    akuntan: 'Akuntan',
+    pic_yayasan: 'PIC Yayasan',
+    berkah_mandiri_putra: 'Berkah Mandiri Putra',
+    supplier: 'Pihak Luar',
+    other: 'OPS'
+  }
+
+  return `${destinationPrefix[targetRole ?? 'akuntan']} ${normalized}`
 }
 
 export async function getActiveKitchens(

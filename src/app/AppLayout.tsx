@@ -8,6 +8,7 @@ import {
   FileText,
   ClipboardPaste,
   LayoutDashboard,
+  Landmark,
   LogOut,
   type LucideIcon
 } from 'lucide-react'
@@ -50,6 +51,13 @@ const navigationSections: NavigationSection[] = [
         pageTitle: 'Data Dapur'
       },
       {
+        label: 'Data Rekening',
+        to: '/master/disbursement-accounts',
+        permission: 'disbursement-accounts.view',
+        icon: Landmark,
+        pageTitle: 'Data Rekening'
+      },
+      {
         label: 'Data Kendaraan',
         to: '/master/vehicle',
         permission: 'vehicle.view',
@@ -76,11 +84,11 @@ const navigationSections: NavigationSection[] = [
         pageTitle: 'Transaksi Bank'
       },
       {
-        label: 'Impor Maker',
+        label: 'Import Maker',
         to: '/maker-import',
         permission: 'maker-import.view',
         icon: ClipboardPaste,
-        pageTitle: 'Impor Maker-Pencairan'
+        pageTitle: 'Import Maker'
       },
     ]
   },

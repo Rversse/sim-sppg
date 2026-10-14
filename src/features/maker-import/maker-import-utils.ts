@@ -376,31 +376,3 @@ export function parseMakerDocument(text: string): ParsedMakerDocument {
     error: null
   }
 }
-
-
-export function getMakerImportOperationalExclusionReason(
-  kitchenName: string | null | undefined,
-  operationalType: MakerOperationalType | null | undefined
-): string | null {
-  if (!operationalType) return null
-
-  const kitchen = normalizeMakerText(kitchenName)
-  const rentOnlyPayrollKitchens = new Set([
-    'campakamulya',
-    'cikondang',
-    'kertajadi'
-  ])
-
-  if (
-    rentOnlyPayrollKitchens.has(kitchen) &&
-    (operationalType === 'relawan_salary' || operationalType === 'pic_incentive')
-  ) {
-    return 'Untuk ' + kitchenName + ', Gaji Relawan dan kedua Insentif PIC dibayarkan melalui rekening akuntan. Baris diblokir dan tidak masuk database program. Sewa SPPG dan Sewa Kendaraan tetap diperbolehkan.'
-  }
-
-  if (kitchen === 'sukaraja' && operationalType === 'pic_incentive') {
-    return 'Untuk Sukaraja, kedua Insentif PIC dibayarkan melalui rekening akuntan. Baris diblokir dan tidak masuk database program. Sewa SPPG dan Gaji Relawan tetap diperbolehkan.'
-  }
-
-  return null
-}

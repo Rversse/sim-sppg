@@ -4,7 +4,6 @@ import { isOperationalTypeAvailable } from '@/features/transactions/operational-
 import {
   defaultManualFlow,
   defaultOperationalType,
-  getMakerImportOperationalExclusionReason,
   normalizeMakerAccountNumber,
   normalizeMakerBank,
   normalizeMakerText,
@@ -43,6 +42,8 @@ type OperationalAccountRule = {
   owner_name: string
   bank: string
   account_number: string
+  mapping_status: 'active' | 'excluded'
+  target_role: 'aslap' | 'akuntan' | 'pic_yayasan' | 'berkah_mandiri_putra' | 'supplier' | 'other' | null
 }
 type ImportReferences = {
   kitchens: KitchenRef[]
@@ -205,55 +206,40 @@ function getRowDisposition(
     }
   }
 
-  const rowFlow = getRowFlow(row)
-  const rowOperationalType = getRowOperationalType(row)
-  if (rowFlow === 'operational_disbursement') {
-    const kitchenName = refs.kitchens.find((item) => item.id === kitchenId)?.name
-    const exclusionReason = getMakerImportOperationalExclusionReason(kitchenName, rowOperationalType)
-    if (exclusionReason) return { status: 'excluded', reason: exclusionReason }
-  }
-
-  // Fixed Maker categories identify the intended account from the source line.
-  // Resolve by recipient + bank + account number + transaction type, not by the
-  // generic PIC Yayasan name saved on the kitchen master.
-  if (usesAutomaticRecipientMapping(row)) {
-    const ruleType = getOperationalRuleType(row)
-    const matches = refs.operationalRules.filter((rule) =>
-      rule.kitchen_id === kitchenId &&
-      rule.rule_type === ruleType &&
-      operationalRuleMatchesRow(rule, row)
-    )
-    if (matches.length === 1) return { status: 'import', reason: null }
-    return { status: 'import', reason: null }
-  }
-
   const flow = getRowFlow(row)
   const operationalType = getRowOperationalType(row)
-  const protectedManualType = flow === 'operational_disbursement' &&
-    ['sppg_rent', 'relawan_salary', 'pic_incentive'].includes(operationalType)
-  if (!protectedManualType) return { status: 'import', reason: null }
+  let ruleTypes: string[] = []
 
-  // Keep the PIC guard for manually classified Lain-lain rows only.
-  const kitchen = refs.kitchens.find((item) => item.id === kitchenId)
-  const expectedPic = kitchen?.operational_recipient_name?.trim() ?? ''
-  if (!expectedPic || normalizeMakerText(row.recipientName) !== normalizeMakerText(expectedPic)) {
-    return { status: 'import', reason: null }
+  if (flow === 'ops_disbursement') {
+    ruleTypes = ['ops_harian']
+  } else if (flow === 'operational_disbursement') {
+    const ruleType = getOperationalRuleType(row)
+    if (ruleType) ruleTypes = [ruleType]
+    if (row.kind === 'lain_lain' && operationalType === 'pic_incentive') {
+      ruleTypes = ['pic_incentive_school', 'pic_incentive_posyandu']
+    }
   }
 
-  const ruleType = getOperationalRuleType(row)
-  const matchingRule = refs.operationalRules.some((rule) =>
+  if (ruleTypes.length === 0) return { status: 'import', reason: null }
+
+  // Data Rekening is the only policy source. An exact match marked excluded is
+  // retained in the import audit but must never become a SIM-SPPG transaction.
+  const matchingRules = refs.operationalRules.filter((rule) =>
     rule.kitchen_id === kitchenId &&
-    (rule.rule_type === ruleType || (row.kind === 'lain_lain' && operationalType === 'pic_incentive' && ['pic_incentive_school', 'pic_incentive_posyandu'].includes(rule.rule_type))) &&
-    normalizeMakerText(rule.owner_name) === normalizeMakerText(expectedPic) &&
-    normalizeMakerBank(rule.bank) === normalizeMakerBank(row.bank) &&
-    normalizeMakerAccountNumber(rule.account_number) === normalizeMakerAccountNumber(row.accountNumber)
+    ruleTypes.includes(rule.rule_type) &&
+    operationalRuleMatchesRow(rule, row)
   )
-  if (!matchingRule) {
-    return { status: 'import', reason: null }
+
+  const hasActiveMatch = matchingRules.some((rule) => rule.mapping_status === 'active')
+  if (matchingRules.length > 0 && !hasActiveMatch) {
+    return {
+      status: 'excluded',
+      reason: 'Mapping Data Rekening ditandai Dikecualikan. Baris tetap masuk riwayat audit, tetapi tidak dibuat sebagai transaksi SIM-SPPG.'
+    }
   }
+
   return { status: 'import', reason: null }
 }
-
 function getExcludedBaselineValidation(
   row: MakerImportDraftRow,
   kitchenId: string,
@@ -480,7 +466,7 @@ export function MakerImportPage() {
             supabase.from('kitchen_account_rules').select('kitchen_id,account_id,flow_type'),
             supabase
               .from('kitchen_operational_account_rules')
-              .select('id,kitchen_id,rule_type,owner_name,bank,account_number')
+              .select('id,kitchen_id,rule_type,owner_name,bank,account_number,mapping_status,target_role')
               .eq('is_active', true)
           ])
 
@@ -669,12 +655,26 @@ export function MakerImportPage() {
           excluded_reason: disposition.reason,
           amount: row.amount as number,
           note: isIncome ? (row.details.trim() || null) : isOpsDisbursement ? 'Ops Harian' : null,
-          flow_type: disposition.status === 'excluded' ? null : flow,
-          category: disposition.status === 'excluded' ? null : flowInfo.category,
-          operational_type: disposition.status === 'excluded' || !isOperational ? null : flowInfo.operational_type,
+          // Retain intended classification in the audit row when excluded; the SQL
+          // function verifies the exclusion against Data Rekening before allowing audit-only save.
+          flow_type: flow,
+          category: flowInfo.category,
+          operational_type: !isOperational ? null : flowInfo.operational_type,
           account_id: disposition.status === 'excluded' || (!isIncome && !isGas) ? null : isGas ? (validation.account?.id ?? null) : row.accountId,
           supplier_id: null,
-          destination_label: disposition.status === 'excluded' || !isOpsDisbursement ? null : 'Akuntan ' + activeKitchen.name,
+          destination_label: disposition.status === 'excluded' || !isOpsDisbursement
+            ? null
+            : validation.operationalRule?.target_role === 'aslap'
+              ? 'Aslap ' + activeKitchen.name
+              : validation.operationalRule?.target_role === 'akuntan'
+                ? 'Akuntan ' + activeKitchen.name
+                : validation.operationalRule?.target_role === 'pic_yayasan'
+                  ? 'PIC Yayasan ' + activeKitchen.name
+                  : validation.operationalRule?.target_role === 'supplier'
+                    ? 'Pihak Luar ' + activeKitchen.name
+                    : validation.operationalRule?.target_role === 'other'
+                      ? 'OPS ' + activeKitchen.name
+                      : 'Akuntan ' + activeKitchen.name,
           maker_source_line: row.rawLine,
           maker_source_category: row.sourceCategory || 'Lain-lain',
           maker_recipient_name: row.recipientName.trim() || null,
