@@ -19,6 +19,10 @@ export type OverallKitchenReport = {
   kitchenId: string
   kitchenName: string
   recipientName: string | null
+  sppgRentMapped: boolean
+  vehicleRentMapped: boolean
+  relawanSalaryMapped: boolean
+  picIncentiveMapped: boolean
   income: number
   expense: number
   gas: number
@@ -170,7 +174,8 @@ export function getOperationalKitchenLabel(
   kitchenName: string,
   recipientName: string | null
 ) {
-  return `${kitchenName} (${recipientName?.trim() || 'Belum ditentukan'})`
+  const recipient = recipientName?.trim()
+  return recipient ? `${kitchenName} (${recipient})` : kitchenName
 }
 
 export function getOperationalTypeLabel(type: OperationalType) {
@@ -364,22 +369,126 @@ export async function getActiveKitchens(
   })) as ReportKitchen[]
 }
 
+type ReportOperationalRuleType =
+  | 'ops_harian'
+  | 'sppg_rent'
+  | 'vehicle_rent'
+  | 'gaji_relawan'
+  | 'pic_incentive_school'
+  | 'pic_incentive_posyandu'
+
+type ReportOperationalRule = {
+  kitchen_id: string
+  rule_type: ReportOperationalRuleType
+  owner_name: string | null
+  is_active: boolean
+  mapping_status: 'active' | 'excluded'
+  target_role: string | null
+}
+
+async function getOperationalAccountRules(
+  client: SupabaseClient = supabase
+): Promise<ReportOperationalRule[]> {
+  const { data, error } = await client
+    .from('kitchen_operational_account_rules')
+    .select('kitchen_id,rule_type,owner_name,is_active,mapping_status,target_role')
+
+  if (error) {
+    throw error
+  }
+
+  return (data ?? []) as ReportOperationalRule[]
+}
+
+function isReportMappingEnabled(rule: ReportOperationalRule | undefined): boolean {
+  return Boolean(rule && rule.is_active && rule.mapping_status === 'active')
+}
+
+function getMappingRuleTypesForOperationalType(
+  type: OperationalType | null | undefined
+): ReportOperationalRuleType[] {
+  switch (type) {
+    case 'relawan_salary':
+      return ['gaji_relawan']
+    case 'pic_incentive':
+      return ['pic_incentive_school', 'pic_incentive_posyandu']
+    case 'school_pic_incentive':
+      return ['pic_incentive_school']
+    case 'kader_incentive':
+      return ['pic_incentive_posyandu']
+    case 'vehicle_rent':
+      return ['vehicle_rent']
+    case 'sppg_rent':
+      return ['sppg_rent']
+    default:
+      return []
+  }
+}
+
+function isOperationalMappingEnabled(
+  rulesByKitchen: Map<string, ReportOperationalRule[]>,
+  kitchenId: string,
+  type: OperationalType | null | undefined
+): boolean {
+  const types = getMappingRuleTypesForOperationalType(type)
+  if (!types.length) return false
+
+  const rules = rulesByKitchen.get(kitchenId) ?? []
+  return types.some((ruleType) =>
+    rules.some((rule) =>
+      rule.rule_type === ruleType && isReportMappingEnabled(rule)
+    )
+  )
+}
+
+function getReportRecipientName(
+  rules: ReportOperationalRule[]
+): string | null {
+  const eligible = rules.filter(isReportMappingEnabled)
+  const sppgRecipient = eligible.find((rule) => rule.rule_type === 'sppg_rent')
+    ?.owner_name?.trim()
+  if (sppgRecipient) return sppgRecipient
+
+  const picYayasanRecipient = eligible.find(
+    (rule) => rule.rule_type === 'ops_harian' && rule.target_role === 'pic_yayasan'
+  )?.owner_name?.trim()
+  return picYayasanRecipient || null
+}
+
 export async function getOverallReport(
   filters: ReportFilters,
   client: SupabaseClient = supabase
 ): Promise<OverallReport> {
-  const [kitchens, transactions] = await Promise.all([
+  const [kitchens, transactions, operationalRules] = await Promise.all([
     getActiveKitchens(client),
-    getReportTransactions(filters, client)
+    getReportTransactions(filters, client),
+    getOperationalAccountRules(client)
   ])
+
+  const rulesByKitchen = new Map<string, ReportOperationalRule[]>()
+  for (const rule of operationalRules) {
+    const current = rulesByKitchen.get(rule.kitchen_id) ?? []
+    current.push(rule)
+    rulesByKitchen.set(rule.kitchen_id, current)
+  }
+
+  const activeRule = (kitchenId: string, ruleTypes: ReportOperationalRuleType[]) =>
+    (rulesByKitchen.get(kitchenId) ?? []).find((rule) =>
+      ruleTypes.includes(rule.rule_type) && isReportMappingEnabled(rule)
+    )
 
   const grouped = new Map<string, OverallKitchenReport>()
 
   for (const kitchen of kitchens) {
+    const kitchenRules = rulesByKitchen.get(kitchen.id) ?? []
     grouped.set(kitchen.id, {
       kitchenId: kitchen.id,
       kitchenName: kitchen.name,
-      recipientName: kitchen.operationalRecipientName,
+      recipientName: getReportRecipientName(kitchenRules),
+      sppgRentMapped: Boolean(activeRule(kitchen.id, ['sppg_rent'])),
+      vehicleRentMapped: Boolean(activeRule(kitchen.id, ['vehicle_rent'])),
+      relawanSalaryMapped: Boolean(activeRule(kitchen.id, ['gaji_relawan'])),
+      picIncentiveMapped: Boolean(activeRule(kitchen.id, ['pic_incentive_school', 'pic_incentive_posyandu'])),
       income: 0,
       expense: 0,
       gas: 0,
@@ -440,6 +549,11 @@ export async function getOverallReport(
           kitchen.kitchenName,
           transaction.operational_type,
           transaction.transaction_date
+        ) &&
+        isOperationalMappingEnabled(
+          rulesByKitchen,
+          transaction.kitchen_id,
+          transaction.operational_type
         )
       ) {
         switch (transaction.operational_type) {
