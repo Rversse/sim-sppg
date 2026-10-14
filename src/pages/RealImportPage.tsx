@@ -33,6 +33,12 @@ type ImportAuditRow = {
   source_type: RealImportSource
 }
 
+type ExistingSourceAuditRow = {
+  kitchen_id: string | null
+  amount: number | string
+  supplier_id: string
+}
+
 function hashText(text: string): Promise<string> {
   return crypto.subtle.digest(
     'SHA-256',
@@ -136,7 +142,7 @@ export function RealImportPage() {
       setCheckingDuplicates(true)
       setDuplicateCheckError('')
       try {
-        const { data, error } = await supabase
+        const { data: transactionData, error: transactionError } = await supabase
           .from('transactions')
           .select('id,kitchen_id,amount')
           .eq('transaction_date', transactionDate)
@@ -144,41 +150,73 @@ export function RealImportPage() {
           .eq('category', 'Supplier')
           .eq('supplier_id', supplier.id)
 
-        if (error) throw error
-        const existing = (data ?? []) as ExistingTransaction[]
+        if (transactionError) throw transactionError
+        const existing = (transactionData ?? []) as ExistingTransaction[]
         const transactionIds = existing.map((item) => item.id)
-        let auditRows: ImportAuditRow[] = []
+
+        let transactionAuditRows: ImportAuditRow[] = []
         if (transactionIds.length > 0) {
           const { data: audits, error: auditError } = await supabase
             .from('real_import_batch_rows')
             .select('transaction_id,source_type')
             .in('transaction_id', transactionIds)
           if (auditError) throw auditError
-          auditRows = (audits ?? []) as ImportAuditRow[]
+          transactionAuditRows = (audits ?? []) as ImportAuditRow[]
         }
 
         const auditByTransaction = new Map<string, RealImportSource[]>()
-        for (const audit of auditRows) {
+        for (const audit of transactionAuditRows) {
           if (!audit.transaction_id) continue
           const sources = auditByTransaction.get(audit.transaction_id) ?? []
           sources.push(audit.source_type)
           auditByTransaction.set(audit.transaction_id, sources)
         }
 
+        // Also inspect same-source audit rows directly. Their transaction can have
+        // been deleted (ON DELETE SET NULL); that historical row must still stop
+        // the same source/kitchen/date/supplier/amount from being posted again.
+        const { data: priorBatches, error: priorBatchError } = await supabase
+          .from('real_import_batches')
+          .select('id')
+          .eq('source_type', sourceType)
+          .eq('transaction_date', transactionDate)
+        if (priorBatchError) throw priorBatchError
+
+        let sameSourceAudits: ExistingSourceAuditRow[] = []
+        const priorBatchIds = (priorBatches ?? []).map((item) => item.id as string)
+        if (priorBatchIds.length > 0) {
+          const { data: priorRows, error: priorRowsError } = await supabase
+            .from('real_import_batch_rows')
+            .select('kitchen_id,amount,supplier_id')
+            .in('batch_id', priorBatchIds)
+            .eq('disposition', 'imported')
+          if (priorRowsError) throw priorRowsError
+          sameSourceAudits = (priorRows ?? []) as ExistingSourceAuditRow[]
+        }
+
         const reasons: Record<string, string> = {}
         for (const row of rows) {
           if (row.disposition !== 'import' || !row.kitchenId) continue
+
+          const existsInSameSourceAudit = sameSourceAudits.some((audit) =>
+            audit.kitchen_id === row.kitchenId &&
+            Number(audit.amount) === row.amount &&
+            audit.supplier_id === supplier.id
+          )
+
           const duplicates = existing.filter((item) =>
             item.kitchen_id === row.kitchenId && Number(item.amount) === row.amount
           )
-          const blocking = duplicates.find((item) => {
+          // A match from another source is intentionally allowed because the
+          // Cianjur and Cidaun purchases are separate. However, ANY manual row
+          // or same-source audited row with the same key must block this import.
+          const blockingExistingTransaction = duplicates.some((item) => {
             const sources = auditByTransaction.get(item.id) ?? []
-            // Same-source or manually entered transactions block. A record audited
-            // solely under the other report source is intentionally separate.
-            return sources.length === 0 || sources.includes(sourceType) || sources.some((source) => source === sourceType)
+            return sources.length === 0 || sources.includes(sourceType)
           })
-          if (blocking) {
-            reasons[row.id] = 'Nominal, tanggal, dapur, dan supplier ini sudah ada. Baris tidak bisa disimpan dua kali.'
+
+          if (existsInSameSourceAudit || blockingExistingTransaction) {
+            reasons[row.id] = 'Tanggal, dapur, supplier Koperasi Arutala, dan nominal ini sudah ada untuk sumber yang sama. Baris tidak bisa disimpan dua kali.'
           }
         }
 
