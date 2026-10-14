@@ -70,9 +70,9 @@ test('Maker parser classifies common output and retains the exact integer amount
 })
 
 test('Maker parser rejects invalid headers and preserves physical source line numbers', () => {
-  const malformed = parseMakerDocument('Campakamulya, 05-Okt-2026\nGAS : KOPERASI - BNI / 123 · 1.000')
+  const malformed = parseMakerDocument('Campakamulya, 05-Otx-2026\nGAS : KOPERASI - BNI / 123 · 1.000')
   assert.notEqual(malformed.error, null)
-  const valid = parseMakerDocument('Cisepat, 05-Oct-2026\n\nGAS : KOPERASI - BNI / 123 · 1.000')
+  const valid = parseMakerDocument('Cisepat, 05-Okt-2026\n\nGAS : KOPERASI - BNI / 123 · 1.000')
   assert.equal(valid.error, null)
   assert.equal(valid.rows.length, 1)
   assert.equal(valid.rows[0].lineNumber, 3)
