@@ -376,15 +376,3 @@ export function parseMakerDocument(text: string): ParsedMakerDocument {
     error: null
   }
 }
-
-
-/**
- * Kitchen-specific import policy is configured in Data Rekening.
- * Keep this compatibility helper free of embedded kitchen-name rules.
- */
-export function getMakerImportOperationalExclusionReason(
-  _kitchenName: string | null | undefined,
-  _operationalType: MakerOperationalType | null | undefined
-): string | null {
-  return null
-}
