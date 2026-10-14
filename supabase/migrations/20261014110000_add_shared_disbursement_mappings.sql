@@ -667,3 +667,29 @@ end;
 $function$;
 revoke all on function public.import_maker_transactions(text, uuid, date, text, jsonb) from public, anon, authenticated;
 grant execute on function public.import_maker_transactions(text, uuid, date, text, jsonb) to authenticated;
+
+-- Expose only destination role labels to authenticated operators/admins.
+-- Bank/account identities remain admin-only in kitchen_operational_account_rules.
+create or replace function public.get_operational_destination_roles()
+returns table(kitchen_id uuid, target_role text)
+language sql
+stable
+security definer
+set search_path to 'public', 'pg_temp'
+as $function$
+  select r.kitchen_id, r.target_role
+  from public.kitchen_operational_account_rules r
+  where r.rule_type = 'ops_harian'
+    and r.is_active
+    and r.mapping_status = 'active'
+    and r.target_role is not null
+    and exists (
+      select 1
+      from public.profiles p
+      where p.id = auth.uid()
+        and p.role in ('admin', 'operator')
+    );
+$function$;
+
+revoke all on function public.get_operational_destination_roles() from public, anon;
+grant execute on function public.get_operational_destination_roles() to authenticated;
