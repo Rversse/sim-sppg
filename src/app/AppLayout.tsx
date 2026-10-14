@@ -91,6 +91,13 @@ const navigationSections: NavigationSection[] = [
         icon: ClipboardPaste,
         pageTitle: 'Import Maker'
       },
+      {
+        label: 'Import RAB / Real',
+        to: '/real-import',
+        permission: 'real-import.view',
+        icon: FileSpreadsheet,
+        pageTitle: 'Import RAB / Real'
+      },
     ]
   },
   {
