@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { AlertTriangle, CheckCircle2, ClipboardPaste, Database, FileCheck2, LoaderCircle, RotateCcw, ShieldAlert, Upload } from 'lucide-react'
+import { AlertTriangle, CheckCircle2, ClipboardPaste, FileCheck2, LoaderCircle, RotateCcw, ShieldAlert } from 'lucide-react'
 import { ImportConfirmationDialog } from '@/components/ui/import-confirmation-dialog'
 import { useToast } from '@/features/ui/toast-context'
 import {
@@ -32,8 +32,6 @@ type ImportAuditRow = {
   transaction_id: string | null
   source_type: RealImportSource
 }
-
-const moneyFormatter = new Intl.NumberFormat('id-ID', { maximumFractionDigits: 0 })
 
 function hashText(text: string): Promise<string> {
   return crypto.subtle.digest(
@@ -131,12 +129,7 @@ export function RealImportPage() {
     !saving
 
   useEffect(() => {
-    if (!draftReady || !transactionDate || !supplier || rows.length === 0) {
-      setDuplicateReasons({})
-      setDuplicateCheckError('')
-      setCheckingDuplicates(false)
-      return
-    }
+    if (!draftReady || !transactionDate || !supplier || rows.length === 0) return
 
     let cancelled = false
     const timer = window.setTimeout(async () => {
@@ -230,6 +223,7 @@ export function RealImportPage() {
     setDuplicateBatchMessage('')
     setDuplicateReasons({})
     setDuplicateCheckError('')
+    setCheckingDuplicates(false)
     setParseError('')
     setSaveError('')
     setConfirmOpen(false)
@@ -238,6 +232,7 @@ export function RealImportPage() {
   async function handleParse() {
     setParseError('')
     setSaveError('')
+    setCheckingDuplicates(false)
     setDuplicateBatch(false)
     setDuplicateBatchMessage('')
     setDuplicateCheckError('')
@@ -381,7 +376,7 @@ export function RealImportPage() {
         <div className="real-import-source-tools">
           <label>
             <span>Sumber laporan</span>
-            <select value={sourceType} onChange={(event) => { setSourceType(event.target.value as RealImportSource); setDraftReady(false); setDuplicateBatch(false); }}>
+            <select value={sourceType} onChange={(event) => { setSourceType(event.target.value as RealImportSource); setDraftReady(false); setDuplicateBatch(false); setDuplicateReasons({}); setDuplicateCheckError(''); setCheckingDuplicates(false); setDuplicateBatchMessage(''); }}>
               <option value="cianjur">Cianjur — Belanja Harian DD/MM/YYYY</option>
               <option value="cidaun">Cidaun — tanggal teks Bahasa Indonesia</option>
             </select>
@@ -395,7 +390,7 @@ export function RealImportPage() {
         <textarea
           className="maker-import-source"
           value={sourceText}
-          onChange={(event) => { setSourceText(event.target.value); setDraftReady(false); setParseError(''); setSaveError(''); setDuplicateBatch(false); setDuplicateBatchMessage(''); }}
+          onChange={(event) => { setSourceText(event.target.value); setDraftReady(false); setParseError(''); setSaveError(''); setDuplicateBatch(false); setDuplicateBatchMessage(''); setDuplicateReasons({}); setDuplicateCheckError(''); setCheckingDuplicates(false); }}
           placeholder={'Tempel laporan dari ' + sourceLabel(sourceType) + ' di sini…'}
           spellCheck={false}
         />
