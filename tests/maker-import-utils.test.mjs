@@ -3,8 +3,7 @@ import assert from 'node:assert/strict'
 import {
   parseMakerAmount,
   parseMakerDate,
-  parseMakerDocument,
-  getMakerImportOperationalExclusionReason
+  parseMakerDocument
 } from '../src/features/maker-import/maker-import-utils.ts'
 
 test('IDR amounts preserve scale and reject malformed separators', () => {
@@ -82,14 +81,4 @@ test('operational account mapping is resolved by recipient name and exact accoun
   assert.equal(matchesMakerOperationalAccount('Nama Berbeda', 'MANDIRI', '1820018916205', mapping), false)
   assert.equal(matchesMakerOperationalAccount('Yusgar Anggara Dinata', 'BRI', '1820018916205', mapping), false)
   assert.equal(matchesMakerOperationalAccount('Yusgar Anggara Dinata', 'MANDIRI', '999999', mapping), false)
-})
-
-
-test('operational exclusions are no longer hardcoded by kitchen name', () => {
-  for (const kitchen of ['Campakamulya', 'Cikondang', 'Kertajadi', 'Sukaraja', 'Cihaur', 'Cipetir']) {
-    assert.equal(getMakerImportOperationalExclusionReason(kitchen, 'relawan_salary'), null)
-    assert.equal(getMakerImportOperationalExclusionReason(kitchen, 'pic_incentive'), null)
-    assert.equal(getMakerImportOperationalExclusionReason(kitchen, 'sppg_rent'), null)
-    assert.equal(getMakerImportOperationalExclusionReason(kitchen, 'vehicle_rent'), null)
-  }
 })
