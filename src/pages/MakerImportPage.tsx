@@ -658,9 +658,11 @@ export function MakerImportPage() {
           excluded_reason: disposition.reason,
           amount: row.amount as number,
           note: isIncome ? (row.details.trim() || null) : isOpsDisbursement ? 'Ops Harian' : null,
-          flow_type: disposition.status === 'excluded' ? null : flow,
-          category: disposition.status === 'excluded' ? null : flowInfo.category,
-          operational_type: disposition.status === 'excluded' || !isOperational ? null : flowInfo.operational_type,
+          // Keep the intended classification in the audit row even when excluded;
+          // the server uses it to verify that the exclusion matches Data Rekening.
+          flow_type: flow,
+          category: flowInfo.category,
+          operational_type: !isOperational ? null : flowInfo.operational_type,
           account_id: disposition.status === 'excluded' || (!isIncome && !isGas) ? null : isGas ? (validation.account?.id ?? null) : row.accountId,
           supplier_id: null,
           destination_label: disposition.status === 'excluded' || !isOpsDisbursement
