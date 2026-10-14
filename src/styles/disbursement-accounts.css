@@ -346,6 +346,32 @@
   gap: 14px;
 }
 
+/* Keep the shared vehicle account aligned with the OPS card on the right. */
+.disbursement-group-sppg_rent {
+  grid-column: 1;
+  grid-row: 1;
+}
+
+.disbursement-vehicle-group {
+  grid-column: 2;
+  grid-row: 1;
+}
+
+.disbursement-group-gaji_relawan {
+  grid-column: 1;
+  grid-row: 2;
+}
+
+.disbursement-group-ops_harian {
+  grid-column: 2;
+  grid-row: 2;
+}
+
+.disbursement-group-pic_incentive {
+  grid-column: 1;
+  grid-row: 3;
+}
+
 .disbursement-mapping-group {
   display: grid;
   min-width: 0;
@@ -530,6 +556,15 @@
 @media (max-width: 960px) {
   .disbursement-mapping-groups {
     grid-template-columns: minmax(0, 1fr);
+  }
+
+  .disbursement-group-sppg_rent,
+  .disbursement-vehicle-group,
+  .disbursement-group-gaji_relawan,
+  .disbursement-group-ops_harian,
+  .disbursement-group-pic_incentive {
+    grid-column: auto;
+    grid-row: auto;
   }
 }
 
