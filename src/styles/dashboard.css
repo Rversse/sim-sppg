@@ -665,7 +665,7 @@
 
 .dashboard-status-summary {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 7px;
   margin: 14px 0 10px;
 }
@@ -691,12 +691,6 @@
   border-color: transparent;
   background: transparent;
   color: var(--app-success);
-}
-
-.status-summary-yellow {
-  border-color: transparent;
-  background: transparent;
-  color: var(--app-warning);
 }
 
 .status-summary-red {
@@ -763,12 +757,8 @@
   line-height: 1.2;
 }
 
-.dashboard-status-row.is-disbursed .dashboard-status-meta {
+.dashboard-status-row.is-has-pencairan .dashboard-status-meta {
   color: var(--app-success);
-}
-
-.dashboard-status-row.is-pending .dashboard-status-meta {
-  color: var(--app-warning);
 }
 
 .dashboard-status-row.is-empty .dashboard-status-meta {
@@ -2055,7 +2045,7 @@
 }
 
 /* =========================================================
-   DISBURSEMENT STATUS — PER KITCHEN / PERIOD
+   DASHBOARD STATUS — PER KITCHEN / PERIOD
    ========================================================= */
 
 .dashboard-status-row {
@@ -2068,8 +2058,7 @@
     background-color var(--theme-motion-fast) ease;
 }
 
-.dashboard-status-row.is-disbursed,
-.dashboard-status-row.is-pending,
+.dashboard-status-row.is-has-pencairan,
 .dashboard-status-row.is-empty {
   background: transparent;
 }
@@ -2087,92 +2076,6 @@
   justify-content: center;
   gap: 8px;
 }
-
-.dashboard-disbursement-check {
-  display: inline-grid;
-  width: 28px;
-  height: 28px;
-  place-items: center;
-  align-self: center;
-  justify-self: center;
-  margin: 0;
-  padding: 0;
-  border: 0;
-  background: transparent;
-  color: var(--app-danger);
-  cursor: pointer;
-  line-height: 0;
-  user-select: none;
-}
-
-.dashboard-disbursement-check input {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
-  margin: -1px;
-  padding: 0;
-  border: 0;
-  clip: rect(0 0 0 0);
-  clip-path: inset(50%);
-  white-space: nowrap;
-}
-
-.dashboard-disbursement-checkmark {
-  display: block;
-  width: 21px;
-  height: 21px;
-  box-sizing: border-box;
-  margin: 0;
-  border: 2px solid var(--app-danger);
-  border-radius: 5px;
-  background: transparent;
-  transition:
-    border-color 150ms ease,
-    background-color 150ms ease,
-    box-shadow 150ms ease,
-    transform 150ms ease;
-}
-
-.dashboard-disbursement-check:hover .dashboard-disbursement-checkmark {
-  transform: translateY(-1px);
-}
-
-.dashboard-disbursement-check:focus-within .dashboard-disbursement-checkmark {
-  box-shadow: var(--theme-focus-ring);
-}
-
-.dashboard-disbursement-check.is-checked .dashboard-disbursement-checkmark {
-  border-color: var(--app-success);
-  background: var(--app-success);
-  box-shadow: 0 3px 8px color-mix(in srgb, var(--app-success) 22%, transparent);
-}
-
-.dashboard-disbursement-check:active .dashboard-disbursement-checkmark {
-  transform: scale(0.94);
-}
-
-.dashboard-status-row.is-disbursed .dashboard-disbursement-checkmark {
-  border-color: var(--app-success);
-  background: var(--app-success);
-}
-
-@media (max-width: 760px) {
-  .dashboard-status-row-actions {
-    gap: 6px;
-  }
-
-  .dashboard-disbursement-check {
-    width: 24px;
-    height: 24px;
-  }
-
-  .dashboard-disbursement-checkmark {
-    width: 20px;
-    height: 20px;
-  }
-}
-
 
 
 
