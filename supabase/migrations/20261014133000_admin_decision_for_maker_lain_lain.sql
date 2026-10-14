@@ -1,7 +1,6 @@
--- Explicit Admin Allow/Block for ambiguous Maker Lain-lain rows; correct Campakamulya accountant reason.
--- Keep the draft detail editable and persist it as the transaction note for RAB, GAS and OPS / Pencairan.
--- Defaults for new Maker drafts are "Gas" and "Ops Harian". SQL fallbacks protect against older clients
--- that may submit NULL details. The original Maker source line remains immutable in the import audit.
+-- Explicit Admin Allow/Block for ambiguous Maker Lain-lain rows; preserve latest header/date validation.
+-- Accept both legacy English and Indonesian abbreviated month names in Maker header dates.
+-- Current Maker emits Indonesian abbreviations (e.g. 14-Okt-2026); older copied outputs remain valid.
 CREATE OR REPLACE FUNCTION public.import_maker_transactions(p_content_hash text, p_kitchen_id uuid, p_transaction_date date, p_source_text text, p_rows jsonb)
  RETURNS jsonb
  LANGUAGE plpgsql
@@ -91,8 +90,10 @@ begin
   end if;
   v_header_month := case lower(v_header_match[3])
     when 'jan' then 1 when 'feb' then 2 when 'mar' then 3 when 'apr' then 4
-    when 'may' then 5 when 'jun' then 6 when 'jul' then 7 when 'aug' then 8
-    when 'sep' then 9 when 'oct' then 10 when 'nov' then 11 when 'dec' then 12
+    when 'may' then 5 when 'mei' then 5 when 'jun' then 6 when 'jul' then 7
+    when 'aug' then 8 when 'agu' then 8 when 'sep' then 9
+    when 'oct' then 10 when 'okt' then 10 when 'nov' then 11
+    when 'dec' then 12 when 'des' then 12
     else null
   end;
   if v_header_month is null then
