@@ -353,12 +353,17 @@ begin
         into v_mapping_status, v_destination_role
       from public.kitchen_operational_account_rules r
       where r.kitchen_id = p_kitchen_id
-        and r.rule_type = v_rule_type
+        and (
+          r.rule_type = v_rule_type
+          or (v_kind = 'lain_lain' and v_operational_type = 'pic_incentive'
+              and r.rule_type in ('pic_incentive_school', 'pic_incentive_posyandu'))
+        )
         and r.is_active
         and lower(regexp_replace(btrim(r.owner_name), '\\s+', ' ', 'g')) =
             lower(regexp_replace(btrim(v_recipient), '\\s+', ' ', 'g'))
         and upper(regexp_replace(btrim(r.bank), '\\s+', ' ', 'g')) = v_bank
         and regexp_replace(btrim(r.account_number), '\\s+', '', 'g') = v_account_number
+      order by case when coalesce(r.mapping_status, 'active') = 'active' then 0 else 1 end
       limit 1;
 
       if found then
@@ -371,7 +376,11 @@ begin
           select 1
           from public.kitchen_operational_account_rules r
           where r.kitchen_id = p_kitchen_id
-            and r.rule_type = v_rule_type
+            and (
+              r.rule_type = v_rule_type
+              or (v_kind = 'lain_lain' and v_operational_type = 'pic_incentive'
+                  and r.rule_type in ('pic_incentive_school', 'pic_incentive_posyandu'))
+            )
             and r.is_active
         ) then
           raise exception 'Mapping % untuk dapur % belum diatur di Data Rekening. Impor diblokir sampai mapping dibuat.',
