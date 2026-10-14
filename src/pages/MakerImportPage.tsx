@@ -109,16 +109,13 @@ function getAccountOptionLabel(account: AccountRef): string {
 function getRowFlow(
   row: MakerImportDraftRow
 ): MakerManualFlow {
-  return row.kind === 'lain_lain'
-    ? row.manualFlow
-    : defaultManualFlow(row.kind)
+  return row.manualFlow || defaultManualFlow(row.kind)
 }
 
 function getRowOperationalType(
   row: MakerImportDraftRow
 ): MakerOperationalType {
-  if (row.kind === 'lain_lain') return row.operationalType
-  return defaultOperationalType(row.kind)
+  return row.operationalType || defaultOperationalType(row.kind)
 }
 
 function getOperationalRuleType(row: MakerImportDraftRow): string | null {
@@ -851,7 +848,7 @@ export function MakerImportPage() {
                 const hasNameMismatch = flow === 'income' || flow === 'gas'
                   ? Boolean(expectedAccount && normalizeMakerText(getAccountLabel(expectedAccount)) !== normalizeMakerText(row.recipientName))
                   : Boolean(expectedOperational && normalizeMakerText(expectedOperational.owner_name) !== normalizeMakerText(row.recipientName))
-                const manualRequired = row.kind === 'lain_lain' || hasNameMismatch
+                const manualRequired = row.kind === 'lain_lain' || hasNameMismatch || validation.confirmations.length > 0
                 const rowBlocked = disposition.status === 'excluded'
                 const rowInvalid = !rowBlocked && (validation.errors.length > 0 ||
                   (validation.confirmations.length > 0 && !row.verified) ||
@@ -939,26 +936,28 @@ export function MakerImportPage() {
                     <div className="maker-import-fields">
                       <label>
                         <span>Nama penerima / rekening</span>
-                        <input value={row.recipientName} readOnly title="Data sumber. Koreksi di Maker lalu tempel ulang agar jejak sumber tetap konsisten." disabled={saving} />
+                        <input value={row.recipientName} onChange={(event) => updateRow(row.id, { recipientName: event.target.value, accountId: '', operationalRuleId: '', verified: false })} title="Draft dapat dikoreksi. Teks sumber asli tetap tersimpan untuk audit; identitas rekening harus cocok dengan mapping database." disabled={saving || rowBlocked} />
                       </label>
                       <label>
                         <span>Bank</span>
-                        <input value={row.bank} readOnly title="Data sumber. Koreksi di Maker lalu tempel ulang." disabled={saving} />
+                        <input value={row.bank} onChange={(event) => updateRow(row.id, { bank: event.target.value, accountId: '', operationalRuleId: '', verified: false })} title="Bank pada draft dapat dikoreksi, tetapi harus cocok dengan mapping database." disabled={saving || rowBlocked} />
                       </label>
                       <label>
                         <span>Nomor rekening</span>
-                        <input value={row.accountNumber} readOnly title="Data sumber. Koreksi di Maker lalu tempel ulang." disabled={saving} />
+                        <input value={row.accountNumber} onChange={(event) => updateRow(row.id, { accountNumber: event.target.value, accountId: '', operationalRuleId: '', verified: false })} title="Nomor rekening pada draft dapat dikoreksi, tetapi harus cocok dengan mapping database." disabled={saving || rowBlocked} />
                       </label>
                       <label>
-                        <span>Nominal</span>
-                        <input inputMode="numeric" value={formatAmount(row.amount)} readOnly title="Nominal harus sesuai teks asli Maker. Koreksi di Maker lalu tempel ulang." disabled={saving} />
+                        <span>Nominal (Rp)</span>
+                        <input inputMode="numeric" value={row.amount === null ? '' : String(row.amount)} onChange={(event) => {
+                          const digits = event.target.value.replace(/[^0-9]/g, '')
+                          const amount = digits ? Number(digits) : null
+                          updateRow(row.id, { amount: amount !== null && Number.isSafeInteger(amount) ? amount : null, verified: false })
+                        }} title="Nominal draft dapat dikoreksi. Nominal sumber asli tetap tersimpan untuk audit." disabled={saving || rowBlocked} />
                       </label>
-{row.details.trim() ? (
                       <label className="maker-import-detail-field">
                         <span>Detail / produk / periode / keperluan</span>
-                        <input value={row.details} readOnly title="Detail dari output Maker. Koreksi di Maker lalu tempel ulang." disabled={saving} />
+                        <input value={row.details} onChange={(event) => updateRow(row.id, { details: event.target.value, verified: false })} title="Detail draft dapat dikoreksi; baris sumber asli tetap disimpan untuk audit." disabled={saving || rowBlocked} />
                       </label>
-                    ) : null}
                     </div>
 
                     {validation.errors.length > 0 || validation.confirmations.length > 0 ? (
