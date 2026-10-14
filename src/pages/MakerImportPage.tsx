@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { ImportConfirmationDialog } from '@/components/ui/import-confirmation-dialog'
-import { AlertTriangle, CheckCircle2, ClipboardPaste, Database, FileCheck2, LoaderCircle, RotateCcw, ShieldAlert, Upload } from 'lucide-react'
+import { AlertTriangle, CheckCircle2, ClipboardPaste, Database, FileCheck2, LoaderCircle, RotateCcw, ShieldAlert } from 'lucide-react'
 import { isOperationalTypeAvailable } from '@/features/transactions/operational-policy'
 import {
   defaultManualFlow,
@@ -609,14 +609,7 @@ export function MakerImportPage() {
   }), [rows, kitchenId, transactionDate, refs])
 
   useEffect(() => {
-    if (!draftReady || !transactionDate || !sourceText.trim()) {
-      setDuplicateRows({})
-      setDuplicateBatchMessage('')
-      setDuplicateCheckError('')
-      setDuplicateBatch(false)
-      setCheckingDuplicates(false)
-      return
-    }
+    if (!draftReady || !transactionDate || !sourceText.trim()) return
 
     let cancelled = false
     const timer = window.setTimeout(async () => {
@@ -901,6 +894,11 @@ export function MakerImportPage() {
               setDraftReady(false)
               setParseError('')
               setSaveError('')
+              setDuplicateRows({})
+              setDuplicateBatchMessage('')
+              setDuplicateCheckError('')
+              setDuplicateBatch(false)
+              setCheckingDuplicates(false)
             }}
             disabled={!sourceText && rows.length === 0}
           >
@@ -914,6 +912,11 @@ export function MakerImportPage() {
             setSourceText(event.target.value)
             setDraftReady(false)
             setSaveError('')
+            setDuplicateRows({})
+            setDuplicateBatchMessage('')
+            setDuplicateCheckError('')
+            setDuplicateBatch(false)
+            setCheckingDuplicates(false)
           }}
           placeholder="Paste data disini..."
           spellCheck={false}
