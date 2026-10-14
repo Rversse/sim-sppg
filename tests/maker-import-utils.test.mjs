@@ -67,6 +67,7 @@ test('Maker parser classifies common output and retains the exact integer amount
   assert.equal(parsed.rows[6].details, 'Biaya Ops Harian')
   assert.equal(parsed.rows[6].recipientName, 'Penerima Test')
   assert.equal(parsed.rows[6].accountNumber, '000123')
+  assert.equal(parsed.rows[6].manualDecision, 'pending')
 })
 
 test('Maker parser rejects invalid headers and preserves physical source line numbers', () => {

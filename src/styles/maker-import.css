@@ -400,7 +400,7 @@
   display: grid;
   /* Recipient names need room; bank labels are short, while account numbers
      keep a stable width and nominal values rarely exceed a few million. */
-  grid-template-columns: minmax(160px, 1.7fr) minmax(60px, .55fr) minmax(120px, 1.25fr) minmax(90px, .85fr);
+  grid-template-columns: minmax(0, 1.7fr) minmax(54px, .55fr) minmax(0, 1.25fr) minmax(0, .85fr);
   gap: 10px;
 }
 .maker-import-fields--manual {
@@ -505,7 +505,8 @@
 
 /* Compact, consistent import layout shared with the Real importer. */
 .maker-import-page {
-  width: min(100%, 1000px);
+  width: min(100%, 1480px);
+  box-sizing: border-box;
   padding-inline: 12px;
   gap: 12px;
 }
@@ -518,6 +519,9 @@
   gap: 10px;
 }
 .maker-import-row { padding: 12px; }
+@media (max-width: 1180px) {
+  .maker-import-row-list { grid-template-columns: minmax(0, 1fr); }
+}
 @media (max-width: 760px) {
   .maker-import-page { padding-inline: 8px; }
   .maker-import-row-list { grid-template-columns: minmax(0, 1fr); }
@@ -525,4 +529,43 @@
 @media (max-width: 660px) {
   .maker-import-hero { padding: 12px; }
   .maker-import-source { min-height: 125px; }
+}
+
+
+/* Admin review flow for ambiguous Lain-Lain rows. */
+.maker-import-manual-decision {
+  display: grid; gap: 9px; margin: 11px 0 12px; padding: 10px;
+  border: 1px solid color-mix(in srgb, #d97706 42%, var(--theme-border));
+  border-radius: 9px;
+  background: color-mix(in srgb, #d97706 7%, var(--theme-surface));
+}
+.maker-import-manual-decision.is-allowed {
+  border-color: color-mix(in srgb, #16a34a 32%, var(--theme-border));
+  background: color-mix(in srgb, #16a34a 4%, var(--theme-surface));
+}
+.maker-import-manual-decision.is-blocked {
+  border-color: color-mix(in srgb, #dc2626 35%, var(--theme-border));
+  background: color-mix(in srgb, #dc2626 4%, var(--theme-surface));
+}
+.maker-import-manual-decision > p { margin: 0; color: #b45309; font-size: 10px; line-height: 1.5; }
+.maker-import-manual-decision.is-allowed > p { color: var(--theme-success); }
+.maker-import-manual-decision.is-blocked > p { color: var(--theme-danger); }
+.maker-import-manual-decision-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.maker-import-decision-button {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  min-height: 34px; padding: 7px 10px; border: 1px solid var(--theme-border-strong);
+  border-radius: 8px; background: var(--theme-surface); color: var(--theme-text-secondary);
+  font: inherit; font-size: 10px; font-weight: 850; cursor: pointer;
+}
+.maker-import-decision-button svg { width: 14px; height: 14px; }
+.maker-import-decision-button.is-allow.is-selected {
+  border-color: #16a34a; background: color-mix(in srgb, #16a34a 10%, var(--theme-surface)); color: #15803d;
+}
+.maker-import-decision-button.is-block.is-selected {
+  border-color: #dc2626; background: color-mix(in srgb, #dc2626 9%, var(--theme-surface)); color: #b91c1c;
+}
+.maker-import-decision-button:disabled { opacity: .55; cursor: not-allowed; }
+@media (max-width: 660px) {
+  .maker-import-manual-decision-actions { display: grid; grid-template-columns: 1fr; }
+  .maker-import-decision-button { width: 100%; }
 }

@@ -40,6 +40,7 @@ export type MakerImportDraftRow = {
   operationalType: MakerOperationalType
   accountId: string
   operationalRuleId: string
+  manualDecision: 'pending' | 'allow' | 'block'
   verified: boolean
 }
 
@@ -183,6 +184,7 @@ function makeRow(
     operationalType: '' as const,
     accountId: '',
     operationalRuleId: '',
+    manualDecision: 'pending' as const,
     verified: false
   }
 
