@@ -84,11 +84,11 @@ const navigationSections: NavigationSection[] = [
         pageTitle: 'Transaksi Bank'
       },
       {
-        label: 'Impor Maker',
+        label: 'Import Maker',
         to: '/maker-import',
         permission: 'maker-import.view',
         icon: ClipboardPaste,
-        pageTitle: 'Impor Maker-Pencairan'
+        pageTitle: 'Import Maker'
       },
     ]
   },
