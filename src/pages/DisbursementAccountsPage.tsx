@@ -302,6 +302,7 @@ export function DisbursementAccountsPage() {
   const [kitchens, setKitchens] = useState<KitchenRef[]>([])
   const [rules, setRules] = useState<OperationalRule[]>([])
   const [selectedKitchenId, setSelectedKitchenId] = useState('')
+  const [addingTypes, setAddingTypes] = useState<RuleType[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
 
@@ -436,13 +437,14 @@ export function DisbursementAccountsPage() {
                     <button
                       type="button"
                       className="app-action-button app-action-button--secondary"
-                      onClick={() => {
-                        const element = document.getElementById('new-' + selectedKitchen.id + '-' + group.type)
-                        element?.scrollIntoView({ behavior: 'smooth', block: 'center' })
-                      }}
+                      onClick={() => setAddingTypes((current) =>
+                        current.includes(group.type)
+                          ? current.filter((type) => type !== group.type)
+                          : [...current, group.type]
+                      )}
                     >
                       <Plus aria-hidden="true" />
-                      <span>Tambah rekening</span>
+                      <span>{addingTypes.includes(group.type) ? 'Batal tambah' : 'Tambah rekening'}</span>
                     </button>
                   </header>
 
@@ -466,18 +468,23 @@ export function DisbursementAccountsPage() {
                     />
                   ))}
 
-                  <div id={'new-' + selectedKitchen.id + '-' + group.type}>
-                    <MappingEditor
-                      key={selectedKitchen.id + '-' + group.type + '-new-' + groupRules.length}
-                      kitchenName={selectedKitchen.name}
-                      kitchenId={selectedKitchen.id}
-                      type={group.type}
-                      title={group.title}
-                      rule={null}
-                      onSaved={load}
-                      onRemoved={load}
-                    />
-                  </div>
+                  {groupRules.length === 0 || addingTypes.includes(group.type) ? (
+                    <div id={'new-' + selectedKitchen.id + '-' + group.type}>
+                      <MappingEditor
+                        key={selectedKitchen.id + '-' + group.type + '-new-' + groupRules.length}
+                        kitchenName={selectedKitchen.name}
+                        kitchenId={selectedKitchen.id}
+                        type={group.type}
+                        title={group.title}
+                        rule={null}
+                        onSaved={async () => {
+                          setAddingTypes((current) => current.filter((type) => type !== group.type))
+                          await load()
+                        }}
+                        onRemoved={load}
+                      />
+                    </div>
+                  ) : null}
                 </section>
               )
             })}
