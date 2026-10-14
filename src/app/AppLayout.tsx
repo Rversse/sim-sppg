@@ -8,6 +8,7 @@ import {
   FileText,
   ClipboardPaste,
   LayoutDashboard,
+  Landmark,
   LogOut,
   type LucideIcon
 } from 'lucide-react'
@@ -48,6 +49,13 @@ const navigationSections: NavigationSection[] = [
         permission: 'kitchen.view',
         icon: ChefHat,
         pageTitle: 'Data Dapur'
+      },
+      {
+        label: 'Data Rekening',
+        to: '/master/disbursement-accounts',
+        permission: 'disbursement-accounts.view',
+        icon: Landmark,
+        pageTitle: 'Data Rekening'
       },
       {
         label: 'Data Kendaraan',
