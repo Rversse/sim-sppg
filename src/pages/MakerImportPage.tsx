@@ -1077,8 +1077,6 @@ export function MakerImportPage() {
                         {rowBlocked ? <><ShieldAlert aria-hidden="true" /> Tidak Valid</> : manualDecisionPending ? <><AlertTriangle aria-hidden="true" /> Perlu keputusan</> : rowInvalid ? <><AlertTriangle aria-hidden="true" /> Perlu koreksi</> : <><CheckCircle2 aria-hidden="true" /> Valid</>}
                       </span>
                     </div>
-                    {rowBlocked && disposition.reason ? <div className="maker-import-excluded-reason is-blocked"><ShieldAlert aria-hidden="true" /><span>{disposition.reason}</span></div> : null}
-
                     {rowBlocked && row.kind !== 'lain_lain' && disposition.reason ? <div className="maker-import-excluded-reason is-blocked"><ShieldAlert aria-hidden="true" /><span>{disposition.reason}</span></div> : null}
 
                     {row.kind === 'lain_lain' ? (
