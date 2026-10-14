@@ -74,7 +74,7 @@ test('Lain-lain rows start pending until Admin chooses Allow or Block', () => {
   const parsed = parseMakerDocument([
     'Campakamulya, 14-Okt-2026',
     'Lain-lain : Biaya Wifi - Provider Internet - BNI / 000123 · 25.000'
-  ].join('\\n'))
+  ].join('\n'))
 
   assert.equal(parsed.error, null)
   assert.equal(parsed.rows.length, 1)
