@@ -97,11 +97,6 @@ const STATUS_OPTIONS: Array<{ value: MappingStatus; label: string }> = [
   { value: 'excluded', label: 'Dikecualikan — jangan masuk transaksi' }
 ]
 
-function roleLabel(role: DestinationRole | null | undefined) {
-  return ROLE_OPTIONS.find((option) => option.value === (role ?? ''))?.label
-    ?? 'Belum diklasifikasikan'
-}
-
 function createDraft(rule: OperationalRule | null): MappingDraft {
   return {
     ownerName: rule?.owner_name ?? '',
