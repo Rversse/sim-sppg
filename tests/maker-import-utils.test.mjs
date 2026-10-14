@@ -70,6 +70,20 @@ test('Maker parser classifies common output and retains the exact integer amount
   assert.equal(parsed.rows[6].manualDecision, 'pending')
 })
 
+test('Lain-lain rows start pending until Admin chooses Allow or Block', () => {
+  const parsed = parseMakerDocument([
+    'Campakamulya, 14-Okt-2026',
+    'Lain-lain : Biaya Wifi - Provider Internet - BNI / 000123 · 25.000'
+  ].join('\\n'))
+
+  assert.equal(parsed.error, null)
+  assert.equal(parsed.rows.length, 1)
+  assert.equal(parsed.rows[0].kind, 'lain_lain')
+  assert.equal(parsed.rows[0].manualDecision, 'pending')
+  assert.equal(parsed.rows[0].recipientName, 'Provider Internet')
+  assert.equal(parsed.rows[0].accountNumber, '000123')
+})
+
 test('Maker parser rejects invalid headers and preserves physical source line numbers', () => {
   const malformed = parseMakerDocument('Campakamulya, 05-Otx-2026\nGAS : KOPERASI - BNI / 123 · 1.000')
   assert.notEqual(malformed.error, null)
