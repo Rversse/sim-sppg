@@ -128,10 +128,6 @@ function MappingEditor({
   const [draft, setDraft] = useState<MappingDraft>(() => createDraft(rule))
   const [saving, setSaving] = useState(false)
 
-  useEffect(() => {
-    setDraft(createDraft(rule))
-  }, [rule?.id, rule?.owner_name, rule?.bank, rule?.account_number, rule?.mapping_status, rule?.target_role])
-
   async function save() {
     const ownerName = draft.ownerName.trim()
     const bank = draft.bank.trim().replace(/\s+/g, ' ').toUpperCase()
@@ -334,7 +330,17 @@ export function DisbursementAccountsPage() {
   }, [])
 
   useEffect(() => {
-    if (canView) void load()
+    if (!canView) return
+    let cancelled = false
+
+    void Promise.resolve().then(() => {
+      if (!cancelled) return load()
+      return undefined
+    })
+
+    return () => {
+      cancelled = true
+    }
   }, [canView, load])
 
   const selectedKitchen = kitchens.find((kitchen) => kitchen.id === selectedKitchenId)
@@ -440,7 +446,7 @@ export function DisbursementAccountsPage() {
 
                   {groupRules.map((rule) => (
                     <MappingEditor
-                      key={rule.id}
+                      key={[rule.id, rule.owner_name, rule.bank, rule.account_number, rule.mapping_status, rule.target_role ?? ''].join(':')}
                       kitchenName={selectedKitchen.name}
                       kitchenId={selectedKitchen.id}
                       type={group.type}
