@@ -398,7 +398,9 @@
 }
 .maker-import-fields {
   display: grid;
-  grid-template-columns: minmax(0, 1.2fr) minmax(100px, .6fr) minmax(130px, .8fr) minmax(130px, .7fr);
+  /* Recipient names need room; bank labels are short, while account numbers
+     keep a stable width and nominal values rarely exceed a few million. */
+  grid-template-columns: minmax(160px, 1.7fr) minmax(60px, .55fr) minmax(120px, 1.25fr) minmax(90px, .85fr);
   gap: 10px;
 }
 .maker-import-fields--manual {
