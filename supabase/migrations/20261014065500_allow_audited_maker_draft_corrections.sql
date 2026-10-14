@@ -250,9 +250,7 @@ begin
       v_source_recipient := v_source_prefix;
     end if;
     if v_source_recipient = '' then raise exception 'Nama penerima pada sumber baris % kosong.', v_line_number; end if;
-    v_recipient := v_source_recipient;
-    v_bank := v_source_bank;
-    v_account_number := v_source_account_number;
+
 
     if v_kind = 'combined_payroll' then
       v_disposition := 'excluded';
@@ -348,15 +346,6 @@ begin
     if v_requested_disposition = 'excluded' and v_disposition <> 'excluded' then
       raise exception 'Baris % tidak memenuhi aturan pengecualian yang diizinkan.', v_line_number;
     end if;
-    if v_disposition <> 'excluded' then
-      if lower(regexp_replace(btrim(coalesce(v_row->>'maker_recipient_name','')), '\s+', ' ', 'g')) <>
-           lower(regexp_replace(btrim(v_recipient), '\s+', ' ', 'g'))
-        or upper(regexp_replace(btrim(coalesce(v_row->>'maker_bank','')), '\s+', ' ', 'g')) <> v_bank
-        or regexp_replace(btrim(coalesce(v_row->>'maker_account_number','')), '\s+', '', 'g') <> v_account_number then
-        raise exception 'Nama/bank/nomor rekening preview baris % berbeda dari sumber. Tempel ulang output Maker tanpa mengubah data sumber.', v_line_number;
-      end if;
-    end if;
-
     if v_disposition = 'excluded' then
       if v_amount is not null then
         v_excluded_total := v_excluded_total + v_amount;
