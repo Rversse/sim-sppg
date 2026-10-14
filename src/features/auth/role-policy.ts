@@ -15,6 +15,7 @@ export type Permission =
   | 'bank.export'
   | 'reports.view'
   | 'maker-import.view'
+  | 'real-import.view'
 
 const permissions: Record<Permission, readonly UserRole[]> = {
   'dashboard.view': ['admin', 'operator'],
