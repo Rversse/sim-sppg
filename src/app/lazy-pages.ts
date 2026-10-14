@@ -22,7 +22,8 @@ const pageLoaders = {
   '/master/supplier': () => import('@/pages/SupplierPage'),
   '/bank': () => import('@/pages/BankPage'),
   '/reports': () => import('@/pages/ReportsPage'),
-  '/maker-import': () => import('@/pages/MakerImportPage')
+  '/maker-import': () => import('@/pages/MakerImportPage'),
+  '/real-import': () => import('@/pages/RealImportPage')
 } as const
 
 type AppRoutePath = keyof typeof pageLoaders
