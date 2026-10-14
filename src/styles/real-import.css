@@ -260,3 +260,15 @@
 @media (max-width: 620px) {
   .real-import-page .maker-import-source { min-height: 125px; }
 }
+
+/* Keep Real Import validation alerts lightweight: icon and red text, no alert card. */
+.real-import-page .maker-import-message.is-error {
+  gap: 7px;
+  margin: 9px 0 12px;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: var(--theme-danger);
+  box-shadow: none;
+}
