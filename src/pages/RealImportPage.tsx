@@ -261,6 +261,7 @@ export function RealImportPage() {
         exclusionReason: ''
       }
     })
+    setCheckingDuplicates(true)
     setTransactionDate(parsed.transactionDate)
     setSourceTotal(parsed.sourceTotal)
     setWarnings(parsed.warnings)
