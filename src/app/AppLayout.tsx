@@ -168,23 +168,25 @@ export function AppLayout() {
               <small>Operasional Dapur</small>
             </span>
           </NavLink>
-          <a
-            className="app-brand-switch"
-            href="https://rversse.github.io/maker-pencairan/"
-            target="_blank"
-            rel="noreferrer"
-          >
-            <span className="app-brand-switch-mark" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="none">
-                <path d="M6 3.75h8l4 4v12.5H6z" stroke="currentColor" strokeWidth="1.7" strokeLinejoin="round" />
-                <path d="M14 3.75v4h4M9 12h6M9 15.5h6" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
-              </svg>
-            </span>
-            <span>Maker-Pencairan</span>
-            <svg className="app-brand-switch-arrow" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-              <path d="M8 16 16 8M9 8h7v7" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-          </a>
+          {user?.role === 'admin' ? (
+                      <a
+                        className="app-brand-switch"
+                        href="https://rversse.github.io/maker-pencairan/"
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        <span className="app-brand-switch-mark" aria-hidden="true">
+                          <svg viewBox="0 0 24 24" fill="none">
+                            <path d="M6 3.75h8l4 4v12.5H6z" stroke="currentColor" strokeWidth="1.7" strokeLinejoin="round" />
+                            <path d="M14 3.75v4h4M9 12h6M9 15.5h6" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
+                          </svg>
+                        </span>
+                        <span>Maker-Pencairan</span>
+                        <svg className="app-brand-switch-arrow" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                          <path d="M8 16 16 8M9 8h7v7" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
+                      </a>
+          ) : null}
         </div>
         <nav className="app-nav" aria-label="Navigasi utama">
           {visibleSections.map((section) => (
