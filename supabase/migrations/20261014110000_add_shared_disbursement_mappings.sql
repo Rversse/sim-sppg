@@ -53,9 +53,9 @@ where k.id = r.kitchen_id
 update public.kitchen_operational_account_rules
 set target_role = 'berkah_mandiri_putra'
 where rule_type = 'vehicle_rent'
-  and upper(regexp_replace(btrim(bank), '\\s+', ' ', 'g')) = 'MANDIRI'
-  and regexp_replace(btrim(account_number), '\\s+', '', 'g') = '1820015963523'
-  and lower(regexp_replace(btrim(owner_name), '\\s+', ' ', 'g')) = 'berkah mandiri putra';
+  and upper(regexp_replace(btrim(bank), '\s+', ' ', 'g')) = 'MANDIRI'
+  and regexp_replace(btrim(account_number), '\s+', '', 'g') = '1820015963523'
+  and lower(regexp_replace(btrim(owner_name), '\s+', ' ', 'g')) = 'berkah mandiri putra';
 
 -- Preserve the currently enforced payout exclusions as editable data policies.
 update public.kitchen_operational_account_rules r
@@ -359,10 +359,10 @@ begin
               and r.rule_type in ('pic_incentive_school', 'pic_incentive_posyandu'))
         )
         and r.is_active
-        and lower(regexp_replace(btrim(r.owner_name), '\\s+', ' ', 'g')) =
-            lower(regexp_replace(btrim(v_recipient), '\\s+', ' ', 'g'))
-        and upper(regexp_replace(btrim(r.bank), '\\s+', ' ', 'g')) = v_bank
-        and regexp_replace(btrim(r.account_number), '\\s+', '', 'g') = v_account_number
+        and lower(regexp_replace(btrim(r.owner_name), '\s+', ' ', 'g')) =
+            lower(regexp_replace(btrim(v_recipient), '\s+', ' ', 'g'))
+        and upper(regexp_replace(btrim(r.bank), '\s+', ' ', 'g')) = v_bank
+        and regexp_replace(btrim(r.account_number), '\s+', '', 'g') = v_account_number
       order by case when coalesce(r.mapping_status, 'active') = 'active' then 0 else 1 end
       limit 1;
 
