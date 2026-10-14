@@ -21,6 +21,7 @@ const {
   BankPage,
   ReportsPage,
   MakerImportPage,
+  RealImportPage,
   DefaultRoute
 } = lazyPages
 const pageFallback = createElement(
