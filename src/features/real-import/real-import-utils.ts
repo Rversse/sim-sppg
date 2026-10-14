@@ -197,13 +197,20 @@ export function parseRealImportDocument(
 
       const numbered = line.replace(/^\s*\d+\s*[.)]\s*/, '').trim()
       const kitchenMatch = matchKitchenAtStart(numbered)
-      if (kitchenMatch && !/:/.test(kitchenMatch.rest)) {
+      if (kitchenMatch) {
         currentKitchen = kitchenMatch.kitchen
         currentKitchenLine = index + 1
         currentKitchenRaw = rawLine
         currentKitchenHasAmount = false
 
-        const sameLineAmounts = extractAmounts(kitchenMatch.rest)
+        const colon = line.lastIndexOf(':')
+        const afterColon = colon >= 0 ? line.slice(colon + 1) : ''
+        const amountOnlyRemainder = /^(?:Rp\s*)?\d{1,3}(?:\.\d{3})+(?:\s*\+\s*(?:Rp\s*)?\d{1,3}(?:\.\d{3})+)*$/i.test(kitchenMatch.rest)
+        const sameLineAmounts = colon >= 0
+          ? extractAmounts(afterColon)
+          : amountOnlyRemainder
+            ? extractAmounts(kitchenMatch.rest)
+            : []
         if (sameLineAmounts.length > 0) {
           for (const amount of sameLineAmounts) {
             draftRows.push({
