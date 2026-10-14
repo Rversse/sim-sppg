@@ -49,13 +49,66 @@ where k.id = r.kitchen_id
   and r.rule_type = 'ops_harian'
   and lower(k.name) in ('cihaur', 'cipetir', 'campakamulya', 'cikondang', 'kertajadi', 'cisepat');
 
--- Keep the shared Sewa Kendaraan destination represented in the same mapping source.
+-- Sewa Kendaraan uses one fixed destination for every kitchen. Normalize the
+-- current rows, keep one row per kitchen, and provision it for newly added kitchens.
+delete from public.kitchen_operational_account_rules r
+where r.rule_type = 'vehicle_rent'
+  and exists (
+    select 1
+    from public.kitchen_operational_account_rules other
+    where other.kitchen_id = r.kitchen_id
+      and other.rule_type = 'vehicle_rent'
+      and other.id < r.id
+  );
+
 update public.kitchen_operational_account_rules
-set target_role = 'berkah_mandiri_putra'
-where rule_type = 'vehicle_rent'
-  and upper(regexp_replace(btrim(bank), '\s+', ' ', 'g')) = 'MANDIRI'
-  and regexp_replace(btrim(account_number), '\s+', '', 'g') = '1820015963523'
-  and lower(regexp_replace(btrim(owner_name), '\s+', ' ', 'g')) = 'berkah mandiri putra';
+set owner_name = 'Berkah Mandiri Putra',
+    bank = 'MANDIRI',
+    account_number = '1820015963523',
+    is_active = true,
+    mapping_status = 'active',
+    target_role = 'berkah_mandiri_putra'
+where rule_type = 'vehicle_rent';
+
+insert into public.kitchen_operational_account_rules
+  (kitchen_id, rule_type, owner_name, bank, account_number, is_active, mapping_status, target_role)
+select k.id, 'vehicle_rent', 'Berkah Mandiri Putra', 'MANDIRI', '1820015963523',
+       true, 'active', 'berkah_mandiri_putra'
+from public.kitchens k
+where not exists (
+  select 1
+  from public.kitchen_operational_account_rules r
+  where r.kitchen_id = k.id and r.rule_type = 'vehicle_rent'
+);
+
+create or replace function public.ensure_shared_vehicle_rent_mapping()
+returns trigger
+language plpgsql
+security definer
+set search_path to 'public', 'pg_temp'
+as $function$
+begin
+  insert into public.kitchen_operational_account_rules
+    (kitchen_id, rule_type, owner_name, bank, account_number, is_active, mapping_status, target_role)
+  values
+    (new.id, 'vehicle_rent', 'Berkah Mandiri Putra', 'MANDIRI', '1820015963523',
+     true, 'active', 'berkah_mandiri_putra')
+  on conflict (kitchen_id, rule_type, bank, account_number)
+  do update set
+    owner_name = excluded.owner_name,
+    is_active = true,
+    mapping_status = 'active',
+    target_role = 'berkah_mandiri_putra',
+    updated_at = now();
+
+  return new;
+end;
+$function$;
+
+drop trigger if exists kitchens_ensure_shared_vehicle_rent_mapping on public.kitchens;
+create trigger kitchens_ensure_shared_vehicle_rent_mapping
+after insert on public.kitchens
+for each row execute function public.ensure_shared_vehicle_rent_mapping();
 
 -- Preserve the currently enforced payout exclusions as editable data policies.
 update public.kitchen_operational_account_rules r
