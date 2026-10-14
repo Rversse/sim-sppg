@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { Landmark, Plus, Save, Trash2 } from 'lucide-react'
+import { Landmark, Plus, Save, Trash2, X } from 'lucide-react'
 
 import { supabase } from '@/lib/supabase'
 import { canAccess } from '@/features/auth/role-policy'
@@ -26,8 +26,6 @@ type DestinationRole =
   | 'akuntan'
   | 'pic_yayasan'
   | 'berkah_mandiri_putra'
-  | 'supplier'
-  | 'other'
   | ''
 
 type OperationalRule = {
@@ -50,51 +48,50 @@ type MappingDraft = {
   targetRole: DestinationRole
 }
 
-const RULE_GROUPS: Array<{
-  type: Exclude<RuleType, 'vehicle_rent'>
+type MappingGroup = {
+  id: string
   title: string
-  description: string
-}> = [
+  types: RuleType[]
+}
+
+const RULE_GROUPS: MappingGroup[] = [
+  { id: 'ops_harian', title: 'OPS / Pencairan', types: ['ops_harian'] },
+  { id: 'sppg_rent', title: 'Sewa SPPG', types: ['sppg_rent'] },
+  { id: 'gaji_relawan', title: 'Gaji Relawan', types: ['gaji_relawan'] },
   {
-    type: 'ops_harian',
-    title: 'OPS / Pencairan',
-    description: 'Tujuan rekening operasional harian ke Aslap, Akuntan, atau rekening lain yang ditetapkan.'
-  },
-  {
-    type: 'sppg_rent',
-    title: 'Sewa SPPG',
-    description: 'Rekening penerima untuk pencairan Sewa SPPG.'
-  },
-  {
-    type: 'gaji_relawan',
-    title: 'Gaji Relawan',
-    description: 'Rekening penerima gaji relawan dari output Maker.'
-  },
-  {
-    type: 'pic_incentive_school',
-    title: 'Insentif PIC Sekolah',
-    description: 'Rekening penerima insentif PIC sekolah.'
-  },
-  {
-    type: 'pic_incentive_posyandu',
-    title: 'Insentif Kader Posyandu',
-    description: 'Rekening penerima insentif kader Posyandu.'
+    id: 'pic_incentive',
+    title: 'Insentif PIC',
+    types: ['pic_incentive_school', 'pic_incentive_posyandu']
   }
 ]
 
+const RULE_TYPE_LABELS: Record<Exclude<RuleType, 'vehicle_rent'>, string> = {
+  ops_harian: 'OPS / Pencairan',
+  sppg_rent: 'Sewa SPPG',
+  gaji_relawan: 'Gaji Relawan',
+  pic_incentive_school: 'Insentif PIC Sekolah',
+  pic_incentive_posyandu: 'Insentif Kader Posyandu'
+}
+
+const ADDABLE_RULE_TYPES: Array<Exclude<RuleType, 'vehicle_rent'>> = [
+  'ops_harian',
+  'sppg_rent',
+  'gaji_relawan',
+  'pic_incentive_school',
+  'pic_incentive_posyandu'
+]
+
 const ROLE_OPTIONS: Array<{ value: DestinationRole; label: string }> = [
-  { value: '', label: 'Belum diklasifikasikan' },
+  { value: '', label: 'Belum ditentukan' },
   { value: 'aslap', label: 'Rekening Aslap' },
   { value: 'akuntan', label: 'Rekening Akuntan' },
   { value: 'pic_yayasan', label: 'Rekening PIC Yayasan' },
-  { value: 'berkah_mandiri_putra', label: 'Berkah Mandiri Putra' },
-  { value: 'supplier', label: 'Supplier / pihak luar' },
-  { value: 'other', label: 'Lainnya' }
+  { value: 'berkah_mandiri_putra', label: 'Berkah Mandiri Putra' }
 ]
 
 const STATUS_OPTIONS: Array<{ value: MappingStatus; label: string }> = [
-  { value: 'active', label: 'Aktif — boleh diimpor' },
-  { value: 'excluded', label: 'Dikecualikan — jangan masuk transaksi' }
+  { value: 'active', label: 'Masuk' },
+  { value: 'excluded', label: 'Diblokir' }
 ]
 
 function createDraft(rule: OperationalRule | null): MappingDraft {
@@ -118,7 +115,7 @@ function MappingEditor({
 }: {
   kitchenName: string
   kitchenId: string
-  type: RuleType
+  type: Exclude<RuleType, 'vehicle_rent'>
   title: string
   rule: OperationalRule | null
   onSaved: () => Promise<void>
@@ -127,6 +124,7 @@ function MappingEditor({
   const { success, error: toastError } = useToast()
   const [draft, setDraft] = useState<MappingDraft>(() => createDraft(rule))
   const [saving, setSaving] = useState(false)
+  const permitted = draft.status === 'active'
 
   async function save() {
     const ownerName = draft.ownerName.trim()
@@ -134,7 +132,7 @@ function MappingEditor({
     const accountNumber = draft.accountNumber.replace(/\s+/g, '')
 
     if (!ownerName || !bank || !accountNumber) {
-      toastError('Mapping belum lengkap', 'Isi nama penerima, bank, dan nomor rekening agar konfigurasi dapat dipakai Maker-Pencairan.')
+      toastError('Mapping belum lengkap', 'Isi nama penerima, bank, dan nomor rekening.')
       return
     }
 
@@ -167,7 +165,10 @@ function MappingEditor({
       await onSaved()
     } catch (error) {
       console.error(error)
-      toastError('Gagal menyimpan mapping', error instanceof Error ? error.message : 'Periksa apakah rekening tersebut sudah dipetakan untuk jenis pencairan ini.')
+      toastError(
+        'Gagal menyimpan mapping',
+        error instanceof Error ? error.message : 'Periksa data rekening lalu coba lagi.'
+      )
     } finally {
       setSaving(false)
     }
@@ -175,7 +176,7 @@ function MappingEditor({
 
   async function remove() {
     if (!rule) return
-    if (!window.confirm('Hapus mapping ' + title + ' untuk ' + kitchenName + '? Statusnya akan menjadi Belum diatur dan impor akan ditahan.')) return
+    if (!window.confirm('Hapus mapping ' + title + ' untuk ' + kitchenName + '? Transaksi terkait akan tertahan sampai mapping diatur lagi.')) return
 
     setSaving(true)
     try {
@@ -184,7 +185,8 @@ function MappingEditor({
         .delete()
         .eq('id', rule.id)
       if (error) throw error
-      success('Mapping dihapus', title + ' sekarang berstatus Belum diatur.')
+
+      success('Mapping dihapus', title + ' untuk ' + kitchenName + ' sekarang belum diatur.')
       await onRemoved()
     } catch (error) {
       console.error(error)
@@ -199,9 +201,12 @@ function MappingEditor({
       <div className="disbursement-mapping-row-head">
         <div>
           <strong>{title}</strong>
-          <span className={draft.status === 'active' ? 'disbursement-status is-active' : 'disbursement-status is-excluded'}>
-            {draft.status === 'active' ? 'Aktif' : 'Dikecualikan'}
-          </span>
+          <span
+            className={'disbursement-status-dot ' + (permitted ? 'is-allowed' : 'is-blocked')}
+            title={permitted ? 'Masuk ke database diperbolehkan' : 'Diblokir dari database'}
+            aria-label={permitted ? 'Masuk ke database diperbolehkan' : 'Diblokir dari database'}
+            role="img"
+          />
         </div>
         {rule ? (
           <button
@@ -248,20 +253,20 @@ function MappingEditor({
         </label>
         {type === 'ops_harian' ? (
           <label>
-            <span>Peran / tujuan rekening</span>
+            <span>Tujuan Rekening</span>
             <select
               value={draft.targetRole}
               onChange={(event) => setDraft((current) => ({ ...current, targetRole: event.target.value as DestinationRole }))}
               disabled={saving}
             >
               {ROLE_OPTIONS.map((option) => (
-                <option key={option.value || 'unclassified'} value={option.value}>{option.label}</option>
+                <option key={option.value || 'unspecified'} value={option.value}>{option.label}</option>
               ))}
             </select>
           </label>
         ) : null}
         <label className="disbursement-mapping-status-field">
-          <span>Aturan impor SIM-SPPG</span>
+          <span>Input ke Database</span>
           <select
             value={draft.status}
             onChange={(event) => setDraft((current) => ({ ...current, status: event.target.value as MappingStatus }))}
@@ -294,9 +299,11 @@ export function DisbursementAccountsPage() {
   const [kitchens, setKitchens] = useState<KitchenRef[]>([])
   const [rules, setRules] = useState<OperationalRule[]>([])
   const [selectedKitchenId, setSelectedKitchenId] = useState('')
-  const [addingTypes, setAddingTypes] = useState<RuleType[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [addMappingOpen, setAddMappingOpen] = useState(false)
+  const [addingKitchenId, setAddingKitchenId] = useState('')
+  const [addingRuleType, setAddingRuleType] = useState<Exclude<RuleType, 'vehicle_rent'> | ''>('')
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -323,8 +330,7 @@ export function DisbursementAccountsPage() {
       )
     } catch (error) {
       console.error(error)
-      const message = error instanceof Error ? error.message : 'Gagal memuat Data Rekening.'
-      setError(message)
+      setError(error instanceof Error ? error.message : 'Gagal memuat Data Rekening.')
     } finally {
       setLoading(false)
     }
@@ -333,12 +339,10 @@ export function DisbursementAccountsPage() {
   useEffect(() => {
     if (!canView) return
     let cancelled = false
-
     void Promise.resolve().then(() => {
       if (!cancelled) return load()
       return undefined
     })
-
     return () => {
       cancelled = true
     }
@@ -360,38 +364,126 @@ export function DisbursementAccountsPage() {
     rule.account_number === vehicleReference?.account_number
   )
 
+  const addingKitchen = kitchens.find((kitchen) => kitchen.id === addingKitchenId)
+  const availableAddTypes = ADDABLE_RULE_TYPES.filter((type) =>
+    !rules.some((rule) => rule.kitchen_id === addingKitchenId && rule.rule_type === type)
+  )
+
   if (!canView) return <div className="app-access-denied">Akses ditolak.</div>
 
   return (
     <main className="disbursement-accounts-page">
       <header className="disbursement-accounts-header">
         <div className="disbursement-accounts-heading">
-          <span className="disbursement-accounts-heading-icon"><Landmark aria-hidden="true" /></span>
+          <span className="disbursement-accounts-heading-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none">
+              <rect x="3" y="6" width="18" height="14" rx="3" stroke="currentColor" strokeWidth="1.7" />
+              <path d="M3.5 10h17M7 6V4.5A1.5 1.5 0 0 1 8.5 3h10" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
+              <circle cx="16.5" cy="15" r="1.2" fill="currentColor" />
+            </svg>
+          </span>
           <div>
             <h1>Data Rekening</h1>
             <p>Satu sumber mapping rekening yang dibaca Maker-Pencairan dan SIM-SPPG.</p>
           </div>
         </div>
-        <label className="disbursement-kitchen-picker">
-          <span>Dapur</span>
-          <select
-            value={selectedKitchenId}
-            onChange={(event) => {
-              setSelectedKitchenId(event.target.value)
-              setAddingTypes([])
+        <div className="disbursement-header-actions">
+          <label className="disbursement-kitchen-picker">
+            <span>Dapur</span>
+            <select
+              value={selectedKitchenId}
+              onChange={(event) => setSelectedKitchenId(event.target.value)}
+              disabled={loading || kitchens.length === 0}
+            >
+              {kitchens.map((kitchen) => (
+                <option key={kitchen.id} value={kitchen.id}>
+                  {kitchen.name}{kitchen.is_active ? '' : ' — Nonaktif'}
+                </option>
+              ))}
+            </select>
+          </label>
+          <button
+            type="button"
+            className="app-action-button app-action-button--secondary"
+            onClick={() => {
+              const nextOpen = !addMappingOpen
+              setAddMappingOpen(nextOpen)
+              setAddingKitchenId(selectedKitchenId)
+              setAddingRuleType('')
             }}
             disabled={loading || kitchens.length === 0}
           >
-            {kitchens.map((kitchen) => (
-              <option key={kitchen.id} value={kitchen.id}>
-                {kitchen.name}{kitchen.is_active ? '' : ' — Nonaktif'}
-              </option>
-            ))}
-          </select>
-        </label>
+            {addMappingOpen ? <X aria-hidden="true" /> : <Plus aria-hidden="true" />}
+            <span>{addMappingOpen ? 'Tutup' : 'Tambah Mapping'}</span>
+          </button>
+        </div>
       </header>
 
       {error ? <div className="disbursement-page-error">{error}</div> : null}
+
+      {addMappingOpen && !loading ? (
+        <section className="disbursement-add-panel">
+          <header className="disbursement-add-panel-header">
+            <h2>Tambah Mapping</h2>
+            <p>Pilih dapur dan jenis mapping yang belum diatur.</p>
+          </header>
+          <div className="disbursement-add-form-fields">
+            <label>
+              <span>DAPUR</span>
+              <select
+                value={addingKitchenId}
+                onChange={(event) => {
+                  setAddingKitchenId(event.target.value)
+                  setAddingRuleType('')
+                }}
+              >
+                {kitchens.map((kitchen) => (
+                  <option key={kitchen.id} value={kitchen.id}>{kitchen.name}</option>
+                ))}
+              </select>
+            </label>
+            <label>
+              <span>JENIS MAPPING</span>
+              <select
+                value={addingRuleType}
+                onChange={(event) => setAddingRuleType(event.target.value as Exclude<RuleType, 'vehicle_rent'> | '')}
+              >
+                <option value="">Pilih jenis mapping</option>
+                {ADDABLE_RULE_TYPES.map((type) => {
+                  const exists = rules.some((rule) => rule.kitchen_id === addingKitchenId && rule.rule_type === type)
+                  return (
+                    <option key={type} value={type} disabled={exists}>
+                      {RULE_TYPE_LABELS[type]}{exists ? ' — sudah ada' : ''}
+                    </option>
+                  )
+                })}
+              </select>
+            </label>
+          </div>
+          {addingRuleType && addingKitchen ? (
+            <MappingEditor
+              key={addingKitchenId + '-' + addingRuleType + '-new'}
+              kitchenName={addingKitchen.name}
+              kitchenId={addingKitchen.id}
+              type={addingRuleType}
+              title={RULE_TYPE_LABELS[addingRuleType]}
+              rule={null}
+              onSaved={async () => {
+                setAddMappingOpen(false)
+                setAddingRuleType('')
+                await load()
+              }}
+              onRemoved={load}
+            />
+          ) : (
+            <p className="disbursement-add-hint">
+              {availableAddTypes.length
+                ? 'Pilih jenis mapping di atas untuk mengisi rekening tujuannya.'
+                : 'Semua jenis mapping untuk dapur ini sudah terisi.'}
+            </p>
+          )}
+        </section>
+      ) : null}
 
       {loading ? (
         <div className="disbursement-empty-state">Memuat konfigurasi rekening…</div>
@@ -410,13 +502,14 @@ export function DisbursementAccountsPage() {
           <section className="disbursement-global-card">
             <div>
               <h2>Sewa Kendaraan</h2>
-              <p>Rekening tetap untuk semua dapur aktif. Tidak perlu mengatur rekening ini per dapur.</p>
             </div>
             {vehicleReference ? (
               <div className="disbursement-fixed-account">
                 <strong>{vehicleReference.owner_name}</strong>
                 <span>{vehicleReference.bank} · {vehicleReference.account_number}</span>
-                <small>{vehicleConsistent ? 'Rekening bersama terdeteksi konsisten di mapping dapur.' : 'Perhatian: data rekening Sewa Kendaraan berbeda antar-dapur. Samakan dulu sebelum digunakan.'}</small>
+                {!vehicleConsistent ? (
+                  <small className="is-warning">Perhatian: rekening Sewa Kendaraan berbeda antar-dapur. Samakan sebelum digunakan.</small>
+                ) : null}
               </div>
             ) : (
               <div className="disbursement-page-error">Mapping rekening Sewa Kendaraan belum tersedia.</div>
@@ -425,77 +518,45 @@ export function DisbursementAccountsPage() {
 
           <div className="disbursement-accounts-intro">
             <h2>Mapping untuk {selectedKitchen.name}</h2>
-            <p>Maker-Pencairan membaca rekening di sini saat membuat output. Status impor menentukan apakah baris yang sama boleh menjadi transaksi SIM-SPPG.</p>
           </div>
 
           <div className="disbursement-mapping-groups">
-            {RULE_GROUPS.map((group) => {
-              const groupRules = selectedRules.filter((rule) => rule.rule_type === group.type)
-              return (
-                <section className="disbursement-mapping-group" key={group.type}>
-                  <header>
-                    <div>
-                      <h3>{group.title}</h3>
-                      <p>{group.description}</p>
-                    </div>
-                    <button
-                      type="button"
-                      className="app-action-button app-action-button--secondary"
-                      onClick={() => setAddingTypes((current) =>
-                        current.includes(group.type)
-                          ? current.filter((type) => type !== group.type)
-                          : [...current, group.type]
-                      )}
-                    >
-                      <Plus aria-hidden="true" />
-                      <span>{addingTypes.includes(group.type) ? 'Batal tambah' : 'Tambah rekening'}</span>
-                    </button>
-                  </header>
+            {RULE_GROUPS.map((group) => (
+              <section className="disbursement-mapping-group" key={group.id}>
+                <header>
+                  <h3>{group.title}</h3>
+                </header>
 
-                  {groupRules.length === 0 ? (
-                    <div className="disbursement-unconfigured">
-                      <strong>Belum diatur</strong>
-                      <span>Impor untuk jenis ini akan ditahan sampai rekening dikonfigurasi.</span>
-                    </div>
-                  ) : null}
+                {group.types.map((type) => {
+                  const typeRules = selectedRules.filter((rule) => rule.rule_type === type)
+                  if (!typeRules.length) {
+                    return (
+                      <div className="disbursement-unconfigured" key={type}>
+                        <strong>{RULE_TYPE_LABELS[type]}</strong>
+                        <span>Belum ada mapping. Tambahkan lewat tombol di atas.</span>
+                      </div>
+                    )
+                  }
 
-                  {groupRules.map((rule) => (
+                  return typeRules.map((rule) => (
                     <MappingEditor
                       key={[rule.id, rule.owner_name, rule.bank, rule.account_number, rule.mapping_status, rule.target_role ?? ''].join(':')}
                       kitchenName={selectedKitchen.name}
                       kitchenId={selectedKitchen.id}
-                      type={group.type}
-                      title={group.title}
+                      type={type}
+                      title={RULE_TYPE_LABELS[type]}
                       rule={rule}
                       onSaved={load}
                       onRemoved={load}
                     />
-                  ))}
-
-                  {groupRules.length === 0 || addingTypes.includes(group.type) ? (
-                    <div id={'new-' + selectedKitchen.id + '-' + group.type}>
-                      <MappingEditor
-                        key={selectedKitchen.id + '-' + group.type + '-new-' + groupRules.length}
-                        kitchenName={selectedKitchen.name}
-                        kitchenId={selectedKitchen.id}
-                        type={group.type}
-                        title={group.title}
-                        rule={null}
-                        onSaved={async () => {
-                          setAddingTypes((current) => current.filter((type) => type !== group.type))
-                          await load()
-                        }}
-                        onRemoved={load}
-                      />
-                    </div>
-                  ) : null}
-                </section>
-              )
-            })}
+                  ))
+                })}
+              </section>
+            ))}
           </div>
 
           <p className="disbursement-accounts-footnote">
-            Baris berstatus Dikecualikan tetap dapat dibuat oleh Maker-Pencairan agar proses pencairan berjalan, tetapi tidak boleh masuk sebagai transaksi SIM-SPPG. Mapping yang belum ada harus dilengkapi sebelum batch impor bisa disimpan.
+            Untuk transaksi Lain-lain, cek dulu sebelum dimasukkan ke database. Jenis pencairan lainnya mengikuti mapping di atas. Kalau mapping belum lengkap atau disetel Diblokir, transaksi akan tertahan.
           </p>
         </>
       )}
