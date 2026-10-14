@@ -17,6 +17,7 @@ function lazyNamed<T extends ComponentType>(
 const pageLoaders = {
   '/dashboard': () => import('@/pages/DashboardPage'),
   '/master/kitchen': () => import('@/pages/KitchenPage'),
+  '/master/disbursement-accounts': () => import('@/pages/DisbursementAccountsPage'),
   '/master/vehicle': () => import('@/pages/VehiclePage'),
   '/master/supplier': () => import('@/pages/SupplierPage'),
   '/bank': () => import('@/pages/BankPage'),
@@ -52,6 +53,7 @@ export const lazyPages = {
     'DashboardPage'
   ),
   KitchenPage: lazyNamed(() => import('@/pages/KitchenPage'), 'KitchenPage'),
+  DisbursementAccountsPage: lazyNamed(() => import('@/pages/DisbursementAccountsPage'), 'DisbursementAccountsPage'),
   VehiclePage: lazyNamed(() => import('@/pages/VehiclePage'), 'VehiclePage'),
   SupplierPage: lazyNamed(() => import('@/pages/SupplierPage'), 'SupplierPage'),
   BankPage: lazyNamed(() => import('@/pages/BankPage'), 'BankPage'),
