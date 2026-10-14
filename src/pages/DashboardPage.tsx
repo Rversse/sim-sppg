@@ -1667,20 +1667,6 @@ export function DashboardPage() {
           <small>Total pencairan operasional masuk ke rekening Akuntan / Aslap pada periode terpilih</small>
         </article>
 
-        <article
-          className={`dashboard-kpi ${
-            filters.flowType === 'real_ops' ? 'dashboard-kpi-primary' : ''
-          }`}
-        >
-          <span className="dashboard-kpi-icon">
-            <Settings2 aria-hidden="true" />
-          </span>
-          <span>OPS / Real</span>
-          <strong>
-            {loading ? 'Memuat…' : formatCurrency(summary.realOperational)}
-          </strong>
-          <small>Total realisasi operasional pada periode terpilih</small>
-        </article>
       </section>
 
       <section className="dashboard-main-grid">
