@@ -380,6 +380,8 @@ export async function getDashboardTransactionPage(
     .lte('transaction_date', filters.endDate)
     .order('transaction_date', { ascending: false })
     .order('created_at', { ascending: false })
+    // Stable unique tie-breaker: batches commonly share the same created_at.
+    .order('id', { ascending: true })
     .range(from, to)
 
   if (filters.kitchenId) {
