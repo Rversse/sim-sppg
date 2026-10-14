@@ -435,7 +435,7 @@ export function RealImportPage() {
         <div className="maker-import-source-footer">
           <span>Format Cianjur menerima 12/10/2026; Cidaun menerima 12 oktober 2026. Baris dengan tanda + menjadi transaksi terpisah.</span>
           <button type="button" className="maker-import-primary" onClick={() => void handleParse()} disabled={loadingReferences || !supplier || !sourceText.trim()}>
-            <ClipboardPaste aria-hidden="true" /> Baca &amp; buat preview
+            <ClipboardPaste aria-hidden="true" /> Decode
           </button>
         </div>
         {referencesError ? <div className="maker-import-message is-error"><AlertTriangle /> {referencesError}</div> : null}
