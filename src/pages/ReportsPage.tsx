@@ -615,12 +615,7 @@ function OverallReportView() {
               </table>
 
               <p className="reports-operational-note">
-                Catatan: Pencairan operasional dapur disalurkan ke rekening PIC
-                Yayasan. Khusus Cipetir, mulai 12 Oktober 2026, Gaji Relawan,
-                Insentif PIC, dan Sewa SPPG disalurkan ke rekening PIC Yayasan.
-                Untuk Cihaur, mulai 12 Oktober 2026, Gaji Relawan dan Insentif
-                PIC juga disalurkan ke rekening PIC Yayasan. Sewa Kendaraan
-                disalurkan ke rekening Berkah Mandiri Putra.
+                Catatan: Pencairan operasional dapur disalurkan ke rekening PIC Yayasan. Sewa Kendaraan disalurkan ke rekening Berkah Mandiri Putra.
               </p>
             </div>
           </div>
