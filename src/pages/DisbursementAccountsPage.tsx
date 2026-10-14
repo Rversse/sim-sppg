@@ -292,7 +292,6 @@ function MappingEditor({
 
 export function DisbursementAccountsPage() {
   const { user } = useAuth()
-  const { error: toastError } = useToast()
   const canView = canAccess(user?.role, 'disbursement-accounts.view')
   const [kitchens, setKitchens] = useState<KitchenRef[]>([])
   const [rules, setRules] = useState<OperationalRule[]>([])
@@ -328,11 +327,10 @@ export function DisbursementAccountsPage() {
       console.error(error)
       const message = error instanceof Error ? error.message : 'Gagal memuat Data Rekening.'
       setError(message)
-      toastError('Gagal memuat Data Rekening', message)
     } finally {
       setLoading(false)
     }
-  }, [toastError])
+  }, [])
 
   useEffect(() => {
     if (canView) void load()
