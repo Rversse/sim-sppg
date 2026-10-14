@@ -109,6 +109,18 @@ function getAccountOptionLabel(account: AccountRef): string {
   return getAccountLabel(account) + ' — ' + account.bank + ' / ' + (account.account_number || '-')
 }
 
+function operationalTargetRoleLabel(role: OperationalAccountRule['target_role']): string {
+  switch (role) {
+    case 'akuntan': return 'Akuntan'
+    case 'aslap': return 'Aslap'
+    case 'pic_yayasan': return 'PIC Yayasan'
+    case 'berkah_mandiri_putra': return 'Berkah Mandiri Putra'
+    case 'supplier': return 'Pihak Luar'
+    case 'other': return 'OPS'
+    default: return 'OPS'
+  }
+}
+
 function getRowFlow(
   row: MakerImportDraftRow
 ): MakerManualFlow {
@@ -289,11 +301,6 @@ function getValidation(
   if (row.amount === null || !Number.isSafeInteger(row.amount) || row.amount <= 0) {
     errors.push('Nominal harus berupa bilangan bulat lebih dari 0.')
   }
-  if (row.kind === 'lain_lain') {
-    if (!flow) errors.push('Pilih klasifikasi database untuk Lain-lain.')
-    if (!row.verified) confirmations.push('Lain-lain wajib kamu tandai sudah diverifikasi manual.')
-  }
-
   let matchedAccount: AccountRef | undefined
   let matchedOperationalRule: OperationalAccountRule | undefined
 
@@ -384,6 +391,7 @@ function getValidation(
     const opsMatches = refs.operationalRules.filter((rule) =>
       rule.kitchen_id === kitchenId &&
       rule.rule_type === 'ops_harian' &&
+      rule.mapping_status === 'active' &&
       operationalRuleMatchesRow(rule, row)
     )
     matchedOperationalRule = opsMatches.length === 1 ? opsMatches[0] : undefined
@@ -604,20 +612,24 @@ export function MakerImportPage() {
     updateRow(row.id, { operationalRuleId: rule.id, verified: false })
   }
 
-  function changeManualFlow(row: MakerImportDraftRow, value: MakerManualFlow) {
+  function chooseLainLainDestination(row: MakerImportDraftRow, ruleId: string) {
+    const rule = refs.operationalRules.find((item) =>
+      item.id === ruleId &&
+      item.kitchen_id === kitchenId &&
+      item.rule_type === 'ops_harian' &&
+      item.mapping_status === 'active'
+    )
+    if (!rule) {
+      updateRow(row.id, { operationalRuleId: '', verified: false })
+      return
+    }
     updateRow(row.id, {
-      manualFlow: value,
-      accountId: '',
-      operationalRuleId: '',
+      manualFlow: 'ops_disbursement',
       operationalType: '',
-      verified: false
-    })
-  }
-
-  function changeOperationalType(row: MakerImportDraftRow, value: MakerOperationalType) {
-    updateRow(row.id, {
-      operationalType: value,
-      operationalRuleId: '',
+      operationalRuleId: rule.id,
+      recipientName: rule.owner_name,
+      bank: normalizeMakerBank(rule.bank),
+      accountNumber: normalizeMakerAccountNumber(rule.account_number),
       verified: false
     })
   }
@@ -687,6 +699,7 @@ export function MakerImportPage() {
 
         for (const { row, validation, flowInfo, disposition } of checks) {
           if (disposition.status !== 'import' || row.amount === null) continue
+          if (row.kind === 'lain_lain' && row.manualDecision !== 'allow') continue
           if (!flowInfo.flow_type || !flowInfo.category) continue
           const flow = flowInfo.flow_type
           const isIncome = flow === 'income'
@@ -781,6 +794,7 @@ export function MakerImportPage() {
   const blockingCount = checks.filter(({ row, validation, flowInfo, disposition }) =>
     validation.errors.length > 0 ||
     (row.kind === 'lain_lain' && row.manualDecision === 'pending') ||
+    (row.kind === 'lain_lain' && row.manualDecision === 'allow' && !row.verified) ||
     (disposition.status === 'import' && ((validation.confirmations.length > 0 && !row.verified) || !flowInfo.flow_type || !flowInfo.category))
   ).length + (sourceIdentityMismatch ? 1 : 0) + duplicateCount
   const canSave = draftReady && !loadingRefs && !refsError && Boolean(activeKitchen) &&
@@ -1021,11 +1035,17 @@ export function MakerImportPage() {
                     )
                   : []
                 const ruleType = flow === 'real_ops' || flow === 'ops_disbursement' ? 'ops_harian' : getOperationalRuleType(row)
-                const rowOperationalRules = ruleType
+                const rowOperationalRules = row.kind === 'lain_lain'
                   ? refs.operationalRules.filter((rule) =>
-                      rule.kitchen_id === kitchenId && rule.rule_type === ruleType
+                      rule.kitchen_id === kitchenId &&
+                      rule.rule_type === 'ops_harian' &&
+                      rule.mapping_status === 'active'
                     )
-                  : []
+                  : ruleType
+                    ? refs.operationalRules.filter((rule) =>
+                        rule.kitchen_id === kitchenId && rule.rule_type === ruleType
+                      )
+                    : []
                 const expectedAccount = row.accountId
                   ? refs.accounts.find((account) => account.id === row.accountId)
                   : undefined
@@ -1039,7 +1059,9 @@ export function MakerImportPage() {
                 const manualDecisionPending = row.kind === 'lain_lain' && row.manualDecision === 'pending'
                 const rowBlocked = disposition.status === 'excluded'
                 const rowLocked = rowBlocked && (row.kind !== 'lain_lain' || row.manualDecision === 'block')
-                const rowInvalid = !rowBlocked && (manualDecisionPending || validation.errors.length > 0 ||
+                const rowInvalid = !rowBlocked && (manualDecisionPending ||
+                  (row.kind === 'lain_lain' && row.manualDecision === 'allow' && !row.verified) ||
+                  validation.errors.length > 0 ||
                   (validation.confirmations.length > 0 && !row.verified) ||
                   !flowInfo.flow_type || !flowInfo.category)
                 const title = row.sourceCategory === 'Lain-lain' ? 'Lain-lain • keputusan Admin' : row.sourceCategory
@@ -1052,20 +1074,15 @@ export function MakerImportPage() {
                         <h4>{title}</h4>
                       </div>
                       <span className={'maker-import-row-status' + (rowBlocked ? ' is-blocked' : rowInvalid ? ' is-invalid' : ' is-valid')}>
-                        {rowBlocked ? <><ShieldAlert aria-hidden="true" /> Diblok — tidak masuk program</> : manualDecisionPending ? <><AlertTriangle aria-hidden="true" /> Perlu keputusan</> : rowInvalid ? <><AlertTriangle aria-hidden="true" /> Perlu koreksi</> : <><CheckCircle2 aria-hidden="true" /> Valid</>}
+                        {rowBlocked ? <><ShieldAlert aria-hidden="true" /> Tidak Valid</> : manualDecisionPending ? <><AlertTriangle aria-hidden="true" /> Perlu keputusan</> : rowInvalid ? <><AlertTriangle aria-hidden="true" /> Perlu koreksi</> : <><CheckCircle2 aria-hidden="true" /> Valid</>}
                       </span>
                     </div>
                     {rowBlocked && disposition.reason ? <div className="maker-import-excluded-reason is-blocked"><ShieldAlert aria-hidden="true" /><span>{disposition.reason}</span></div> : null}
 
+                    {rowBlocked && row.kind !== 'lain_lain' && disposition.reason ? <div className="maker-import-excluded-reason is-blocked"><ShieldAlert aria-hidden="true" /><span>{disposition.reason}</span></div> : null}
+
                     {row.kind === 'lain_lain' ? (
                       <div className={'maker-import-manual-decision' + (manualDecisionPending ? ' is-pending' : row.manualDecision === 'block' ? ' is-blocked' : ' is-allowed')}>
-                        <p>
-                          {manualDecisionPending
-                            ? 'Lain-Lain perlu ditinjau manual. Lu bisa koreksi semua data, pilih klasifikasi dan pastikan tujuan/rekeningnya benar, lalu pilih Allow. Pilih Block kalau baris tidak boleh masuk database program.'
-                            : rowBlocked
-                              ? 'Baris diblokir dan hanya dicatat untuk audit. Semua field dikunci; pilih Allow untuk membuka kembali dan melanjutkan pemeriksaan.'
-                              : 'Allow dipilih. Pastikan klasifikasi, tujuan rekening, nominal, dan detail benar, lalu centang verifikasi manual.'}
-                        </p>
                         <div className="maker-import-manual-decision-actions">
                           <button type="button" className={'maker-import-decision-button is-allow' + (row.manualDecision === 'allow' ? ' is-selected' : '')}
                             aria-pressed={row.manualDecision === 'allow'} onClick={() => decideLainLain(row, 'allow')} disabled={saving}>
@@ -1079,36 +1096,27 @@ export function MakerImportPage() {
                       </div>
                     ) : null}
 
-                    {row.kind === 'lain_lain' ? (
-                      <div className="maker-import-fields maker-import-fields--manual">
-                        <label>
-                          <span>Masukkan sebagai</span>
-                          <select value={row.manualFlow} onChange={(event) => changeManualFlow(row, event.target.value as MakerManualFlow)} disabled={saving || rowLocked}>
-                            <option value="">Pilih kategori transaksi</option>
-                            <option value="real_ops">Realisasi Ops</option>
-                            <option value="income">RAB / Pencairan</option>
-                            <option value="gas">GAS</option>
-                            <option value="operational_disbursement">Pencairan Operasional</option>
-                          </select>
-                        </label>
-                        {row.manualFlow === 'operational_disbursement' ? (
-                          <label>
-                            <span>Jenis operasional</span>
-                            <select value={row.operationalType} onChange={(event) => changeOperationalType(row, event.target.value as MakerOperationalType)} disabled={saving || rowLocked}>
-                              <option value="">Pilih jenis</option>
-                              <option value="relawan_salary">Gaji Relawan</option>
-                              <option value="pic_incentive">Insentif PIC</option>
-                              <option value="sppg_rent">Sewa SPPG</option>
-                              <option value="vehicle_rent">Sewa Kendaraan</option>
-                            </select>
-                          </label>
-                        ) : null}
-                      </div>
-                    ) : (
-                      <div className="maker-import-readonly-kind">
-                        Jenis transaksi: <strong>{row.kind === 'combined_payroll' ? (normalizeMakerText(activeKitchen?.name) === 'campakamulya' ? 'Tujuan rekening Akuntan — diblokir, tidak masuk database program' : 'Payroll gabungan — wajib dikecualikan karena satu nominal mencakup beberapa jenis') : flow === 'income' ? 'RAB / Pencairan' : flow === 'gas' ? 'GAS' : flow === 'ops_disbursement' ? 'OPS / Pencairan' : flow === 'real_ops' ? 'Realisasi Ops' : 'Pencairan Operasional — ' + operationalTypeLabel(row.operationalType || defaultOperationalType(row.kind))}</strong>
-                      </div>
-                    )}
+                    <div className="maker-import-readonly-kind">
+                      Jenis transaksi: <strong>{row.kind === 'lain_lain' ? 'OPS / Pencairan' : row.kind === 'combined_payroll' ? (normalizeMakerText(activeKitchen?.name) === 'campakamulya' ? 'Tujuan rekening Akuntan — diblokir, tidak masuk database program' : 'Payroll gabungan — wajib dikecualikan karena satu nominal mencakup beberapa jenis') : flow === 'income' ? 'RAB / Pencairan' : flow === 'gas' ? 'GAS' : flow === 'ops_disbursement' ? 'OPS / Pencairan' : flow === 'real_ops' ? 'Realisasi Ops' : 'Pencairan Operasional — ' + operationalTypeLabel(row.operationalType || defaultOperationalType(row.kind))}</strong>
+                    </div>
+
+                    {row.kind === 'lain_lain' && !rowLocked ? (
+                      <label className="maker-import-account-select">
+                        <span>Tujuan rekening (Data Rekening)</span>
+                        <select
+                          value={row.operationalRuleId}
+                          onChange={(event) => chooseLainLainDestination(row, event.target.value)}
+                          disabled={saving || !kitchenId || rowOperationalRules.length === 0}
+                        >
+                          <option value="">Pilih tujuan Akuntan / Aslap</option>
+                          {rowOperationalRules.map((rule) => (
+                            <option key={rule.id} value={rule.id}>
+                              {operationalTargetRoleLabel(rule.target_role)} — {rule.owner_name} — {rule.bank} / {rule.account_number}
+                            </option>
+                          ))}
+                        </select>
+                      </label>
+                    ) : null}
 
                     {flow === 'income' ? (
                       <label className="maker-import-account-select">
@@ -1171,10 +1179,10 @@ export function MakerImportPage() {
                       </label>
                     </div>
 
-                    {validation.errors.length > 0 || validation.confirmations.length > 0 || (duplicateRows[row.id] && disposition.status === 'import') ? (
+                    {(row.kind !== 'lain_lain' && (validation.errors.length > 0 || validation.confirmations.length > 0)) || (duplicateRows[row.id] && disposition.status === 'import') ? (
                       <div className="maker-import-row-issues">
-                        {validation.errors.map((issue) => <p key={issue}><AlertTriangle aria-hidden="true" /> {issue}</p>)}
-                        {validation.confirmations.map((issue) => <p key={issue} className="is-confirm"><AlertTriangle aria-hidden="true" /> {issue}</p>)}
+                        {row.kind !== 'lain_lain' ? validation.errors.map((issue) => <p key={issue}><AlertTriangle aria-hidden="true" /> {issue}</p>) : null}
+                        {row.kind !== 'lain_lain' ? validation.confirmations.map((issue) => <p key={issue} className="is-confirm"><AlertTriangle aria-hidden="true" /> {issue}</p>) : null}
                         {duplicateRows[row.id] && disposition.status === 'import' ? <p><ShieldAlert aria-hidden="true" /> Duplikat: {duplicateRows[row.id]}</p> : null}
                       </div>
                     ) : null}
@@ -1187,7 +1195,7 @@ export function MakerImportPage() {
                           onChange={(event) => updateRow(row.id, { verified: event.target.checked })}
                           disabled={saving}
                         />
-                        <span>Saya sudah memeriksa klasifikasi, tujuan transaksi, identitas rekening, dan nominal baris ini.</span>
+                        <span>Sudah diperiksa dan diperbolehkan.</span>
                       </label>
                     ) : null}
                   </article>

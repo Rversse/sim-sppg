@@ -68,6 +68,7 @@ test('Maker parser classifies common output and retains the exact integer amount
   assert.equal(parsed.rows[6].recipientName, 'Penerima Test')
   assert.equal(parsed.rows[6].accountNumber, '000123')
   assert.equal(parsed.rows[6].manualDecision, 'pending')
+  assert.equal(parsed.rows[6].manualFlow, 'ops_disbursement')
 })
 
 test('Lain-lain rows start pending until Admin chooses Allow or Block', () => {

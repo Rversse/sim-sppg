@@ -532,9 +532,11 @@
 }
 
 
-/* Admin review flow for ambiguous Lain-Lain rows. */
+/* Admin-only Allow / Block controls; color shows state without instructional notices. */
 .maker-import-manual-decision {
-  display: grid; gap: 9px; margin: 11px 0 12px; padding: 10px;
+  display: flex;
+  margin: 8px 0 12px;
+  padding: 9px;
   border: 1px solid color-mix(in srgb, #d97706 42%, var(--theme-border));
   border-radius: 9px;
   background: color-mix(in srgb, #d97706 7%, var(--theme-surface));
@@ -547,22 +549,33 @@
   border-color: color-mix(in srgb, #dc2626 35%, var(--theme-border));
   background: color-mix(in srgb, #dc2626 4%, var(--theme-surface));
 }
-.maker-import-manual-decision > p { margin: 0; color: #b45309; font-size: 10px; line-height: 1.5; }
-.maker-import-manual-decision.is-allowed > p { color: var(--theme-success); }
-.maker-import-manual-decision.is-blocked > p { color: var(--theme-danger); }
 .maker-import-manual-decision-actions { display: flex; flex-wrap: wrap; gap: 8px; }
 .maker-import-decision-button {
-  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
-  min-height: 34px; padding: 7px 10px; border: 1px solid var(--theme-border-strong);
-  border-radius: 8px; background: var(--theme-surface); color: var(--theme-text-secondary);
-  font: inherit; font-size: 10px; font-weight: 850; cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 34px;
+  padding: 7px 10px;
+  border: 1px solid var(--theme-border-strong);
+  border-radius: 8px;
+  background: var(--theme-surface);
+  color: var(--theme-text-secondary);
+  font: inherit;
+  font-size: 10px;
+  font-weight: 850;
+  cursor: pointer;
 }
 .maker-import-decision-button svg { width: 14px; height: 14px; }
 .maker-import-decision-button.is-allow.is-selected {
-  border-color: #16a34a; background: color-mix(in srgb, #16a34a 10%, var(--theme-surface)); color: #15803d;
+  border-color: #16a34a;
+  background: color-mix(in srgb, #16a34a 10%, var(--theme-surface));
+  color: #15803d;
 }
 .maker-import-decision-button.is-block.is-selected {
-  border-color: #dc2626; background: color-mix(in srgb, #dc2626 9%, var(--theme-surface)); color: #b91c1c;
+  border-color: #dc2626;
+  background: color-mix(in srgb, #dc2626 9%, var(--theme-surface));
+  color: #b91c1c;
 }
 .maker-import-decision-button:disabled { opacity: .55; cursor: not-allowed; }
 @media (max-width: 660px) {

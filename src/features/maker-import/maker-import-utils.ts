@@ -180,7 +180,7 @@ function makeRow(
     accountNumber: '',
     amount,
     details: body.trim() || line,
-    manualFlow: '' as const,
+    manualFlow: 'ops_disbursement' as const,
     operationalType: '' as const,
     accountId: '',
     operationalRuleId: '',
@@ -265,7 +265,7 @@ function makeRow(
     bank: parsed.bank,
     accountNumber: parsed.accountNumber,
     details,
-    manualFlow: kind === 'lain_lain' ? '' : defaultManualFlow(kind),
+    manualFlow: defaultManualFlow(kind),
     operationalType: defaultOperationalType(kind)
   }
 }
