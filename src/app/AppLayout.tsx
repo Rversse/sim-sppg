@@ -154,6 +154,38 @@ export function AppLayout() {
   return (
     <div className="app-shell">
       <aside className="app-sidebar">
+        <div className="app-brand">
+          <NavLink to="/dashboard" className="app-brand-home" aria-label="SIM-SPPG Dashboard">
+            <span className="app-brand-mark" aria-hidden="true">
+              <svg viewBox="0 0 40 40" fill="none">
+                <rect x="2" y="2" width="36" height="36" rx="12" fill="currentColor" opacity="0.12" />
+                <path d="M11 14.5h18M11 20h18M11 25.5h12" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" />
+                <circle cx="28" cy="25.5" r="2.1" fill="currentColor" />
+              </svg>
+            </span>
+            <span className="app-brand-copy">
+              <strong>SIM-SPPG</strong>
+              <small>Operasional Dapur</small>
+            </span>
+          </NavLink>
+          <a
+            className="app-brand-switch"
+            href="https://rversse.github.io/maker-pencairan/"
+            target="_blank"
+            rel="noreferrer"
+          >
+            <span className="app-brand-switch-mark" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none">
+                <path d="M6 3.75h8l4 4v12.5H6z" stroke="currentColor" strokeWidth="1.7" strokeLinejoin="round" />
+                <path d="M14 3.75v4h4M9 12h6M9 15.5h6" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
+              </svg>
+            </span>
+            <span>Maker-Pencairan</span>
+            <svg className="app-brand-switch-arrow" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M8 16 16 8M9 8h7v7" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </a>
+        </div>
         <nav className="app-nav" aria-label="Navigasi utama">
           {visibleSections.map((section) => (
             <div className="app-nav-section" key={section.label}>

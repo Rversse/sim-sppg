@@ -330,6 +330,104 @@ textarea {
   color: var(--theme-text-primary);
 }
 
+.app-brand {
+  display: grid;
+  gap: 12px;
+  padding: 18px 12px 8px;
+}
+
+.app-brand-home {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 10px;
+  color: var(--theme-text-primary);
+  text-decoration: none;
+}
+
+.app-brand-mark {
+  display: grid;
+  width: 42px;
+  height: 42px;
+  flex: 0 0 42px;
+  place-items: center;
+  border: 1px solid color-mix(in srgb, var(--theme-primary) 35%, transparent);
+  border-radius: 13px;
+  background: linear-gradient(145deg, color-mix(in srgb, var(--theme-primary) 20%, var(--theme-surface)), var(--theme-surface-soft));
+  color: var(--theme-primary-hover);
+  box-shadow: 0 7px 18px color-mix(in srgb, var(--theme-primary) 10%, transparent);
+}
+
+.app-brand-mark svg {
+  width: 36px;
+  height: 36px;
+}
+
+.app-brand-copy {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.app-brand-copy strong {
+  color: var(--theme-text-primary);
+  font-size: 13px;
+  font-weight: 900;
+  letter-spacing: -0.025em;
+}
+
+.app-brand-copy small {
+  color: var(--theme-sidebar-text-muted);
+  font-size: 9px;
+  font-weight: 650;
+  letter-spacing: 0.01em;
+}
+
+.app-brand-switch {
+  display: flex;
+  min-width: 0;
+  min-height: 38px;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  border: 1px solid var(--app-border);
+  border-radius: 11px;
+  color: var(--theme-sidebar-text);
+  font-size: 10px;
+  font-weight: 750;
+  text-decoration: none;
+  transition: border-color var(--app-motion-fast) ease, background-color var(--app-motion-fast) ease, color var(--app-motion-fast) ease;
+}
+
+.app-brand-switch:hover {
+  border-color: color-mix(in srgb, var(--theme-primary) 55%, var(--app-border));
+  background: var(--theme-surface-soft);
+  color: var(--theme-text-primary);
+}
+
+.app-brand-switch-mark {
+  display: grid;
+  width: 26px;
+  height: 26px;
+  flex: 0 0 26px;
+  place-items: center;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--theme-success) 14%, var(--theme-surface));
+  color: var(--theme-success);
+}
+
+.app-brand-switch-mark svg,
+.app-brand-switch-arrow {
+  width: 15px;
+  height: 15px;
+}
+
+.app-brand-switch-arrow {
+  flex: 0 0 auto;
+  margin-left: auto;
+  color: var(--theme-sidebar-text-muted);
+}
+
 /* =========================================================
    SIDEBAR NAVIGATION
    ========================================================= */
