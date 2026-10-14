@@ -1038,7 +1038,7 @@ export function MakerImportPage() {
                 const manualRequired = row.kind === 'lain_lain' || hasNameMismatch || validation.confirmations.length > 0
                 const manualDecisionPending = row.kind === 'lain_lain' && row.manualDecision === 'pending'
                 const rowBlocked = disposition.status === 'excluded'
-                const rowLocked = row.kind === 'lain_lain' && rowBlocked
+                const rowLocked = rowBlocked && (row.kind !== 'lain_lain' || row.manualDecision === 'block')
                 const rowInvalid = !rowBlocked && (manualDecisionPending || validation.errors.length > 0 ||
                   (validation.confirmations.length > 0 && !row.verified) ||
                   !flowInfo.flow_type || !flowInfo.category)
@@ -1106,7 +1106,7 @@ export function MakerImportPage() {
                       </div>
                     ) : (
                       <div className="maker-import-readonly-kind">
-                        Jenis transaksi: <strong>{row.kind === 'combined_payroll' ? 'Payroll gabungan — wajib dikecualikan karena satu nominal mencakup beberapa jenis' : flow === 'income' ? 'RAB / Pencairan' : flow === 'gas' ? 'GAS' : flow === 'ops_disbursement' ? 'OPS / Pencairan' : flow === 'real_ops' ? 'Realisasi Ops' : 'Pencairan Operasional — ' + operationalTypeLabel(row.operationalType || defaultOperationalType(row.kind))}</strong>
+                        Jenis transaksi: <strong>{row.kind === 'combined_payroll' ? (normalizeMakerText(activeKitchen?.name) === 'campakamulya' ? 'Tujuan rekening Akuntan — diblokir, tidak masuk database program' : 'Payroll gabungan — wajib dikecualikan karena satu nominal mencakup beberapa jenis') : flow === 'income' ? 'RAB / Pencairan' : flow === 'gas' ? 'GAS' : flow === 'ops_disbursement' ? 'OPS / Pencairan' : flow === 'real_ops' ? 'Realisasi Ops' : 'Pencairan Operasional — ' + operationalTypeLabel(row.operationalType || defaultOperationalType(row.kind))}</strong>
                       </div>
                     )}
 
@@ -1179,7 +1179,7 @@ export function MakerImportPage() {
                       </div>
                     ) : null}
 
-                    {manualRequired && !rowLocked ? (
+                    {manualRequired && !rowBlocked ? (
                       <label className="maker-import-verify">
                         <input
                           type="checkbox"
