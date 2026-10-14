@@ -545,118 +545,7 @@ export function MakerImportPage() {
       setParseError('Nama dapur "' + parsed.kitchenName + '" belum cocok dengan dapur aktif di database. Pilih dapur yang benar pada preview.')
     }
 
-    setCheckingDuplicates(true)
-    try {
-      const normalizedSourceText = sourceText.replace(/\r\n?/g, '\n').trim()
-      const digest = await crypto.subtle.digest(
-        'SHA-256',
-        new TextEncoder().encode(normalizedSourceText)
-      )
-      const contentHash = Array.from(new Uint8Array(digest))
-        .map((byte) => byte.toString(16).padStart(2, '0'))
-        .join('')
-      const batchResult = await supabase
-        .from('maker_import_batches')
-        .select('id')
-        .eq('content_hash', contentHash)
-        .maybeSingle()
-      if (batchResult.error) throw batchResult.error
-      if (batchResult.data) {
-        setDuplicateBatchMessage('Dokumen Maker ini sudah pernah diimpor. Tidak bisa diposting ulang.')
-      }
-
-      if (!selectedKitchenId) return
-      const transactionResult = await supabase
-        .from('transactions')
-        .select('id,flow_type,category,amount,account_id,destination_label,operational_type')
-        .eq('transaction_date', parsed.transactionDate)
-        .eq('kitchen_id', selectedKitchenId)
-      if (transactionResult.error) throw transactionResult.error
-      type ExistingMakerTransaction = {
-        id: string
-        flow_type: string
-        category: string
-        amount: number | string
-        account_id: string | null
-        destination_label: string | null
-        operational_type: string | null
-      }
-      const existing = (transactionResult.data ?? []) as ExistingMakerTransaction[]
-      const reasons: Record<string, string> = {}
-      const seen = new Map<string, MakerImportDraftRow>()
-
-      for (const row of initialRows) {
-        const disposition = getRowDisposition(row, selectedKitchenId, refs)
-        if (disposition.status !== 'import' || row.amount === null) continue
-        const validation = getValidation(row, selectedKitchenId, parsed.transactionDate, refs)
-        const flowInfo = effectiveDatabaseFlow(row)
-        if (!flowInfo.flow_type || !flowInfo.category) continue
-
-        const isIncome = flowInfo.flow_type === 'income'
-        const isGas = flowInfo.flow_type === 'neutral'
-        const isOps = flowInfo.flow_type === 'ops_disbursement'
-        const isOperational = flowInfo.flow_type === 'operational_disbursement'
-        const accountId = isIncome ? row.accountId : isGas ? (validation.account?.id ?? row.accountId) : null
-        const targetRole = validation.operationalRule?.target_role
-        const rolePrefix: Record<string, string> = {
-          aslap: 'Aslap',
-          akuntan: 'Akuntan',
-          pic_yayasan: 'PIC Yayasan',
-          berkah_mandiri_putra: 'Berkah Mandiri Putra',
-          supplier: 'Pihak Luar',
-          other: 'OPS'
-        }
-        const destinationLabel = isOps
-          ? (rolePrefix[targetRole ?? ''] ?? 'Akuntan') + ' ' + (matchingKitchen?.name ?? '')
-          : null
-        const candidate = {
-          flow_type: flowInfo.flow_type,
-          category: flowInfo.category,
-          amount: row.amount,
-          account_id: accountId,
-          destination_label: destinationLabel,
-          operational_type: isOperational ? flowInfo.operational_type : null
-        }
-        const sameTransaction = (item: ExistingMakerTransaction) =>
-          item.flow_type === candidate.flow_type &&
-          item.category === candidate.category &&
-          Number(item.amount) === candidate.amount &&
-          (candidate.flow_type === 'income' || candidate.flow_type === 'neutral'
-            ? item.account_id === candidate.account_id
-            : candidate.flow_type === 'ops_disbursement'
-              ? item.destination_label === candidate.destination_label && item.account_id === null
-              : candidate.flow_type === 'operational_disbursement'
-                ? item.operational_type === candidate.operational_type
-                : item.account_id === null)
-        const existingMatch = existing.find(sameTransaction)
-        if (existingMatch) {
-          reasons[row.id] = 'Transaksi dengan tanggal, dapur, jenis, rekening/tujuan, dan nominal yang sama sudah ada di database.'
-        }
-
-        const key = [
-          candidate.flow_type,
-          candidate.category,
-          candidate.amount,
-          candidate.flow_type === 'income' || candidate.flow_type === 'neutral'
-            ? candidate.account_id ?? ''
-            : candidate.flow_type === 'ops_disbursement'
-              ? candidate.destination_label ?? ''
-              : candidate.operational_type ?? ''
-        ].join('|')
-        const prior = seen.get(key)
-        if (prior) {
-          reasons[row.id] = 'Transaksi ini juga berulang di dokumen yang sama; periksa baris ' + prior.lineNumber + '.'
-          reasons[prior.id] = reasons[prior.id] || 'Transaksi ini juga berulang di dokumen yang sama; periksa baris ' + row.lineNumber + '.'
-        } else {
-          seen.set(key, row)
-        }
-      }
-      setDuplicateRows(reasons)
-    } catch (duplicateError) {
-      setDuplicateCheckError(duplicateError instanceof Error ? duplicateError.message : 'Gagal memeriksa duplikat sebelum impor.')
-    } finally {
-      setCheckingDuplicates(false)
-    }
+    setCheckingDuplicates(false)
   }
 
   function updateRow(id: string, patch: Partial<MakerImportDraftRow>) {
@@ -711,13 +600,148 @@ export function MakerImportPage() {
     })
   }
 
-  const checks = rows.map((row) => {
+  const checks = useMemo(() => rows.map((row) => {
     const disposition = getRowDisposition(row, kitchenId, refs)
     const validation = disposition.status === 'excluded'
       ? getExcludedBaselineValidation(row, kitchenId, transactionDate, refs)
       : getValidation(row, kitchenId, transactionDate, refs)
     return { row, validation, flowInfo: effectiveDatabaseFlow(row), disposition }
-  })
+  }), [rows, kitchenId, transactionDate, refs])
+
+  useEffect(() => {
+    if (!draftReady || !transactionDate || !sourceText.trim()) {
+      setDuplicateRows({})
+      setDuplicateBatchMessage('')
+      setDuplicateCheckError('')
+      setDuplicateBatch(false)
+      setCheckingDuplicates(false)
+      return
+    }
+
+    let cancelled = false
+    const timer = window.setTimeout(async () => {
+      setCheckingDuplicates(true)
+      setDuplicateRows({})
+      setDuplicateBatchMessage('')
+      setDuplicateCheckError('')
+      setDuplicateBatch(false)
+      try {
+        const normalizedSourceText = sourceText.replace(/\r\n?/g, '\n').trim()
+        const digest = await crypto.subtle.digest(
+          'SHA-256',
+          new TextEncoder().encode(normalizedSourceText)
+        )
+        const contentHash = Array.from(new Uint8Array(digest))
+          .map((byte) => byte.toString(16).padStart(2, '0'))
+          .join('')
+        const batchResult = await supabase
+          .from('maker_import_batches')
+          .select('id')
+          .eq('content_hash', contentHash)
+          .maybeSingle()
+        if (batchResult.error) throw batchResult.error
+        if (batchResult.data && !cancelled) {
+          setDuplicateBatch(true)
+          setDuplicateBatchMessage('Dokumen Maker ini sudah pernah diimpor. Tidak bisa diposting ulang.')
+        }
+
+        if (!kitchenId) return
+        const transactionResult = await supabase
+          .from('transactions')
+          .select('id,flow_type,category,amount,account_id,destination_label,operational_type')
+          .eq('transaction_date', transactionDate)
+          .eq('kitchen_id', kitchenId)
+        if (transactionResult.error) throw transactionResult.error
+        type ExistingMakerTransaction = {
+          id: string
+          flow_type: string
+          category: string
+          amount: number | string
+          account_id: string | null
+          destination_label: string | null
+          operational_type: string | null
+        }
+        const existing = (transactionResult.data ?? []) as ExistingMakerTransaction[]
+        const reasons: Record<string, string> = {}
+        const seen = new Map<string, MakerImportDraftRow>()
+        const selectedKitchenName = refs.kitchens.find((item) => item.id === kitchenId)?.name ?? ''
+
+        for (const { row, validation, flowInfo, disposition } of checks) {
+          if (disposition.status !== 'import' || row.amount === null) continue
+          if (!flowInfo.flow_type || !flowInfo.category) continue
+          const flow = flowInfo.flow_type
+          const isIncome = flow === 'income'
+          const isGas = flow === 'neutral'
+          const isOps = flow === 'ops_disbursement'
+          const isOperational = flow === 'operational_disbursement'
+          const accountId = isIncome ? row.accountId : isGas ? (validation.account?.id ?? row.accountId) : null
+          const rolePrefix: Record<string, string> = {
+            aslap: 'Aslap',
+            akuntan: 'Akuntan',
+            pic_yayasan: 'PIC Yayasan',
+            berkah_mandiri_putra: 'Berkah Mandiri Putra',
+            supplier: 'Pihak Luar',
+            other: 'OPS'
+          }
+          const destinationLabel = isOps
+            ? (rolePrefix[validation.operationalRule?.target_role ?? ''] ?? 'Akuntan') + ' ' + selectedKitchenName
+            : null
+          const candidate = {
+            flow_type: flow,
+            category: flowInfo.category,
+            amount: row.amount,
+            account_id: accountId,
+            destination_label: destinationLabel,
+            operational_type: isOperational ? flowInfo.operational_type : null
+          }
+          const existingMatch = existing.find((item) =>
+            item.flow_type === candidate.flow_type &&
+            item.category === candidate.category &&
+            Number(item.amount) === candidate.amount &&
+            (candidate.flow_type === 'income' || candidate.flow_type === 'neutral'
+              ? item.account_id === candidate.account_id
+              : candidate.flow_type === 'ops_disbursement'
+                ? item.destination_label === candidate.destination_label && item.account_id === null
+                : candidate.flow_type === 'operational_disbursement'
+                  ? item.operational_type === candidate.operational_type
+                  : item.account_id === null)
+          )
+          if (existingMatch) {
+            reasons[row.id] = 'Tanggal, dapur, jenis, rekening/tujuan, dan nominal sama dengan transaksi yang sudah ada.'
+          }
+
+          const key = [
+            candidate.flow_type,
+            candidate.category,
+            candidate.amount,
+            candidate.flow_type === 'income' || candidate.flow_type === 'neutral'
+              ? candidate.account_id ?? ''
+              : candidate.flow_type === 'ops_disbursement'
+                ? candidate.destination_label ?? ''
+                : candidate.operational_type ?? ''
+          ].join('|')
+          const prior = seen.get(key)
+          if (prior) {
+            reasons[row.id] = 'Transaksi ini berulang pada dokumen yang sama; periksa baris ' + prior.lineNumber + '.'
+            reasons[prior.id] = reasons[prior.id] || 'Transaksi ini berulang pada dokumen yang sama; periksa baris ' + row.lineNumber + '.'
+          } else {
+            seen.set(key, row)
+          }
+        }
+
+        if (!cancelled) setDuplicateRows(reasons)
+      } catch (duplicateError) {
+        if (!cancelled) setDuplicateCheckError(duplicateError instanceof Error ? duplicateError.message : 'Gagal memeriksa duplikat sebelum impor.')
+      } finally {
+        if (!cancelled) setCheckingDuplicates(false)
+      }
+    }, 300)
+
+    return () => {
+      cancelled = true
+      window.clearTimeout(timer)
+    }
+  }, [draftReady, sourceText, kitchenId, transactionDate, checks, refs])
 
   const totalAmount = rows.reduce((total, row) => total + (row.amount ?? 0), 0)
   const excludedChecks = checks.filter(({ disposition }) => disposition.status === 'excluded')
