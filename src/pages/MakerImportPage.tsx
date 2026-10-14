@@ -930,7 +930,7 @@ export function MakerImportPage() {
             onClick={handleParse}
             disabled={loadingRefs || Boolean(refsError) || !sourceText.trim() || saving}
           >
-            <FileCheck2 aria-hidden="true" /> Baca &amp; buat preview
+            <FileCheck2 aria-hidden="true" /> Decode
           </button>
         </div>
         {parseError ? <div className="maker-import-message is-warning"><AlertTriangle /> {parseError}</div> : null}
