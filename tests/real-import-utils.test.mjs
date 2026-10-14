@@ -81,6 +81,23 @@ test('RAB Real parser reads Cidaun Indonesian long month and source total', () =
   assert.equal(parsed.rows.reduce((sum, row) => sum + row.amount, 0), parsed.sourceTotal)
 })
 
+test('Cidaun parser reads total with mixed dot and space thousand separators', () => {
+  const parsed = parseRealImportDocument('cidaun', [
+    'Punten kaping 14 oktober 2026',
+    '1. Cisepat',
+    '- basahan b3 + sekolah :9.511.000',
+    '2. Kertajadi',
+    '- basahan b3 + sekolah: 16.510.000',
+    '*Total : 26.021 000*'
+  ].join('\\n'))
+
+  assert.equal(parsed.error, null)
+  assert.equal(parsed.transactionDate, '2026-10-14')
+  assert.deepEqual(parsed.rows.map((row) => row.amount), [9511000, 16510000])
+  assert.equal(parsed.sourceTotal, 26021000)
+  assert.equal(parsed.rows.reduce((sum, row) => sum + row.amount, 0), parsed.sourceTotal)
+})
+
 test('RAB Real parser rejects malformed amounts and maps alias names predictably', () => {
   assert.equal(parseRealImportAmount('15.475.000'), 15475000)
   assert.equal(parseRealImportAmount('15.47.000'), null)
