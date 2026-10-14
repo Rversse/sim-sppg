@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { Landmark, Save, Trash2 } from 'lucide-react'
+import { Landmark, Plus, Save, Trash2 } from 'lucide-react'
 
 import { supabase } from '@/lib/supabase'
 import { canAccess } from '@/features/auth/role-policy'
@@ -294,6 +294,7 @@ export function DisbursementAccountsPage() {
   const [kitchens, setKitchens] = useState<KitchenRef[]>([])
   const [rules, setRules] = useState<OperationalRule[]>([])
   const [selectedKitchenId, setSelectedKitchenId] = useState('')
+  const [addingTypes, setAddingTypes] = useState<RuleType[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
 
@@ -375,7 +376,10 @@ export function DisbursementAccountsPage() {
           <span>Dapur</span>
           <select
             value={selectedKitchenId}
-            onChange={(event) => setSelectedKitchenId(event.target.value)}
+            onChange={(event) => {
+              setSelectedKitchenId(event.target.value)
+              setAddingTypes([])
+            }}
             disabled={loading || kitchens.length === 0}
           >
             {kitchens.map((kitchen) => (
@@ -434,7 +438,18 @@ export function DisbursementAccountsPage() {
                       <h3>{group.title}</h3>
                       <p>{group.description}</p>
                     </div>
-
+                    <button
+                      type="button"
+                      className="app-action-button app-action-button--secondary"
+                      onClick={() => setAddingTypes((current) =>
+                        current.includes(group.type)
+                          ? current.filter((type) => type !== group.type)
+                          : [...current, group.type]
+                      )}
+                    >
+                      <Plus aria-hidden="true" />
+                      <span>{addingTypes.includes(group.type) ? 'Batal tambah' : 'Tambah rekening'}</span>
+                    </button>
                   </header>
 
                   {groupRules.length === 0 ? (
@@ -457,16 +472,19 @@ export function DisbursementAccountsPage() {
                     />
                   ))}
 
-                  {groupRules.length === 0 ? (
+                  {groupRules.length === 0 || addingTypes.includes(group.type) ? (
                     <div id={'new-' + selectedKitchen.id + '-' + group.type}>
                       <MappingEditor
-                        key={selectedKitchen.id + '-' + group.type + '-new'}
+                        key={selectedKitchen.id + '-' + group.type + '-new-' + groupRules.length}
                         kitchenName={selectedKitchen.name}
                         kitchenId={selectedKitchen.id}
                         type={group.type}
                         title={group.title}
                         rule={null}
-                        onSaved={load}
+                        onSaved={async () => {
+                          setAddingTypes((current) => current.filter((type) => type !== group.type))
+                          await load()
+                        }}
                         onRemoved={load}
                       />
                     </div>
