@@ -89,7 +89,7 @@ test('Cidaun parser reads total with mixed dot and space thousand separators', (
     '2. Kertajadi',
     '- basahan b3 + sekolah: 16.510.000',
     '*Total : 26.021 000*'
-  ].join('\\n'))
+  ].join('\n'))
 
   assert.equal(parsed.error, null)
   assert.equal(parsed.transactionDate, '2026-10-14')
