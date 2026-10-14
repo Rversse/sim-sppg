@@ -16,6 +16,14 @@ export type RealImportParseResult = {
   warnings: string[]
 }
 
+const realImportMoneyFormatter = new Intl.NumberFormat('id-ID', {
+  maximumFractionDigits: 0
+})
+
+export function formatRealImportAmount(value: number | null | undefined): string {
+  return value == null ? '' : realImportMoneyFormatter.format(value)
+}
+
 const KITCHEN_ALIASES: Array<{ alias: string; kitchen: string }> = [
   { alias: 'Sukaraharja', kitchen: 'Sukaraharja' },
   { alias: 'Sukaraja', kitchen: 'Sukaraja' },
