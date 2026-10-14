@@ -60,5 +60,6 @@ export const lazyPages = {
   BankPage: lazyNamed(() => import('@/pages/BankPage'), 'BankPage'),
   ReportsPage: lazyNamed(() => import('@/pages/ReportsPage'), 'ReportsPage'),
   MakerImportPage: lazyNamed(() => import('@/pages/MakerImportPage'), 'MakerImportPage'),
+  RealImportPage: lazyNamed(() => import('@/pages/RealImportPage'), 'RealImportPage'),
   DefaultRoute: lazyNamed(() => import('@/pages/DefaultRoute'), 'DefaultRoute')
 } as const
