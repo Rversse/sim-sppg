@@ -7,6 +7,7 @@ import {
   ChefHat,
   FileText,
   ClipboardPaste,
+  FileSpreadsheet,
   LayoutDashboard,
   Landmark,
   LogOut,
