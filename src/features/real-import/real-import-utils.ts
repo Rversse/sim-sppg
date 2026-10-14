@@ -90,10 +90,10 @@ function parseCidaunDate(sourceText: string): string | null {
 }
 
 export function parseRealImportAmount(raw: string): number | null {
-  const value = raw.trim().replace(/^Rp\s*/i, '').replace(/\s+/g, '')
-  if (!value || !/^(?:\d+|\d{1,3}(?:\.\d{3})+)$/.test(value)) return null
+  const value = raw.trim().replace(/^Rp\s*/i, '')
+  if (!value || !/^(?:\d+|\d{1,3}(?:(?:\.\s*|\s+)\d{3})+)$/.test(value)) return null
 
-  const amount = Number(value.replace(/\./g, ''))
+  const amount = Number(value.replace(/[.\s]/g, ''))
   return Number.isSafeInteger(amount) && amount > 0 ? amount : null
 }
 
@@ -121,7 +121,7 @@ function matchKitchenAtStart(line: string): { kitchen: string; rest: string; ali
 }
 
 function extractAmounts(text: string): number[] {
-  const tokens = text.match(/(?:Rp\s*)?(?:\d{1,3}(?:\.\d{3})+|\d+)/gi) ?? []
+  const tokens = text.match(/(?:Rp\s*)?\d+(?:[.\s]+\d+)*/gi) ?? []
   const result: number[] = []
   for (const token of tokens) {
     const amount = parseRealImportAmount(token)
@@ -197,7 +197,7 @@ export function parseRealImportDocument(
       const line = rawLine.trim()
       if (!line) return
 
-      const totalMatch = line.match(/\btotal\s*:\s*((?:Rp\s*)?(?:\d{1,3}(?:\.\d{3})+|\d+))/i)
+      const totalMatch = line.match(/\btotal\s*:\s*((?:Rp\s*)?\d+(?:[.\s]+\d+)*)/i)
       if (totalMatch) {
         sourceTotal = parseRealImportAmount(totalMatch[1])
         return
