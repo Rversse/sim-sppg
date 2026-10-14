@@ -654,7 +654,7 @@ export function MakerImportPage() {
           disposition: disposition.status,
           excluded_reason: disposition.reason,
           amount: row.amount as number,
-          note: isIncome ? (row.details.trim() || null) : isOpsDisbursement ? 'Ops Harian' : null,
+          note: isIncome || isGas || isOpsDisbursement ? (row.details.trim() || null) : null,
           // Retain intended classification in the audit row when excluded; the SQL
           // function verifies the exclusion against Data Rekening before allowing audit-only save.
           flow_type: flow,
@@ -956,7 +956,7 @@ export function MakerImportPage() {
                       </label>
                       <label className="maker-import-detail-field">
                         <span>Detail / produk / periode / keperluan</span>
-                        <input value={row.details} onChange={(event) => updateRow(row.id, { details: event.target.value, verified: false })} title="Detail draft dapat dikoreksi; baris sumber asli tetap disimpan untuk audit." disabled={saving || rowBlocked} />
+                        <input value={row.details} onChange={(event) => updateRow(row.id, { details: event.target.value, verified: false })} title="Detail draft dapat dikoreksi; baris sumber asli tetap disimpan untuk audit." disabled={saving} />
                       </label>
                     </div>
 
