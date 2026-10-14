@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { Landmark, Plus, Save, Trash2 } from 'lucide-react'
+import { Landmark, Save, Trash2 } from 'lucide-react'
 
 import { supabase } from '@/lib/supabase'
 import { canAccess } from '@/features/auth/role-policy'
@@ -152,7 +152,7 @@ function MappingEditor({
         account_number: accountNumber,
         is_active: true,
         mapping_status: draft.status,
-        target_role: draft.targetRole || null,
+        target_role: type === 'ops_harian' ? (draft.targetRole || null) : null,
         updated_at: new Date().toISOString()
       }
 
@@ -250,18 +250,20 @@ function MappingEditor({
             disabled={saving}
           />
         </label>
-        <label>
-          <span>Peran / tujuan rekening</span>
-          <select
-            value={draft.targetRole}
-            onChange={(event) => setDraft((current) => ({ ...current, targetRole: event.target.value as DestinationRole }))}
-            disabled={saving}
-          >
-            {ROLE_OPTIONS.map((option) => (
-              <option key={option.value || 'unclassified'} value={option.value}>{option.label}</option>
-            ))}
-          </select>
-        </label>
+        {type === 'ops_harian' ? (
+          <label>
+            <span>Peran / tujuan rekening</span>
+            <select
+              value={draft.targetRole}
+              onChange={(event) => setDraft((current) => ({ ...current, targetRole: event.target.value as DestinationRole }))}
+              disabled={saving}
+            >
+              {ROLE_OPTIONS.map((option) => (
+                <option key={option.value || 'unclassified'} value={option.value}>{option.label}</option>
+              ))}
+            </select>
+          </label>
+        ) : null}
         <label className="disbursement-mapping-status-field">
           <span>Aturan impor SIM-SPPG</span>
           <select
@@ -296,7 +298,6 @@ export function DisbursementAccountsPage() {
   const [kitchens, setKitchens] = useState<KitchenRef[]>([])
   const [rules, setRules] = useState<OperationalRule[]>([])
   const [selectedKitchenId, setSelectedKitchenId] = useState('')
-  const [addingTypes, setAddingTypes] = useState<RuleType[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
 
@@ -427,18 +428,7 @@ export function DisbursementAccountsPage() {
                       <h3>{group.title}</h3>
                       <p>{group.description}</p>
                     </div>
-                    <button
-                      type="button"
-                      className="app-action-button app-action-button--secondary"
-                      onClick={() => setAddingTypes((current) =>
-                        current.includes(group.type)
-                          ? current.filter((type) => type !== group.type)
-                          : [...current, group.type]
-                      )}
-                    >
-                      <Plus aria-hidden="true" />
-                      <span>{addingTypes.includes(group.type) ? 'Batal tambah' : 'Tambah rekening'}</span>
-                    </button>
+
                   </header>
 
                   {groupRules.length === 0 ? (
@@ -461,19 +451,16 @@ export function DisbursementAccountsPage() {
                     />
                   ))}
 
-                  {groupRules.length === 0 || addingTypes.includes(group.type) ? (
+                  {groupRules.length === 0 ? (
                     <div id={'new-' + selectedKitchen.id + '-' + group.type}>
                       <MappingEditor
-                        key={selectedKitchen.id + '-' + group.type + '-new-' + groupRules.length}
+                        key={selectedKitchen.id + '-' + group.type + '-new'}
                         kitchenName={selectedKitchen.name}
                         kitchenId={selectedKitchen.id}
                         type={group.type}
                         title={group.title}
                         rule={null}
-                        onSaved={async () => {
-                          setAddingTypes((current) => current.filter((type) => type !== group.type))
-                          await load()
-                        }}
+                        onSaved={load}
                         onRemoved={load}
                       />
                     </div>
