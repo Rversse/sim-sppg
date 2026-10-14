@@ -394,9 +394,7 @@ export function RealImportPage() {
       <header className="maker-import-hero">
         <span className="maker-import-hero-icon"><ClipboardPaste aria-hidden="true" /></span>
         <div>
-          <span className="maker-import-kicker">IMPORT TRANSAKSI</span>
           <h2>Import RAB / Real</h2>
-          <p>Tempel laporan belanja dari Cianjur atau Cidaun, periksa draft, lalu simpan ke database.</p>
         </div>
       </header>
 
