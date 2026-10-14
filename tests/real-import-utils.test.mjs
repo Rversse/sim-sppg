@@ -71,7 +71,7 @@ test('Cidaun parser supports kitchen and amount on the same line without mistaki
     'Punten kaping 12 oktober 2026',
     '1. Cisepat - basahan b3 + sekolah: 12.784.000',
     '*Total: 12.784.000*'
-  ].join('\\n'))
+  ].join(String.fromCharCode(10)))
   assert.equal(parsed.error, null)
   assert.equal(parsed.rows.length, 1)
   assert.equal(parsed.rows[0].kitchenName, 'Cisepat')
