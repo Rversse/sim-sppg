@@ -163,7 +163,7 @@ export function parseRealImportDocument(
   if (sourceType === 'cianjur') {
     lines.forEach((rawLine, index) => {
       const line = rawLine.trim()
-      if (!line || /^belan?ja\s+harian\b/i.test(line)) return
+      if (!line || /^belan(?:j|aj)a\s+harian\b/i.test(line)) return
 
       const kitchenMatch = matchKitchenAtStart(line)
       if (kitchenMatch) {
