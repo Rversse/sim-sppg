@@ -85,29 +85,11 @@ test('operational account mapping is resolved by recipient name and exact accoun
 })
 
 
-test('Maker import applies kitchen-specific PIC/payroll exclusions without blocking vehicle rent', () => {
-  for (const kitchen of ['Campakamulya', 'Cikondang', 'Kertajadi']) {
-    assert.equal(getMakerImportOperationalExclusionReason(kitchen, 'sppg_rent'), null)
-    assert.equal(getMakerImportOperationalExclusionReason(kitchen, 'vehicle_rent'), null)
-    assert.match(
-      getMakerImportOperationalExclusionReason(kitchen, 'relawan_salary') ?? '',
-      /rekening akuntan/i
-    )
-    assert.match(
-      getMakerImportOperationalExclusionReason(kitchen, 'pic_incentive') ?? '',
-      /rekening akuntan/i
-    )
-  }
-
-  assert.equal(getMakerImportOperationalExclusionReason('Sukaraja', 'sppg_rent'), null)
-  assert.equal(getMakerImportOperationalExclusionReason('Sukaraja', 'relawan_salary'), null)
-  assert.match(
-    getMakerImportOperationalExclusionReason('Sukaraja', 'pic_incentive') ?? '',
-    /rekening akuntan/i
-  )
-  for (const kitchen of ['Sukaraharja', 'Cibaregbeg', 'Cimanggu', 'Warungbitung']) {
-    assert.equal(getMakerImportOperationalExclusionReason(kitchen, 'sppg_rent'), null)
+test('operational exclusions are no longer hardcoded by kitchen name', () => {
+  for (const kitchen of ['Campakamulya', 'Cikondang', 'Kertajadi', 'Sukaraja', 'Cihaur', 'Cipetir']) {
     assert.equal(getMakerImportOperationalExclusionReason(kitchen, 'relawan_salary'), null)
     assert.equal(getMakerImportOperationalExclusionReason(kitchen, 'pic_incentive'), null)
+    assert.equal(getMakerImportOperationalExclusionReason(kitchen, 'sppg_rent'), null)
+    assert.equal(getMakerImportOperationalExclusionReason(kitchen, 'vehicle_rent'), null)
   }
 })
