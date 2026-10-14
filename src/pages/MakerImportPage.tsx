@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import { ImportConfirmationDialog } from '@/components/ui/import-confirmation-dialog'
 import { AlertTriangle, CheckCircle2, ClipboardPaste, Database, FileCheck2, LoaderCircle, RotateCcw, ShieldAlert, Upload } from 'lucide-react'
 import { isOperationalTypeAvailable } from '@/features/transactions/operational-policy'
 import {
@@ -449,6 +450,11 @@ export function MakerImportPage() {
   const [parseError, setParseError] = useState('')
   const [saveError, setSaveError] = useState('')
   const [saving, setSaving] = useState(false)
+  const [confirmOpen, setConfirmOpen] = useState(false)
+  const [checkingDuplicates, setCheckingDuplicates] = useState(false)
+  const [duplicateRows, setDuplicateRows] = useState<Record<string, string>>({})
+  const [duplicateBatchMessage, setDuplicateBatchMessage] = useState('')
+  const [duplicateCheckError, setDuplicateCheckError] = useState('')
 
   useEffect(() => {
     let cancelled = false
@@ -503,9 +509,13 @@ export function MakerImportPage() {
 
   const activeKitchen = refs.kitchens.find((item) => item.id === kitchenId)
 
-  function handleParse() {
+  async function handleParse() {
     setParseError('')
     setSaveError('')
+    setDuplicateRows({})
+    setDuplicateBatchMessage('')
+    setDuplicateCheckError('')
+    setCheckingDuplicates(false)
 
     const parsed = parseMakerDocument(sourceText)
     if (parsed.error) {
@@ -514,6 +524,9 @@ export function MakerImportPage() {
       setRows([])
       setSourceKitchenName('')
       setSourceDate('')
+      setDuplicateRows({})
+      setDuplicateBatchMessage('')
+      setDuplicateCheckError('')
       return
     }
     setSourceKitchenName(parsed.kitchenName)
@@ -523,12 +536,126 @@ export function MakerImportPage() {
       (kitchen) => normalizeMakerText(kitchen.name) === normalizeMakerText(parsed.kitchenName)
     )
     const selectedKitchenId = matchingKitchen?.id ?? ''
+    const initialRows = applyInitialMappings(parsed.rows, selectedKitchenId, refs)
     setKitchenId(selectedKitchenId)
     setTransactionDate(parsed.transactionDate)
-    setRows(applyInitialMappings(parsed.rows, selectedKitchenId, refs))
+    setRows(initialRows)
     setDraftReady(true)
     if (!matchingKitchen) {
       setParseError('Nama dapur "' + parsed.kitchenName + '" belum cocok dengan dapur aktif di database. Pilih dapur yang benar pada preview.')
+    }
+
+    setCheckingDuplicates(true)
+    try {
+      const normalizedSourceText = sourceText.replace(/\r\n?/g, '\n').trim()
+      const digest = await crypto.subtle.digest(
+        'SHA-256',
+        new TextEncoder().encode(normalizedSourceText)
+      )
+      const contentHash = Array.from(new Uint8Array(digest))
+        .map((byte) => byte.toString(16).padStart(2, '0'))
+        .join('')
+      const batchResult = await supabase
+        .from('maker_import_batches')
+        .select('id')
+        .eq('content_hash', contentHash)
+        .maybeSingle()
+      if (batchResult.error) throw batchResult.error
+      if (batchResult.data) {
+        setDuplicateBatchMessage('Dokumen Maker ini sudah pernah diimpor. Tidak bisa diposting ulang.')
+      }
+
+      if (!selectedKitchenId) return
+      const transactionResult = await supabase
+        .from('transactions')
+        .select('id,flow_type,category,amount,account_id,destination_label,operational_type')
+        .eq('transaction_date', parsed.transactionDate)
+        .eq('kitchen_id', selectedKitchenId)
+      if (transactionResult.error) throw transactionResult.error
+      type ExistingMakerTransaction = {
+        id: string
+        flow_type: string
+        category: string
+        amount: number | string
+        account_id: string | null
+        destination_label: string | null
+        operational_type: string | null
+      }
+      const existing = (transactionResult.data ?? []) as ExistingMakerTransaction[]
+      const reasons: Record<string, string> = {}
+      const seen = new Map<string, MakerImportDraftRow>()
+
+      for (const row of initialRows) {
+        const disposition = getRowDisposition(row, selectedKitchenId, refs)
+        if (disposition.status !== 'import' || row.amount === null) continue
+        const validation = getValidation(row, selectedKitchenId, parsed.transactionDate, refs)
+        const flowInfo = effectiveDatabaseFlow(row)
+        if (!flowInfo.flow_type || !flowInfo.category) continue
+
+        const isIncome = flowInfo.flow_type === 'income'
+        const isGas = flowInfo.flow_type === 'neutral'
+        const isOps = flowInfo.flow_type === 'ops_disbursement'
+        const isOperational = flowInfo.flow_type === 'operational_disbursement'
+        const accountId = isIncome ? row.accountId : isGas ? (validation.account?.id ?? row.accountId) : null
+        const targetRole = validation.operationalRule?.target_role
+        const rolePrefix: Record<string, string> = {
+          aslap: 'Aslap',
+          akuntan: 'Akuntan',
+          pic_yayasan: 'PIC Yayasan',
+          berkah_mandiri_putra: 'Berkah Mandiri Putra',
+          supplier: 'Pihak Luar',
+          other: 'OPS'
+        }
+        const destinationLabel = isOps
+          ? (rolePrefix[targetRole ?? ''] ?? 'Akuntan') + ' ' + (matchingKitchen?.name ?? '')
+          : null
+        const candidate = {
+          flow_type: flowInfo.flow_type,
+          category: flowInfo.category,
+          amount: row.amount,
+          account_id: accountId,
+          destination_label: destinationLabel,
+          operational_type: isOperational ? flowInfo.operational_type : null
+        }
+        const sameTransaction = (item: ExistingMakerTransaction) =>
+          item.flow_type === candidate.flow_type &&
+          item.category === candidate.category &&
+          Number(item.amount) === candidate.amount &&
+          (candidate.flow_type === 'income' || candidate.flow_type === 'neutral'
+            ? item.account_id === candidate.account_id
+            : candidate.flow_type === 'ops_disbursement'
+              ? item.destination_label === candidate.destination_label && item.account_id === null
+              : candidate.flow_type === 'operational_disbursement'
+                ? item.operational_type === candidate.operational_type
+                : item.account_id === null)
+        const existingMatch = existing.find(sameTransaction)
+        if (existingMatch) {
+          reasons[row.id] = 'Transaksi dengan tanggal, dapur, jenis, rekening/tujuan, dan nominal yang sama sudah ada di database.'
+        }
+
+        const key = [
+          candidate.flow_type,
+          candidate.category,
+          candidate.amount,
+          candidate.flow_type === 'income' || candidate.flow_type === 'neutral'
+            ? candidate.account_id ?? ''
+            : candidate.flow_type === 'ops_disbursement'
+              ? candidate.destination_label ?? ''
+              : candidate.operational_type ?? ''
+        ].join('|')
+        const prior = seen.get(key)
+        if (prior) {
+          reasons[row.id] = 'Transaksi ini juga berulang di dokumen yang sama; periksa baris ' + prior.lineNumber + '.'
+          reasons[prior.id] = reasons[prior.id] || 'Transaksi ini juga berulang di dokumen yang sama; periksa baris ' + row.lineNumber + '.'
+        } else {
+          seen.set(key, row)
+        }
+      }
+      setDuplicateRows(reasons)
+    } catch (duplicateError) {
+      setDuplicateCheckError(duplicateError instanceof Error ? duplicateError.message : 'Gagal memeriksa duplikat sebelum impor.')
+    } finally {
+      setCheckingDuplicates(false)
     }
   }
 
@@ -602,23 +729,26 @@ export function MakerImportPage() {
     normalizeMakerText(activeKitchen.name) !== normalizeMakerText(sourceKitchenName) ||
     transactionDate !== sourceDate
   )
+  const duplicateCount = checks.filter(({ row, disposition }) =>
+    disposition.status === 'import' && Boolean(duplicateRows[row.id])
+  ).length
   const blockingCount = checks.filter(({ row, validation, flowInfo, disposition }) =>
     validation.errors.length > 0 ||
     (disposition.status === 'import' && ((validation.confirmations.length > 0 && !row.verified) || !flowInfo.flow_type || !flowInfo.category))
-  ).length + (sourceIdentityMismatch ? 1 : 0)
+  ).length + (sourceIdentityMismatch ? 1 : 0) + duplicateCount
   const canSave = draftReady && !loadingRefs && !refsError && Boolean(activeKitchen) &&
-    Boolean(transactionDate) && rows.length > 0 && blockingCount === 0 && !sourceIdentityMismatch && !saving
+    Boolean(transactionDate) && rows.length > 0 && blockingCount === 0 &&
+    !sourceIdentityMismatch && !checkingDuplicates && !duplicateBatchMessage &&
+    !duplicateCheckError && !saving
 
-  async function handleSave() {
+  function handleSave() {
     if (!canSave || !activeKitchen) return
     setSaveError('')
-    if (!window.confirm(
-      'Simpan batch Maker untuk ' + activeKitchen.name + ' tanggal ' + transactionDate + '?\n\n' +
-      'Masuk database program: ' + importableChecks.length + ' baris (Rp ' + formatAmount(importableAmount) + ').\n' +
-      'Dikecualikan / rekening akuntan: ' + excludedChecks.length + ' baris (Rp ' + formatAmount(excludedAmount) + ').\n\n' +
-      'Baris yang dikecualikan hanya masuk audit impor, bukan transaksi program.'
-    )) return
+    setConfirmOpen(true)
+  }
 
+  async function confirmSave() {
+    if (!canSave || !activeKitchen) return
     setSaving(true)
     try {
       const digest = await crypto.subtle.digest(
@@ -728,6 +858,8 @@ export function MakerImportPage() {
       </div>
 
       {refsError ? <div className="maker-import-message is-error"><AlertTriangle /> {refsError}</div> : null}
+      {duplicateBatchMessage ? <div className="maker-import-message is-error"><ShieldAlert /> {duplicateBatchMessage}</div> : null}
+      {duplicateCheckError ? <div className="maker-import-message is-error"><ShieldAlert /> Pemeriksaan duplikat gagal: {duplicateCheckError}</div> : null}
       {loadingRefs ? <div className="maker-import-loading"><LoaderCircle className="is-spinning" /> Mengambil dapur dan mapping rekening dari database…</div> : null}
 
       <section className="maker-import-panel maker-import-source-panel">
@@ -957,10 +1089,11 @@ export function MakerImportPage() {
                       </label>
                     </div>
 
-                    {validation.errors.length > 0 || validation.confirmations.length > 0 ? (
+                    {validation.errors.length > 0 || validation.confirmations.length > 0 || (duplicateRows[row.id] && disposition.status === 'import') ? (
                       <div className="maker-import-row-issues">
                         {validation.errors.map((issue) => <p key={issue}><AlertTriangle aria-hidden="true" /> {issue}</p>)}
                         {validation.confirmations.map((issue) => <p key={issue} className="is-confirm"><AlertTriangle aria-hidden="true" /> {issue}</p>)}
+                        {duplicateRows[row.id] && disposition.status === 'import' ? <p><ShieldAlert aria-hidden="true" /> Duplikat: {duplicateRows[row.id]}</p> : null}
                       </div>
                     ) : null}
 
@@ -985,13 +1118,30 @@ export function MakerImportPage() {
                 <strong>{importableChecks.length} baris masuk program</strong>
                 <span>Rp {formatAmount(importableAmount)} masuk · {excludedChecks.length} dikecualikan · Rp {formatAmount(totalAmount)} total sumber</span>
               </div>
-              <button type="button" className="maker-import-primary" onClick={() => void handleSave()} disabled={!canSave}>
-                {saving ? <><LoaderCircle className="is-spinning" /> Menyimpan…</> : <><Upload aria-hidden="true" /> Verifikasi selesai &amp; simpan ke database</>}
+              <button type="button" className="maker-import-primary" onClick={handleSave} disabled={!canSave}>
+                {checkingDuplicates ? <><LoaderCircle className="is-spinning" /> Memeriksa duplikat…</> : <><FileCheck2 aria-hidden="true" /> Lanjut ke konfirmasi</>}
               </button>
             </div>
           </section>
         </>
       ) : null}
+      <ImportConfirmationDialog
+        open={confirmOpen}
+        title="Simpan batch Maker?"
+        description={'Periksa ringkasan batch ' + (activeKitchen?.name ?? sourceKitchenName) + ' tanggal ' + transactionDate + '. Hanya baris yang masuk program akan menjadi transaksi.'}
+        details={[
+          { label: 'Dapur', value: activeKitchen?.name ?? sourceKitchenName },
+          { label: 'Tanggal', value: transactionDate },
+          { label: 'Masuk database', value: importableChecks.length + ' baris · Rp ' + formatAmount(importableAmount) },
+          { label: 'Dikecualikan', value: excludedChecks.length + ' baris · Rp ' + formatAmount(excludedAmount) }
+        ]}
+        warning="Periksa lagi tanggal, nominal, penerima, rekening, dan detail. Setelah disimpan, transaksi masuk ke database dan riwayat."
+        confirmLabel="Simpan ke database"
+        cancelLabel="Periksa draft lagi"
+        busy={saving}
+        onCancel={() => setConfirmOpen(false)}
+        onConfirm={() => void confirmSave()}
+      />
     </section>
   )
 }
