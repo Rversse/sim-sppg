@@ -51,7 +51,7 @@ type MappingDraft = {
 type MappingGroup = {
   id: string
   title: string
-  types: RuleType[]
+  types: Array<Exclude<RuleType, 'vehicle_rent'>>
 }
 
 const RULE_GROUPS: MappingGroup[] = [
