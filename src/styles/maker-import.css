@@ -58,6 +58,19 @@
   background: var(--theme-surface);
   box-shadow: var(--theme-shadow-card);
 }
+
+/* Keep the source data visible while reviewing rows further down the page. */
+.maker-import-source-panel {
+  position: sticky;
+  top: 12px;
+  z-index: 24;
+  align-self: start;
+  border-color: color-mix(in srgb, var(--theme-primary) 23%, var(--theme-border));
+  background: var(--theme-surface);
+  box-shadow:
+    0 16px 38px color-mix(in srgb, var(--theme-text) 10%, transparent),
+    var(--theme-shadow-card);
+}
 .maker-import-panel-head {
   display: flex;
   align-items: flex-start;
@@ -456,6 +469,10 @@
 }
 @media (max-width: 660px) {
   .maker-import-page { gap: 11px; }
+  .maker-import-source-panel {
+    top: 6px;
+    padding: 12px;
+  }
   .maker-import-hero { align-items: flex-start; padding: 15px; gap: 11px; }
   .maker-import-hero-icon { width: 38px; height: 38px; flex-basis: 38px; border-radius: 10px; }
   .maker-import-hero-icon svg { width: 19px; height: 19px; }
