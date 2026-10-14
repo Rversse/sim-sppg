@@ -46,7 +46,7 @@ test('Cianjur parser ignores daily expense title even with common typo', () => {
     'Camul           11.240.000',
     'Cikondang       11.528.300',
     'Sukaraharja      3.960.000'
-  ].join('\\n'))
+  ].join('\n'))
 
   assert.equal(parsed.error, null)
   assert.equal(parsed.transactionDate, '2026-10-14')
