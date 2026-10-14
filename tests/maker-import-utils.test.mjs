@@ -23,7 +23,10 @@ test('Maker dates accept valid abbreviated months and reject impossible dates', 
   assert.equal(parseMakerDate('29-Feb-2024'), '2024-02-29')
   assert.equal(parseMakerDate('29-Feb-2025'), null)
   assert.equal(parseMakerDate('32-Oct-2026'), null)
-  assert.equal(parseMakerDate('05-Okt-2026'), null)
+  assert.equal(parseMakerDate('05-Okt-2026'), '2026-10-05')
+  assert.equal(parseMakerDate('05-Mei-2026'), '2026-05-05')
+  assert.equal(parseMakerDate('05-Agu-2026'), '2026-08-05')
+  assert.equal(parseMakerDate('05-Des-2026'), '2026-12-05')
 })
 
 test('Maker parser classifies common output and retains the exact integer amount', () => {
@@ -67,9 +70,9 @@ test('Maker parser classifies common output and retains the exact integer amount
 })
 
 test('Maker parser rejects invalid headers and preserves physical source line numbers', () => {
-  const malformed = parseMakerDocument('Campakamulya, 05-Okt-2026\nGAS : KOPERASI - BNI / 123 · 1.000')
+  const malformed = parseMakerDocument('Campakamulya, 05-Otx-2026\nGAS : KOPERASI - BNI / 123 · 1.000')
   assert.notEqual(malformed.error, null)
-  const valid = parseMakerDocument('Cisepat, 05-Oct-2026\n\nGAS : KOPERASI - BNI / 123 · 1.000')
+  const valid = parseMakerDocument('Cisepat, 05-Okt-2026\n\nGAS : KOPERASI - BNI / 123 · 1.000')
   assert.equal(valid.error, null)
   assert.equal(valid.rows.length, 1)
   assert.equal(valid.rows[0].lineNumber, 3)

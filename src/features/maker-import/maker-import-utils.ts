@@ -56,13 +56,17 @@ const MONTHS: Record<string, string> = {
   mar: '03',
   apr: '04',
   may: '05',
+  mei: '05',
   jun: '06',
   jul: '07',
   aug: '08',
+  agu: '08',
   sep: '09',
   oct: '10',
+  okt: '10',
   nov: '11',
-  dec: '12'
+  dec: '12',
+  des: '12'
 }
 
 export function normalizeMakerText(value: string | null | undefined): string {
@@ -342,7 +346,7 @@ export function parseMakerDocument(text: string): ParsedMakerDocument {
       kitchenName: '',
       transactionDate: '',
       rows: [],
-      error: 'Header tidak dikenali. Format yang diharapkan: Cisepat, 05-Oct-2026.'
+      error: 'Header tidak dikenali. Format yang diharapkan: Cisepat, 05-Okt-2026.'
     }
   }
 
