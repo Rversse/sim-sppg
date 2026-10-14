@@ -240,3 +240,23 @@
   .real-import-duplicate-warning { flex-wrap: wrap; }
   .real-import-duplicate-warning button { width: 100%; }
 }
+
+
+/* Match the Maker importer width and keep the source editor compact. */
+.real-import-page {
+  width: min(100%, 1000px);
+  margin-inline: auto;
+  padding-inline: 12px;
+  gap: 12px;
+}
+.real-import-source-panel { position: static; }
+.real-import-source-tools { grid-template-columns: minmax(0, 1fr) minmax(0, .9fr); }
+.real-import-page .maker-import-source { min-height: 150px; }
+.real-import-row { padding: 12px; }
+@media (max-width: 760px) {
+  .real-import-page { padding-inline: 8px; }
+  .real-import-source-tools { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 620px) {
+  .real-import-page .maker-import-source { min-height: 125px; }
+}
