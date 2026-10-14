@@ -1,7 +1,6 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
 
 import { supabase } from '@/lib/supabase'
-import { MANUAL_DISBURSEMENT_STATUS_START_DATE } from '@/lib/app-config'
 import { getAvailableOperationalTypes } from '@/features/transactions/operational-policy'
 
 export type DashboardFlow =
@@ -442,13 +441,12 @@ export async function getDailyStatus(
   client: SupabaseClient = supabase,
   includeSppgRent = false
 ): Promise<{
-  disbursed: number
-  pending: number
+  withPencairan: number
   empty: number
   rows: {
     kitchenId: string
     kitchen: string
-    status: 'disbursed' | 'pending' | 'empty'
+    status: 'has_pencairan' | 'empty'
     income: boolean
     transactionCount: number
     expense: boolean
@@ -461,13 +459,9 @@ export async function getDailyStatus(
     picIncentiveAvailable: boolean
     relawanSalary: boolean
     picIncentive: boolean
-    hasTransactions: boolean
-    canToggle: boolean
-    disbursed: boolean
+
   }[]
 }> {
-  const cutoffDate = MANUAL_DISBURSEMENT_STATUS_START_DATE
-
   const [
     { data, error },
     { data: incomeRows, error: incomeError },
@@ -517,7 +511,6 @@ export async function getDailyStatus(
     gas: boolean | null
     operational: boolean | null
     real_operational: boolean | null
-    stored_disbursed: boolean | null
   }
 
   const typedData = (data ?? []) as DashboardDailyStatusRpcRow[]
@@ -549,8 +542,7 @@ export async function getDailyStatus(
     operationalTypesByKitchen.set(row.kitchen_id, operationalTypes)
   }
 
-  let disbursed = 0
-  let pending = 0
+  let withPencairan = 0
   let empty = 0
 
   const rows = typedData.map((row) => {
@@ -586,19 +578,13 @@ export async function getDailyStatus(
       picIncentiveAvailable &&
       Boolean(recordedOperationalTypes?.has('pic_incentive'))
 
-    // Status pencairan hanya digerakkan oleh Pencairan / RAB (income).
-    const hasTransactions = income
-    const impliedDisbursed = selectedDate < cutoffDate
-    const storedDisbursed = Boolean(row.stored_disbursed)
-    const rowDisbursed = income && (impliedDisbursed || storedDisbursed)
-    const status: 'disbursed' | 'pending' | 'empty' = !income
-      ? 'empty'
-      : rowDisbursed
-        ? 'disbursed'
-        : 'pending'
+    // Status pencairan menunjukkan keberadaan transaksi Pencairan / RAB.
+    const hasPencairan = income
+    const status: 'has_pencairan' | 'empty' = hasPencairan
+      ? 'has_pencairan'
+      : 'empty'
 
-    if (status === 'disbursed') disbursed += 1
-    else if (status === 'pending') pending += 1
+    if (hasPencairan) withPencairan += 1
     else empty += 1
 
     return {
@@ -617,11 +603,8 @@ export async function getDailyStatus(
       picIncentiveAvailable,
       relawanSalary,
       picIncentive,
-      hasTransactions,
-      canToggle: income && selectedDate >= cutoffDate,
-      disbursed: rowDisbursed
     }
   })
 
-  return { disbursed, pending, empty, rows }
+  return { withPencairan, empty, rows }
 }
