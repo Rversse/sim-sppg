@@ -28,8 +28,7 @@ import {
   createTransaction,
   deleteTransaction,
   hasDuplicateTransaction,
-  updateTransaction,
-  setKitchenDisbursementStatus
+  updateTransaction
 } from '@/features/transactions/transaction-service'
 
 import {
@@ -1371,31 +1370,6 @@ export function DashboardPage() {
     }
   }
 
-  async function handleKitchenDisbursementToggle(
-    kitchenId: string,
-    statusDate: string,
-    isDisbursed: boolean
-  ) {
-    if (user?.role !== 'admin') return
-
-    const row = dailyStatus?.rows.find((item) => item.kitchenId === kitchenId)
-    const targetKitchen = kitchens.find((item) => item.id === kitchenId)
-
-    if (!row || !targetKitchen || !row.canToggle) return
-
-    try {
-      await setKitchenDisbursementStatus(
-        targetKitchen.id,
-        statusDate,
-        isDisbursed
-      )
-      await refreshDashboard(false, true)
-    } catch (saveError) {
-      console.error(saveError)
-      setError('Gagal memperbarui status pencairan dapur.')
-    }
-  }
-
   async function handleTransactionDelete(transaction: DashboardTransaction) {
     if (user?.role !== 'admin') return
 
@@ -1668,10 +1642,7 @@ export function DashboardPage() {
             <>
               <div className="dashboard-status-summary">
                 <span className="status-summary-green">
-                  <b>{dailyStatus.disbursed}</b> Approved
-                </span>
-                <span className="status-summary-yellow">
-                  <b>{dailyStatus.pending}</b> Pending
+                  <b>{dailyStatus.withPencairan}</b> Ada pencairan
                 </span>
                 <span className="status-summary-red">
                   <b>{dailyStatus.empty}</b> Belum ada transaksi
@@ -1681,11 +1652,9 @@ export function DashboardPage() {
               <div className="dashboard-status-list">
                 {dailyStatus.rows.map((row) => {
                   const rowClass =
-                    row.status === 'disbursed'
-                      ? 'is-disbursed'
-                      : row.status === 'pending'
-                        ? 'is-pending'
-                        : 'is-empty'
+                    row.status === 'has_pencairan'
+                      ? 'is-has-pencairan'
+                      : 'is-empty'
 
                   return (
                     <div
@@ -1696,11 +1665,9 @@ export function DashboardPage() {
                         <strong>{row.kitchen}</strong>
                         <span className="dashboard-status-meta">
                           <span className="dashboard-status-text">
-                            {row.status === 'disbursed'
-                              ? 'Approved'
-                              : row.status === 'pending'
-                                ? 'Pending'
-                                : 'Belum ada transaksi'}
+                            {row.income
+                              ? 'Ada pencairan'
+                              : 'Belum ada transaksi'}
                           </span>
                           {row.transactionCount > 0 ? (
                             <span
@@ -1797,40 +1764,6 @@ export function DashboardPage() {
                             </span>
                           ) : null}
                         </div>
-
-                        {includeSppgRent && row.canToggle ? (
-                          <label
-                            className={`dashboard-disbursement-check ${
-                              row.disbursed ? 'is-checked' : ''
-                            }`}
-                            title={
-                              row.disbursed
-                                ? 'Batalkan status sudah dicairkan'
-                                : 'Tandai sudah dicairkan'
-                            }
-                          >
-                            <input
-                              type="checkbox"
-                              checked={row.disbursed}
-                              onChange={(event) =>
-                                void handleKitchenDisbursementToggle(
-                                  row.kitchenId,
-                                  filters.startDate,
-                                  event.target.checked
-                                )
-                              }
-                              aria-label={
-                                row.disbursed
-                                  ? `Batalkan status pencairan ${row.kitchen}`
-                                  : `Tandai ${row.kitchen} sudah dicairkan`
-                              }
-                            />
-                            <span
-                              className="dashboard-disbursement-checkmark"
-                              aria-hidden="true"
-                            />
-                          </label>
-                        ) : null}
                       </div>
                     </div>
                   )
