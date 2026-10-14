@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { AlertTriangle, ClipboardPaste, Database, FileCheck2, LoaderCircle, RotateCcw, ShieldAlert, Upload } from 'lucide-react'
+import { AlertTriangle, CheckCircle2, ClipboardPaste, Database, FileCheck2, LoaderCircle, RotateCcw, ShieldAlert, Upload } from 'lucide-react'
 import { isOperationalTypeAvailable } from '@/features/transactions/operational-policy'
 import {
   defaultManualFlow,
