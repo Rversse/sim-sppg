@@ -529,6 +529,7 @@ export function MakerImportPage() {
       setDuplicateCheckError('')
       return
     }
+    setCheckingDuplicates(true)
     setSourceKitchenName(parsed.kitchenName)
     setSourceDate(parsed.transactionDate)
 
@@ -545,7 +546,6 @@ export function MakerImportPage() {
       setParseError('Nama dapur "' + parsed.kitchenName + '" belum cocok dengan dapur aktif di database. Pilih dapur yang benar pada preview.')
     }
 
-    setCheckingDuplicates(false)
   }
 
   function updateRow(id: string, patch: Partial<MakerImportDraftRow>) {
@@ -762,7 +762,7 @@ export function MakerImportPage() {
   ).length + (sourceIdentityMismatch ? 1 : 0) + duplicateCount
   const canSave = draftReady && !loadingRefs && !refsError && Boolean(activeKitchen) &&
     Boolean(transactionDate) && rows.length > 0 && blockingCount === 0 &&
-    !sourceIdentityMismatch && !checkingDuplicates && !duplicateBatchMessage &&
+    !sourceIdentityMismatch && !checkingDuplicates && !duplicateBatch && !duplicateBatchMessage &&
     !duplicateCheckError && !saving
 
   function handleSave() {
