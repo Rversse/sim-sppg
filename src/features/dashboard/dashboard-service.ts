@@ -141,6 +141,30 @@ export async function getDashboardSummary(
   }
 }
 
+export async function getDashboardRABBalance(
+  filters: DashboardFilters,
+  client: SupabaseClient = supabase
+): Promise<number> {
+  const { data, error } = await client.rpc('get_dashboard_summary', {
+    start_date: filters.startDate,
+    end_date: filters.endDate,
+    kitchen_uuid: filters.kitchenId || null,
+    flow_types: null,
+    supplier_filter: null
+  })
+
+  if (error) throw error
+
+  const row = data?.[0] as
+    | {
+        income?: number
+        expense?: number
+      }
+    | undefined
+
+  return Number(row?.income ?? 0) - Number(row?.expense ?? 0)
+}
+
 export async function getActiveKitchens(
   client: SupabaseClient = supabase
 ): Promise<DashboardKitchen[]> {

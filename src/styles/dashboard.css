@@ -313,7 +313,7 @@
   display: grid;
   width: min(100%, 1280px);
   max-width: 1280px;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 12px;
   margin-inline: auto;
 }
@@ -2177,4 +2177,21 @@
   background: color-mix(in srgb, var(--theme-danger) 6%, var(--app-surface));
   color: var(--theme-text-secondary);
   white-space: normal;
+}
+
+
+/* Admin-only net RAB balance: incoming RAB less Real / supplier spend. */
+.dashboard-kpi-grid > .dashboard-kpi.dashboard-kpi-rab-balance {
+  border-color: color-mix(in srgb, var(--theme-primary) 32%, var(--theme-border));
+  background: color-mix(in srgb, var(--theme-primary) 9%, var(--theme-surface-raised));
+}
+.dashboard-kpi-grid > .dashboard-kpi.dashboard-kpi-rab-balance > .dashboard-kpi-icon {
+  color: var(--theme-primary);
+}
+.dashboard-kpi-grid > .dashboard-kpi.dashboard-kpi-rab-balance > span,
+.dashboard-kpi-grid > .dashboard-kpi.dashboard-kpi-rab-balance > strong {
+  color: var(--theme-primary);
+}
+.dashboard-kpi-grid > .dashboard-kpi.dashboard-kpi-rab-balance > small {
+  color: color-mix(in srgb, var(--theme-primary) 72%, var(--theme-text-secondary));
 }

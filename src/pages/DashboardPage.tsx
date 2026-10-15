@@ -14,6 +14,7 @@ import { useAuth } from '@/features/auth/use-auth'
 import {
   getActiveKitchens,
   getDashboardSummary,
+  getDashboardRABBalance,
   getDashboardTransactionPage,
   getDailyStatus,
   getSupplierOptions,
@@ -217,7 +218,8 @@ type StatusData = Awaited<ReturnType<typeof getDailyStatus>>
 
 export function DashboardPage() {
   const { user } = useAuth()
-  const includeSppgRent = user?.role === 'admin'
+  const isAdmin = user?.role === 'admin'
+  const includeSppgRent = isAdmin
   const today = getTodayLocal()
 
   const [filters, setFilters] = useState<DashboardFilters>({
@@ -248,6 +250,7 @@ export function DashboardPage() {
     realOperational: 0,
     sppgRent: 0
   })
+  const [rabBalance, setRabBalance] = useState(0)
   const [transactions, setTransactions] = useState<DashboardTransaction[]>([])
   const [totalTransactions, setTotalTransactions] = useState(0)
   const [transactionPage, setTransactionPage] = useState(1)
@@ -317,7 +320,7 @@ export function DashboardPage() {
         ? Promise.resolve(kitchensRef.current)
         : getActiveKitchens()
 
-      const [nextSummary, nextStatus, nextKitchens, nextTransactions] =
+      const [nextSummary, nextStatus, nextKitchens, nextTransactions, nextRabBalance] =
         await Promise.all([
           getDashboardSummary(filters),
           getDailyStatus(filters.startDate, supabase, includeSppgRent),
@@ -329,11 +332,13 @@ export function DashboardPage() {
             supabase,
             true,
             includeSppgRent
-          )
+          ),
+          isAdmin ? getDashboardRABBalance(filters) : Promise.resolve(0)
         ])
 
       return {
         summary: nextSummary,
+        rabBalance: nextRabBalance,
         dailyStatus: nextStatus,
         kitchens: nextKitchens,
         transactions: nextTransactions
@@ -372,6 +377,7 @@ export function DashboardPage() {
   const applyDashboardData = useCallback(
     (data: Awaited<ReturnType<typeof loadDashboardData>>) => {
       setSummary(data.summary)
+      setRabBalance(data.rabBalance)
       setTransactions(data.transactions.data)
       setTotalTransactions(data.transactions.total)
       setDailyStatus(data.dailyStatus)
@@ -382,7 +388,7 @@ export function DashboardPage() {
   )
   const loadDashboardLiveData = useCallback(
     async (page: number) => {
-      const [nextSummary, nextStatus, nextTransactions] = await Promise.all([
+      const [nextSummary, nextStatus, nextTransactions, nextRabBalance] = await Promise.all([
         getDashboardSummary(filters),
         getDailyStatus(filters.startDate, supabase, includeSppgRent),
         getDashboardTransactionPage(
@@ -392,11 +398,13 @@ export function DashboardPage() {
           supabase,
           false,
           includeSppgRent
-        )
+        ),
+        isAdmin ? getDashboardRABBalance(filters) : Promise.resolve(0)
       ])
 
       return {
         summary: nextSummary,
+        rabBalance: nextRabBalance,
         dailyStatus: nextStatus,
         transactions: nextTransactions
       }
@@ -407,6 +415,7 @@ export function DashboardPage() {
   const applyDashboardLiveData = useCallback(
     (data: Awaited<ReturnType<typeof loadDashboardLiveData>>) => {
       setSummary(data.summary)
+      setRabBalance(data.rabBalance)
       setTransactions(data.transactions.data)
       setDailyStatus(data.dailyStatus)
     },
@@ -1608,6 +1617,19 @@ export function DashboardPage() {
           </strong>
           <small>Total realisasi supplier pada periode terpilih</small>
         </article>
+
+        {isAdmin ? (
+          <article className="dashboard-kpi dashboard-kpi-rab-balance">
+            <span className="dashboard-kpi-icon">
+              <WalletCards aria-hidden="true" />
+            </span>
+            <span>Sisa RAB</span>
+            <strong>
+              {loading ? 'Memuat…' : formatCurrency(rabBalance)}
+            </strong>
+            <small>RAB / Pencairan dikurangi RAB / Real pada periode dan dapur terpilih</small>
+          </article>
+        ) : null}
 
         <article
           className={`dashboard-kpi ${
