@@ -216,6 +216,8 @@ type ReportTransaction = {
     | 'sppg_rent'
     | null
   created_at: string
+  maker_import_batch_id: string | null
+  maker_import_line_number: number | null
   suppliers?:
     | {
         name: string | null
@@ -299,6 +301,8 @@ async function getReportTransactions(
         operational_type,
         kitchen_id,
         created_at,
+        maker_import_batch_id,
+        maker_import_line_number,
 
         kitchens (
           id,
@@ -325,6 +329,9 @@ async function getReportTransactions(
       .lte('transaction_date', filters.endDate)
       .order('transaction_date', { ascending: false })
       .order('created_at', { ascending: false })
+      .order('maker_import_batch_id', { ascending: true, nullsFirst: false })
+      .order('maker_import_line_number', { ascending: true, nullsFirst: false })
+      .order('id', { ascending: true })
       .range(from, from + pageSize - 1)
 
     if (filters.kitchenId) {
@@ -791,6 +798,8 @@ export async function getSppgRentReport(
   const transactions: Array<{
     amount: number | string | null
     transaction_date: string
+    maker_import_batch_id: string | null
+    maker_import_line_number: number | null
     kitchen_id: string | null
     kitchens:
       | {
@@ -818,6 +827,8 @@ export async function getSppgRentReport(
         `
         amount,
         transaction_date,
+        maker_import_batch_id,
+        maker_import_line_number,
         operational_type,
         kitchen_id,
         kitchens (
@@ -832,6 +843,9 @@ export async function getSppgRentReport(
       .lte('transaction_date', filters.endDate)
       .order('transaction_date', { ascending: true })
       .order('created_at', { ascending: true })
+      .order('maker_import_batch_id', { ascending: true, nullsFirst: false })
+      .order('maker_import_line_number', { ascending: true, nullsFirst: false })
+      .order('id', { ascending: true })
       .range(from, from + pageSize - 1)
 
     if (filters.kitchenId) {
@@ -933,6 +947,8 @@ export async function getOperationalDisbursementReport(
         `
         amount,
         transaction_date,
+        maker_import_batch_id,
+        maker_import_line_number,
         operational_type,
         kitchen_id,
         kitchens (
@@ -946,6 +962,9 @@ export async function getOperationalDisbursementReport(
       .lte('transaction_date', filters.endDate)
       .order('transaction_date', { ascending: true })
       .order('created_at', { ascending: true })
+      .order('maker_import_batch_id', { ascending: true, nullsFirst: false })
+      .order('maker_import_line_number', { ascending: true, nullsFirst: false })
+      .order('id', { ascending: true })
       .range(from, from + pageSize - 1)
 
     if (filters.kitchenId) {

@@ -63,6 +63,8 @@ export type TransactionRecord = {
     | 'sppg_rent'
     | null
   created_at: string
+  maker_import_batch_id: string | null
+  maker_import_line_number: number | null
   kitchens: {
     name: string
   } | null
@@ -105,6 +107,8 @@ export async function getTransactions(
       account_id,
       supplier_id,
       created_at,
+      maker_import_batch_id,
+      maker_import_line_number,
       destination_label,
       operational_type,
       kitchens(name),
@@ -137,9 +141,11 @@ export async function getTransactions(
         : query.eq('flow_type', filters.flowType)
   }
 
-  const { data, error } = await query.order('created_at', {
-    ascending: false
-  })
+  const { data, error } = await query
+    .order('created_at', { ascending: false })
+    .order('maker_import_batch_id', { ascending: true, nullsFirst: false })
+    .order('maker_import_line_number', { ascending: true, nullsFirst: false })
+    .order('id', { ascending: true })
 
   if (error) {
     throw error
