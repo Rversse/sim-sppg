@@ -888,6 +888,9 @@ export function MakerImportPage() {
       if (result?.duplicate) {
         setSaveError('Batch ini sudah pernah diinput ke database. Tidak ada transaksi baru yang ditambahkan.')
       } else {
+        // Close the confirmation dialog only after the database RPC succeeded.
+        // The success toast is then shown on the underlying page.
+        setConfirmOpen(false)
         toastSuccess(
           'Batch berhasil diimpor',
           (result?.inserted_count ?? importableChecks.length) +
