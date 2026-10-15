@@ -91,7 +91,7 @@ test('Maker parser reads italic OPS Real as a nominal-only per-kitchen realizati
     'RAB : CV TEST - BNI / 1111 · Beras · 125.000',
     '',
     '_OPS Real_ · 1.200.000'
-  ].join('\\n'))
+  ].join('\n'))
 
   assert.equal(parsed.error, null)
   assert.equal(parsed.kitchenName, 'Cimanggu')
