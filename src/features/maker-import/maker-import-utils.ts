@@ -360,6 +360,7 @@ export function operationalRuleTypeForKind(
       return null
     case 'rab':
     case 'gas':
+    case 'real_ops':
     case 'combined_payroll':
       return null
   }
