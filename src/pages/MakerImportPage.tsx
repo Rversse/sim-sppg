@@ -1167,7 +1167,7 @@ export function MakerImportPage() {
 
                     {flow === 'operational_disbursement' && !usesAutomaticRecipientMapping(row) ? (
                       <label className="maker-import-account-select">
-                        <span>{flow === 'real_ops' ? 'Mapping rekening Ops Harian database' : 'Mapping rekening operasional database'}</span>
+                        <span>Mapping rekening operasional database</span>
                         <select
                           value={row.operationalRuleId}
                           onChange={(event) => chooseOperationalRule(row, event.target.value)}
