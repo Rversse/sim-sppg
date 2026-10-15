@@ -253,10 +253,7 @@ function getRowDisposition(
   } else if (flow === 'operational_disbursement') {
     const ruleType = getOperationalRuleType(row)
     if (ruleType) ruleTypes = [ruleType]
-    if (
-      row.kind === 'combined_pic_incentive' ||
-      (row.kind === 'lain_lain' && operationalType === 'pic_incentive')
-    ) {
+    if (row.kind === 'lain_lain' && operationalType === 'pic_incentive') {
       ruleTypes = ['pic_incentive_school', 'pic_incentive_posyandu']
     }
   }
@@ -371,21 +368,19 @@ function getValidation(
 
     const ruleType = getOperationalRuleType(row)
     if (row.kind === 'combined_pic_incentive') {
-      const requiredTypes = ['pic_incentive_school', 'pic_incentive_posyandu']
-      const matchesByType = requiredTypes.map((requiredType) =>
-        refs.operationalRules.filter((rule) =>
-          rule.kitchen_id === kitchenId &&
-          rule.rule_type === requiredType &&
-          rule.mapping_status === 'active' &&
-          operationalRuleMatchesRow(rule, row)
-        )
+      // A combined PIC source amount is recorded once under PIC Sekolah.
+      // PIC Posyandu mapping is intentionally not required and no second transaction is created.
+      const schoolMatches = refs.operationalRules.filter((rule) =>
+        rule.kitchen_id === kitchenId &&
+        rule.rule_type === 'pic_incentive_school' &&
+        rule.mapping_status === 'active' &&
+        operationalRuleMatchesRow(rule, row)
       )
-      if (matchesByType.some((matches) => matches.length !== 1)) {
+      matchedOperationalRule = schoolMatches.length === 1 ? schoolMatches[0] : undefined
+      if (!matchedOperationalRule) {
         errors.push(
-          'Mapping aktif untuk Insentif PIC Sekolah dan Insentif PIC Posyandu harus sama-sama tersedia dan cocok dengan rekening gabungan.'
+          'Mapping aktif Insentif PIC Sekolah tidak ditemukan atau ambigu untuk rekening gabungan.'
         )
-      } else {
-        matchedOperationalRule = matchesByType[0][0]
       }
     } else if (usesAutomaticRecipientMapping(row)) {
       const matches = refs.operationalRules.filter((rule) =>
