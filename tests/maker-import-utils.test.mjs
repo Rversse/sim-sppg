@@ -85,6 +85,31 @@ test('Lain-lain rows start pending until Admin chooses Allow or Block', () => {
   assert.equal(parsed.rows[0].accountNumber, '000123')
 })
 
+test('Maker parser reads italic OPS Real as a nominal-only per-kitchen realization row', () => {
+  const parsed = parseMakerDocument([
+    'Cimanggu, 15-Okt-2026',
+    'RAB : CV TEST - BNI / 1111 · Beras · 125.000',
+    '',
+    '_OPS Real_ · 1.200.000'
+  ].join('\n'))
+
+  assert.equal(parsed.error, null)
+  assert.equal(parsed.kitchenName, 'Cimanggu')
+  assert.equal(parsed.transactionDate, '2026-10-15')
+  assert.equal(parsed.rows.length, 2)
+  const realization = parsed.rows[1]
+  assert.equal(realization.kind, 'real_ops')
+  assert.equal(realization.sourceCategory, 'OPS Real')
+  assert.equal(realization.manualFlow, 'real_ops')
+  assert.equal(realization.amount, 1200000)
+  assert.equal(realization.recipientName, '')
+  assert.equal(realization.bank, '')
+  assert.equal(realization.accountNumber, '')
+  assert.equal(realization.accountId, '')
+  assert.equal(realization.operationalRuleId, '')
+  assert.equal(realization.lineNumber, 4)
+})
+
 test('Maker parser rejects invalid headers and preserves physical source line numbers', () => {
   const malformed = parseMakerDocument('Campakamulya, 05-Otx-2026\nGAS : KOPERASI - BNI / 123 · 1.000')
   assert.notEqual(malformed.error, null)

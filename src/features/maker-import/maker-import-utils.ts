@@ -2,6 +2,7 @@ export type MakerImportKind =
   | 'rab'
   | 'gas'
   | 'ops_harian'
+  | 'real_ops'
   | 'sppg_rent'
   | 'relawan_salary'
   | 'pic_school'
@@ -224,7 +225,9 @@ function makeRow(
       ? 'combined_payroll'
       : isCombinedPicIncentive
         ? 'combined_pic_incentive'
-        : label === 'RAB'
+        : label === 'OPS Real'
+          ? 'real_ops'
+          : label === 'RAB'
         ? 'rab'
         : label === 'GAS'
           ? 'gas'
@@ -241,6 +244,24 @@ function makeRow(
                     : vehicleMatch
                       ? 'vehicle_rent'
                       : 'lain_lain'
+
+  if (kind === 'real_ops') {
+    return {
+      ...unrecognized,
+      kind: 'real_ops',
+      sourceCategory: 'OPS Real',
+      recipientName: '',
+      bank: '',
+      accountNumber: '',
+      details: 'OPS Real',
+      manualFlow: 'real_ops',
+      operationalType: '',
+      accountId: '',
+      operationalRuleId: '',
+      manualDecision: 'pending',
+      verified: false
+    }
+  }
 
   const parsed = parseAccountLine(body)
   if (!parsed) {
@@ -278,6 +299,7 @@ function makeRow(
 }
 
 export function defaultManualFlow(kind: MakerImportKind): MakerManualFlow {
+  if (kind === 'real_ops') return 'real_ops'
   if (kind === 'lain_lain') return 'ops_disbursement'
   if (kind === 'rab') return 'income'
   if (kind === 'gas') return 'gas'
@@ -338,6 +360,7 @@ export function operationalRuleTypeForKind(
       return null
     case 'rab':
     case 'gas':
+    case 'real_ops':
     case 'combined_payroll':
       return null
   }
@@ -388,6 +411,9 @@ export function parseMakerDocument(text: string): ParsedMakerDocument {
 
     const beforeAmount = line.slice(0, amountDivider).trim()
     const amountText = line.slice(amountDivider + 1).trim()
+    if (/^_OPS Real_$/i.test(beforeAmount)) {
+      return makeRow(line, lineNumber, 'OPS Real', '', amountText)
+    }
     const colonAt = beforeAmount.indexOf(':')
     if (colonAt < 0) {
       return makeRow(line, lineNumber, 'Lain-lain', beforeAmount, amountText)
