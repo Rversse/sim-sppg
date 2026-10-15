@@ -6,6 +6,7 @@ export type MakerImportKind =
   | 'relawan_salary'
   | 'pic_school'
   | 'pic_posyandu'
+  | 'combined_pic_incentive'
   | 'combined_payroll'
   | 'vehicle_rent'
   | 'lain_lain'
@@ -214,10 +215,16 @@ function makeRow(
   const normalizedLabel = normalizeMakerText(label)
   const isCombinedPayroll =
     normalizedLabel.includes('gaji relawan') && normalizedLabel.includes('insentif pic')
+  const isCombinedPicIncentive =
+    !normalizedLabel.includes('gaji relawan') &&
+    normalizedLabel.includes('insentif pic sekolah') &&
+    normalizedLabel.includes('insentif pic posyandu')
   const kind: MakerImportKind =
     isCombinedPayroll
       ? 'combined_payroll'
-      : label === 'RAB'
+      : isCombinedPicIncentive
+        ? 'combined_pic_incentive'
+        : label === 'RAB'
         ? 'rab'
         : label === 'GAS'
           ? 'gas'
@@ -280,6 +287,7 @@ export function defaultManualFlow(kind: MakerImportKind): MakerManualFlow {
     kind === 'relawan_salary' ||
     kind === 'pic_school' ||
     kind === 'pic_posyandu' ||
+    kind === 'combined_pic_incentive' ||
     kind === 'vehicle_rent'
   ) {
     return 'operational_disbursement'
@@ -292,7 +300,11 @@ export function defaultOperationalType(
 ): MakerOperationalType {
   if (kind === 'sppg_rent') return 'sppg_rent'
   if (kind === 'relawan_salary') return 'relawan_salary'
-  if (kind === 'pic_school' || kind === 'pic_posyandu') {
+  if (
+    kind === 'pic_school' ||
+    kind === 'pic_posyandu' ||
+    kind === 'combined_pic_incentive'
+  ) {
     return 'pic_incentive'
   }
   if (kind === 'vehicle_rent') return 'vehicle_rent'
@@ -314,6 +326,8 @@ export function operationalRuleTypeForKind(
       return 'pic_incentive_school'
     case 'pic_posyandu':
       return 'pic_incentive_posyandu'
+    case 'combined_pic_incentive':
+      return 'pic_incentive_school'
     case 'vehicle_rent':
       return 'vehicle_rent'
     case 'lain_lain':

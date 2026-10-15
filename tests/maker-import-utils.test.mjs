@@ -103,3 +103,22 @@ test('operational account mapping is resolved by recipient name and exact accoun
   assert.equal(matchesMakerOperationalAccount('Yusgar Anggara Dinata', 'BRI', '1820018916205', mapping), false)
   assert.equal(matchesMakerOperationalAccount('Yusgar Anggara Dinata', 'MANDIRI', '999999', mapping), false)
 })
+
+
+test('Maker parser recognizes combined Cimanggu PIC incentives as one operational disbursement', () => {
+  const parsed = parseMakerDocument([
+    'Cimanggu, 15-Okt-2026',
+    'Insentif PIC Sekolah, Insentif PIC Posyandu : Dikri Ramdan Firdaus - BNI / 1987495640 · 750.000'
+  ].join('\n'))
+
+  assert.equal(parsed.error, null)
+  assert.equal(parsed.rows.length, 1)
+  assert.equal(parsed.rows[0].kind, 'combined_pic_incentive')
+  assert.equal(parsed.rows[0].sourceCategory, 'Insentif PIC Sekolah, Insentif PIC Posyandu')
+  assert.equal(parsed.rows[0].recipientName, 'Dikri Ramdan Firdaus')
+  assert.equal(parsed.rows[0].bank, 'BNI')
+  assert.equal(parsed.rows[0].accountNumber, '1987495640')
+  assert.equal(parsed.rows[0].amount, 750000)
+  assert.equal(parsed.rows[0].manualFlow, 'operational_disbursement')
+  assert.equal(parsed.rows[0].operationalType, 'pic_incentive')
+})
