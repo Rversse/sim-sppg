@@ -65,6 +65,8 @@ export type TransactionRecord = {
   created_at: string
   maker_import_batch_id: string | null
   maker_import_line_number: number | null
+  real_import_batch_id: string | null
+  real_import_line_number: number | null
   kitchens: {
     name: string
   } | null
@@ -109,6 +111,8 @@ export async function getTransactions(
       created_at,
       maker_import_batch_id,
       maker_import_line_number,
+      real_import_batch_id,
+      real_import_line_number,
       destination_label,
       operational_type,
       kitchens(name),
@@ -145,6 +149,8 @@ export async function getTransactions(
     .order('created_at', { ascending: false })
     .order('maker_import_batch_id', { ascending: true, nullsFirst: false })
     .order('maker_import_line_number', { ascending: true, nullsFirst: false })
+    .order('real_import_batch_id', { ascending: true, nullsFirst: false })
+    .order('real_import_line_number', { ascending: true, nullsFirst: false })
     .order('id', { ascending: true })
 
   if (error) {

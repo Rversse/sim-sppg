@@ -218,6 +218,8 @@ type ReportTransaction = {
   created_at: string
   maker_import_batch_id: string | null
   maker_import_line_number: number | null
+  real_import_batch_id: string | null
+  real_import_line_number: number | null
   suppliers?:
     | {
         name: string | null
@@ -303,6 +305,8 @@ async function getReportTransactions(
         created_at,
         maker_import_batch_id,
         maker_import_line_number,
+        real_import_batch_id,
+        real_import_line_number,
 
         kitchens (
           id,
@@ -331,6 +335,8 @@ async function getReportTransactions(
       .order('created_at', { ascending: false })
       .order('maker_import_batch_id', { ascending: true, nullsFirst: false })
       .order('maker_import_line_number', { ascending: true, nullsFirst: false })
+      .order('real_import_batch_id', { ascending: true, nullsFirst: false })
+      .order('real_import_line_number', { ascending: true, nullsFirst: false })
       .order('id', { ascending: true })
       .range(from, from + pageSize - 1)
 
@@ -800,6 +806,8 @@ export async function getSppgRentReport(
     transaction_date: string
     maker_import_batch_id: string | null
     maker_import_line_number: number | null
+    real_import_batch_id: string | null
+    real_import_line_number: number | null
     kitchen_id: string | null
     kitchens:
       | {
@@ -829,6 +837,8 @@ export async function getSppgRentReport(
         transaction_date,
         maker_import_batch_id,
         maker_import_line_number,
+        real_import_batch_id,
+        real_import_line_number,
         operational_type,
         kitchen_id,
         kitchens (
@@ -845,6 +855,8 @@ export async function getSppgRentReport(
       .order('created_at', { ascending: true })
       .order('maker_import_batch_id', { ascending: true, nullsFirst: false })
       .order('maker_import_line_number', { ascending: true, nullsFirst: false })
+      .order('real_import_batch_id', { ascending: true, nullsFirst: false })
+      .order('real_import_line_number', { ascending: true, nullsFirst: false })
       .order('id', { ascending: true })
       .range(from, from + pageSize - 1)
 
@@ -949,6 +961,8 @@ export async function getOperationalDisbursementReport(
         transaction_date,
         maker_import_batch_id,
         maker_import_line_number,
+        real_import_batch_id,
+        real_import_line_number,
         operational_type,
         kitchen_id,
         kitchens (
@@ -964,6 +978,8 @@ export async function getOperationalDisbursementReport(
       .order('created_at', { ascending: true })
       .order('maker_import_batch_id', { ascending: true, nullsFirst: false })
       .order('maker_import_line_number', { ascending: true, nullsFirst: false })
+      .order('real_import_batch_id', { ascending: true, nullsFirst: false })
+      .order('real_import_line_number', { ascending: true, nullsFirst: false })
       .order('id', { ascending: true })
       .range(from, from + pageSize - 1)
 
@@ -978,6 +994,10 @@ export async function getOperationalDisbursementReport(
     const page = (data ?? []) as Array<{
       amount: number | string | null
       transaction_date: string
+      maker_import_batch_id: string | null
+      maker_import_line_number: number | null
+      real_import_batch_id: string | null
+      real_import_line_number: number | null
       operational_type: OperationalType | null
       kitchen_id: string | null
       kitchens:
