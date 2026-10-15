@@ -146,7 +146,7 @@ function MappingEditor({
         account_number: accountNumber,
         is_active: true,
         mapping_status: draft.status,
-        target_role: type === 'ops_harian' ? (draft.targetRole || null) : null,
+        target_role: draft.targetRole || null,
         updated_at: new Date().toISOString()
       }
 
@@ -251,20 +251,18 @@ function MappingEditor({
             disabled={saving}
           />
         </label>
-        {type === 'ops_harian' ? (
-          <label>
-            <span>Tujuan Rekening</span>
-            <select
-              value={draft.targetRole}
-              onChange={(event) => setDraft((current) => ({ ...current, targetRole: event.target.value as DestinationRole }))}
-              disabled={saving}
-            >
-              {ROLE_OPTIONS.map((option) => (
-                <option key={option.value || 'unspecified'} value={option.value}>{option.label}</option>
-              ))}
-            </select>
-          </label>
-        ) : null}
+        <label>
+          <span>Tujuan Rekening</span>
+          <select
+            value={draft.targetRole}
+            onChange={(event) => setDraft((current) => ({ ...current, targetRole: event.target.value as DestinationRole }))}
+            disabled={saving}
+          >
+            {ROLE_OPTIONS.map((option) => (
+              <option key={option.value || 'unspecified'} value={option.value}>{option.label}</option>
+            ))}
+          </select>
+        </label>
         <label className="disbursement-mapping-status-field">
           <span>Input ke Database</span>
           <select
