@@ -898,6 +898,23 @@ export function MakerImportPage() {
           (result?.excluded_count ?? excludedChecks.length) + ' baris dikecualikan (Rp ' +
           formatAmount(result?.excluded_total_amount ?? excludedAmount) + ').'
         )
+
+        // Return the import page to its initial blank state after the successful save.
+        setSourceText('')
+        setDraftReady(false)
+        setKitchenId('')
+        setTransactionDate('')
+        setSourceKitchenName('')
+        setSourceDate('')
+        setRows([])
+        setParseError('')
+        setSaveError('')
+        setCheckingDuplicates(false)
+        setDuplicateRows({})
+        setDuplicateBatch(false)
+        setDuplicateBatchMessage('')
+        setDuplicateCheckError('')
+        window.scrollTo({ top: 0, behavior: 'smooth' })
       }
     } catch (error) {
       setSaveError(error instanceof Error ? error.message : 'Impor gagal. Tidak ada transaksi yang disimpan.')
