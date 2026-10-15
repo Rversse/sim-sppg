@@ -156,7 +156,14 @@ function accountMatchesRow(
 }
 
 function usesAutomaticRecipientMapping(row: MakerImportDraftRow): boolean {
-  return ['sppg_rent', 'relawan_salary', 'pic_school', 'pic_posyandu', 'vehicle_rent'].includes(row.kind)
+  return [
+    'sppg_rent',
+    'relawan_salary',
+    'pic_school',
+    'pic_posyandu',
+    'combined_pic_incentive',
+    'vehicle_rent'
+  ].includes(row.kind)
 }
 
 function operationalRuleMatchesRow(
@@ -246,7 +253,10 @@ function getRowDisposition(
   } else if (flow === 'operational_disbursement') {
     const ruleType = getOperationalRuleType(row)
     if (ruleType) ruleTypes = [ruleType]
-    if (row.kind === 'lain_lain' && operationalType === 'pic_incentive') {
+    if (
+      row.kind === 'combined_pic_incentive' ||
+      (row.kind === 'lain_lain' && operationalType === 'pic_incentive')
+    ) {
       ruleTypes = ['pic_incentive_school', 'pic_incentive_posyandu']
     }
   }
@@ -360,7 +370,24 @@ function getValidation(
     }
 
     const ruleType = getOperationalRuleType(row)
-    if (usesAutomaticRecipientMapping(row)) {
+    if (row.kind === 'combined_pic_incentive') {
+      const requiredTypes = ['pic_incentive_school', 'pic_incentive_posyandu']
+      const matchesByType = requiredTypes.map((requiredType) =>
+        refs.operationalRules.filter((rule) =>
+          rule.kitchen_id === kitchenId &&
+          rule.rule_type === requiredType &&
+          rule.mapping_status === 'active' &&
+          operationalRuleMatchesRow(rule, row)
+        )
+      )
+      if (matchesByType.some((matches) => matches.length !== 1)) {
+        errors.push(
+          'Mapping aktif untuk Insentif PIC Sekolah dan Insentif PIC Posyandu harus sama-sama tersedia dan cocok dengan rekening gabungan.'
+        )
+      } else {
+        matchedOperationalRule = matchesByType[0][0]
+      }
+    } else if (usesAutomaticRecipientMapping(row)) {
       const matches = refs.operationalRules.filter((rule) =>
         rule.kitchen_id === kitchenId &&
         rule.rule_type === ruleType &&
