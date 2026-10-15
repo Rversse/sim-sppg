@@ -187,7 +187,7 @@ begin
     if v_requested_disposition not in ('import','excluded') then
       raise exception 'Status baris tidak dikenal pada baris %.', v_line_number;
     end if;
-    if btrim(v_raw_line) ~ '^_OPS Real_[[:space:]]*·[[:space:]]*[0-9]+(\\.[0-9]{3})*$' then
+    if btrim(v_raw_line) ~ '^_OPS Real_[[:space:]]*·[[:space:]]*[0-9]+(\.[0-9]{3})*$' then
       v_source_label := 'OPS Real';
       v_expected_kind := 'real_ops';
     else
@@ -203,7 +203,7 @@ begin
       elsif v_source_label = 'Insentif PIC Sekolah' then v_expected_kind := 'pic_school';
       elsif v_source_label = 'Insentif PIC Posyandu' then v_expected_kind := 'pic_posyandu';
       elsif v_source_label = 'Insentif PIC Sekolah, Insentif PIC Posyandu' then v_expected_kind := 'combined_pic_incentive';
-      elsif v_source_label ~* '^Sewa Kendaraan (Mobil|Motor) \\(.+\\)$' then v_expected_kind := 'vehicle_rent';
+      elsif v_source_label ~* '^Sewa Kendaraan (Mobil|Motor) \(.+\)$' then v_expected_kind := 'vehicle_rent';
       elsif lower(v_source_label) like '%gaji relawan%' and lower(v_source_label) like '%insentif pic%' then v_expected_kind := 'combined_payroll';
       elsif v_source_label = 'Lain-lain' then v_expected_kind := 'lain_lain';
       else raise exception 'Kategori sumber "%" pada baris % tidak didukung.', v_source_label, v_line_number;
@@ -249,8 +249,8 @@ begin
       if v_source_match is null then
         raise exception 'Nama/bank/nomor rekening sumber pada baris % tidak terbaca.', v_line_number;
       end if;
-      v_source_bank := upper(regexp_replace(btrim(v_source_match[1]), '\\s+', ' ', 'g'));
-      v_source_account_number := regexp_replace(btrim(v_source_match[2]), '\\s+', '', 'g');
+      v_source_bank := upper(regexp_replace(btrim(v_source_match[1]), '\s+', ' ', 'g'));
+      v_source_account_number := regexp_replace(btrim(v_source_match[2]), '\s+', '', 'g');
       v_source_body := btrim(substring(v_raw_line from position(':' in v_raw_line) + 1));
       v_source_prefix := btrim(regexp_replace(v_source_body, ' - [A-Za-z][A-Za-z0-9 ]* / [^[:space:]·]+.*$', ''));
       if v_kind = 'lain_lain' then
