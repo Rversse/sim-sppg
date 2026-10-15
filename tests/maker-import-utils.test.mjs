@@ -109,7 +109,7 @@ test('Maker parser recognizes combined Cimanggu PIC incentives as one operationa
   const parsed = parseMakerDocument([
     'Cimanggu, 15-Okt-2026',
     'Insentif PIC Sekolah, Insentif PIC Posyandu : Dikri Ramdan Firdaus - BNI / 1987495640 · 750.000'
-  ].join('\\n'))
+  ].join('\n'))
 
   assert.equal(parsed.error, null)
   assert.equal(parsed.rows.length, 1)
