@@ -138,7 +138,7 @@ function flowClass(flow: DashboardFlow) {
 
 function getAvailableFlowsForKitchen(
   kitchenName: string | null | undefined,
-  includeSppgRent = false
+  includeOperationalDisbursements = false
 ): DashboardFlow[] {
   const normalized = kitchenName?.trim().toLowerCase() ?? ''
   const flows: DashboardFlow[] = ['income', 'expense']
@@ -149,7 +149,7 @@ function getAvailableFlowsForKitchen(
 
   flows.push('ops_disbursement', 'real_ops')
 
-  if (includeSppgRent) {
+  if (includeOperationalDisbursements) {
     flows.push('operational_disbursement')
   }
 
@@ -239,7 +239,7 @@ export function DashboardPage() {
   const [availableFilterFlows, setAvailableFilterFlows] = useState<
     DashboardFlow[]
   >(() =>
-    getAvailableFlowsForKitchen(undefined, includeSppgRent)
+    getAvailableFlowsForKitchen(undefined, true)
   )
   const [summary, setSummary] = useState<DashboardSummary>({
     income: 0,
@@ -331,7 +331,7 @@ export function DashboardPage() {
             DASHBOARD_HISTORY_PAGE_SIZE,
             supabase,
             true,
-            includeSppgRent
+            true
           ),
           isAdmin ? getDashboardRABBalance(filters) : Promise.resolve(0)
         ])
@@ -397,7 +397,7 @@ export function DashboardPage() {
           DASHBOARD_HISTORY_PAGE_SIZE,
           supabase,
           false,
-          includeSppgRent
+          true
         ),
         isAdmin ? getDashboardRABBalance(filters) : Promise.resolve(0)
       ])
@@ -433,7 +433,7 @@ export function DashboardPage() {
           DASHBOARD_HISTORY_PAGE_SIZE,
           supabase,
           false,
-          includeSppgRent
+          true
         )
 
         if (requestId !== historyRequestRef.current) {
@@ -735,7 +735,7 @@ export function DashboardPage() {
     // This prevents a stale "Operasional" selection from surviving a kitchen change.
     if (!value) {
       setAvailableFilterFlows(
-        getAvailableFlowsForKitchen(undefined, includeSppgRent)
+        getAvailableFlowsForKitchen(undefined, true)
       )
       return
     }
@@ -745,7 +745,7 @@ export function DashboardPage() {
     )?.name
 
     setAvailableFilterFlows(
-      getAvailableFlowsForKitchen(selectedKitchenName, includeSppgRent)
+      getAvailableFlowsForKitchen(selectedKitchenName, true)
     )
   }
 
