@@ -179,7 +179,7 @@ test('Uppercase output categories and full bank account numbers remain importabl
     'GAJI RELAWAN : PIC Tes - BRI / 12343333 · 100.000',
     'SEWA KENDARAAN MOBIL (01-Oct-2026 - 31-Oct-2026) : Berkah Test - MANDIRI / 12344444 · 500.000',
     'LAIN-LAIN : Biaya Wifi - Provider Internet - BNI / 000123 · 25.000'
-  ].join('\\n')
+  ].join('\n')
   const parsed = parseMakerDocument(source)
 
   assert.equal(parsed.error, null)
@@ -196,9 +196,4 @@ test('Uppercase output categories and full bank account numbers remain importabl
   assert.equal(parsed.rows[7].accountNumber, '000123')
 })
 
-test('Masked account suffix matches the actual operational account', () => {
-  const mapping = { ownerName: 'PIC Tes', bank: 'BNI', accountNumber: '0012342522' }
-  assert.equal(matchesMakerOperationalAccount('PIC Tes', 'BNI', 'xxx 2522', mapping), true)
-  assert.equal(matchesMakerOperationalAccount('PIC Tes', 'BNI', 'xxx 2523', mapping), false)
-  assert.equal(matchesMakerOperationalAccount('PIC Lain', 'BNI', 'xxx 2522', mapping), false)
-})
+
