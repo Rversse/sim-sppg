@@ -221,6 +221,7 @@ function makeRow(
     /^Sewa Kendaraan\s+(Mobil|Motor)\s*\((.*?)\)$/i
   )
   const normalizedLabel = normalizeMakerText(label)
+  const isSppgRentLabel = ['sewa sppg', 'insentif fasilitas sppg'].includes(normalizedLabel)
   const isCombinedPayroll =
     normalizedLabel.includes('gaji relawan') && normalizedLabel.includes('insentif pic')
   const isCombinedPicIncentive =
@@ -240,7 +241,7 @@ function makeRow(
           ? 'gas'
           : normalizedLabel === 'ops harian'
             ? 'ops_harian'
-            : normalizedLabel === 'sewa sppg' || normalizedLabel === 'insentif fasilitas sppg'
+            : isSppgRentLabel
               ? 'sppg_rent'
               : normalizedLabel === 'gaji relawan'
                 ? 'relawan_salary'
