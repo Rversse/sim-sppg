@@ -551,7 +551,7 @@ function OverallReportView() {
                 <thead>
                   <tr>
                     <th>DAPUR</th>
-                    <th>SEWA SPPG</th>
+                    <th>INSENTIF FASILITAS SPPG</th>
                     <th>SEWA KENDARAAN</th>
                     <th>GAJI RELAWAN</th>
                     <th>INSENTIF PIC</th>
