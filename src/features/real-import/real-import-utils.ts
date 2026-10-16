@@ -39,6 +39,8 @@ const KITCHEN_ALIASES: Array<{ alias: string; kitchen: string }> = [
   { alias: 'Cisepat', kitchen: 'Cisepat' },
   { alias: 'Kertajadi', kitchen: 'Kertajadi' },
   { alias: 'Cipetir', kitchen: 'Cipetir' },
+  { alias: 'Mayak', kitchen: 'Cipetir' },
+  { alias: 'Sukamaju', kitchen: 'Cimanggu' },
   { alias: 'Cimanggu', kitchen: 'Cimanggu' }
 ].sort((a, b) => b.alias.length - a.alias.length)
 
@@ -130,6 +132,21 @@ function extractAmounts(text: string): number[] {
   return result
 }
 
+// Cianjur's alternate report uses commas as thousand separators (e.g. 20,940,500).
+// Keep this handling source-specific so the Cidaun parser's rules stay unchanged.
+function extractCianjurAmounts(text: string): number[] {
+  const tokens = text.match(/(?:Rp\s*)?\d[\d,.]*(?:\s+\d[\d,.]*)*/gi) ?? []
+  const result: number[] = []
+  for (const token of tokens) {
+    const value = token.trim().replace(/^Rp\s*/i, '')
+    const amount = /^\d{1,3}(?:,\d{3})+$/.test(value)
+      ? parseRealImportAmount(value.replace(/,/g, ''))
+      : parseRealImportAmount(value)
+    if (amount !== null) result.push(amount)
+  }
+  return result
+}
+
 export function parseRealImportDocument(
   sourceType: RealImportSource,
   sourceText: string
@@ -167,7 +184,7 @@ export function parseRealImportDocument(
 
       const kitchenMatch = matchKitchenAtStart(line)
       if (kitchenMatch) {
-        const amounts = extractAmounts(kitchenMatch.rest)
+        const amounts = extractCianjurAmounts(kitchenMatch.rest)
         if (amounts.length === 0) {
           warnings.push('Baris ' + (index + 1) + ': nominal tidak terbaca — ' + line)
           return
@@ -183,7 +200,7 @@ export function parseRealImportDocument(
         return
       }
 
-      if (extractAmounts(line).length > 0 && !/^total\b/i.test(line)) {
+      if (extractCianjurAmounts(line).length > 0 && !/^total\b/i.test(line)) {
         warnings.push('Baris ' + (index + 1) + ': nama dapur tidak dikenali — ' + line)
       }
     })
