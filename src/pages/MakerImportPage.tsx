@@ -150,7 +150,7 @@ function accountMatchesRow(
 ): boolean {
   const incomingAccountNumber = normalizeMakerAccountNumber(row.accountNumber)
   const mappedAccountNumber = normalizeMakerAccountNumber(account.account_number)
-  const maskedSuffix = incomingAccountNumber.match(/^x{3,}(\\d{4})$/i)?.[1]
+  const maskedSuffix = incomingAccountNumber.match(/^x{3,}(\d{4})$/i)?.[1]
   const accountNumberMatches = maskedSuffix
     ? mappedAccountNumber.endsWith(maskedSuffix)
     : mappedAccountNumber === incomingAccountNumber
