@@ -78,7 +78,7 @@ test('Maker RAB product lists use natural conjunctions for two or more products'
     'RAB : CV TEST - BNI / 1111 · Ayam Potong, Buah · 241.000',
     'RAB : CV TEST - BNI / 1111 · Telur Asin, Telur Ayam, Telur Puyuh · 241.000',
     'RAB : CV TEST - BNI / 1111 · Telur Asin, Telur Ayam, dan Telur Puyuh · 241.000'
-  ].join('\\n'))
+  ].join('\n'))
 
   assert.equal(parsed.error, null)
   assert.equal(parsed.rows[0].details, 'Ayam Potong dan Buah')
