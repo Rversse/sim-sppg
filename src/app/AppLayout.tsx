@@ -1,4 +1,5 @@
 import { useEffect } from 'react'
+import appBrandIcon from '../../fav.svg'
 import { NavLink, Outlet, useLocation } from 'react-router-dom'
 import {
   ArrowLeftRight,
@@ -165,11 +166,7 @@ export function AppLayout() {
         <div className="app-brand">
           <NavLink to="/dashboard" className="app-brand-home" aria-label="SIM-SPPG Dashboard">
             <span className="app-brand-mark" aria-hidden="true">
-              <svg viewBox="0 0 40 40" fill="none">
-                <rect x="2" y="2" width="36" height="36" rx="12" fill="currentColor" opacity="0.12" />
-                <path d="M11 14.5h18M11 20h18M11 25.5h12" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" />
-                <circle cx="28" cy="25.5" r="2.1" fill="currentColor" />
-              </svg>
+              <img src={appBrandIcon} alt="" />
             </span>
             <span className="app-brand-copy">
               <strong>SIM-SPPG</strong>
