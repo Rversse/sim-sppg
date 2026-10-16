@@ -48,7 +48,7 @@ test('Maker parser classifies common output and retains the exact integer amount
   assert.equal(parsed.rows.length, 7)
   assert.equal(parsed.rows[0].kind, 'rab')
   assert.equal(parsed.rows[0].amount, 241000)
-  assert.equal(parsed.rows[0].details, 'Beras, Minyak')
+  assert.equal(parsed.rows[0].details, 'Beras dan Minyak')
   assert.equal(parsed.rows[0].lineNumber, 2)
   assert.equal(parsed.rows[1].kind, 'gas')
   assert.equal(parsed.rows[1].amount, 124000)
@@ -70,6 +70,20 @@ test('Maker parser classifies common output and retains the exact integer amount
   assert.equal(parsed.rows[6].accountNumber, '000123')
   assert.equal(parsed.rows[6].manualDecision, 'pending')
   assert.equal(parsed.rows[6].manualFlow, 'ops_disbursement')
+})
+
+test('Maker RAB product lists use natural conjunctions for two or more products', () => {
+  const parsed = parseMakerDocument([
+    'Cisepat, 05-Oct-2026',
+    'RAB : CV TEST - BNI / 1111 · Ayam Potong, Buah · 241.000',
+    'RAB : CV TEST - BNI / 1111 · Telur Asin, Telur Ayam, Telur Puyuh · 241.000',
+    'RAB : CV TEST - BNI / 1111 · Telur Asin, Telur Ayam, dan Telur Puyuh · 241.000'
+  ].join('\\n'))
+
+  assert.equal(parsed.error, null)
+  assert.equal(parsed.rows[0].details, 'Ayam Potong dan Buah')
+  assert.equal(parsed.rows[1].details, 'Telur Asin, Telur Ayam, dan Telur Puyuh')
+  assert.equal(parsed.rows[2].details, 'Telur Asin, Telur Ayam, dan Telur Puyuh')
 })
 
 test('Lain-lain rows start pending until Admin chooses Allow or Block', () => {
