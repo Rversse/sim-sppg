@@ -282,12 +282,13 @@ function makeRow(
   const gasRecipientParts = kind === 'gas'
     ? parsed.recipientName.split(/\s\/\s/)
     : []
-  const recipientName = kind === 'gas' && gasRecipientParts.length > 1
+  const hasEmbeddedGasDetails = kind === 'gas' && gasRecipientParts.length > 1
+  const recipientName = hasEmbeddedGasDetails
     ? gasRecipientParts.shift()!.trim()
     : parsed.recipientName
-  const gasDetails = kind === 'gas'
+  const gasDetails = hasEmbeddedGasDetails
     ? gasRecipientParts.join(' / ').trim() || 'Gas'
-    : ''
+    : 'Gas'
 
   const details =
     kind === 'vehicle_rent'
