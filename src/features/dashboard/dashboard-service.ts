@@ -1,7 +1,6 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
 
 import { supabase } from '@/lib/supabase'
-import { getAvailableOperationalTypes } from '@/features/transactions/operational-policy'
 
 export type DashboardFlow =
   | 'income'
@@ -464,8 +463,7 @@ export async function getDashboardTransactionPage(
 
 export async function getDailyStatus(
   selectedDate: string,
-  client: SupabaseClient = supabase,
-  includeSppgRent = false
+  client: SupabaseClient = supabase
 ): Promise<{
   withPencairan: number
   empty: number
@@ -479,20 +477,23 @@ export async function getDailyStatus(
     gas: boolean
     gasAvailable: boolean
     operational: boolean
+    opsHarianAvailable: boolean
     realOperational: boolean
+    sppgRentAvailable: boolean
     sppgRent: boolean
     relawanSalaryAvailable: boolean
     picIncentiveAvailable: boolean
+    vehicleRentAvailable: boolean
     relawanSalary: boolean
     picIncentive: boolean
-
+    vehicleRent: boolean
   }[]
 }> {
   const [
     { data, error },
     { data: incomeRows, error: incomeError },
     { data: operationalRows, error: operationalError },
-    { data: sppgRentRows, error: sppgRentError }
+    { data: mappingRows, error: mappingError }
   ] = await Promise.all([
     client.rpc('get_dashboard_daily_status', {
       p_selected_date: selectedDate
@@ -513,21 +514,21 @@ export async function getDailyStatus(
       .select('kitchen_id, operational_type')
       .eq('transaction_date', selectedDate)
       .eq('flow_type', 'operational_disbursement')
-      .in('operational_type', ['relawan_salary', 'pic_incentive']),
-    includeSppgRent
-      ? client
-          .from('transactions')
-          .select('kitchen_id')
-          .eq('transaction_date', selectedDate)
-          .eq('flow_type', 'operational_disbursement')
-          .eq('operational_type', 'sppg_rent')
-      : Promise.resolve({ data: [], error: null })
+      .in('operational_type', [
+        'relawan_salary',
+        'pic_incentive',
+        'school_pic_incentive',
+        'kader_incentive',
+        'vehicle_rent',
+        'sppg_rent'
+      ]),
+    client.rpc('get_dashboard_operational_mapping_types')
   ])
 
   if (error) throw error
   if (incomeError) throw incomeError
   if (operationalError) throw operationalError
-  if (sppgRentError) throw sppgRentError
+  if (mappingError) throw mappingError
 
   type DashboardDailyStatusRpcRow = {
     kitchen_id: string
@@ -539,10 +540,16 @@ export async function getDailyStatus(
     real_operational: boolean | null
   }
 
+  type DashboardOperationalMappingRow = {
+    kitchen_id: string
+    rule_type: string
+  }
+
   const typedData = (data ?? []) as DashboardDailyStatusRpcRow[]
+  const typedMappingRows = (mappingRows ?? []) as DashboardOperationalMappingRow[]
   const disbursementTransactionCountByKitchen = new Map<string, number>()
-  const sppgRentByKitchen = new Set<string>()
   const operationalTypesByKitchen = new Map<string, Set<string>>()
+  const mappingTypesByKitchen = new Map<string, Set<string>>()
 
   for (const row of incomeRows ?? []) {
     if (!row.kitchen_id) continue
@@ -553,12 +560,6 @@ export async function getDailyStatus(
     )
   }
 
-  for (const row of sppgRentRows ?? []) {
-    if (row.kitchen_id) {
-      sppgRentByKitchen.add(row.kitchen_id)
-    }
-  }
-
   for (const row of operationalRows ?? []) {
     if (!row.kitchen_id || !row.operational_type) continue
 
@@ -566,6 +567,15 @@ export async function getDailyStatus(
       operationalTypesByKitchen.get(row.kitchen_id) ?? new Set<string>()
     operationalTypes.add(row.operational_type)
     operationalTypesByKitchen.set(row.kitchen_id, operationalTypes)
+  }
+
+  for (const row of typedMappingRows) {
+    if (!row.kitchen_id || !row.rule_type) continue
+
+    const mappingTypes =
+      mappingTypesByKitchen.get(row.kitchen_id) ?? new Set<string>()
+    mappingTypes.add(row.rule_type)
+    mappingTypesByKitchen.set(row.kitchen_id, mappingTypes)
   }
 
   let withPencairan = 0
@@ -584,27 +594,36 @@ export async function getDailyStatus(
     const transactionCount =
       disbursementTransactionCountByKitchen.get(row.kitchen_id) ?? 0
     const expense = Boolean(row.expense)
-    const operational = Boolean(row.operational)
     const realOperational = Boolean(row.real_operational)
-    const sppgRent = includeSppgRent && sppgRentByKitchen.has(row.kitchen_id)
-    const availableOperationalTypes = getAvailableOperationalTypes(
-      row.kitchen_name,
-      selectedDate
-    )
-    const recordedOperationalTypes =
-      operationalTypesByKitchen.get(row.kitchen_id)
-    const relawanSalaryAvailable =
-      availableOperationalTypes.includes('relawan_salary')
+
+    const activeMappings = mappingTypesByKitchen.get(row.kitchen_id) ?? new Set<string>()
+    const opsHarianAvailable = activeMappings.has('ops_harian')
+    const sppgRentAvailable = activeMappings.has('sppg_rent')
+    const relawanSalaryAvailable = activeMappings.has('gaji_relawan')
     const picIncentiveAvailable =
-      availableOperationalTypes.includes('pic_incentive')
+      activeMappings.has('pic_incentive_school') ||
+      activeMappings.has('pic_incentive_posyandu')
+    const vehicleRentAvailable = activeMappings.has('vehicle_rent')
+
+    const recordedOperationalTypes = operationalTypesByKitchen.get(row.kitchen_id)
+    const operational = opsHarianAvailable && Boolean(row.operational)
+    const sppgRent =
+      sppgRentAvailable && Boolean(recordedOperationalTypes?.has('sppg_rent'))
     const relawanSalary =
       relawanSalaryAvailable &&
       Boolean(recordedOperationalTypes?.has('relawan_salary'))
     const picIncentive =
       picIncentiveAvailable &&
-      Boolean(recordedOperationalTypes?.has('pic_incentive'))
+      (
+        recordedOperationalTypes?.has('pic_incentive') ||
+        recordedOperationalTypes?.has('school_pic_incentive') ||
+        recordedOperationalTypes?.has('kader_incentive')
+      ) === true
+    const vehicleRent =
+      vehicleRentAvailable && Boolean(recordedOperationalTypes?.has('vehicle_rent'))
 
-    // Status pencairan menunjukkan keberadaan transaksi Pencairan / RAB.
+    // The status icons reflect active, permitted routes configured in Data Rekening.
+    // Completion colors still reflect whether a matching transaction exists for the day.
     const hasPencairan = income
     const status: 'has_pencairan' | 'empty' = hasPencairan
       ? 'has_pencairan'
@@ -623,12 +642,16 @@ export async function getDailyStatus(
       gas,
       gasAvailable,
       operational,
+      opsHarianAvailable,
       realOperational,
+      sppgRentAvailable,
       sppgRent,
       relawanSalaryAvailable,
       picIncentiveAvailable,
+      vehicleRentAvailable,
       relawanSalary,
       picIncentive,
+      vehicleRent
     }
   })
 
