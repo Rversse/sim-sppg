@@ -58,6 +58,37 @@ test('Cianjur parser ignores daily expense title even with common typo', () => {
   ])
 })
 
+test('Cianjur parser reads comma-separated thousands and additional kitchen aliases', () => {
+  const parsed = parseRealImportDocument('cianjur', [
+    "Belanja Harian Jum'at 16/10/2026",
+    '',
+    'cihaur        20,940,500',
+    'bunder        23,835,000',
+    'warbit        19,115,000',
+    'mayak         13,692,000',
+    'sukamaju      13,766,000',
+    'camul         10,648,000',
+    'cikondang      8,552,500',
+    '',
+    'sukaraharja    7,493,000'
+  ].join('\\n'))
+
+  assert.equal(parsed.error, null)
+  assert.equal(parsed.transactionDate, '2026-10-16')
+  assert.equal(parsed.rows.length, 8)
+  assert.deepEqual(parsed.rows.map((row) => [row.kitchenName, row.amount]), [
+    ['Cihaur', 20940500],
+    ['Cibaregbeg', 23835000],
+    ['Warungbitung', 19115000],
+    ['Cipetir', 13692000],
+    ['Cimanggu', 13766000],
+    ['Campakamulya', 10648000],
+    ['Cikondang', 8552500],
+    ['Sukaraharja', 7493000]
+  ])
+  assert.equal(parsed.warnings.length, 0)
+})
+
 test('RAB Real parser reads Cidaun Indonesian long month and source total', () => {
   const source = [
     "Assalamu'alaikum pak Haji punten tagihan dinten minggu kangge dinten senin kaping 12 oktober  2026",
