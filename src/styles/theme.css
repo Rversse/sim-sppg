@@ -38,6 +38,19 @@
 
   --theme-danger: #f87171;
   --theme-danger-soft: #351f28;
+  --theme-danger-foreground: #0a1220;
+  --theme-primary-foreground: #0a1220;
+
+  /* Semantic data colors stay legible on dark surfaces. */
+  --theme-data-neutral: #e7edf7;
+  --theme-data-teal: #5eead4;
+  --theme-data-red: #fca5a5;
+  --theme-data-purple: #c4b5fd;
+  --theme-data-blue: #93c5fd;
+  --theme-data-cyan: #67e8f9;
+  --theme-data-amber: #fcd34d;
+  --theme-data-green: #4ade80;
+  --theme-data-orange: #fdba74;
 
   --theme-focus-ring: 0 0 0 3px rgb(96 165 250 / 22%);
 
@@ -78,6 +91,19 @@
 
   --theme-inverse-surface: #111827;
   --theme-inverse-text: #ffffff;
+  --theme-primary-foreground: #ffffff;
+  --theme-danger-foreground: #ffffff;
+
+  /* Light-theme semantic colors retain the existing report palette. */
+  --theme-data-neutral: #18293f;
+  --theme-data-teal: #0f766e;
+  --theme-data-red: #dc2626;
+  --theme-data-purple: #7c3aed;
+  --theme-data-blue: #2563eb;
+  --theme-data-cyan: #0891b2;
+  --theme-data-amber: #a16207;
+  --theme-data-green: #15803d;
+  --theme-data-orange: #c2410c;
 
   --color-background: var(--theme-page-bg);
   --color-foreground: var(--theme-text-primary);
@@ -174,6 +200,125 @@ body {
   box-shadow: 0 2px 5px rgb(0 0 0 / 25%), inset 0 1px 0 rgb(255 255 255 / 8%);
 }
 
+/* Global dark-theme contrast safeguards for components that contain legacy fixed colors. */
+:root[data-theme='dark'] .reports-table thead th {
+  color: var(--theme-text-primary);
+}
+
+:root[data-theme='dark'] .reports-table-overall thead th.reports-col-kitchen,
+:root[data-theme='dark'] .reports-table-overall thead th.reports-col-total {
+  color: var(--theme-data-neutral);
+}
+
+:root[data-theme='dark'] .reports-table-overall thead th.reports-col-rab {
+  color: var(--theme-data-teal);
+}
+
+:root[data-theme='dark'] .reports-table-overall thead th.reports-col-real-rab {
+  color: var(--theme-data-red);
+}
+
+:root[data-theme='dark'] .reports-table-overall thead th.reports-col-gas {
+  color: var(--theme-data-blue);
+}
+
+:root[data-theme='dark'] .reports-table-overall thead th.reports-col-ops {
+  color: var(--theme-data-purple);
+}
+
+:root[data-theme='dark'] .reports-table-overall thead th.reports-col-real-ops {
+  color: var(--theme-data-cyan);
+}
+
+:root[data-theme='dark'] .reports-summary-overall .reports-summary-card:nth-child(1) > span,
+:root[data-theme='dark'] .reports-summary-overall .reports-summary-card:nth-child(1) > strong {
+  color: var(--theme-data-teal);
+}
+
+:root[data-theme='dark'] .reports-summary-overall .reports-summary-card:nth-child(2) > span,
+:root[data-theme='dark'] .reports-summary-overall .reports-summary-card:nth-child(2) > strong {
+  color: var(--theme-data-red);
+}
+
+:root[data-theme='dark'] .reports-summary-overall .reports-summary-card:nth-child(3) > span,
+:root[data-theme='dark'] .reports-summary-overall .reports-summary-card:nth-child(3) > strong {
+  color: var(--theme-data-purple);
+}
+
+:root[data-theme='dark'] .reports-summary-overall .reports-summary-card:nth-child(4) > span,
+:root[data-theme='dark'] .reports-summary-overall .reports-summary-card:nth-child(4) > strong {
+  color: var(--theme-data-cyan);
+}
+
+:root[data-theme='dark'] .reports-summary-overall .reports-summary-card:nth-child(5) > span,
+:root[data-theme='dark'] .reports-summary-overall .reports-summary-card:nth-child(5) > strong {
+  color: var(--theme-data-blue);
+}
+
+:root[data-theme='dark'] .reports-error {
+  border-color: color-mix(in srgb, var(--theme-danger) 48%, var(--theme-border));
+  color: var(--theme-danger);
+}
+
+:root[data-theme='dark'] .bank-history-badge--rab {
+  color: var(--theme-data-teal);
+}
+
+:root[data-theme='dark'] .bank-history-badge--gas {
+  color: var(--theme-data-blue);
+}
+
+:root[data-theme='dark'] .dashboard-flow-sppg-rent,
+:root[data-theme='dark'] .dashboard-history-party-name.dashboard-flow-sppg-rent,
+:root[data-theme='dark'] .dashboard-status-flags .status-flag-sppg-rent.is-done {
+  color: var(--theme-data-amber);
+}
+
+:root[data-theme='dark'] .dashboard-flow-sppg-rent {
+  border-color: color-mix(in srgb, var(--theme-data-amber) 32%, var(--theme-border));
+  background: color-mix(in srgb, var(--theme-data-amber) 10%, var(--theme-surface-soft));
+}
+
+:root[data-theme='dark'] .dashboard-status-flags .status-flag-pic-incentive.is-done {
+  color: var(--theme-data-purple);
+}
+
+:root[data-theme='dark'] .dashboard-status-flags .status-flag-vehicle-rent.is-done {
+  color: var(--theme-data-teal);
+}
+
+:root[data-theme='dark'] .maker-import-decision-button.is-allow.is-selected {
+  color: var(--theme-data-green);
+}
+
+:root[data-theme='dark'] .maker-import-decision-button.is-block.is-selected,
+:root[data-theme='dark'] .maker-import-row-status.is-blocked,
+:root[data-theme='dark'] .maker-import-excluded-reason {
+  color: var(--theme-danger);
+}
+
+:root[data-theme='dark'] .vehicle-expiry .expiry-ok {
+  color: var(--theme-data-green);
+}
+
+:root[data-theme='dark'] .vehicle-expiry .expiry-warning {
+  color: var(--theme-data-orange);
+}
+
+:root[data-theme='dark'] .vehicle-expiry .expiry-danger {
+  color: var(--theme-data-red);
+}
+
+:root[data-theme='dark'] .vehicle-reminder {
+  border-color: color-mix(in srgb, var(--theme-warning) 45%, var(--theme-border));
+  background: var(--theme-warning-soft);
+  color: var(--theme-warning-hover);
+}
+
+:root[data-theme='dark'] .vehicle-notification-badge {
+  color: var(--theme-danger-foreground);
+}
+
 /* Selected navigation stays calm and legible on dark surfaces. */
 :root[data-theme='dark'] .app-nav-link.is-active .app-nav-icon {
   background: color-mix(in srgb, var(--theme-primary) 20%, var(--theme-surface));
@@ -195,63 +340,63 @@ body {
 }
 
 :root[data-theme='dark'] .reports-summary-grid.reports-summary-belanja .reports-summary-card--rab {
-  border-left-color: #2dd4bf;
+  border-left-color: var(--theme-data-teal);
 }
 
 :root[data-theme='dark'] .reports-summary-grid.reports-summary-belanja .reports-summary-card--rab > span,
 :root[data-theme='dark'] .reports-summary-grid.reports-summary-belanja .reports-summary-card--rab > strong {
-  color: #5eead4;
+  color: var(--theme-data-teal);
 }
 
 :root[data-theme='dark'] .reports-summary-grid.reports-summary-belanja .reports-summary-card--ops {
-  border-left-color: #a78bfa;
+  border-left-color: var(--theme-data-purple);
 }
 
 :root[data-theme='dark'] .reports-summary-grid.reports-summary-belanja .reports-summary-card--ops > span,
 :root[data-theme='dark'] .reports-summary-grid.reports-summary-belanja .reports-summary-card--ops > strong {
-  color: #c4b5fd;
+  color: var(--theme-data-purple);
 }
 
 :root[data-theme='dark'] .reports-summary-grid.reports-summary-belanja .reports-summary-card--arutala {
-  border-left-color: #60a5fa;
+  border-left-color: var(--theme-data-blue);
 }
 
 :root[data-theme='dark'] .reports-summary-grid.reports-summary-belanja .reports-summary-card--arutala > span,
 :root[data-theme='dark'] .reports-summary-grid.reports-summary-belanja .reports-summary-card--arutala > strong {
-  color: #93c5fd;
+  color: var(--theme-data-blue);
 }
 
 /* Status colors are lifted for contrast when displayed over dark surfaces. */
 :root[data-theme='dark'] .dashboard-flow-sppg-rent,
 :root[data-theme='dark'] .dashboard-history-party-name.dashboard-flow-sppg-rent,
 :root[data-theme='dark'] .dashboard-status-flags .status-flag-sppg-rent.is-done {
-  color: #fcd34d;
+  color: var(--theme-data-amber);
 }
 
 :root[data-theme='dark'] .dashboard-status-flags .status-flag-pic-incentive.is-done {
-  color: #c4b5fd;
+  color: var(--theme-data-purple);
 }
 
 :root[data-theme='dark'] .dashboard-status-flags .status-flag-vehicle-rent.is-done {
-  color: #5eead4;
+  color: var(--theme-data-teal);
 }
 
 :root[data-theme='dark'] .maker-import-message.is-warning,
 :root[data-theme='dark'] .maker-import-summary .is-attention strong,
 :root[data-theme='dark'] .maker-import-row-status.is-invalid,
 :root[data-theme='dark'] .maker-import-row-issues p {
-  color: #fbbf24;
+  color: var(--theme-warning);
 }
 
 :root[data-theme='dark'] .maker-import-message.is-success,
 :root[data-theme='dark'] .maker-import-summary .is-ready strong,
 :root[data-theme='dark'] .maker-import-row-status.is-valid {
-  color: #4ade80;
+  color: var(--theme-data-green);
 }
 
 :root[data-theme='dark'] .maker-import-row-status.is-blocked,
 :root[data-theme='dark'] .maker-import-excluded-reason {
-  color: #fca5a5;
+  color: var(--theme-data-red);
 }
 
 @media (prefers-reduced-motion: reduce) {

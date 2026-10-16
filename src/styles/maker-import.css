@@ -191,14 +191,14 @@
   color: var(--theme-danger);
 }
 .maker-import-message.is-warning {
-  border-color: color-mix(in srgb, #d97706 42%, var(--theme-border));
-  background: color-mix(in srgb, #d97706 8%, var(--theme-surface));
-  color: #d97706;
+  border-color: color-mix(in srgb, var(--theme-warning) 42%, var(--theme-border));
+  background: color-mix(in srgb, var(--theme-warning) 8%, var(--theme-surface));
+  color: var(--theme-warning);
 }
 .maker-import-message.is-success {
-  border-color: color-mix(in srgb, #16a34a 40%, var(--theme-border));
-  background: color-mix(in srgb, #16a34a 8%, var(--theme-surface));
-  color: #16a34a;
+  border-color: color-mix(in srgb, var(--theme-success) 40%, var(--theme-border));
+  background: color-mix(in srgb, var(--theme-success) 8%, var(--theme-surface));
+  color: var(--theme-success);
 }
 .maker-import-loading { align-items: center; color: var(--theme-text-secondary); }
 .is-spinning { animation: maker-import-spin 1s linear infinite; }
@@ -293,8 +293,8 @@
   font-weight: 850;
   overflow-wrap: anywhere;
 }
-.maker-import-summary .is-attention strong { color: #d97706; font-size: 12px; }
-.maker-import-summary .is-ready strong { color: #16a34a; font-size: 12px; }
+.maker-import-summary .is-attention strong { color: var(--theme-warning); font-size: 12px; }
+.maker-import-summary .is-ready strong { color: var(--theme-success); font-size: 12px; }
 .maker-import-row-list { display: grid; gap: 12px; }
 .maker-import-row {
   min-width: 0;
@@ -304,9 +304,9 @@
   border-radius: 12px;
   background: var(--theme-surface-soft);
 }
-.maker-import-row.is-invalid { border-left-color: #d97706; }
-.maker-import-row.is-valid { border-left-color: #16a34a; }
-.maker-import-row.is-blocked { border-color: color-mix(in srgb, #dc2626 35%, var(--theme-border)); border-left-color: #dc2626; background: color-mix(in srgb, #dc2626 5%, var(--theme-surface-soft)); }
+.maker-import-row.is-invalid { border-left-color: var(--theme-warning); }
+.maker-import-row.is-valid { border-left-color: var(--theme-success); }
+.maker-import-row.is-blocked { border-color: color-mix(in srgb, var(--theme-danger) 35%, var(--theme-border)); border-left-color: var(--theme-danger); background: color-mix(in srgb, var(--theme-danger) 5%, var(--theme-surface-soft)); }
 .maker-import-row-head {
   display: flex;
   align-items: flex-start;
@@ -337,16 +337,16 @@
 }
 .maker-import-row-status svg { width: 12px; height: 12px; }
 .maker-import-row-status.is-invalid {
-  background: color-mix(in srgb, #d97706 10%, var(--theme-surface));
-  color: #d97706;
+  background: color-mix(in srgb, var(--theme-warning) 10%, var(--theme-surface));
+  color: var(--theme-warning);
 }
 .maker-import-row-status.is-valid {
-  background: color-mix(in srgb, #16a34a 10%, var(--theme-surface));
-  color: #16a34a;
+  background: color-mix(in srgb, var(--theme-success) 10%, var(--theme-surface));
+  color: var(--theme-success);
 }
 .maker-import-row-status.is-blocked {
-  background: color-mix(in srgb, #dc2626 12%, var(--theme-surface));
-  color: #dc2626;
+  background: color-mix(in srgb, var(--theme-danger) 12%, var(--theme-surface));
+  color: var(--theme-danger);
 }
 .maker-import-original {
   overflow-wrap: anywhere;
@@ -366,10 +366,10 @@
   gap: 8px;
   margin: 0 0 11px;
   padding: 10px;
-  border: 1px solid color-mix(in srgb, #dc2626 38%, var(--theme-border));
+  border: 1px solid color-mix(in srgb, var(--theme-danger) 38%, var(--theme-border));
   border-radius: 8px;
-  background: color-mix(in srgb, #dc2626 7%, var(--theme-surface));
-  color: #b91c1c;
+  background: color-mix(in srgb, var(--theme-danger) 7%, var(--theme-surface));
+  color: var(--theme-danger);
   font-size: 10px;
   line-height: 1.5;
 }
@@ -421,7 +421,7 @@
   gap: 6px;
   align-items: flex-start;
   margin: 0;
-  color: #d97706;
+  color: var(--theme-warning);
   font-size: 10px;
   line-height: 1.45;
 }
@@ -537,17 +537,17 @@
   display: flex;
   margin: 8px 0 12px;
   padding: 9px;
-  border: 1px solid color-mix(in srgb, #d97706 42%, var(--theme-border));
+  border: 1px solid color-mix(in srgb, var(--theme-warning) 42%, var(--theme-border));
   border-radius: 9px;
-  background: color-mix(in srgb, #d97706 7%, var(--theme-surface));
+  background: color-mix(in srgb, var(--theme-warning) 7%, var(--theme-surface));
 }
 .maker-import-manual-decision.is-allowed {
-  border-color: color-mix(in srgb, #16a34a 32%, var(--theme-border));
-  background: color-mix(in srgb, #16a34a 4%, var(--theme-surface));
+  border-color: color-mix(in srgb, var(--theme-success) 32%, var(--theme-border));
+  background: color-mix(in srgb, var(--theme-success) 4%, var(--theme-surface));
 }
 .maker-import-manual-decision.is-blocked {
-  border-color: color-mix(in srgb, #dc2626 35%, var(--theme-border));
-  background: color-mix(in srgb, #dc2626 4%, var(--theme-surface));
+  border-color: color-mix(in srgb, var(--theme-danger) 35%, var(--theme-border));
+  background: color-mix(in srgb, var(--theme-danger) 4%, var(--theme-surface));
 }
 .maker-import-manual-decision-actions { display: flex; flex-wrap: wrap; gap: 8px; }
 .maker-import-decision-button {
@@ -568,14 +568,14 @@
 }
 .maker-import-decision-button svg { width: 14px; height: 14px; }
 .maker-import-decision-button.is-allow.is-selected {
-  border-color: #16a34a;
-  background: color-mix(in srgb, #16a34a 10%, var(--theme-surface));
-  color: #15803d;
+  border-color: var(--theme-success);
+  background: color-mix(in srgb, var(--theme-success) 10%, var(--theme-surface));
+  color: var(--theme-success-hover);
 }
 .maker-import-decision-button.is-block.is-selected {
-  border-color: #dc2626;
-  background: color-mix(in srgb, #dc2626 9%, var(--theme-surface));
-  color: #b91c1c;
+  border-color: var(--theme-danger);
+  background: color-mix(in srgb, var(--theme-danger) 9%, var(--theme-surface));
+  color: var(--theme-danger);
 }
 .maker-import-decision-button:disabled { opacity: .55; cursor: not-allowed; }
 @media (max-width: 660px) {

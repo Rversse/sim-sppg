@@ -357,15 +357,15 @@
 }
 
 .vehicle-expiry .expiry-ok {
-  color: #15803d;
+  color: var(--theme-success-hover);
 }
 
 .vehicle-expiry .expiry-warning {
-  color: #c2410c;
+  color: var(--theme-warning-hover);
 }
 
 .vehicle-expiry .expiry-danger {
-  color: #dc2626;
+  color: var(--theme-danger);
   font-weight: 800;
 }
 
@@ -378,10 +378,10 @@
   align-items: center;
   gap: 7px;
   padding: 10px 12px;
-  border: 1px solid #fed7aa;
+  border: 1px solid color-mix(in srgb, var(--theme-warning) 45%, var(--theme-border));
   border-radius: 10px;
-  background: #fff7ed;
-  color: #9a3412;
+  background: var(--theme-warning-soft);
+  color: var(--theme-warning-hover);
   font-size: 10px;
   box-shadow: 0 8px 22px rgb(245 158 11 / 0.055);
   transition:

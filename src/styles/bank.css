@@ -1529,13 +1529,13 @@ section.bank-history-modal {
 }
 
 .bank-history-badge--rab {
-  background: color-mix(in srgb, #0F766E 12%, var(--theme-surface-raised));
-  color: #0F766E;
+  background: color-mix(in srgb, var(--theme-data-teal) 12%, var(--theme-surface-raised));
+  color: var(--theme-data-teal);
 }
 
 .bank-history-badge--gas {
-  background: color-mix(in srgb, #2563EB 12%, var(--theme-surface-raised));
-  color: #2563EB;
+  background: color-mix(in srgb, var(--theme-data-blue) 12%, var(--theme-surface-raised));
+  color: var(--theme-data-blue);
 }
 
 .bank-history-meta {
