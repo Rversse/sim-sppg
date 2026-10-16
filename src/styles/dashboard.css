@@ -2080,9 +2080,9 @@
 
 
 .dashboard-flow-sppg-rent {
-  border-color: color-mix(in srgb, #a16207 28%, var(--theme-border));
-  background: color-mix(in srgb, #a16207 8%, var(--theme-surface-soft));
-  color: #a16207;
+  border-color: color-mix(in srgb, var(--theme-data-amber) 28%, var(--theme-border));
+  background: color-mix(in srgb, var(--theme-data-amber) 8%, var(--theme-surface-soft));
+  color: var(--theme-data-amber);
 }
 
 
@@ -2099,7 +2099,7 @@
 }
 
 .dashboard-status-flags .status-flag-pic-incentive.is-done {
-  color: #7c3aed;
+  color: var(--theme-data-purple);
 }
 
 .dashboard-status-flags span[aria-label='Gaji Relawan']::after {
@@ -2115,7 +2115,7 @@
 }
 
 .dashboard-status-flags .status-flag-sppg-rent.is-done {
-  color: #a16207;
+  color: var(--theme-data-amber);
 }
 
 .dashboard-status-flags span[aria-label='Insentif Fasilitas SPPG']::after {
@@ -2127,7 +2127,7 @@
 }
 
 .dashboard-status-flags .status-flag-vehicle-rent.is-done {
-  color: #0f766e;
+  color: var(--theme-data-teal);
 }
 
 .dashboard-status-flags span[aria-label='Sewa Kendaraan']::after {
@@ -2138,7 +2138,7 @@
 .dashboard-history-party-name.dashboard-flow-sppg-rent {
   border: 0;
   background: transparent;
-  color: #a16207;
+  color: var(--theme-data-amber);
   padding: 0;
 }
 
