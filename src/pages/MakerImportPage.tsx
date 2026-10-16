@@ -1283,7 +1283,7 @@ function operationalTypeLabel(value: MakerOperationalType): string {
   switch (value) {
     case 'relawan_salary': return 'Gaji Relawan'
     case 'pic_incentive': return 'Insentif PIC'
-    case 'sppg_rent': return 'Sewa SPPG'
+    case 'sppg_rent': return 'Insentif Fasilitas SPPG'
     case 'vehicle_rent': return 'Sewa Kendaraan'
     default: return 'Operasional'
   }
