@@ -176,6 +176,7 @@ test('Uppercase output categories and full bank account numbers remain importabl
     'GAS : Koperasi Arutala / Gas 12kg (25 tabung), Rapia - BNI / 1985322260 · 1.080.000',
     'OPS HARIAN : Petugas Test - BRI / 12345555 · 20.000',
     'SEWA SPPG : PIC Tes - BRI / 12343333 · 125.000',
+    'INSENTIF FASILITAS SPPG : PIC Tes - BRI / 12343333 · 75.000',
     'GAJI RELAWAN : PIC Tes - BRI / 12343333 · 100.000',
     'SEWA KENDARAAN MOBIL (01-Oct-2026 - 31-Oct-2026) : Berkah Test - MANDIRI / 12344444 · 500.000',
     'LAIN-LAIN : Biaya Wifi - Provider Internet - BNI / 000123 · 25.000'
@@ -185,7 +186,7 @@ test('Uppercase output categories and full bank account numbers remain importabl
   assert.equal(parsed.error, null)
   assert.deepEqual(
     parsed.rows.map((row) => row.kind),
-    ['rab', 'gas', 'gas', 'ops_harian', 'sppg_rent', 'relawan_salary', 'vehicle_rent', 'lain_lain']
+    ['rab', 'gas', 'gas', 'ops_harian', 'sppg_rent', 'sppg_rent', 'relawan_salary', 'vehicle_rent', 'lain_lain']
   )
   assert.equal(parsed.rows[0].recipientName, 'CV Xyz Test')
   assert.equal(parsed.rows[0].accountNumber, '0012342522')
@@ -193,6 +194,9 @@ test('Uppercase output categories and full bank account numbers remain importabl
   assert.equal(parsed.rows[1].accountNumber, '1985322260')
   assert.equal(parsed.rows[2].details, 'Gas 12kg (25 tabung), Rapia')
   assert.equal(parsed.rows[3].accountNumber, '12345555')
+  assert.equal(parsed.rows[4].sourceCategory, 'Sewa SPPG')
+  assert.equal(parsed.rows[5].sourceCategory, 'Sewa SPPG')
+  assert.equal(parsed.rows[5].accountNumber, '12343333')
   assert.equal(parsed.rows[7].accountNumber, '000123')
 })
 
