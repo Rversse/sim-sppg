@@ -176,7 +176,7 @@ test('INSENTIF FASILITAS SPPG is routed through the existing Sewa SPPG mapping',
     'GAJI RELAWAN : Annisa Wulan Dari - BNI / 2044709294 · 36',
     'INSENTIF PIC SEKOLAH : Annisa Wulan Dari - BNI / 2044709294 · 36',
     'INSENTIF PIC POSYANDU : Annisa Wulan Dari - BNI / 2044709294 · 36'
-  ].join('\\n'))
+  ].join('\n'))
 
   assert.equal(parsed.error, null)
   assert.equal(parsed.kitchenName, 'Cikondang')
