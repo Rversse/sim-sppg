@@ -148,10 +148,16 @@ function accountMatchesRow(
   account: AccountRef,
   row: MakerImportDraftRow
 ): boolean {
+  const incomingAccountNumber = normalizeMakerAccountNumber(row.accountNumber)
+  const mappedAccountNumber = normalizeMakerAccountNumber(account.account_number)
+  const maskedSuffix = incomingAccountNumber.match(/^x{3,}(\\d{4})$/i)?.[1]
+  const accountNumberMatches = maskedSuffix
+    ? mappedAccountNumber.endsWith(maskedSuffix)
+    : mappedAccountNumber === incomingAccountNumber
+
   return (
     normalizeMakerBank(account.bank) === normalizeMakerBank(row.bank) &&
-    normalizeMakerAccountNumber(account.account_number) ===
-      normalizeMakerAccountNumber(row.accountNumber)
+    accountNumberMatches
   )
 }
 
