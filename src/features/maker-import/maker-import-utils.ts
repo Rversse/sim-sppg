@@ -95,10 +95,17 @@ export function matchesMakerOperationalAccount(
     accountNumber: string | null | undefined
   }
 ): boolean {
+  const inputAccountNumber = normalizeMakerAccountNumber(accountNumber)
+  const mappedAccountNumber = normalizeMakerAccountNumber(mapping.accountNumber)
+  const maskedSuffix = inputAccountNumber.match(/^x{3,}(\\d{4})$/i)?.[1]
+  const accountNumberMatches = maskedSuffix
+    ? mappedAccountNumber.endsWith(maskedSuffix)
+    : inputAccountNumber === mappedAccountNumber
+
   return (
     normalizeMakerText(recipientName) === normalizeMakerText(mapping.ownerName) &&
     normalizeMakerBank(bank) === normalizeMakerBank(mapping.bank) &&
-    normalizeMakerAccountNumber(accountNumber) === normalizeMakerAccountNumber(mapping.accountNumber)
+    accountNumberMatches
   )
 }
 
@@ -149,7 +156,7 @@ function parseAccountLine(value: string): {
   details: string
 } | null {
   const match = value.trim().match(
-    /^(.*?)\s+-\s+([A-Za-z][A-Za-z0-9 ]*?)\s*\/\s*([^\s·]+)(?:\s*·\s*(.*))?$/
+    /^(.*?)\s+-\s+([A-Za-z][A-Za-z0-9 ]*?)\s*\/\s*((?:x{3,}\s+\d{4})|[^\s·]+)(?:\s*·\s*(.*))?$/i
   )
 
   if (!match) return null
@@ -190,9 +197,9 @@ function makeRow(
     verified: false
   }
 
-  if (label === 'Lain-lain' || !label) {
+  if (normalizeMakerText(label) === 'lain-lain' || !label) {
     const accountMatch = body.trim().match(
-      /^(.*?)\s+-\s+([A-Za-z][A-Za-z0-9 ]*?)\s*\/\s*([^\s·]+)$/
+      /^(.*?)\s+-\s+([A-Za-z][A-Za-z0-9 ]*?)\s*\/\s*((?:x{3,}\s+\d{4})|[^\s·]+)$/i
     )
     if (!accountMatch) return unrecognized
 
@@ -225,21 +232,21 @@ function makeRow(
       ? 'combined_payroll'
       : isCombinedPicIncentive
         ? 'combined_pic_incentive'
-        : label === 'OPS Real'
+        : normalizedLabel === 'ops real'
           ? 'real_ops'
-          : label === 'RAB'
+          : normalizedLabel === 'rab'
         ? 'rab'
-        : label === 'GAS'
+        : normalizedLabel === 'gas'
           ? 'gas'
-          : label === 'Ops Harian'
+          : normalizedLabel === 'ops harian'
             ? 'ops_harian'
-            : label === 'Sewa SPPG'
+            : normalizedLabel === 'sewa sppg'
               ? 'sppg_rent'
-              : label === 'Gaji Relawan'
+              : normalizedLabel === 'gaji relawan'
                 ? 'relawan_salary'
-                : label === 'Insentif PIC Sekolah'
+                : normalizedLabel === 'insentif pic sekolah'
                   ? 'pic_school'
-                  : label === 'Insentif PIC Posyandu'
+                  : normalizedLabel === 'insentif pic posyandu'
                     ? 'pic_posyandu'
                     : vehicleMatch
                       ? 'vehicle_rent'
