@@ -147,3 +147,21 @@ test('Maker parser recognizes combined Cimanggu PIC incentives as one operationa
   assert.equal(parsed.rows[0].manualFlow, 'operational_disbursement')
   assert.equal(parsed.rows[0].operationalType, 'pic_incentive')
 })
+
+
+test('Maker GAS item type and cylinder quantity stay in transaction notes', () => {
+  const source = [
+    'Cisepat, 16-Okt-2026',
+    'GAS : Koperasi Arutala / Gas 12kg (3 tabung) - BNI / 1985322260 · 75.000'
+  ].join('\n')
+  const parsed = parseMakerDocument(source)
+
+  assert.equal(parsed.error, null)
+  assert.equal(parsed.rows.length, 1)
+  assert.equal(parsed.rows[0].kind, 'gas')
+  assert.equal(parsed.rows[0].recipientName, 'Koperasi Arutala')
+  assert.equal(parsed.rows[0].bank, 'BNI')
+  assert.equal(parsed.rows[0].accountNumber, '1985322260')
+  assert.equal(parsed.rows[0].details, 'Gas 12kg (3 tabung)')
+  assert.equal(parsed.rows[0].amount, 75000)
+})
