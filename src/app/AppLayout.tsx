@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import appBrandIcon from '../../fav.svg'
 import { NavLink, Outlet, useLocation } from 'react-router-dom'
 import {
@@ -12,6 +12,8 @@ import {
   LayoutDashboard,
   Landmark,
   LogOut,
+  Moon,
+  Sun,
   type LucideIcon
 } from 'lucide-react'
 import { VehicleExpiryNotification } from '@/components/ui/VehicleExpiryNotification'
@@ -138,10 +140,28 @@ export function AppLayout() {
   const { user } = useAuth()
   const { success, error } = useToast()
   const { pathname } = useLocation()
+  const [theme, setTheme] = useState<'dark' | 'light'>(() => {
+    if (typeof window === 'undefined') return 'dark'
+    try {
+      return window.localStorage.getItem('sim-sppg-theme') === 'light' ? 'light' : 'dark'
+    } catch {
+      return 'dark'
+    }
+  })
   useEffect(() => {
-    document.documentElement.dataset.theme = 'dark'
-    document.documentElement.style.colorScheme = 'dark'
-  }, [])
+    const root = document.documentElement
+    root.dataset.theme = theme
+    root.style.colorScheme = theme
+
+    const themeColor = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]')
+    themeColor?.setAttribute('content', theme === 'dark' ? '#0a1220' : '#f4f8fc')
+
+    try {
+      window.localStorage.setItem('sim-sppg-theme', theme)
+    } catch {
+      // Keep the selected theme for the current session if storage is unavailable.
+    }
+  }, [theme])
   const visibleSections = navigationSections
     .map((section) => ({
       ...section,
@@ -254,6 +274,24 @@ export function AppLayout() {
             </div>
           </div>
           <div className="app-user">
+            <button
+              type="button"
+              role="switch"
+              className="app-theme-switch"
+              data-theme={theme}
+              aria-checked={theme === 'dark'}
+              aria-label={theme === 'dark' ? 'Beralih ke tema terang' : 'Beralih ke tema gelap'}
+              title={theme === 'dark' ? 'Ganti ke Light Mode' : 'Ganti ke Dark Mode'}
+              onClick={() => setTheme((current) => current === 'dark' ? 'light' : 'dark')}
+            >
+              <span className="app-theme-switch__track" aria-hidden="true">
+                <span className="app-theme-switch__thumb">
+                  {theme === 'dark'
+                    ? <Moon aria-hidden="true" />
+                    : <Sun aria-hidden="true" />}
+                </span>
+              </span>
+            </button>
             <VehicleExpiryNotification />
             <span className="app-user-role">{getRoleLabel(user?.role)}</span>
             <button
