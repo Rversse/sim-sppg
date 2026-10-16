@@ -3,6 +3,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import {
   BadgePercent,
   Building2,
+  Car,
   Landmark,
   Settings2,
   Users,
@@ -323,7 +324,7 @@ export function DashboardPage() {
       const [nextSummary, nextStatus, nextKitchens, nextTransactions, nextRabBalance] =
         await Promise.all([
           getDashboardSummary(filters),
-          getDailyStatus(filters.startDate, supabase, true),
+          getDailyStatus(filters.startDate, supabase),
           kitchenPromise,
           getDashboardTransactionPage(
             filters,
@@ -390,7 +391,7 @@ export function DashboardPage() {
     async (page: number) => {
       const [nextSummary, nextStatus, nextTransactions, nextRabBalance] = await Promise.all([
         getDashboardSummary(filters),
-        getDailyStatus(filters.startDate, supabase, true),
+        getDailyStatus(filters.startDate, supabase),
         getDashboardTransactionPage(
           filters,
           page,
@@ -450,7 +451,7 @@ export function DashboardPage() {
         setError('Gagal memuat halaman riwayat transaksi.')
       }
     },
-    [filters, includeSppgRent]
+    [filters]
   )
 
   const refreshDashboard = useCallback(
@@ -1750,14 +1751,16 @@ export function DashboardPage() {
                               <Landmark aria-hidden="true" />
                             </span>
                           ) : null}
-                          <span
-                            className={`status-flag-pencairan-ops ${
-                              row.operational ? 'is-done' : ''
-                            }`}
-                            aria-label="OPS / Pencairan"
-                          >
-                            <Settings2 aria-hidden="true" />
-                          </span>
+                          {row.opsHarianAvailable ? (
+                            <span
+                              className={`status-flag-pencairan-ops ${
+                                row.operational ? 'is-done' : ''
+                              }`}
+                              aria-label="OPS / Pencairan"
+                            >
+                              <Settings2 aria-hidden="true" />
+                            </span>
+                          ) : null}
                           <span
                             className={`status-flag-real-ops ${
                               row.realOperational ? 'is-done' : ''
@@ -1786,14 +1789,26 @@ export function DashboardPage() {
                               <BadgePercent aria-hidden="true" />
                             </span>
                           ) : null}
-                          <span
-                            className={`status-flag-sppg-rent ${
-                              row.sppgRent ? 'is-done' : ''
-                            }`}
-                            aria-label="Insentif Fasilitas SPPG"
-                          >
-                            <Building2 aria-hidden="true" />
-                          </span>
+                          {row.sppgRentAvailable ? (
+                            <span
+                              className={`status-flag-sppg-rent ${
+                                row.sppgRent ? 'is-done' : ''
+                              }`}
+                              aria-label="Insentif Fasilitas SPPG"
+                            >
+                              <Building2 aria-hidden="true" />
+                            </span>
+                          ) : null}
+                          {row.vehicleRentAvailable ? (
+                            <span
+                              className={`status-flag-vehicle-rent ${
+                                row.vehicleRent ? 'is-done' : ''
+                              }`}
+                              aria-label="Sewa Kendaraan"
+                            >
+                              <Car aria-hidden="true" />
+                            </span>
+                          ) : null}
                         </div>
                       </div>
                     </div>
