@@ -197,7 +197,8 @@ test('Uppercase output categories and full bank account numbers remain importabl
   assert.equal(parsed.rows[4].sourceCategory, 'Sewa SPPG')
   assert.equal(parsed.rows[5].sourceCategory, 'Sewa SPPG')
   assert.equal(parsed.rows[5].accountNumber, '12343333')
-  assert.equal(parsed.rows[7].accountNumber, '000123')
+  assert.equal(parsed.rows[7].accountNumber, '12344444')
+  assert.equal(parsed.rows[8].accountNumber, '000123')
 })
 
 
