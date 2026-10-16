@@ -97,7 +97,7 @@ export function matchesMakerOperationalAccount(
 ): boolean {
   const inputAccountNumber = normalizeMakerAccountNumber(accountNumber)
   const mappedAccountNumber = normalizeMakerAccountNumber(mapping.accountNumber)
-  const maskedSuffix = inputAccountNumber.match(/^x{3,}(\\d{4})$/i)?.[1]
+  const maskedSuffix = inputAccountNumber.match(/^x{3,}(\d{4})$/i)?.[1]
   const accountNumberMatches = maskedSuffix
     ? mappedAccountNumber.endsWith(maskedSuffix)
     : inputAccountNumber === mappedAccountNumber
