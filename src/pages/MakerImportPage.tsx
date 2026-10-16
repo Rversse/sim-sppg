@@ -226,8 +226,6 @@ function getRowDisposition(
   kitchenId: string,
   refs: ImportReferences
 ): RowDisposition {
-  const selectedKitchen = refs.kitchens.find((item) => item.id === kitchenId)
-
   if (row.kind === 'combined_payroll') {
     return {
       status: 'excluded',
