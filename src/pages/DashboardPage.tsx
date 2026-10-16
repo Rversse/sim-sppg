@@ -95,7 +95,7 @@ function operationalTypeLabel(
     case 'vehicle_rent':
       return 'Sewa Kendaraan'
     case 'sppg_rent':
-      return 'Sewa SPPG'
+      return 'Insentif Fasilitas SPPG'
     default:
       return 'Pencairan Operasional'
   }
@@ -1793,7 +1793,7 @@ export function DashboardPage() {
                               className={`status-flag-sppg-rent ${
                                 row.sppgRent ? 'is-done' : ''
                               }`}
-                              aria-label="Sewa SPPG"
+                              aria-label="Insentif Fasilitas SPPG"
                             >
                               <Building2 aria-hidden="true" />
                             </span>
