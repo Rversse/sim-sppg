@@ -229,7 +229,6 @@ function getRowDisposition(
   const selectedKitchen = refs.kitchens.find((item) => item.id === kitchenId)
 
   if (row.kind === 'combined_payroll') {
-    const isCampakamulya = normalizeMakerText(selectedKitchen?.name) === 'campakamulya'
     return {
       status: 'excluded',
       reason: 'Payroll gabungan dikecualikan dari transaksi program.'
