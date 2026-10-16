@@ -195,6 +195,46 @@ function BankHistoryAmount({
   )
 }
 
+function BankHistoryHoverText({ text }: { text: string }) {
+  const textRef = useRef<HTMLElement | null>(null)
+  const [isTruncated, setIsTruncated] = useState(false)
+
+  useEffect(() => {
+    const element = textRef.current
+    if (!element) return
+
+    const checkOverflow = () => {
+      setIsTruncated(element.scrollWidth > element.clientWidth + 1)
+    }
+
+    checkOverflow()
+    const frame = window.requestAnimationFrame(checkOverflow)
+    const observer =
+      typeof ResizeObserver !== 'undefined'
+        ? new ResizeObserver(checkOverflow)
+        : null
+
+    observer?.observe(element)
+    if (element.parentElement) observer?.observe(element.parentElement)
+
+    return () => {
+      window.cancelAnimationFrame(frame)
+      observer?.disconnect()
+    }
+  }, [text])
+
+  return (
+    <span
+      className={`bank-history-hover-text${isTruncated ? ' is-truncated' : ''}`}
+      data-full-amount={isTruncated ? text : undefined}
+      tabIndex={isTruncated ? 0 : undefined}
+      aria-label={isTruncated ? `Teks lengkap: ${text}` : undefined}
+    >
+      <strong ref={textRef}>{text}</strong>
+    </span>
+  )
+}
+
 function getPaginationPages(currentPage: number, totalPages: number) {
   if (totalPages <= 7) {
     return Array.from({ length: totalPages }, (_, index) => index + 1)
@@ -1771,7 +1811,10 @@ export function BankPage() {
             <div className="bank-history-summary">
               <div className="bank-history-current">
                 <span>Saldo Saat Ini</span>
-                <strong>{formatCurrency(historySummary.balance)}</strong>
+                <BankHistoryAmount
+                  text={formatCurrency(historySummary.balance)}
+                  className="bank-history-current-balance"
+                />
               </div>
 
               <div className="bank-history-stats">
@@ -1849,7 +1892,7 @@ export function BankPage() {
                       >
                         <div className="bank-history-main">
                           <div className="bank-history-top">
-                            <strong>{title}</strong>
+                            <BankHistoryHoverText text={title} />
                             <span className={badgeClass}>
                               {badge}
                             </span>
@@ -1900,9 +1943,9 @@ export function BankPage() {
                     >
                       <div className="bank-history-main">
                         <div className="bank-history-top">
-                          <strong>
-                            {getPartnerName(transaction, incoming)}
-                          </strong>
+                          <BankHistoryHoverText
+                            text={getPartnerName(transaction, incoming)}
+                          />
                           <span
                             className={`bank-history-badge ${
                               incoming ? 'incoming' : 'outgoing'
