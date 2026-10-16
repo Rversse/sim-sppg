@@ -1842,8 +1842,8 @@ export function BankPage() {
                       text={formatCurrency(
                         Number(historySummary.account.opening_balance)
                       )}
-                  alwaysShowTooltip
-                />
+                      alwaysShowTooltip
+                    />
                   </div>
                 ) : null}
 
@@ -1853,8 +1853,8 @@ export function BankPage() {
                     <BankHistoryAmount
                       text={formatCurrency(historySummary.disbursementIncome)}
                       className="bank-income"
-                  alwaysShowTooltip
-                />
+                      alwaysShowTooltip
+                    />
                   </div>
                 ) : null}
 
@@ -1864,8 +1864,8 @@ export function BankPage() {
                     <BankHistoryAmount
                       text={formatCurrency(historySummary.transferIncome)}
                       className="bank-income"
-                  alwaysShowTooltip
-                />
+                      alwaysShowTooltip
+                    />
                   </div>
                 ) : null}
 
@@ -1875,8 +1875,8 @@ export function BankPage() {
                     <BankHistoryAmount
                       text={formatCurrency(historySummary.transferExpense)}
                       className="bank-expense"
-                  alwaysShowTooltip
-                />
+                      alwaysShowTooltip
+                    />
                   </div>
                 ) : null}
               </div>
