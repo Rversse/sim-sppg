@@ -85,6 +85,25 @@ export function normalizeMakerBank(value: string | null | undefined): string {
   return (value ?? '').trim().replace(/\s+/g, ' ').toUpperCase()
 }
 
+function formatMakerProductList(value: string): string {
+  const source = value.trim()
+  if (!source) return ''
+
+  const parts = source
+    .split(',')
+    .map((item) => item.trim())
+    .filter(Boolean)
+
+  if (parts.length > 1) {
+    parts[parts.length - 1] = parts[parts.length - 1].replace(/^dan\s+/i, '').trim()
+    if (parts.length === 2) return parts[0] + ' dan ' + parts[1]
+    return parts.slice(0, -1).join(', ') + ', dan ' + parts[parts.length - 1]
+  }
+
+  const naturalPair = source.match(/^(.+?)\s+dan\s+(.+)$/i)
+  return naturalPair ? naturalPair[1].trim() + ' dan ' + naturalPair[2].trim() : source
+}
+
 export function matchesMakerOperationalAccount(
   recipientName: string | null | undefined,
   bank: string | null | undefined,
@@ -305,7 +324,9 @@ function makeRow(
         ? gasDetails
         : kind === 'ops_harian'
           ? 'Ops Harian'
-          : parsed.details
+          : kind === 'rab'
+            ? formatMakerProductList(parsed.details)
+            : parsed.details
 
   return {
     ...unrecognized,
