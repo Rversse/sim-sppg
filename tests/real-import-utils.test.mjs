@@ -71,7 +71,7 @@ test('Cianjur parser reads comma-separated thousands and additional kitchen alia
     'cikondang      8,552,500',
     '',
     'sukaraharja    7,493,000'
-  ].join('\\n'))
+  ].join('\n'))
 
   assert.equal(parsed.error, null)
   assert.equal(parsed.transactionDate, '2026-10-16')
