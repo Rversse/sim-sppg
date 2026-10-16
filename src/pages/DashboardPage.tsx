@@ -323,7 +323,7 @@ export function DashboardPage() {
       const [nextSummary, nextStatus, nextKitchens, nextTransactions, nextRabBalance] =
         await Promise.all([
           getDashboardSummary(filters),
-          getDailyStatus(filters.startDate, supabase, includeSppgRent),
+          getDailyStatus(filters.startDate, supabase, true),
           kitchenPromise,
           getDashboardTransactionPage(
             filters,
@@ -333,7 +333,7 @@ export function DashboardPage() {
             true,
             true
           ),
-          isAdmin ? getDashboardRABBalance(filters) : Promise.resolve(0)
+          getDashboardRABBalance(filters)
         ])
 
       return {
@@ -344,7 +344,7 @@ export function DashboardPage() {
         transactions: nextTransactions
       }
     },
-    [filters, includeSppgRent]
+    [filters]
   )
 
   useEffect(() => {
@@ -390,7 +390,7 @@ export function DashboardPage() {
     async (page: number) => {
       const [nextSummary, nextStatus, nextTransactions, nextRabBalance] = await Promise.all([
         getDashboardSummary(filters),
-        getDailyStatus(filters.startDate, supabase, includeSppgRent),
+        getDailyStatus(filters.startDate, supabase, true),
         getDashboardTransactionPage(
           filters,
           page,
@@ -399,7 +399,7 @@ export function DashboardPage() {
           false,
           true
         ),
-        isAdmin ? getDashboardRABBalance(filters) : Promise.resolve(0)
+        getDashboardRABBalance(filters)
       ])
 
       return {
@@ -409,7 +409,7 @@ export function DashboardPage() {
         transactions: nextTransactions
       }
     },
-    [filters, includeSppgRent]
+    [filters]
   )
 
   const applyDashboardLiveData = useCallback(
@@ -1618,18 +1618,16 @@ export function DashboardPage() {
           <small>Total realisasi supplier pada periode terpilih</small>
         </article>
 
-        {isAdmin ? (
-          <article className="dashboard-kpi dashboard-kpi-rab-balance">
-            <span className="dashboard-kpi-icon">
-              <WalletCards aria-hidden="true" />
-            </span>
-            <span>Sisa RAB</span>
-            <strong>
-              {loading ? 'Memuat…' : formatCurrency(rabBalance)}
-            </strong>
-            <small>RAB / Pencairan dikurangi RAB / Real pada periode dan dapur terpilih</small>
-          </article>
-        ) : null}
+        <article className="dashboard-kpi dashboard-kpi-rab-balance">
+          <span className="dashboard-kpi-icon">
+            <WalletCards aria-hidden="true" />
+          </span>
+          <span>Sisa RAB</span>
+          <strong>
+            {loading ? 'Memuat…' : formatCurrency(rabBalance)}
+          </strong>
+          <small>RAB / Pencairan dikurangi RAB / Real pada periode dan dapur terpilih</small>
+        </article>
 
         <article
           className={`dashboard-kpi ${
@@ -1788,16 +1786,14 @@ export function DashboardPage() {
                               <BadgePercent aria-hidden="true" />
                             </span>
                           ) : null}
-                          {includeSppgRent ? (
-                            <span
-                              className={`status-flag-sppg-rent ${
-                                row.sppgRent ? 'is-done' : ''
-                              }`}
-                              aria-label="Insentif Fasilitas SPPG"
-                            >
-                              <Building2 aria-hidden="true" />
-                            </span>
-                          ) : null}
+                          <span
+                            className={`status-flag-sppg-rent ${
+                              row.sppgRent ? 'is-done' : ''
+                            }`}
+                            aria-label="Insentif Fasilitas SPPG"
+                          >
+                            <Building2 aria-hidden="true" />
+                          </span>
                         </div>
                       </div>
                     </div>
