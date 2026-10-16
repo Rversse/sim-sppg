@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { Building2 } from 'lucide-react'
+import appBrandIcon from '../../fav.svg'
 import { Navigate, useNavigate } from 'react-router-dom'
 
 import { Button } from '@/components/ui/button'
@@ -105,7 +105,7 @@ export function LoginPage() {
       <section className="login-card">
         <div className="login-header">
           <div className="login-brand-mark" aria-hidden="true">
-            <Building2 size={26} strokeWidth={1.9} />
+            <img src={appBrandIcon} alt="" />
           </div>
           <h1>SISTEM INFORMASI SPPG</h1>
           <p>Pilih akun untuk masuk</p>
