@@ -5,12 +5,12 @@
    ========================================================= */
 
 .dashboard-page {
-  --flow-rab: #0f766e;
-  --flow-real-rab: #dc2626;
-  --flow-gas: #2563eb;
-  --flow-pencairan-ops: #7c3aed;
-  --flow-real-ops: #0891b2;
-  --flow-inactive: #94a3b8;
+  --flow-rab: var(--theme-data-teal);
+  --flow-real-rab: var(--theme-data-red);
+  --flow-gas: var(--theme-data-blue);
+  --flow-pencairan-ops: var(--theme-data-purple);
+  --flow-real-ops: var(--theme-data-cyan);
+  --flow-inactive: var(--theme-text-muted);
 
   --dashboard-emphasis-border: color-mix(
     in srgb,
