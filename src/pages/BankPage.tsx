@@ -205,15 +205,19 @@ function useBankHistoryTruncation(text: string) {
 
 function BankHistoryAmount({
   text,
-  className = ''
+  className = '',
+  alwaysShowTooltip = false
 }: {
   text: string
   className?: string
+  alwaysShowTooltip?: boolean
 }) {
   const { textRef, isTruncated } = useBankHistoryTruncation(text)
+  const showTooltip = alwaysShowTooltip || isTruncated
   const wrapperClassName = [
     'bank-history-amount',
-    isTruncated ? 'is-truncated' : ''
+    isTruncated ? 'is-truncated' : '',
+    showTooltip ? 'has-tooltip' : ''
   ]
     .filter(Boolean)
     .join(' ')
@@ -221,9 +225,9 @@ function BankHistoryAmount({
   return (
     <span
       className={wrapperClassName}
-      data-full-amount={isTruncated ? text : undefined}
-      tabIndex={isTruncated ? 0 : undefined}
-      aria-label={isTruncated ? `Nominal lengkap: ${text}` : undefined}
+      data-full-amount={showTooltip ? text : undefined}
+      tabIndex={showTooltip ? 0 : undefined}
+      aria-label={showTooltip ? `Nominal lengkap: ${text}` : undefined}
     >
       <strong ref={textRef} className={className}>
         {text}
@@ -1826,6 +1830,7 @@ export function BankPage() {
                 <BankHistoryAmount
                   text={formatCurrency(historySummary.balance)}
                   className="bank-history-current-balance"
+                  alwaysShowTooltip
                 />
               </div>
 
@@ -1837,7 +1842,8 @@ export function BankPage() {
                       text={formatCurrency(
                         Number(historySummary.account.opening_balance)
                       )}
-                    />
+                  alwaysShowTooltip
+                />
                   </div>
                 ) : null}
 
@@ -1847,7 +1853,8 @@ export function BankPage() {
                     <BankHistoryAmount
                       text={formatCurrency(historySummary.disbursementIncome)}
                       className="bank-income"
-                    />
+                  alwaysShowTooltip
+                />
                   </div>
                 ) : null}
 
@@ -1857,7 +1864,8 @@ export function BankPage() {
                     <BankHistoryAmount
                       text={formatCurrency(historySummary.transferIncome)}
                       className="bank-income"
-                    />
+                  alwaysShowTooltip
+                />
                   </div>
                 ) : null}
 
@@ -1867,7 +1875,8 @@ export function BankPage() {
                     <BankHistoryAmount
                       text={formatCurrency(historySummary.transferExpense)}
                       className="bank-expense"
-                    />
+                  alwaysShowTooltip
+                />
                   </div>
                 ) : null}
               </div>
