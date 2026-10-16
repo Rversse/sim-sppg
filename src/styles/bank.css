@@ -1334,11 +1334,13 @@ section.bank-history-modal {
   max-width: 100%;
 }
 
-.bank-history-amount.is-truncated {
+.bank-history-amount.is-truncated,
+.bank-history-amount.has-tooltip {
   cursor: help;
 }
 
-.bank-history-amount.is-truncated:focus-visible {
+.bank-history-amount.is-truncated:focus-visible,
+.bank-history-amount.has-tooltip:focus-visible {
   border-radius: 6px;
   box-shadow: var(--theme-focus-ring);
 }
@@ -1376,6 +1378,7 @@ section.bank-history-modal {
 }
 
 .bank-history-amount.is-truncated::after,
+.bank-history-amount.has-tooltip::after,
 .bank-history-hover-text.is-truncated::after {
   position: absolute;
   right: 0;
@@ -1404,6 +1407,8 @@ section.bank-history-modal {
 
 .bank-history-amount.is-truncated:hover::after,
 .bank-history-amount.is-truncated:focus-visible::after,
+.bank-history-amount.has-tooltip:hover::after,
+.bank-history-amount.has-tooltip:focus-visible::after,
 .bank-history-hover-text.is-truncated:hover::after,
 .bank-history-hover-text.is-truncated:focus-visible::after {
   opacity: 1;
