@@ -232,9 +232,7 @@ function getRowDisposition(
     const isCampakamulya = normalizeMakerText(selectedKitchen?.name) === 'campakamulya'
     return {
       status: 'excluded',
-      reason: isCampakamulya
-        ? 'Pencairan gabungan Campakamulya ditujukan ke rekening Akuntan. Baris ini memang tidak masuk database program dan tetap diblokir.'
-        : 'Transaksi payroll gabungan tidak bisa dipisahkan menjadi nominal per jenis. Baris ini dikecualikan dari database program; teruskan ke Akuntan.'
+      reason: 'Payroll gabungan dikecualikan dari transaksi program.'
     }
   }
 
@@ -1116,8 +1114,6 @@ export function MakerImportPage() {
                         {rowBlocked ? <><ShieldAlert aria-hidden="true" /> Tidak Valid</> : manualDecisionPending ? <><AlertTriangle aria-hidden="true" /> Perlu keputusan</> : rowInvalid ? <><AlertTriangle aria-hidden="true" /> Perlu koreksi</> : <><CheckCircle2 aria-hidden="true" /> Valid</>}
                       </span>
                     </div>
-                    {rowBlocked && row.kind !== 'lain_lain' && disposition.reason ? <div className="maker-import-excluded-reason is-blocked"><ShieldAlert aria-hidden="true" /><span>{disposition.reason}</span></div> : null}
-
                     {row.kind === 'lain_lain' ? (
                       <div className={'maker-import-manual-decision' + (manualDecisionPending ? ' is-pending' : row.manualDecision === 'block' ? ' is-blocked' : ' is-allowed')}>
                         <div className="maker-import-manual-decision-actions">
@@ -1134,7 +1130,7 @@ export function MakerImportPage() {
                     ) : null}
 
                     <div className="maker-import-readonly-kind">
-                      Jenis transaksi: <strong>{row.kind === 'lain_lain' ? 'OPS / Pencairan' : row.kind === 'combined_payroll' ? (normalizeMakerText(activeKitchen?.name) === 'campakamulya' ? 'Tujuan rekening Akuntan — diblokir, tidak masuk database program' : 'Payroll gabungan — wajib dikecualikan karena satu nominal mencakup beberapa jenis') : flow === 'income' ? 'RAB / Pencairan' : flow === 'gas' ? 'GAS' : flow === 'ops_disbursement' ? 'OPS / Pencairan' : flow === 'real_ops' ? 'OPS / Real' : 'Pencairan Operasional — ' + operationalTypeLabel(row.operationalType || defaultOperationalType(row.kind))}</strong>
+                      Jenis transaksi: <strong>{row.kind === 'lain_lain' ? 'OPS / Pencairan' : row.kind === 'combined_payroll' ? 'Payroll gabungan' : flow === 'income' ? 'RAB / Pencairan' : flow === 'gas' ? 'GAS' : flow === 'ops_disbursement' ? 'OPS / Pencairan' : flow === 'real_ops' ? 'OPS / Real' : 'Pencairan Operasional — ' + operationalTypeLabel(row.operationalType || defaultOperationalType(row.kind))}</strong>
                     </div>
 
                     {row.kind === 'lain_lain' && !rowLocked ? (
