@@ -276,11 +276,24 @@ function makeRow(
     }
   }
 
+  // Maker emits GAS descriptions as "Recipient / Gas 12kg (3 tabung)".
+  // Split that note back out so the mapped recipient remains the account name,
+  // while the cylinder type/count is kept in the transaction note.
+  const gasRecipientParts = kind === 'gas'
+    ? parsed.recipientName.split(/\s\/\s/)
+    : []
+  const recipientName = kind === 'gas' && gasRecipientParts.length > 1
+    ? gasRecipientParts.shift()!.trim()
+    : parsed.recipientName
+  const gasDetails = kind === 'gas'
+    ? gasRecipientParts.join(' / ').trim() || 'Gas'
+    : ''
+
   const details =
     kind === 'vehicle_rent'
       ? 'Jenis kendaraan: ' + (vehicleMatch?.[1] ?? '—') + ' · Periode sewa: ' + (vehicleMatch?.[2] ?? '')
       : kind === 'gas'
-        ? 'Gas'
+        ? gasDetails
         : kind === 'ops_harian'
           ? 'Ops Harian'
           : parsed.details
@@ -289,7 +302,7 @@ function makeRow(
     ...unrecognized,
     kind,
     sourceCategory: kind === 'lain_lain' ? 'Lain-lain' : label,
-    recipientName: parsed.recipientName,
+    recipientName,
     bank: parsed.bank,
     accountNumber: parsed.accountNumber,
     details,
