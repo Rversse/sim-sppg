@@ -240,7 +240,7 @@ function makeRow(
           ? 'gas'
           : normalizedLabel === 'ops harian'
             ? 'ops_harian'
-            : normalizedLabel === 'sewa sppg'
+            : normalizedLabel === 'sewa sppg' || normalizedLabel === 'insentif fasilitas sppg'
               ? 'sppg_rent'
               : normalizedLabel === 'gaji relawan'
                 ? 'relawan_salary'
@@ -274,7 +274,7 @@ function makeRow(
   if (!parsed) {
     return {
       ...unrecognized,
-      sourceCategory: kind === 'lain_lain' ? 'Lain-lain' : label,
+      sourceCategory: kind === 'lain_lain' ? 'Lain-lain' : kind === 'sppg_rent' ? 'Sewa SPPG' : label,
       details: kind === 'gas'
         ? 'Gas'
         : kind === 'ops_harian'
@@ -309,7 +309,7 @@ function makeRow(
   return {
     ...unrecognized,
     kind,
-    sourceCategory: kind === 'lain_lain' ? 'Lain-lain' : label,
+    sourceCategory: kind === 'lain_lain' ? 'Lain-lain' : kind === 'sppg_rent' ? 'Sewa SPPG' : label,
     recipientName,
     bank: parsed.bank,
     accountNumber: parsed.accountNumber,
