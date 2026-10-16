@@ -1,0 +1,261 @@
+/*
+ * SIM-SPPG theme layer
+ * Shared tokens keep every page, dialog, form and navigation surface in sync.
+ * The light palette is the default foundation in core.css; this file defines
+ * the dark palette and the persistent theme control.
+ */
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+
+  --theme-page-bg: #0a1220;
+  --theme-surface: #111c2c;
+  --theme-surface-soft: #172438;
+  --theme-surface-raised: #142033;
+
+  --theme-text-primary: #e7edf7;
+  --theme-text-secondary: #a6b5c9;
+  --theme-text-muted: #8292a8;
+
+  --theme-border: #27364b;
+  --theme-border-strong: #3a4b62;
+
+  --theme-primary: #60a5fa;
+  --theme-primary-hover: #3b82f6;
+  --theme-primary-soft: #172e4d;
+  --theme-primary-foreground: #ffffff;
+
+  --theme-success: #34d399;
+  --theme-success-hover: #10b981;
+  --theme-success-soft: #102c2a;
+
+  --theme-warning: #fbbf24;
+  --theme-warning-hover: #f59e0b;
+  --theme-warning-soft: #342819;
+
+  --theme-danger: #f87171;
+  --theme-danger-soft: #351f28;
+
+  --theme-focus-ring: 0 0 0 3px rgb(96 165 250 / 22%);
+
+  --theme-shadow-card: 0 2px 10px rgb(0 0 0 / 18%);
+  --theme-shadow-hover: 0 10px 26px rgb(0 0 0 / 25%), 0 2px 8px rgb(0 0 0 / 14%);
+  --theme-shadow-modal: 0 24px 62px rgb(0 0 0 / 40%), 0 8px 22px rgb(0 0 0 / 22%);
+
+  --theme-sidebar-bg: #0d1727;
+  --theme-sidebar-text: #a6b5c9;
+  --theme-sidebar-text-muted: #7f91a8;
+  --theme-sidebar-text-active: #bfdbfe;
+  --theme-sidebar-hover: #15243a;
+  --theme-sidebar-active: #1a3352;
+
+  --theme-header-bg: rgb(10 18 32 / 92%);
+  --theme-header-shadow: 0 4px 18px rgb(0 0 0 / 16%);
+  --theme-overlay: rgb(1 5 13 / 66%);
+
+  --read-text: var(--theme-text-primary);
+  --read-text-muted: var(--theme-text-secondary);
+  --read-border: var(--theme-border);
+
+  --color-background: var(--theme-page-bg);
+  --color-foreground: var(--theme-text-primary);
+  --color-primary: var(--theme-primary);
+  --color-primary-foreground: var(--theme-primary-foreground);
+  --color-accent: var(--theme-primary);
+  --color-muted: var(--theme-surface-soft);
+  --color-muted-foreground: var(--theme-text-secondary);
+  --color-border: var(--theme-border);
+  --color-success: var(--theme-success);
+  --color-warning: var(--theme-warning);
+  --color-danger: var(--theme-danger);
+}
+
+:root[data-theme='light'] {
+  color-scheme: light;
+
+  --color-background: var(--theme-page-bg);
+  --color-foreground: var(--theme-text-primary);
+  --color-primary: var(--theme-primary);
+  --color-primary-foreground: var(--theme-primary-foreground);
+  --color-accent: var(--theme-primary);
+  --color-muted: var(--theme-surface-soft);
+  --color-muted-foreground: var(--theme-text-secondary);
+  --color-border: var(--theme-border);
+  --color-success: var(--theme-success);
+  --color-warning: var(--theme-warning);
+  --color-danger: var(--theme-danger);
+}
+
+html,
+body {
+  background: var(--theme-page-bg);
+  transition: background-color 180ms ease, color 180ms ease;
+}
+
+.app-shell,
+.app-sidebar,
+.app-header {
+  transition: background-color 180ms ease, border-color 180ms ease, color 180ms ease;
+}
+
+.app-sidebar {
+  border-right: 1px solid var(--theme-border);
+}
+
+.app-theme-switch {
+  position: relative;
+  display: inline-flex;
+  width: 60px;
+  min-width: 60px;
+  height: 36px;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 3px;
+  border: 1px solid var(--theme-border-strong);
+  border-radius: 999px;
+  background: linear-gradient(180deg, var(--theme-surface-soft), var(--theme-surface));
+  box-shadow: inset 0 1px 0 color-mix(in srgb, var(--theme-surface) 80%, transparent), var(--theme-shadow-card);
+  cursor: pointer;
+  flex: 0 0 60px;
+  transition: border-color 160ms ease, background-color 180ms ease, box-shadow 160ms ease, transform 160ms ease;
+}
+
+.app-theme-switch:hover {
+  border-color: var(--theme-primary);
+  box-shadow: 0 3px 10px color-mix(in srgb, var(--theme-primary) 12%, transparent), var(--theme-shadow-card);
+}
+
+.app-theme-switch:focus-visible {
+  outline: 2px solid var(--theme-primary);
+  outline-offset: 3px;
+}
+
+.app-theme-switch__track {
+  position: relative;
+  display: block;
+  width: 52px;
+  height: 28px;
+}
+
+.app-theme-switch__thumb {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: grid;
+  width: 28px;
+  height: 28px;
+  place-items: center;
+  border: 1px solid #f5c451;
+  border-radius: 50%;
+  background: linear-gradient(145deg, #fff8cc, #fbbf24);
+  color: #854d0e;
+  box-shadow: 0 2px 5px rgb(0 0 0 / 15%), inset 0 1px 0 rgb(255 255 255 / 75%);
+  transform: translateX(0);
+  transition: transform 220ms cubic-bezier(.22, 1, .36, 1), background 180ms ease, color 180ms ease, border-color 180ms ease;
+}
+
+.app-theme-switch__thumb svg {
+  width: 15px;
+  height: 15px;
+  stroke-width: 2.2;
+}
+
+.app-theme-switch[data-theme='dark'] .app-theme-switch__thumb {
+  border-color: #51647c;
+  background: linear-gradient(145deg, #26384f, #152337);
+  color: #dbeafe;
+  transform: translateX(24px);
+  box-shadow: 0 2px 5px rgb(0 0 0 / 25%), inset 0 1px 0 rgb(255 255 255 / 8%);
+}
+
+/* Selected navigation stays calm and legible on dark surfaces. */
+:root[data-theme='dark'] .app-nav-link.is-active .app-nav-icon {
+  background: color-mix(in srgb, var(--theme-primary) 20%, var(--theme-surface));
+  color: var(--theme-primary);
+}
+
+/* Report tables contain a few deliberately fixed light-theme values. */
+:root[data-theme='dark'] .reports-overall-belanja-block .reports-subsection-title,
+:root[data-theme='dark'] .reports-overall-belanja-block .reports-table thead th,
+:root[data-theme='dark'] .reports-overall-belanja-block .reports-table-overall thead th {
+  color: var(--theme-text-primary);
+}
+
+:root[data-theme='dark'] .reports-overall-belanja-block .reports-total-row td {
+  color: var(--theme-text-primary);
+  background: var(--theme-surface-soft);
+  border-top-color: var(--theme-border-strong);
+  border-bottom-color: var(--theme-border-strong);
+}
+
+:root[data-theme='dark'] .reports-summary-grid.reports-summary-belanja .reports-summary-card--rab {
+  border-left-color: #2dd4bf;
+}
+
+:root[data-theme='dark'] .reports-summary-grid.reports-summary-belanja .reports-summary-card--rab > span,
+:root[data-theme='dark'] .reports-summary-grid.reports-summary-belanja .reports-summary-card--rab > strong {
+  color: #5eead4;
+}
+
+:root[data-theme='dark'] .reports-summary-grid.reports-summary-belanja .reports-summary-card--ops {
+  border-left-color: #a78bfa;
+}
+
+:root[data-theme='dark'] .reports-summary-grid.reports-summary-belanja .reports-summary-card--ops > span,
+:root[data-theme='dark'] .reports-summary-grid.reports-summary-belanja .reports-summary-card--ops > strong {
+  color: #c4b5fd;
+}
+
+:root[data-theme='dark'] .reports-summary-grid.reports-summary-belanja .reports-summary-card--arutala {
+  border-left-color: #60a5fa;
+}
+
+:root[data-theme='dark'] .reports-summary-grid.reports-summary-belanja .reports-summary-card--arutala > span,
+:root[data-theme='dark'] .reports-summary-grid.reports-summary-belanja .reports-summary-card--arutala > strong {
+  color: #93c5fd;
+}
+
+/* Status colors are lifted for contrast when displayed over dark surfaces. */
+:root[data-theme='dark'] .dashboard-flow-sppg-rent,
+:root[data-theme='dark'] .dashboard-history-party-name.dashboard-flow-sppg-rent,
+:root[data-theme='dark'] .dashboard-status-flags .status-flag-sppg-rent.is-done {
+  color: #fcd34d;
+}
+
+:root[data-theme='dark'] .dashboard-status-flags .status-flag-pic-incentive.is-done {
+  color: #c4b5fd;
+}
+
+:root[data-theme='dark'] .dashboard-status-flags .status-flag-vehicle-rent.is-done {
+  color: #5eead4;
+}
+
+:root[data-theme='dark'] .maker-import-message.is-warning,
+:root[data-theme='dark'] .maker-import-summary .is-attention strong,
+:root[data-theme='dark'] .maker-import-row-status.is-invalid,
+:root[data-theme='dark'] .maker-import-row-issues p {
+  color: #fbbf24;
+}
+
+:root[data-theme='dark'] .maker-import-message.is-success,
+:root[data-theme='dark'] .maker-import-summary .is-ready strong,
+:root[data-theme='dark'] .maker-import-row-status.is-valid {
+  color: #4ade80;
+}
+
+:root[data-theme='dark'] .maker-import-row-status.is-blocked,
+:root[data-theme='dark'] .maker-import-excluded-reason {
+  color: #fca5a5;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html,
+  body,
+  .app-shell,
+  .app-sidebar,
+  .app-header,
+  .app-theme-switch,
+  .app-theme-switch__thumb {
+    transition: none !important;
+  }
+}
