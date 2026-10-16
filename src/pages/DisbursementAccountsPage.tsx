@@ -56,7 +56,7 @@ type MappingGroup = {
 
 const RULE_GROUPS: MappingGroup[] = [
   { id: 'ops_harian', title: 'OPS / Pencairan', types: ['ops_harian'] },
-  { id: 'sppg_rent', title: 'Sewa SPPG', types: ['sppg_rent'] },
+  { id: 'sppg_rent', title: 'Insentif Fasilitas SPPG', types: ['sppg_rent'] },
   { id: 'gaji_relawan', title: 'Gaji Relawan', types: ['gaji_relawan'] },
   {
     id: 'pic_incentive',
@@ -67,7 +67,7 @@ const RULE_GROUPS: MappingGroup[] = [
 
 const RULE_TYPE_LABELS: Record<Exclude<RuleType, 'vehicle_rent'>, string> = {
   ops_harian: 'OPS / Pencairan',
-  sppg_rent: 'Sewa SPPG',
+  sppg_rent: 'Insentif Fasilitas SPPG',
   gaji_relawan: 'Gaji Relawan',
   pic_incentive_school: 'Insentif PIC Sekolah',
   pic_incentive_posyandu: 'Insentif Kader Posyandu'
