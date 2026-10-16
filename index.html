@@ -9,6 +9,18 @@
     <meta name="theme-color" content="#f8fafc" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Sistem Informasi Manajemen - SPPG</title>
+    <script>
+      ;(function () {
+        var theme = 'dark'
+        try {
+          theme = localStorage.getItem('sim-sppg-theme') === 'light' ? 'light' : 'dark'
+        } catch {}
+        document.documentElement.dataset.theme = theme
+        document.documentElement.style.colorScheme = theme
+        var themeColor = document.querySelector('meta[name="theme-color"]')
+        if (themeColor) themeColor.content = theme === 'dark' ? '#0a1220' : '#f4f8fc'
+      })()
+    </script>
   </head>
   <body>
     <div id="root"></div>
