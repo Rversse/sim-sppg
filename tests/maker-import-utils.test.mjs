@@ -3,7 +3,8 @@ import assert from 'node:assert/strict'
 import {
   parseMakerAmount,
   parseMakerDate,
-  parseMakerDocument
+  parseMakerDocument,
+  matchesMakerOperationalAccount
 } from '../src/features/maker-import/maker-import-utils.ts'
 
 test('IDR amounts preserve scale and reject malformed separators', () => {
@@ -164,4 +165,40 @@ test('Maker GAS item type and cylinder quantity stay in transaction notes', () =
   assert.equal(parsed.rows[0].accountNumber, '1985322260')
   assert.equal(parsed.rows[0].details, 'Gas 12kg (3 tabung)')
   assert.equal(parsed.rows[0].amount, 75000)
+})
+
+
+test('Uppercase output categories and masked bank suffixes remain importable', () => {
+  const source = [
+    'Cisepat, 16-Okt-2026',
+    'RAB : CV Xyz Test - BNI / xxx 2522 · Beras, Minyak · 241.000',
+    'GAS : Koperasi Arutala - BNI / xxx 2260 · 1.080.000',
+    'GAS : Koperasi Arutala / Gas 12kg (25 tabung), Rapia - BNI / xxx 2260 · 1.080.000',
+    'OPS HARIAN : Petugas Test - BRI / xxx 5555 · 20.000',
+    'SEWA SPPG : PIC Tes - BRI / xxx 3333 · 125.000',
+    'GAJI RELAWAN : PIC Tes - BRI / xxx 3333 · 100.000',
+    'SEWA KENDARAAN MOBIL (01-Oct-2026 - 31-Oct-2026) : Berkah Test - MANDIRI / xxx 4444 · 500.000',
+    'LAIN-LAIN : Biaya Wifi - Provider Internet - BNI / xxx 0123 · 25.000'
+  ].join('\\n')
+  const parsed = parseMakerDocument(source)
+
+  assert.equal(parsed.error, null)
+  assert.deepEqual(
+    parsed.rows.map((row) => row.kind),
+    ['rab', 'gas', 'gas', 'ops_harian', 'sppg_rent', 'relawan_salary', 'vehicle_rent', 'lain_lain']
+  )
+  assert.equal(parsed.rows[0].recipientName, 'CV Xyz Test')
+  assert.equal(parsed.rows[0].accountNumber, 'xxx2522')
+  assert.equal(parsed.rows[1].recipientName, 'Koperasi Arutala')
+  assert.equal(parsed.rows[1].accountNumber, 'xxx2260')
+  assert.equal(parsed.rows[2].details, 'Gas 12kg (25 tabung), Rapia')
+  assert.equal(parsed.rows[3].accountNumber, 'xxx5555')
+  assert.equal(parsed.rows[7].accountNumber, 'xxx0123')
+})
+
+test('Masked account suffix matches the actual operational account', () => {
+  const mapping = { ownerName: 'PIC Tes', bank: 'BNI', accountNumber: '0012342522' }
+  assert.equal(matchesMakerOperationalAccount('PIC Tes', 'BNI', 'xxx 2522', mapping), true)
+  assert.equal(matchesMakerOperationalAccount('PIC Tes', 'BNI', 'xxx 2523', mapping), false)
+  assert.equal(matchesMakerOperationalAccount('PIC Lain', 'BNI', 'xxx 2522', mapping), false)
 })
