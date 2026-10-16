@@ -136,6 +136,73 @@ function BankAmountCell({
   )
 }
 
+function useBankHistoryTruncation(text: string) {
+  const textRef = useRef<HTMLElement | null>(null)
+  const [isTruncated, setIsTruncated] = useState(false)
+
+  useEffect(() => {
+    const element = textRef.current
+    if (!element) return
+
+    let active = true
+    let firstFrame = 0
+    let secondFrame = 0
+
+    const checkOverflow = () => {
+      if (!active || !element.isConnected) return
+      const nextIsTruncated = element.scrollWidth > element.clientWidth + 1
+      setIsTruncated((current) =>
+        current === nextIsTruncated ? current : nextIsTruncated
+      )
+    }
+
+    // Measure after layout, then again one frame later. The second check catches
+    // text ellipsis that appears after the parent grid has completed reflow.
+    const scheduleCheck = () => {
+      window.cancelAnimationFrame(firstFrame)
+      window.cancelAnimationFrame(secondFrame)
+      firstFrame = window.requestAnimationFrame(() => {
+        checkOverflow()
+        secondFrame = window.requestAnimationFrame(checkOverflow)
+      })
+    }
+
+    scheduleCheck()
+    window.addEventListener('resize', scheduleCheck)
+
+    const observer =
+      typeof ResizeObserver !== 'undefined'
+        ? new ResizeObserver(scheduleCheck)
+        : null
+
+    // Observe the text and its layout containers: card/grid width can change
+    // without a change to the amount or title itself.
+    let ancestor: HTMLElement | null = element
+    let depth = 0
+    while (ancestor && depth < 3) {
+      observer?.observe(ancestor)
+      ancestor = ancestor.parentElement
+      depth += 1
+    }
+
+    // Font loading can change scrollWidth without changing the observed box.
+    const fonts = document.fonts
+    fonts?.addEventListener('loadingdone', scheduleCheck)
+    if (fonts) void fonts.ready.then(scheduleCheck)
+
+    return () => {
+      active = false
+      window.cancelAnimationFrame(firstFrame)
+      window.cancelAnimationFrame(secondFrame)
+      window.removeEventListener('resize', scheduleCheck)
+      fonts?.removeEventListener('loadingdone', scheduleCheck)
+      observer?.disconnect()
+    }
+  }, [text])
+
+  return { textRef, isTruncated }
+}
+
 function BankHistoryAmount({
   text,
   className = ''
@@ -143,37 +210,7 @@ function BankHistoryAmount({
   text: string
   className?: string
 }) {
-  const amountRef = useRef<HTMLElement | null>(null)
-  const [isTruncated, setIsTruncated] = useState(false)
-
-  useEffect(() => {
-    const element = amountRef.current
-
-    if (!element) return
-
-    const checkOverflow = () => {
-      setIsTruncated(element.scrollWidth > element.clientWidth + 1)
-    }
-
-    checkOverflow()
-
-    const frame = window.requestAnimationFrame(checkOverflow)
-    const observer =
-      typeof ResizeObserver !== 'undefined'
-        ? new ResizeObserver(checkOverflow)
-        : null
-
-    observer?.observe(element)
-    if (element.parentElement) {
-      observer?.observe(element.parentElement)
-    }
-
-    return () => {
-      window.cancelAnimationFrame(frame)
-      observer?.disconnect()
-    }
-  }, [text])
-
+  const { textRef, isTruncated } = useBankHistoryTruncation(text)
   const wrapperClassName = [
     'bank-history-amount',
     isTruncated ? 'is-truncated' : ''
@@ -188,7 +225,7 @@ function BankHistoryAmount({
       tabIndex={isTruncated ? 0 : undefined}
       aria-label={isTruncated ? `Nominal lengkap: ${text}` : undefined}
     >
-      <strong ref={amountRef} className={className}>
+      <strong ref={textRef} className={className}>
         {text}
       </strong>
     </span>
@@ -196,32 +233,7 @@ function BankHistoryAmount({
 }
 
 function BankHistoryHoverText({ text }: { text: string }) {
-  const textRef = useRef<HTMLElement | null>(null)
-  const [isTruncated, setIsTruncated] = useState(false)
-
-  useEffect(() => {
-    const element = textRef.current
-    if (!element) return
-
-    const checkOverflow = () => {
-      setIsTruncated(element.scrollWidth > element.clientWidth + 1)
-    }
-
-    checkOverflow()
-    const frame = window.requestAnimationFrame(checkOverflow)
-    const observer =
-      typeof ResizeObserver !== 'undefined'
-        ? new ResizeObserver(checkOverflow)
-        : null
-
-    observer?.observe(element)
-    if (element.parentElement) observer?.observe(element.parentElement)
-
-    return () => {
-      window.cancelAnimationFrame(frame)
-      observer?.disconnect()
-    }
-  }, [text])
+  const { textRef, isTruncated } = useBankHistoryTruncation(text)
 
   return (
     <span
