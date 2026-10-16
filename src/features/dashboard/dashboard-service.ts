@@ -360,7 +360,7 @@ export async function getDashboardTransactionPage(
   pageSize: number,
   client: SupabaseClient = supabase,
   includeCount = true,
-  includeSppgRent = true
+  includeOperationalDisbursements = true
 ): Promise<DashboardTransactionPage> {
   const safePage = Math.max(1, Math.floor(page))
   const safePageSize = Math.max(1, Math.floor(pageSize))
@@ -412,7 +412,7 @@ export async function getDashboardTransactionPage(
     query = query.eq('kitchen_id', filters.kitchenId)
   }
 
-  if (!includeSppgRent && filters.flowType !== 'operational_disbursement') {
+  if (!includeOperationalDisbursements && filters.flowType !== 'operational_disbursement') {
     query = query.neq('flow_type', 'operational_disbursement')
   }
 
