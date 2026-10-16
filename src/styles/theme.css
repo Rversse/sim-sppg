@@ -8,6 +8,9 @@
 :root[data-theme='dark'] {
   color-scheme: dark;
 
+  --theme-inverse-surface: #ffffff;
+  --theme-inverse-text: #111827;
+
   --theme-page-bg: #0a1220;
   --theme-surface: #111c2c;
   --theme-surface-soft: #172438;
@@ -72,6 +75,9 @@
 
 :root[data-theme='light'] {
   color-scheme: light;
+
+  --theme-inverse-surface: #111827;
+  --theme-inverse-text: #ffffff;
 
   --color-background: var(--theme-page-bg);
   --color-foreground: var(--theme-text-primary);
