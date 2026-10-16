@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import appBrandIcon from '../../fav.svg'
+import { Building2 } from 'lucide-react'
 import { Navigate, useNavigate } from 'react-router-dom'
 
 import { Button } from '@/components/ui/button'
