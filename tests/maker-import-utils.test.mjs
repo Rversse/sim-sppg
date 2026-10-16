@@ -168,6 +168,32 @@ test('Maker GAS item type and cylinder quantity stay in transaction notes', () =
 })
 
 
+test('INSENTIF FASILITAS SPPG is routed through the existing Sewa SPPG mapping', () => {
+  const parsed = parseMakerDocument([
+    'Cikondang, 15-Okt-2026',
+    'OPS HARIAN : Annisa Wulan Dari - BNI / 2044709294 · 6.363',
+    'INSENTIF FASILITAS SPPG : Aryana - BNI / 1976811401 · 3.636',
+    'GAJI RELAWAN : Annisa Wulan Dari - BNI / 2044709294 · 36',
+    'INSENTIF PIC SEKOLAH : Annisa Wulan Dari - BNI / 2044709294 · 36',
+    'INSENTIF PIC POSYANDU : Annisa Wulan Dari - BNI / 2044709294 · 36'
+  ].join('\\n'))
+
+  assert.equal(parsed.error, null)
+  assert.equal(parsed.kitchenName, 'Cikondang')
+  assert.equal(parsed.rows.length, 5)
+
+  const facility = parsed.rows[1]
+  assert.equal(facility.kind, 'sppg_rent')
+  assert.equal(facility.sourceCategory, 'Sewa SPPG')
+  assert.equal(facility.manualFlow, 'operational_disbursement')
+  assert.equal(facility.operationalType, 'sppg_rent')
+  assert.equal(facility.recipientName, 'Aryana')
+  assert.equal(facility.bank, 'BNI')
+  assert.equal(facility.accountNumber, '1976811401')
+  assert.equal(facility.amount, 3636)
+  assert.equal(facility.manualDecision, 'pending')
+})
+
 test('Uppercase output categories and full bank account numbers remain importable', () => {
   const source = [
     'Cisepat, 16-Okt-2026',
