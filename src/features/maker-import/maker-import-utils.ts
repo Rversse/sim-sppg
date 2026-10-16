@@ -275,7 +275,7 @@ function makeRow(
   if (!parsed) {
     return {
       ...unrecognized,
-      sourceCategory: kind === 'lain_lain' ? 'Lain-lain' : kind === 'sppg_rent' ? 'Sewa SPPG' : label,
+      sourceCategory: kind === 'lain_lain' ? 'Lain-lain' : kind === 'sppg_rent' ? 'Insentif Fasilitas SPPG' : label,
       details: kind === 'gas'
         ? 'Gas'
         : kind === 'ops_harian'
@@ -310,7 +310,7 @@ function makeRow(
   return {
     ...unrecognized,
     kind,
-    sourceCategory: kind === 'lain_lain' ? 'Lain-lain' : kind === 'sppg_rent' ? 'Sewa SPPG' : label,
+    sourceCategory: kind === 'lain_lain' ? 'Lain-lain' : kind === 'sppg_rent' ? 'Insentif Fasilitas SPPG' : label,
     recipientName,
     bank: parsed.bank,
     accountNumber: parsed.accountNumber,
