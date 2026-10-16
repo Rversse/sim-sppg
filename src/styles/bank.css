@@ -1234,6 +1234,20 @@ section.bank-history-modal {
   line-height: 1;
 }
 
+.bank-history-current .bank-history-amount {
+  width: 100%;
+  min-width: 0;
+}
+
+.bank-history-current .bank-history-amount > strong {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .bank-history-stats {
   display: flex;
   flex-wrap: wrap;
@@ -1310,24 +1324,57 @@ section.bank-history-modal {
   box-shadow: var(--theme-focus-ring);
 }
 
-.bank-history-amount.is-truncated::after {
+.bank-history-hover-text {
+  position: relative;
+  display: block;
+  flex: 1 1 auto;
+  min-width: 0;
+  max-width: 100%;
+  outline: none;
+}
+
+.bank-history-hover-text > strong {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+  color: var(--theme-text-primary);
+  font-size: 12px;
+  font-weight: 900;
+  line-height: 1.25;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.bank-history-hover-text.is-truncated {
+  cursor: help;
+}
+
+.bank-history-hover-text.is-truncated:focus-visible {
+  border-radius: 6px;
+  box-shadow: var(--theme-focus-ring);
+}
+
+.bank-history-amount.is-truncated::after,
+.bank-history-hover-text.is-truncated::after {
   position: absolute;
   right: 0;
   bottom: calc(100% + 8px);
   z-index: 60;
   max-width: min(320px, calc(100vw - 32px));
   padding: 7px 9px;
-  border: 1px solid
-    color-mix(in srgb, var(--theme-primary) 24%, var(--theme-border-strong));
+  border: 1px solid var(--theme-inverse-surface);
   border-radius: 8px;
-  background: var(--theme-text-primary);
+  background: var(--theme-inverse-surface);
   box-shadow: var(--theme-shadow-hover);
-  color: var(--theme-primary-foreground);
+  color: var(--theme-inverse-text);
   content: attr(data-full-amount);
   font-size: 10px;
   font-weight: 800;
-  line-height: 1.25;
-  white-space: nowrap;
+  line-height: 1.35;
+  white-space: normal;
+  overflow-wrap: anywhere;
   pointer-events: none;
   opacity: 0;
   transform: translateY(4px);
@@ -1337,7 +1384,9 @@ section.bank-history-modal {
 }
 
 .bank-history-amount.is-truncated:hover::after,
-.bank-history-amount.is-truncated:focus-visible::after {
+.bank-history-amount.is-truncated:focus-visible::after,
+.bank-history-hover-text.is-truncated:hover::after,
+.bank-history-hover-text.is-truncated:focus-visible::after {
   opacity: 1;
   transform: translateY(0);
 }
@@ -1424,6 +1473,11 @@ section.bank-history-modal {
   line-height: 1.25;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.bank-history-top > .bank-history-hover-text {
+  min-width: 0;
+  flex: 1 1 auto;
 }
 
 .bank-history-badge {
