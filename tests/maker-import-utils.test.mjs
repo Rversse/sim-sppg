@@ -168,7 +168,7 @@ test('Maker GAS item type and cylinder quantity stay in transaction notes', () =
 })
 
 
-test('INSENTIF FASILITAS SPPG is routed through the existing Sewa SPPG mapping', () => {
+test('INSENTIF FASILITAS SPPG is routed through the existing sppg_rent mapping', () => {
   const parsed = parseMakerDocument([
     'Cikondang, 15-Okt-2026',
     'OPS HARIAN : Annisa Wulan Dari - BNI / 2044709294 · 6.363',
@@ -184,7 +184,7 @@ test('INSENTIF FASILITAS SPPG is routed through the existing Sewa SPPG mapping',
 
   const facility = parsed.rows[1]
   assert.equal(facility.kind, 'sppg_rent')
-  assert.equal(facility.sourceCategory, 'Sewa SPPG')
+  assert.equal(facility.sourceCategory, 'Insentif Fasilitas SPPG')
   assert.equal(facility.manualFlow, 'operational_disbursement')
   assert.equal(facility.operationalType, 'sppg_rent')
   assert.equal(facility.recipientName, 'Aryana')
@@ -220,8 +220,8 @@ test('Uppercase output categories and full bank account numbers remain importabl
   assert.equal(parsed.rows[1].accountNumber, '1985322260')
   assert.equal(parsed.rows[2].details, 'Gas 12kg (25 tabung), Rapia')
   assert.equal(parsed.rows[3].accountNumber, '12345555')
-  assert.equal(parsed.rows[4].sourceCategory, 'Sewa SPPG')
-  assert.equal(parsed.rows[5].sourceCategory, 'Sewa SPPG')
+  assert.equal(parsed.rows[4].sourceCategory, 'Insentif Fasilitas SPPG')
+  assert.equal(parsed.rows[5].sourceCategory, 'Insentif Fasilitas SPPG')
   assert.equal(parsed.rows[5].accountNumber, '12343333')
   assert.equal(parsed.rows[7].accountNumber, '12344444')
   assert.equal(parsed.rows[8].accountNumber, '000123')
