@@ -1105,7 +1105,8 @@ export function MakerImportPage() {
                       refs.accountRules.some((rule) =>
                         rule.kitchen_id === kitchenId &&
                         rule.account_id === account.id &&
-                        rule.flow_type === accountFlow
+                        (rule.flow_type === accountFlow ||
+                          (flow === 'neutral_lain_lain' && rule.flow_type === 'income'))
                       ) &&
                       (flow !== 'neutral_lain_lain' || isKoperasiArutalaBniAccount(account))
                     )
