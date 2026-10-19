@@ -156,17 +156,22 @@ export function findMappedNeutralAccountForLainLain(
   }
 
   const inputAccountNumber = normalizeMakerAccountNumber(row.accountNumber)
-  const maskedSuffix = inputAccountNumber.match(/^x{3,}(\\d{4})$/i)?.[1]
+  const maskedSuffix = inputAccountNumber.match(/^x{3,}(\d{4})$/i)?.[1]
   const inputRecipient = normalizeMakerText(row.recipientName)
   const matches = candidates.filter((account) => {
     const mappedAccountNumber = normalizeMakerAccountNumber(account.accountNumber)
     const accountNumberMatches = maskedSuffix
       ? mappedAccountNumber.endsWith(maskedSuffix)
       : mappedAccountNumber === inputAccountNumber
-    const recipientMatches = [account.name, ...(account.aliases ?? [])]
+    const names = [account.name, ...(account.aliases ?? [])]
+    const recipientMatches = names
       .some((name) => normalizeMakerText(name) === inputRecipient)
+    const isAllowedArutalaAccount =
+      normalizeMakerBank(account.bank) === 'BNI' &&
+      names.some((name) => normalizeMakerText(name) === 'koperasi arutala')
 
     return (
+      isAllowedArutalaAccount &&
       recipientMatches &&
       normalizeMakerBank(account.bank) === normalizeMakerBank(row.bank) &&
       accountNumberMatches
