@@ -488,6 +488,9 @@ function effectiveDatabaseFlow(row: MakerImportDraftRow): {
   if (flow === 'gas') {
     return { flow_type: 'neutral', category: 'GAS', operational_type: null }
   }
+  if (flow === 'neutral_lain_lain') {
+    return { flow_type: 'neutral', category: 'LAIN_LAIN', operational_type: null }
+  }
   if (flow === 'ops_disbursement') {
     return { flow_type: 'ops_disbursement', category: 'OPS', operational_type: null }
   }
