@@ -228,6 +228,9 @@ function applyInitialMappings(
           operationalRuleId: ''
         }
       }
+      if (row.manualFlow === 'neutral_lain_lain') {
+        row = { ...row, manualFlow: 'ops_disbursement', accountId: '', operationalRuleId: '' }
+      }
     }
 
     const flow = getRowFlow(row)
