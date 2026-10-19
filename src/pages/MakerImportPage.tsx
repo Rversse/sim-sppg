@@ -457,17 +457,26 @@ function getValidation(
       errors.push('Nama penerima tidak sama dengan pemilik rekening pada mapping operasional database. Baris ini tidak dapat diimpor.')
     }
   } else if (flow === 'ops_disbursement') {
-    const opsMatches = refs.operationalRules.filter((rule) =>
+    const matchingOpsRules = refs.operationalRules.filter((rule) =>
       rule.kitchen_id === kitchenId &&
       rule.rule_type === 'ops_harian' &&
       rule.mapping_status === 'active' &&
       operationalRuleMatchesRow(rule, row)
     )
+    const opsMatches = matchingOpsRules.filter((rule) =>
+      row.kind !== 'lain_lain' ||
+      rule.target_role === 'akuntan' ||
+      rule.target_role === 'aslap'
+    )
     matchedOperationalRule = opsMatches.length === 1 ? opsMatches[0] : undefined
     if (!matchedOperationalRule) {
-      errors.push(opsMatches.length === 0
-        ? 'Mapping Ops Harian tidak cocok otomatis. Periksa nama penerima, bank, dan nomor rekening pada sumber Maker.'
-        : 'Mapping Ops Harian lebih dari satu. Periksa mapping aktif di database.')
+      errors.push(row.kind === 'lain_lain'
+        ? 'Lain-lain hanya bisa Allow jika rekening terdeteksi sebagai Akuntan, Aslap, atau Koperasi Arutala BNI.'
+        : opsMatches.length === 0
+          ? 'Mapping Ops Harian tidak cocok otomatis. Periksa nama penerima, bank, dan nomor rekening pada sumber Maker.'
+          : 'Mapping Ops Harian lebih dari satu. Periksa mapping aktif di database.')
+    } else if (opsMatches.length > 1) {
+      errors.push('Mapping Akuntan/Aslap lebih dari satu untuk rekening ini. Periksa mapping aktif di database.')
     }
   } else if (flow === 'real_ops') {
     if (row.kind !== 'real_ops') {
