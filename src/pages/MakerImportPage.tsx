@@ -469,14 +469,14 @@ function getValidation(
       rule.target_role === 'aslap'
     )
     matchedOperationalRule = opsMatches.length === 1 ? opsMatches[0] : undefined
-    if (!matchedOperationalRule) {
+    if (opsMatches.length !== 1) {
       errors.push(row.kind === 'lain_lain'
-        ? 'Lain-lain hanya bisa Allow jika rekening terdeteksi sebagai Akuntan, Aslap, atau Koperasi Arutala BNI.'
+        ? opsMatches.length === 0
+          ? 'Lain-lain hanya bisa Allow jika rekening terdeteksi sebagai Akuntan, Aslap, atau Koperasi Arutala BNI.'
+          : 'Mapping Akuntan/Aslap lebih dari satu untuk rekening ini. Periksa mapping aktif di database.'
         : opsMatches.length === 0
           ? 'Mapping Ops Harian tidak cocok otomatis. Periksa nama penerima, bank, dan nomor rekening pada sumber Maker.'
           : 'Mapping Ops Harian lebih dari satu. Periksa mapping aktif di database.')
-    } else if (opsMatches.length > 1) {
-      errors.push('Mapping Akuntan/Aslap lebih dari satu untuk rekening ini. Periksa mapping aktif di database.')
     }
   } else if (flow === 'real_ops') {
     if (row.kind !== 'real_ops') {
