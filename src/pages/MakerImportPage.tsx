@@ -371,15 +371,15 @@ function getValidation(
     } else {
       matchedAccount = refs.accounts.find((account) => account.id === row.accountId)
       if (!matchedAccount || !ruleAccountIds.has(matchedAccount.id)) {
-        errors.push('Rekening ini belum dimapping sebagai RAB/Pencairan untuk dapur terpilih.')
+        errors.push(flow === 'income'
+          ? 'Rekening ini belum dimapping sebagai RAB/Pencairan untuk dapur terpilih.'
+          : 'Rekening Lain-lain belum dimapping sebagai rekening netral untuk dapur terpilih.')
       }
     }
 
     if (matchedAccount && !accountMatchesRow(matchedAccount, row)) {
       errors.push('Bank/nomor rekening pada draft tidak sama dengan mapping database. Periksa data sumber.')
-    } else if (matchedAccount &&
-      normalizeMakerText(getAccountLabel(matchedAccount)) !== normalizeMakerText(row.recipientName)
-    ) {
+    } else if (matchedAccount && !accountNameMatchesRecipient(matchedAccount, row.recipientName)) {
       confirmations.push('Nama penerima berbeda dari nama rekening di database.')
     }
 
