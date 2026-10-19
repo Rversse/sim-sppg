@@ -102,39 +102,3 @@ begin
   execute v_definition;
 end
 $migration$;
-
--- Do not count neutral Lain-lain transactions as GAS in the dashboard summary.
-do $migration$
-declare
-  v_definition text;
-  v_old_sum text := $old$case when t.flow_type = 'neutral' then t.amount else 0 end$old$;
-  v_new_sum text := $new$case when t.flow_type = 'neutral' and t.category = 'GAS' then t.amount else 0 end$new$;
-  v_old_filter text := $old$('gas' = any(flow_types) and t.flow_type = 'neutral')$old$;
-  v_new_filter text := $new$('gas' = any(flow_types) and t.flow_type = 'neutral' and t.category = 'GAS')$new$;
-begin
-  select pg_get_functiondef(p.oid)
-    into v_definition
-  from pg_proc p
-  join pg_namespace n on n.oid = p.pronamespace
-  where n.nspname = 'public'
-    and p.proname = 'get_dashboard_summary'
-  order by (pg_get_function_result(p.oid) like '%gas bigint%') desc
-  limit 1;
-
-  if v_definition is null then
-    raise exception 'Function public.get_dashboard_summary tidak ditemukan.';
-  end if;
-
-  if position(v_old_sum in v_definition) > 0 then
-    v_definition := replace(v_definition, v_old_sum, v_new_sum);
-  elsif position(v_new_sum in v_definition) = 0 then
-    raise exception 'Agregasi GAS pada dashboard tidak dikenali; migrasi dibatalkan.';
-  end if;
-
-  if position(v_old_filter in v_definition) > 0 then
-    v_definition := replace(v_definition, v_old_filter, v_new_filter);
-  end if;
-
-  execute v_definition;
-end
-$migration$;
