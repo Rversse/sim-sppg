@@ -138,6 +138,14 @@ test('Lain-lain source rows match neutral mappings generically by recipient and 
     findMappedNeutralAccountForLainLain(otherKitchenRow, mappedNeutralAccounts)?.id,
     'neutral-arutala-account'
   )
+  assert.equal(findMappedNeutralAccountForLainLain(row, [{
+    id: 'other-neutral-account', name: 'TOKO LAIN', bank: 'BNI',
+    accountNumber: '1985322260', aliases: ['Koperasi Arutala']
+  }]), null)
+  assert.equal(findMappedNeutralAccountForLainLain(row, [{
+    id: 'arutala-wrong-bank', name: 'KOPERASI ARUTALA', bank: 'BRI',
+    accountNumber: '1985322260', aliases: ['Koperasi Arutala']
+  }]), null)
 })
 
 test('Lain-lain rows match a mapped neutral account generically by recipient and account identity', () => {
