@@ -1109,7 +1109,8 @@ export function MakerImportPage() {
                         rule.kitchen_id === kitchenId &&
                         rule.account_id === account.id &&
                         rule.flow_type === accountFlow
-                      )
+                      ) &&
+                      (flow !== 'neutral_lain_lain' || isKoperasiArutalaBniAccount(account))
                     )
                   : []
                 const ruleType = flow === 'ops_disbursement' ? 'ops_harian' : getOperationalRuleType(row)
