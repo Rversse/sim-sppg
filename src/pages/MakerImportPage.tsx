@@ -1124,8 +1124,8 @@ export function MakerImportPage() {
                 const expectedOperational = row.operationalRuleId
                   ? refs.operationalRules.find((rule) => rule.id === row.operationalRuleId)
                   : undefined
-                const hasNameMismatch = flow === 'income' || flow === 'gas'
-                  ? Boolean(expectedAccount && normalizeMakerText(getAccountLabel(expectedAccount)) !== normalizeMakerText(row.recipientName))
+                const hasNameMismatch = flow === 'income' || flow === 'gas' || flow === 'neutral_lain_lain'
+                  ? Boolean(expectedAccount && !accountNameMatchesRecipient(expectedAccount, row.recipientName))
                   : Boolean(expectedOperational && normalizeMakerText(expectedOperational.owner_name) !== normalizeMakerText(row.recipientName))
                 const manualRequired = row.kind === 'lain_lain' || hasNameMismatch || validation.confirmations.length > 0
                 const manualDecisionPending = row.kind === 'lain_lain' && row.manualDecision === 'pending'
