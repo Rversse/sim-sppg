@@ -684,28 +684,6 @@ export function MakerImportPage() {
     updateRow(row.id, { operationalRuleId: rule.id, verified: false })
   }
 
-  function chooseLainLainDestination(row: MakerImportDraftRow, ruleId: string) {
-    const rule = refs.operationalRules.find((item) =>
-      item.id === ruleId &&
-      item.kitchen_id === kitchenId &&
-      item.rule_type === 'ops_harian' &&
-      item.mapping_status === 'active'
-    )
-    if (!rule) {
-      updateRow(row.id, { operationalRuleId: '', verified: false })
-      return
-    }
-    updateRow(row.id, {
-      manualFlow: 'ops_disbursement',
-      operationalType: '',
-      operationalRuleId: rule.id,
-      recipientName: rule.owner_name,
-      bank: normalizeMakerBank(rule.bank),
-      accountNumber: normalizeMakerAccountNumber(rule.account_number),
-      verified: false
-    })
-  }
-
   function decideLainLain(row: MakerImportDraftRow, decision: 'allow' | 'block') {
     updateRow(row.id, { manualDecision: decision, verified: false })
   }
@@ -1189,22 +1167,21 @@ export function MakerImportPage() {
                       Jenis transaksi: <strong>{row.kind === 'lain_lain' ? (flow === 'neutral_lain_lain' ? 'Lain-lain / Netral' : 'OPS / Pencairan') : row.kind === 'combined_payroll' ? 'Payroll gabungan' : flow === 'income' ? 'RAB / Pencairan' : flow === 'gas' ? 'GAS' : flow === 'ops_disbursement' ? 'OPS / Pencairan' : flow === 'real_ops' ? 'OPS / Real' : 'Pencairan Operasional — ' + operationalTypeLabel(row.operationalType || defaultOperationalType(row.kind))}</strong>
                     </div>
 
-                    {row.kind === 'lain_lain' && flow !== 'neutral_lain_lain' && !rowLocked ? (
-                      <label className="maker-import-account-select">
-                        <span>Tujuan rekening (Data Rekening)</span>
-                        <select
-                          value={row.operationalRuleId}
-                          onChange={(event) => chooseLainLainDestination(row, event.target.value)}
-                          disabled={saving || !kitchenId || rowOperationalRules.length === 0}
-                        >
-                          <option value="">Pilih tujuan Akuntan / Aslap</option>
-                          {rowOperationalRules.map((rule) => (
-                            <option key={rule.id} value={rule.id}>
-                              {operationalTargetRoleLabel(rule.target_role)} — {rule.owner_name} — {rule.bank} / {rule.account_number}
-                            </option>
-                          ))}
-                        </select>
-                      </label>
+                    {row.kind === 'lain_lain' && row.manualDecision === 'allow' ? (
+                      <div className="maker-import-readonly-kind">
+                        Tujuan terdeteksi: <strong>{
+                          flow === 'neutral_lain_lain'
+                            ? 'Koperasi Arutala — BNI'
+                            : validation.operationalRule &&
+                                (validation.operationalRule.target_role === 'akuntan' ||
+                                  validation.operationalRule.target_role === 'aslap')
+                              ? operationalTargetRoleLabel(validation.operationalRule.target_role) +
+                                ' — ' + validation.operationalRule.owner_name +
+                                ' — ' + validation.operationalRule.bank +
+                                ' / ' + validation.operationalRule.account_number
+                              : 'Tidak cocok dengan tujuan yang diizinkan'
+                        }</strong>
+                      </div>
                     ) : null}
 
                     {flow === 'income' || flow === 'neutral_lain_lain' ? (
