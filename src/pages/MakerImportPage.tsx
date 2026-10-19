@@ -117,6 +117,12 @@ function accountNameMatchesRecipient(account: AccountRef, recipientName: string)
     .some((name) => normalizeMakerText(name) === target)
 }
 
+function isKoperasiArutalaBniAccount(account: AccountRef): boolean {
+  return normalizeMakerBank(account.bank) === 'BNI' &&
+    [getAccountLabel(account), account.name]
+      .some((name) => normalizeMakerText(name) === 'koperasi arutala')
+}
+
 function operationalTargetRoleLabel(role: OperationalAccountRule['target_role']): string {
   switch (role) {
     case 'akuntan': return 'Akuntan'
