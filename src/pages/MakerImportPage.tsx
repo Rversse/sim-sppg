@@ -117,6 +117,11 @@ function accountNameMatchesRecipient(account: AccountRef, recipientName: string)
     .some((name) => normalizeMakerText(name) === target)
 }
 
+function isKoperasiArutalaBniAccount(account: AccountRef): boolean {
+  return normalizeMakerBank(account.bank) === 'BNI' &&
+    normalizeMakerText(account.name) === 'koperasi arutala'
+}
+
 function operationalTargetRoleLabel(role: OperationalAccountRule['target_role']): string {
   switch (role) {
     case 'akuntan': return 'Akuntan'
@@ -200,7 +205,7 @@ function applyInitialMappings(
     if (row.kind === 'lain_lain') {
       const neutralAccountIds = new Set(
         refs.accountRules
-          .filter((rule) => rule.kitchen_id === kitchenId && rule.flow_type === 'neutral')
+          .filter((rule) => rule.kitchen_id === kitchenId && (rule.flow_type === 'neutral' || rule.flow_type === 'income'))
           .map((rule) => rule.account_id)
       )
       const neutralCandidates = refs.accounts
@@ -221,6 +226,9 @@ function applyInitialMappings(
           accountId: matchedNeutralAccount.id,
           operationalRuleId: ''
         }
+      }
+      if (row.manualFlow === 'neutral_lain_lain') {
+        row = { ...row, manualFlow: 'ops_disbursement', accountId: '', operationalRuleId: '' }
       }
     }
 
@@ -352,7 +360,10 @@ function getValidation(
     const ruleAccountIds = new Set(
       refs.accountRules
         .filter((rule) =>
-          rule.kitchen_id === kitchenId && rule.flow_type === expectedFlow
+          rule.kitchen_id === kitchenId && (
+            rule.flow_type === expectedFlow ||
+            (flow === 'neutral_lain_lain' && rule.flow_type === 'income')
+          )
         )
         .map((rule) => rule.account_id)
     )
@@ -374,6 +385,11 @@ function getValidation(
         errors.push(flow === 'income'
           ? 'Rekening ini belum dimapping sebagai RAB/Pencairan untuk dapur terpilih.'
           : 'Rekening Lain-lain belum dimapping sebagai rekening netral untuk dapur terpilih.')
+      } else if (
+        flow === 'neutral_lain_lain' &&
+        !isKoperasiArutalaBniAccount(matchedAccount)
+      ) {
+        errors.push('Lain-lain hanya boleh Allow ke Koperasi Arutala BNI, Akuntan, atau Aslap.')
       }
     }
 
@@ -446,17 +462,26 @@ function getValidation(
       errors.push('Nama penerima tidak sama dengan pemilik rekening pada mapping operasional database. Baris ini tidak dapat diimpor.')
     }
   } else if (flow === 'ops_disbursement') {
-    const opsMatches = refs.operationalRules.filter((rule) =>
+    const matchingOpsRules = refs.operationalRules.filter((rule) =>
       rule.kitchen_id === kitchenId &&
       rule.rule_type === 'ops_harian' &&
       rule.mapping_status === 'active' &&
       operationalRuleMatchesRow(rule, row)
     )
+    const opsMatches = matchingOpsRules.filter((rule) =>
+      row.kind !== 'lain_lain' ||
+      rule.target_role === 'akuntan' ||
+      rule.target_role === 'aslap'
+    )
     matchedOperationalRule = opsMatches.length === 1 ? opsMatches[0] : undefined
-    if (!matchedOperationalRule) {
-      errors.push(opsMatches.length === 0
-        ? 'Mapping Ops Harian tidak cocok otomatis. Periksa nama penerima, bank, dan nomor rekening pada sumber Maker.'
-        : 'Mapping Ops Harian lebih dari satu. Periksa mapping aktif di database.')
+    if (opsMatches.length !== 1) {
+      errors.push(row.kind === 'lain_lain'
+        ? opsMatches.length === 0
+          ? 'Lain-lain hanya bisa Allow jika rekening terdeteksi sebagai Akuntan, Aslap, atau Koperasi Arutala BNI.'
+          : 'Mapping Akuntan/Aslap lebih dari satu untuk rekening ini. Periksa mapping aktif di database.'
+        : opsMatches.length === 0
+          ? 'Mapping Ops Harian tidak cocok otomatis. Periksa nama penerima, bank, dan nomor rekening pada sumber Maker.'
+          : 'Mapping Ops Harian lebih dari satu. Periksa mapping aktif di database.')
     }
   } else if (flow === 'real_ops') {
     if (row.kind !== 'real_ops') {
@@ -662,28 +687,6 @@ export function MakerImportPage() {
       return
     }
     updateRow(row.id, { operationalRuleId: rule.id, verified: false })
-  }
-
-  function chooseLainLainDestination(row: MakerImportDraftRow, ruleId: string) {
-    const rule = refs.operationalRules.find((item) =>
-      item.id === ruleId &&
-      item.kitchen_id === kitchenId &&
-      item.rule_type === 'ops_harian' &&
-      item.mapping_status === 'active'
-    )
-    if (!rule) {
-      updateRow(row.id, { operationalRuleId: '', verified: false })
-      return
-    }
-    updateRow(row.id, {
-      manualFlow: 'ops_disbursement',
-      operationalType: '',
-      operationalRuleId: rule.id,
-      recipientName: rule.owner_name,
-      bank: normalizeMakerBank(rule.bank),
-      accountNumber: normalizeMakerAccountNumber(rule.account_number),
-      verified: false
-    })
   }
 
   function decideLainLain(row: MakerImportDraftRow, decision: 'allow' | 'block') {
@@ -1102,8 +1105,10 @@ export function MakerImportPage() {
                       refs.accountRules.some((rule) =>
                         rule.kitchen_id === kitchenId &&
                         rule.account_id === account.id &&
-                        rule.flow_type === accountFlow
-                      )
+                        (rule.flow_type === accountFlow ||
+                          (flow === 'neutral_lain_lain' && rule.flow_type === 'income'))
+                      ) &&
+                      (flow !== 'neutral_lain_lain' || isKoperasiArutalaBniAccount(account))
                     )
                   : []
                 const ruleType = flow === 'ops_disbursement' ? 'ops_harian' : getOperationalRuleType(row)
@@ -1111,7 +1116,8 @@ export function MakerImportPage() {
                   ? refs.operationalRules.filter((rule) =>
                       rule.kitchen_id === kitchenId &&
                       rule.rule_type === 'ops_harian' &&
-                      rule.mapping_status === 'active'
+                      rule.mapping_status === 'active' &&
+                      (rule.target_role === 'akuntan' || rule.target_role === 'aslap')
                     )
                   : ruleType
                     ? refs.operationalRules.filter((rule) =>
@@ -1168,22 +1174,21 @@ export function MakerImportPage() {
                       Jenis transaksi: <strong>{row.kind === 'lain_lain' ? (flow === 'neutral_lain_lain' ? 'Lain-lain / Netral' : 'OPS / Pencairan') : row.kind === 'combined_payroll' ? 'Payroll gabungan' : flow === 'income' ? 'RAB / Pencairan' : flow === 'gas' ? 'GAS' : flow === 'ops_disbursement' ? 'OPS / Pencairan' : flow === 'real_ops' ? 'OPS / Real' : 'Pencairan Operasional — ' + operationalTypeLabel(row.operationalType || defaultOperationalType(row.kind))}</strong>
                     </div>
 
-                    {row.kind === 'lain_lain' && flow !== 'neutral_lain_lain' && !rowLocked ? (
-                      <label className="maker-import-account-select">
-                        <span>Tujuan rekening (Data Rekening)</span>
-                        <select
-                          value={row.operationalRuleId}
-                          onChange={(event) => chooseLainLainDestination(row, event.target.value)}
-                          disabled={saving || !kitchenId || rowOperationalRules.length === 0}
-                        >
-                          <option value="">Pilih tujuan Akuntan / Aslap</option>
-                          {rowOperationalRules.map((rule) => (
-                            <option key={rule.id} value={rule.id}>
-                              {operationalTargetRoleLabel(rule.target_role)} — {rule.owner_name} — {rule.bank} / {rule.account_number}
-                            </option>
-                          ))}
-                        </select>
-                      </label>
+                    {row.kind === 'lain_lain' && row.manualDecision === 'allow' ? (
+                      <div className="maker-import-readonly-kind">
+                        Tujuan terdeteksi: <strong>{
+                          flow === 'neutral_lain_lain'
+                            ? 'Koperasi Arutala — BNI'
+                            : validation.operationalRule &&
+                                (validation.operationalRule.target_role === 'akuntan' ||
+                                  validation.operationalRule.target_role === 'aslap')
+                              ? operationalTargetRoleLabel(validation.operationalRule.target_role) +
+                                ' — ' + validation.operationalRule.owner_name +
+                                ' — ' + validation.operationalRule.bank +
+                                ' / ' + validation.operationalRule.account_number
+                              : 'Tidak cocok dengan tujuan yang diizinkan'
+                        }</strong>
+                      </div>
                     ) : null}
 
                     {flow === 'income' || flow === 'neutral_lain_lain' ? (
@@ -1260,10 +1265,10 @@ export function MakerImportPage() {
                       </div>
                     )}
 
-                    {(row.kind !== 'lain_lain' && (validation.errors.length > 0 || validation.confirmations.length > 0)) || (duplicateRows[row.id] && disposition.status === 'import') ? (
+                    {((row.kind !== 'lain_lain' || row.manualDecision === 'allow') && (validation.errors.length > 0 || validation.confirmations.length > 0)) || (duplicateRows[row.id] && disposition.status === 'import') ? (
                       <div className="maker-import-row-issues">
-                        {row.kind !== 'lain_lain' ? validation.errors.map((issue) => <p key={issue}><AlertTriangle aria-hidden="true" /> {issue}</p>) : null}
-                        {row.kind !== 'lain_lain' ? validation.confirmations.map((issue) => <p key={issue} className="is-confirm"><AlertTriangle aria-hidden="true" /> {issue}</p>) : null}
+                        {(row.kind !== 'lain_lain' || row.manualDecision === 'allow') ? validation.errors.map((issue) => <p key={issue}><AlertTriangle aria-hidden="true" /> {issue}</p>) : null}
+                        {(row.kind !== 'lain_lain' || row.manualDecision === 'allow') ? validation.confirmations.map((issue) => <p key={issue} className="is-confirm"><AlertTriangle aria-hidden="true" /> {issue}</p>) : null}
                         {duplicateRows[row.id] && disposition.status === 'import' ? <p><ShieldAlert aria-hidden="true" /> Duplikat: {duplicateRows[row.id]}</p> : null}
                       </div>
                     ) : null}

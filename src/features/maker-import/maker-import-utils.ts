@@ -138,9 +138,10 @@ export type MakerNeutralAccountCandidate = {
 }
 
 /**
- * Match a Lain-lain source row to a neutral-flow account already mapped to the
- * selected kitchen. This is deliberately mapping-driven, not kitchen-name driven.
- * Ambiguous matches are rejected so the importer can fall back to manual routing.
+ * Detect the selected kitchen's canonical Koperasi Arutala BNI account for a
+ * Lain-lain row. The account may be mapped under income/RAB or neutral/GAS, but
+ * the resulting transaction is stored as neutral/LAIN_LAIN. Matching never depends
+ * on the kitchen name; ambiguous matches are rejected.
  */
 export function findMappedNeutralAccountForLainLain(
   row: MakerImportDraftRow,
@@ -156,17 +157,21 @@ export function findMappedNeutralAccountForLainLain(
   }
 
   const inputAccountNumber = normalizeMakerAccountNumber(row.accountNumber)
-  const maskedSuffix = inputAccountNumber.match(/^x{3,}(\\d{4})$/i)?.[1]
+  const maskedSuffix = inputAccountNumber.match(/^x{3,}(\d{4})$/i)?.[1]
   const inputRecipient = normalizeMakerText(row.recipientName)
   const matches = candidates.filter((account) => {
     const mappedAccountNumber = normalizeMakerAccountNumber(account.accountNumber)
     const accountNumberMatches = maskedSuffix
       ? mappedAccountNumber.endsWith(maskedSuffix)
       : mappedAccountNumber === inputAccountNumber
-    const recipientMatches = [account.name, ...(account.aliases ?? [])]
-      .some((name) => normalizeMakerText(name) === inputRecipient)
+    const accountName = normalizeMakerText(account.name)
+    const recipientMatches = accountName === inputRecipient
+    const isAllowedArutalaAccount =
+      normalizeMakerBank(account.bank) === 'BNI' &&
+      accountName === 'koperasi arutala'
 
     return (
+      isAllowedArutalaAccount &&
       recipientMatches &&
       normalizeMakerBank(account.bank) === normalizeMakerBank(row.bank) &&
       accountNumberMatches

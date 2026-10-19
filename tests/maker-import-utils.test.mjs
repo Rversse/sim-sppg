@@ -102,7 +102,7 @@ test('Lain-lain rows start pending until Admin chooses Allow or Block', () => {
 })
 
 
-test('Lain-lain source rows match neutral mappings generically by recipient and account identity', () => {
+test('Lain-lain Allow rejects neutral accounts outside Koperasi Arutala BNI', () => {
   const parsed = parseMakerDocument([
     'Kertajadi, 19-Okt-2026',
     'LAIN-LAIN : Tali Rafia 30kg - Koperasi Arutala - BNI / 1985322260 · 720.000'
@@ -138,9 +138,17 @@ test('Lain-lain source rows match neutral mappings generically by recipient and 
     findMappedNeutralAccountForLainLain(otherKitchenRow, mappedNeutralAccounts)?.id,
     'neutral-arutala-account'
   )
+  assert.equal(findMappedNeutralAccountForLainLain(row, [{
+    id: 'other-neutral-account', name: 'TOKO LAIN', bank: 'BNI',
+    accountNumber: '1985322260', aliases: ['Koperasi Arutala']
+  }]), null)
+  assert.equal(findMappedNeutralAccountForLainLain(row, [{
+    id: 'arutala-wrong-bank', name: 'KOPERASI ARUTALA', bank: 'BRI',
+    accountNumber: '1985322260', aliases: ['Koperasi Arutala']
+  }]), null)
 })
 
-test('Lain-lain rows match a mapped neutral account generically by recipient and account identity', () => {
+test('Koperasi Arutala BNI Lain-lain mapping is detected across kitchen names', () => {
   const parsed = parseMakerDocument([
     'Kertajadi, 19-Okt-2026',
     'LAIN-LAIN : Tali Rafia 30kg - Koperasi Arutala - BNI / 1985322260 · 720.000'
