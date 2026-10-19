@@ -1110,7 +1110,8 @@ export function MakerImportPage() {
                   ? refs.operationalRules.filter((rule) =>
                       rule.kitchen_id === kitchenId &&
                       rule.rule_type === 'ops_harian' &&
-                      rule.mapping_status === 'active'
+                      rule.mapping_status === 'active' &&
+                      (rule.target_role === 'akuntan' || rule.target_role === 'aslap')
                     )
                   : ruleType
                     ? refs.operationalRules.filter((rule) =>
@@ -1258,10 +1259,10 @@ export function MakerImportPage() {
                       </div>
                     )}
 
-                    {(row.kind !== 'lain_lain' && (validation.errors.length > 0 || validation.confirmations.length > 0)) || (duplicateRows[row.id] && disposition.status === 'import') ? (
+                    {((row.kind !== 'lain_lain' || row.manualDecision === 'allow') && (validation.errors.length > 0 || validation.confirmations.length > 0)) || (duplicateRows[row.id] && disposition.status === 'import') ? (
                       <div className="maker-import-row-issues">
-                        {row.kind !== 'lain_lain' ? validation.errors.map((issue) => <p key={issue}><AlertTriangle aria-hidden="true" /> {issue}</p>) : null}
-                        {row.kind !== 'lain_lain' ? validation.confirmations.map((issue) => <p key={issue} className="is-confirm"><AlertTriangle aria-hidden="true" /> {issue}</p>) : null}
+                        {(row.kind !== 'lain_lain' || row.manualDecision === 'allow') ? validation.errors.map((issue) => <p key={issue}><AlertTriangle aria-hidden="true" /> {issue}</p>) : null}
+                        {(row.kind !== 'lain_lain' || row.manualDecision === 'allow') ? validation.confirmations.map((issue) => <p key={issue} className="is-confirm"><AlertTriangle aria-hidden="true" /> {issue}</p>) : null}
                         {duplicateRows[row.id] && disposition.status === 'import' ? <p><ShieldAlert aria-hidden="true" /> Duplikat: {duplicateRows[row.id]}</p> : null}
                       </div>
                     ) : null}
