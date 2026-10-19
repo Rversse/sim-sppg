@@ -1186,9 +1186,9 @@ export function MakerImportPage() {
                       </label>
                     ) : null}
 
-                    {flow === 'income' ? (
+                    {flow === 'income' || flow === 'neutral_lain_lain' ? (
                       <label className="maker-import-account-select">
-                        <span>Rekening terhubung ke mapping dapur</span>
+                        <span>{flow === 'income' ? 'Rekening terhubung ke mapping dapur' : 'Rekening netral terhubung ke mapping dapur'}</span>
                         <select
                           value={row.accountId}
                           onChange={(event) => chooseAccount(row, event.target.value)}
