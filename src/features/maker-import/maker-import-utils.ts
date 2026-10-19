@@ -163,12 +163,11 @@ export function findMappedNeutralAccountForLainLain(
     const accountNumberMatches = maskedSuffix
       ? mappedAccountNumber.endsWith(maskedSuffix)
       : mappedAccountNumber === inputAccountNumber
-    const names = [account.name, ...(account.aliases ?? [])]
-    const recipientMatches = names
-      .some((name) => normalizeMakerText(name) === inputRecipient)
+    const accountName = normalizeMakerText(account.name)
+    const recipientMatches = accountName === inputRecipient
     const isAllowedArutalaAccount =
       normalizeMakerBank(account.bank) === 'BNI' &&
-      names.some((name) => normalizeMakerText(name) === 'koperasi arutala')
+      accountName === 'koperasi arutala'
 
     return (
       isAllowedArutalaAccount &&
