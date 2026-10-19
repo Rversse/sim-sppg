@@ -4,7 +4,8 @@ import {
   parseMakerAmount,
   parseMakerDate,
   parseMakerDocument,
-  matchesMakerOperationalAccount
+  matchesMakerOperationalAccount,
+  findMappedNeutralAccountForLainLain
 } from '../src/features/maker-import/maker-import-utils.ts'
 
 test('IDR amounts preserve scale and reject malformed separators', () => {
@@ -98,6 +99,83 @@ test('Lain-lain rows start pending until Admin chooses Allow or Block', () => {
   assert.equal(parsed.rows[0].manualDecision, 'pending')
   assert.equal(parsed.rows[0].recipientName, 'Provider Internet')
   assert.equal(parsed.rows[0].accountNumber, '000123')
+})
+
+
+test('Lain-lain source rows match neutral mappings generically by recipient and account identity', () => {
+  const parsed = parseMakerDocument([
+    'Kertajadi, 19-Okt-2026',
+    'LAIN-LAIN : Tali Rafia 30kg - Koperasi Arutala - BNI / 1985322260 · 720.000'
+  ].join('\n'))
+
+  assert.equal(parsed.error, null)
+  const row = parsed.rows[0]
+  assert.equal(row.kind, 'lain_lain')
+  assert.equal(row.details, 'Tali Rafia 30kg')
+  assert.equal(row.recipientName, 'Koperasi Arutala')
+  assert.equal(row.bank, 'BNI')
+  assert.equal(row.accountNumber, '1985322260')
+
+  const mappedNeutralAccounts = [{
+    id: 'neutral-arutala-account',
+    name: 'KOPERASI ARUTALA',
+    bank: 'BNI',
+    accountNumber: '1985322260',
+    aliases: ['Koperasi Arutala']
+  }]
+  assert.equal(
+    findMappedNeutralAccountForLainLain(row, mappedNeutralAccounts)?.id,
+    'neutral-arutala-account'
+  )
+  assert.equal(findMappedNeutralAccountForLainLain(row, []), null)
+
+  // The helper has no kitchen-name exceptions; the caller supplies that kitchen's mappings.
+  const otherKitchenRow = parseMakerDocument([
+    'Cisepat, 19-Okt-2026',
+    'LAIN-LAIN : Pembelian alat kecil - Koperasi Arutala - BNI / 1985322260 · 720.000'
+  ].join('\n')).rows[0]
+  assert.equal(
+    findMappedNeutralAccountForLainLain(otherKitchenRow, mappedNeutralAccounts)?.id,
+    'neutral-arutala-account'
+  )
+})
+
+test('Lain-lain rows match a mapped neutral account generically by recipient and account identity', () => {
+  const parsed = parseMakerDocument([
+    'Kertajadi, 19-Okt-2026',
+    'LAIN-LAIN : Tali Rafia 30kg - Koperasi Arutala - BNI / 1985322260 · 720.000'
+  ].join('\n'))
+
+  assert.equal(parsed.error, null)
+  const row = parsed.rows[0]
+  assert.equal(row.kind, 'lain_lain')
+  assert.equal(row.details, 'Tali Rafia 30kg')
+  assert.equal(row.recipientName, 'Koperasi Arutala')
+  assert.equal(row.bank, 'BNI')
+  assert.equal(row.accountNumber, '1985322260')
+
+  const mappedNeutralAccounts = [{
+    id: 'neutral-arutala-account',
+    name: 'KOPERASI ARUTALA',
+    bank: 'BNI',
+    accountNumber: '1985322260',
+    aliases: ['Koperasi Arutala']
+  }]
+  assert.equal(
+    findMappedNeutralAccountForLainLain(row, mappedNeutralAccounts)?.id,
+    'neutral-arutala-account'
+  )
+  assert.equal(findMappedNeutralAccountForLainLain(row, []), null)
+
+  // Kitchen names do not affect matching; the caller supplies the selected kitchen's mappings.
+  const otherKitchenRow = parseMakerDocument([
+    'Cisepat, 19-Okt-2026',
+    'LAIN-LAIN : Pembelian alat kecil - Koperasi Arutala - BNI / 1985322260 · 720.000'
+  ].join('\n')).rows[0]
+  assert.equal(
+    findMappedNeutralAccountForLainLain(otherKitchenRow, mappedNeutralAccounts)?.id,
+    'neutral-arutala-account'
+  )
 })
 
 test('Maker parser reads italic OPS Real as a nominal-only per-kitchen realization row', () => {

@@ -18,6 +18,7 @@ export type MakerManualFlow =
   | 'ops_disbursement'
   | 'income'
   | 'gas'
+  | 'neutral_lain_lain'
   | 'operational_disbursement'
 
 export type MakerOperationalType =
@@ -126,6 +127,53 @@ export function matchesMakerOperationalAccount(
     normalizeMakerBank(bank) === normalizeMakerBank(mapping.bank) &&
     accountNumberMatches
   )
+}
+
+export type MakerNeutralAccountCandidate = {
+  id: string
+  name: string
+  bank: string
+  accountNumber: string | null
+  aliases?: Array<string | null | undefined>
+}
+
+/**
+ * Match a Lain-lain source row to a neutral-flow account already mapped to the
+ * selected kitchen. This is deliberately mapping-driven, not kitchen-name driven.
+ * Ambiguous matches are rejected so the importer can fall back to manual routing.
+ */
+export function findMappedNeutralAccountForLainLain(
+  row: MakerImportDraftRow,
+  candidates: MakerNeutralAccountCandidate[]
+): MakerNeutralAccountCandidate | null {
+  if (
+    row.kind !== 'lain_lain' ||
+    !row.recipientName.trim() ||
+    !row.bank.trim() ||
+    !row.accountNumber.trim()
+  ) {
+    return null
+  }
+
+  const inputAccountNumber = normalizeMakerAccountNumber(row.accountNumber)
+  const maskedSuffix = inputAccountNumber.match(/^x{3,}(\\d{4})$/i)?.[1]
+  const inputRecipient = normalizeMakerText(row.recipientName)
+  const matches = candidates.filter((account) => {
+    const mappedAccountNumber = normalizeMakerAccountNumber(account.accountNumber)
+    const accountNumberMatches = maskedSuffix
+      ? mappedAccountNumber.endsWith(maskedSuffix)
+      : mappedAccountNumber === inputAccountNumber
+    const recipientMatches = [account.name, ...(account.aliases ?? [])]
+      .some((name) => normalizeMakerText(name) === inputRecipient)
+
+    return (
+      recipientMatches &&
+      normalizeMakerBank(account.bank) === normalizeMakerBank(row.bank) &&
+      accountNumberMatches
+    )
+  })
+
+  return matches.length === 1 ? matches[0] : null
 }
 
 export function normalizeMakerAccountNumber(

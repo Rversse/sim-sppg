@@ -8,6 +8,7 @@ import {
   normalizeMakerAccountNumber,
   normalizeMakerBank,
   normalizeMakerText,
+  findMappedNeutralAccountForLainLain,
   matchesMakerOperationalAccount,
   operationalRuleTypeForKind,
   parseMakerDocument,
@@ -63,7 +64,7 @@ type ImportRowPayload = {
   disposition: 'import' | 'excluded'
   excluded_reason: string | null
   flow_type: 'income' | 'neutral' | 'ops_disbursement' | 'real_ops' | 'operational_disbursement' | null
-  category: 'RAB' | 'GAS' | 'OPS' | 'REAL_OPS' | 'OPERATIONAL' | null
+  category: 'RAB' | 'GAS' | 'LAIN_LAIN' | 'OPS' | 'REAL_OPS' | 'OPERATIONAL' | null
   operational_type: Exclude<MakerOperationalType, ''> | null
   account_id: string | null
   supplier_id: null
@@ -109,6 +110,13 @@ function getAccountOptionLabel(account: AccountRef): string {
   return getAccountLabel(account) + ' — ' + account.bank + ' / ' + (account.account_number || '-')
 }
 
+function accountNameMatchesRecipient(account: AccountRef, recipientName: string): boolean {
+  const supplier = getAccountSupplier(account)
+  const target = normalizeMakerText(recipientName)
+  return [getAccountLabel(account), account.name, supplier?.owner_name]
+    .some((name) => normalizeMakerText(name) === target)
+}
+
 function operationalTargetRoleLabel(role: OperationalAccountRule['target_role']): string {
   switch (role) {
     case 'akuntan': return 'Akuntan'
@@ -140,7 +148,7 @@ function getOperationalRuleType(row: MakerImportDraftRow): string | null {
 function getExpectedAccountFlow(row: MakerImportDraftRow): 'income' | 'neutral' | null {
   const flow = getRowFlow(row)
   if (flow === 'income') return 'income'
-  if (flow === 'gas') return 'neutral'
+  if (flow === 'gas' || flow === 'neutral_lain_lain') return 'neutral'
   return null
 }
 
@@ -189,6 +197,33 @@ function applyInitialMappings(
   refs: ImportReferences
 ): MakerImportDraftRow[] {
   return rows.map((row) => {
+    if (row.kind === 'lain_lain') {
+      const neutralAccountIds = new Set(
+        refs.accountRules
+          .filter((rule) => rule.kitchen_id === kitchenId && rule.flow_type === 'neutral')
+          .map((rule) => rule.account_id)
+      )
+      const neutralCandidates = refs.accounts
+        .filter((account) => neutralAccountIds.has(account.id))
+        .map((account) => ({
+          id: account.id,
+          name: account.name,
+          bank: account.bank,
+          accountNumber: account.account_number,
+          aliases: [getAccountLabel(account), getAccountSupplier(account)?.owner_name]
+        }))
+      const matchedNeutralAccount = findMappedNeutralAccountForLainLain(row, neutralCandidates)
+      if (matchedNeutralAccount) {
+        return {
+          ...row,
+          manualFlow: 'neutral_lain_lain',
+          operationalType: '',
+          accountId: matchedNeutralAccount.id,
+          operationalRuleId: ''
+        }
+      }
+    }
+
     const flow = getRowFlow(row)
     if (flow === 'income' || flow === 'gas') {
       const requiredFlow = flow === 'income' ? 'income' : 'neutral'
@@ -312,7 +347,7 @@ function getValidation(
   let matchedAccount: AccountRef | undefined
   let matchedOperationalRule: OperationalAccountRule | undefined
 
-  if (flow === 'income' || flow === 'gas') {
+  if (flow === 'income' || flow === 'gas' || flow === 'neutral_lain_lain') {
     const expectedFlow = flow === 'income' ? 'income' : 'neutral'
     const ruleAccountIds = new Set(
       refs.accountRules
@@ -336,15 +371,15 @@ function getValidation(
     } else {
       matchedAccount = refs.accounts.find((account) => account.id === row.accountId)
       if (!matchedAccount || !ruleAccountIds.has(matchedAccount.id)) {
-        errors.push('Rekening ini belum dimapping sebagai RAB/Pencairan untuk dapur terpilih.')
+        errors.push(flow === 'income'
+          ? 'Rekening ini belum dimapping sebagai RAB/Pencairan untuk dapur terpilih.'
+          : 'Rekening Lain-lain belum dimapping sebagai rekening netral untuk dapur terpilih.')
       }
     }
 
     if (matchedAccount && !accountMatchesRow(matchedAccount, row)) {
       errors.push('Bank/nomor rekening pada draft tidak sama dengan mapping database. Periksa data sumber.')
-    } else if (matchedAccount &&
-      normalizeMakerText(getAccountLabel(matchedAccount)) !== normalizeMakerText(row.recipientName)
-    ) {
+    } else if (matchedAccount && !accountNameMatchesRecipient(matchedAccount, row.recipientName)) {
       confirmations.push('Nama penerima berbeda dari nama rekening di database.')
     }
 
@@ -452,6 +487,9 @@ function effectiveDatabaseFlow(row: MakerImportDraftRow): {
   }
   if (flow === 'gas') {
     return { flow_type: 'neutral', category: 'GAS', operational_type: null }
+  }
+  if (flow === 'neutral_lain_lain') {
+    return { flow_type: 'neutral', category: 'LAIN_LAIN', operational_type: null }
   }
   if (flow === 'ops_disbursement') {
     return { flow_type: 'ops_disbursement', category: 'OPS', operational_type: null }
@@ -1086,8 +1124,8 @@ export function MakerImportPage() {
                 const expectedOperational = row.operationalRuleId
                   ? refs.operationalRules.find((rule) => rule.id === row.operationalRuleId)
                   : undefined
-                const hasNameMismatch = flow === 'income' || flow === 'gas'
-                  ? Boolean(expectedAccount && normalizeMakerText(getAccountLabel(expectedAccount)) !== normalizeMakerText(row.recipientName))
+                const hasNameMismatch = flow === 'income' || flow === 'gas' || flow === 'neutral_lain_lain'
+                  ? Boolean(expectedAccount && !accountNameMatchesRecipient(expectedAccount, row.recipientName))
                   : Boolean(expectedOperational && normalizeMakerText(expectedOperational.owner_name) !== normalizeMakerText(row.recipientName))
                 const manualRequired = row.kind === 'lain_lain' || hasNameMismatch || validation.confirmations.length > 0
                 const manualDecisionPending = row.kind === 'lain_lain' && row.manualDecision === 'pending'
@@ -1127,10 +1165,10 @@ export function MakerImportPage() {
                     ) : null}
 
                     <div className="maker-import-readonly-kind">
-                      Jenis transaksi: <strong>{row.kind === 'lain_lain' ? 'OPS / Pencairan' : row.kind === 'combined_payroll' ? 'Payroll gabungan' : flow === 'income' ? 'RAB / Pencairan' : flow === 'gas' ? 'GAS' : flow === 'ops_disbursement' ? 'OPS / Pencairan' : flow === 'real_ops' ? 'OPS / Real' : 'Pencairan Operasional — ' + operationalTypeLabel(row.operationalType || defaultOperationalType(row.kind))}</strong>
+                      Jenis transaksi: <strong>{row.kind === 'lain_lain' ? (flow === 'neutral_lain_lain' ? 'Lain-lain / Netral' : 'OPS / Pencairan') : row.kind === 'combined_payroll' ? 'Payroll gabungan' : flow === 'income' ? 'RAB / Pencairan' : flow === 'gas' ? 'GAS' : flow === 'ops_disbursement' ? 'OPS / Pencairan' : flow === 'real_ops' ? 'OPS / Real' : 'Pencairan Operasional — ' + operationalTypeLabel(row.operationalType || defaultOperationalType(row.kind))}</strong>
                     </div>
 
-                    {row.kind === 'lain_lain' && !rowLocked ? (
+                    {row.kind === 'lain_lain' && flow !== 'neutral_lain_lain' && !rowLocked ? (
                       <label className="maker-import-account-select">
                         <span>Tujuan rekening (Data Rekening)</span>
                         <select
@@ -1148,9 +1186,9 @@ export function MakerImportPage() {
                       </label>
                     ) : null}
 
-                    {flow === 'income' ? (
+                    {flow === 'income' || flow === 'neutral_lain_lain' ? (
                       <label className="maker-import-account-select">
-                        <span>Rekening terhubung ke mapping dapur</span>
+                        <span>{flow === 'income' ? 'Rekening terhubung ke mapping dapur' : 'Rekening netral terhubung ke mapping dapur'}</span>
                         <select
                           value={row.accountId}
                           onChange={(event) => chooseAccount(row, event.target.value)}
