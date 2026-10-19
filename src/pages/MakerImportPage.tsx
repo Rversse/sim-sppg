@@ -380,6 +380,11 @@ function getValidation(
         errors.push(flow === 'income'
           ? 'Rekening ini belum dimapping sebagai RAB/Pencairan untuk dapur terpilih.'
           : 'Rekening Lain-lain belum dimapping sebagai rekening netral untuk dapur terpilih.')
+      } else if (
+        flow === 'neutral_lain_lain' &&
+        !isKoperasiArutalaBniAccount(matchedAccount)
+      ) {
+        errors.push('Lain-lain hanya boleh Allow ke Koperasi Arutala BNI, Akuntan, atau Aslap.')
       }
     }
 
