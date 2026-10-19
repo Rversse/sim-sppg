@@ -347,7 +347,7 @@ function getValidation(
   let matchedAccount: AccountRef | undefined
   let matchedOperationalRule: OperationalAccountRule | undefined
 
-  if (flow === 'income' || flow === 'gas') {
+  if (flow === 'income' || flow === 'gas' || flow === 'neutral_lain_lain') {
     const expectedFlow = flow === 'income' ? 'income' : 'neutral'
     const ruleAccountIds = new Set(
       refs.accountRules
