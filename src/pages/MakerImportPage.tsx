@@ -64,7 +64,7 @@ type ImportRowPayload = {
   disposition: 'import' | 'excluded'
   excluded_reason: string | null
   flow_type: 'income' | 'neutral' | 'ops_disbursement' | 'real_ops' | 'operational_disbursement' | null
-  category: 'RAB' | 'GAS' | 'OPS' | 'REAL_OPS' | 'OPERATIONAL' | null
+  category: 'RAB' | 'GAS' | 'LAIN_LAIN' | 'OPS' | 'REAL_OPS' | 'OPERATIONAL' | null
   operational_type: Exclude<MakerOperationalType, ''> | null
   account_id: string | null
   supplier_id: null
@@ -110,6 +110,13 @@ function getAccountOptionLabel(account: AccountRef): string {
   return getAccountLabel(account) + ' — ' + account.bank + ' / ' + (account.account_number || '-')
 }
 
+function accountNameMatchesRecipient(account: AccountRef, recipientName: string): boolean {
+  const supplier = getAccountSupplier(account)
+  const target = normalizeMakerText(recipientName)
+  return [getAccountLabel(account), account.name, supplier?.owner_name]
+    .some((name) => normalizeMakerText(name) === target)
+}
+
 function operationalTargetRoleLabel(role: OperationalAccountRule['target_role']): string {
   switch (role) {
     case 'akuntan': return 'Akuntan'
@@ -141,7 +148,7 @@ function getOperationalRuleType(row: MakerImportDraftRow): string | null {
 function getExpectedAccountFlow(row: MakerImportDraftRow): 'income' | 'neutral' | null {
   const flow = getRowFlow(row)
   if (flow === 'income') return 'income'
-  if (flow === 'gas') return 'neutral'
+  if (flow === 'gas' || flow === 'neutral_lain_lain') return 'neutral'
   return null
 }
 
