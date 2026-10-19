@@ -1165,7 +1165,7 @@ export function MakerImportPage() {
                     ) : null}
 
                     <div className="maker-import-readonly-kind">
-                      Jenis transaksi: <strong>{row.kind === 'lain_lain' ? 'OPS / Pencairan' : row.kind === 'combined_payroll' ? 'Payroll gabungan' : flow === 'income' ? 'RAB / Pencairan' : flow === 'gas' ? 'GAS' : flow === 'ops_disbursement' ? 'OPS / Pencairan' : flow === 'real_ops' ? 'OPS / Real' : 'Pencairan Operasional — ' + operationalTypeLabel(row.operationalType || defaultOperationalType(row.kind))}</strong>
+                      Jenis transaksi: <strong>{row.kind === 'lain_lain' ? (flow === 'neutral_lain_lain' ? 'Lain-lain / Netral' : 'OPS / Pencairan') : row.kind === 'combined_payroll' ? 'Payroll gabungan' : flow === 'income' ? 'RAB / Pencairan' : flow === 'gas' ? 'GAS' : flow === 'ops_disbursement' ? 'OPS / Pencairan' : flow === 'real_ops' ? 'OPS / Real' : 'Pencairan Operasional — ' + operationalTypeLabel(row.operationalType || defaultOperationalType(row.kind))}</strong>
                     </div>
 
                     {row.kind === 'lain_lain' && !rowLocked ? (
