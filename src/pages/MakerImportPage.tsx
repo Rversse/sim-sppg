@@ -197,6 +197,33 @@ function applyInitialMappings(
   refs: ImportReferences
 ): MakerImportDraftRow[] {
   return rows.map((row) => {
+    if (row.kind === 'lain_lain') {
+      const neutralAccountIds = new Set(
+        refs.accountRules
+          .filter((rule) => rule.kitchen_id === kitchenId && rule.flow_type === 'neutral')
+          .map((rule) => rule.account_id)
+      )
+      const neutralCandidates = refs.accounts
+        .filter((account) => neutralAccountIds.has(account.id))
+        .map((account) => ({
+          id: account.id,
+          name: account.name,
+          bank: account.bank,
+          accountNumber: account.account_number,
+          aliases: [getAccountLabel(account), getAccountSupplier(account)?.owner_name]
+        }))
+      const matchedNeutralAccount = findMappedNeutralAccountForLainLain(row, neutralCandidates)
+      if (matchedNeutralAccount) {
+        return {
+          ...row,
+          manualFlow: 'neutral_lain_lain',
+          operationalType: '',
+          accountId: matchedNeutralAccount.id,
+          operationalRuleId: ''
+        }
+      }
+    }
+
     const flow = getRowFlow(row)
     if (flow === 'income' || flow === 'gas') {
       const requiredFlow = flow === 'income' ? 'income' : 'neutral'
