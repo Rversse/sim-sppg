@@ -205,7 +205,7 @@ function applyInitialMappings(
     if (row.kind === 'lain_lain') {
       const neutralAccountIds = new Set(
         refs.accountRules
-          .filter((rule) => rule.kitchen_id === kitchenId && rule.flow_type === 'neutral')
+          .filter((rule) => rule.kitchen_id === kitchenId && (rule.flow_type === 'neutral' || rule.flow_type === 'income'))
           .map((rule) => rule.account_id)
       )
       const neutralCandidates = refs.accounts
@@ -360,7 +360,10 @@ function getValidation(
     const ruleAccountIds = new Set(
       refs.accountRules
         .filter((rule) =>
-          rule.kitchen_id === kitchenId && rule.flow_type === expectedFlow
+          rule.kitchen_id === kitchenId && (
+            rule.flow_type === expectedFlow ||
+            (flow === 'neutral_lain_lain' && rule.flow_type === 'income')
+          )
         )
         .map((rule) => rule.account_id)
     )
