@@ -86,6 +86,31 @@ export function normalizeMakerBank(value: string | null | undefined): string {
   return (value ?? '').trim().replace(/\s+/g, ' ').toUpperCase()
 }
 
+export function matchesMakerAccountRecipient(
+  recipientName: string | null | undefined,
+  mapping: {
+    accountName: string | null | undefined
+    businessName: string | null | undefined
+    ownerName: string | null | undefined
+  }
+): boolean {
+  const target = normalizeMakerText(recipientName)
+  if (!target) return false
+
+  const accountName = mapping.accountName?.trim() ?? ''
+  const businessName = mapping.businessName?.trim() || accountName
+  const ownerName = mapping.ownerName?.trim() ?? ''
+  const candidates = [
+    accountName,
+    businessName,
+    ownerName,
+    businessName && ownerName ? businessName + ' (' + ownerName + ')' : '',
+    accountName && ownerName ? accountName + ' (' + ownerName + ')' : ''
+  ]
+
+  return candidates.some((name) => Boolean(name) && normalizeMakerText(name) === target)
+}
+
 function formatMakerProductList(value: string): string {
   const source = value.trim()
   if (!source) return ''
