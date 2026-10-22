@@ -364,26 +364,6 @@ textarea {
   object-fit: contain;
 }
 
-.app-brand-copy {
-  display: grid;
-  gap: 4px;
-  min-width: 0;
-}
-
-.app-brand-copy strong {
-  color: var(--theme-text-primary);
-  font-size: 13px;
-  font-weight: 900;
-  letter-spacing: -0.025em;
-}
-
-.app-brand-copy small {
-  color: var(--theme-sidebar-text-muted);
-  font-size: 9px;
-  font-weight: 650;
-  letter-spacing: 0.01em;
-}
-
 .app-brand-switch {
   display: flex;
   min-width: 0;
@@ -611,18 +591,6 @@ textarea {
 
 .app-page-heading {
   min-width: 0;
-}
-
-.app-header-kicker {
-  display: block;
-  margin-bottom: 2px;
-
-  color: var(--theme-text-secondary);
-  font-size: 9px;
-  font-weight: 800;
-  letter-spacing: 0.16em;
-  line-height: 1;
-  text-transform: uppercase;
 }
 
 .app-page-title {
@@ -1060,10 +1028,6 @@ textarea:disabled {
   .app-header {
     height: var(--app-header-height);
     padding: 0 16px;
-  }
-
-  .app-header-kicker {
-    font-size: 7px;
   }
 
   .app-header strong {
