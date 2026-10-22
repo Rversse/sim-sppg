@@ -120,7 +120,7 @@ function getPageTitle(pathname: string) {
   return (
     navigationSections
       .flatMap((section) => section.items)
-      .find(({ to }) => pathname === to)?.pageTitle ?? 'SIM SPPG'
+      .find(({ to }) => pathname === to)?.pageTitle ?? ''
   )
 }
 function getRoleLabel(role: string | undefined) {
@@ -184,13 +184,9 @@ export function AppLayout() {
     <div className="app-shell">
       <aside className="app-sidebar">
         <div className="app-brand">
-          <NavLink to="/dashboard" className="app-brand-home" aria-label="SIM-SPPG Dashboard">
+          <NavLink to="/dashboard" className="app-brand-home" aria-label="Dashboard">
             <span className="app-brand-mark" aria-hidden="true">
               <img src={appBrandIcon} alt="" />
-            </span>
-            <span className="app-brand-copy">
-              <strong>SIM-SPPG</strong>
-              <small>Operasional Dapur</small>
             </span>
           </NavLink>
           {user?.role === 'admin' ? (
@@ -269,7 +265,6 @@ export function AppLayout() {
         <header className="app-header">
           <div className="app-header-left">
             <div className="app-page-heading">
-              <span className="app-header-kicker">SIM SPPG</span>
               <h1 className="app-page-title">{getPageTitle(pathname)}</h1>
             </div>
           </div>
