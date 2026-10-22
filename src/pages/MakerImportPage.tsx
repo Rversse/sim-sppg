@@ -9,6 +9,7 @@ import {
   normalizeMakerBank,
   normalizeMakerText,
   findMappedNeutralAccountForLainLain,
+  matchesMakerAccountRecipient,
   matchesMakerOperationalAccount,
   operationalRuleTypeForKind,
   parseMakerDocument,
@@ -112,9 +113,11 @@ function getAccountOptionLabel(account: AccountRef): string {
 
 function accountNameMatchesRecipient(account: AccountRef, recipientName: string): boolean {
   const supplier = getAccountSupplier(account)
-  const target = normalizeMakerText(recipientName)
-  return [getAccountLabel(account), account.name, supplier?.owner_name]
-    .some((name) => normalizeMakerText(name) === target)
+  return matchesMakerAccountRecipient(recipientName, {
+    accountName: account.name,
+    businessName: supplier?.business_name,
+    ownerName: supplier?.owner_name
+  })
 }
 
 function isKoperasiArutalaBniAccount(account: AccountRef): boolean {

@@ -5,6 +5,7 @@ import {
   parseMakerDate,
   parseMakerDocument,
   matchesMakerOperationalAccount,
+  matchesMakerAccountRecipient,
   findMappedNeutralAccountForLainLain
 } from '../src/features/maker-import/maker-import-utils.ts'
 
@@ -328,3 +329,58 @@ test('Uppercase output categories and full bank account numbers remain importabl
 })
 
 
+
+test('Maker business names with owner in parentheses match database mapping without extra verification', () => {
+  const samples = [
+    {
+      source: 'CV Kramat (Ayi Suherlan)',
+      accountName: 'CV Kramat',
+      businessName: 'CV Kramat',
+      ownerName: 'Ayi Suherlan'
+    },
+    {
+      source: 'Koperasi Arutala (Cecep)',
+      accountName: 'Koperasi Arutala',
+      businessName: 'Koperasi Arutala',
+      ownerName: 'Cecep'
+    },
+    {
+      source: 'UD Maju Jaya (Yesa Andani)',
+      accountName: 'UD Maju Jaya',
+      businessName: 'UD Maju Jaya',
+      ownerName: 'Yesa Andani'
+    },
+    {
+      source: 'UMKM Purwanti (Erni Purwanti)',
+      accountName: 'UMKM Purwanti',
+      businessName: 'UMKM Purwanti',
+      ownerName: 'Erni Purwanti'
+    }
+  ]
+
+  for (const sample of samples) {
+    assert.equal(
+      matchesMakerAccountRecipient(sample.source, sample),
+      true,
+      sample.source + ' should match business + owner mapping'
+    )
+    assert.equal(
+      matchesMakerAccountRecipient(sample.source.toLocaleUpperCase('id-ID'), sample),
+      true,
+      'Matching should be case-insensitive for ' + sample.source
+    )
+  }
+})
+
+test('Maker account-recipient matching stays strict when business or owner differs', () => {
+  const mapping = {
+    accountName: 'CV Kramat',
+    businessName: 'CV Kramat',
+    ownerName: 'Ayi Suherlan'
+  }
+
+  assert.equal(matchesMakerAccountRecipient('CV Kramat (Owner Lain)', mapping), false)
+  assert.equal(matchesMakerAccountRecipient('CV Lain (Ayi Suherlan)', mapping), false)
+  assert.equal(matchesMakerAccountRecipient('CV Kramat', mapping), true)
+  assert.equal(matchesMakerAccountRecipient('Ayi Suherlan', mapping), true)
+})
