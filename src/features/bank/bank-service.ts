@@ -455,7 +455,8 @@ export async function getBankHistoryPage(
   page: number,
   pageSize = 10,
   balance: number,
-  client: SupabaseClient = supabase
+  client: SupabaseClient = supabase,
+  searchQuery = ''
 ): Promise<BankHistoryPage> {
   if (!accountId) {
     throw new Error('Rekening history tidak ditemukan.')
@@ -677,9 +678,45 @@ export async function getBankHistoryPage(
     )
   )
 
-  const total = ledgerEvents.length
+  const normalizedQuery = searchQuery.trim().toLocaleLowerCase('id')
+  const filteredEvents = normalizedQuery
+    ? ledgerEvents.filter((event) => {
+        if (event.kind === 'bank') {
+          const transaction = event.transaction
+          const sender = transaction.sender
+          const recipient = transaction.recipient
+          const searchable = [
+            transaction.payment_for,
+            transaction.recipient_name,
+            sender?.name,
+            sender?.bank,
+            sender?.account_number,
+            sender ? getAccountDisplayName(sender) : '',
+            recipient?.name,
+            recipient?.bank,
+            recipient?.account_number,
+            recipient ? getAccountDisplayName(recipient) : ''
+          ]
+          return searchable.some((value) =>
+            String(value ?? '').toLocaleLowerCase('id').includes(normalizedQuery)
+          )
+        }
+
+        const transaction = event.transaction
+        return [
+          transaction.note,
+          transaction.kitchen_name,
+          transaction.account_name,
+          transaction.account_bank,
+          transaction.account_number
+        ].some((value) =>
+          String(value ?? '').toLocaleLowerCase('id').includes(normalizedQuery)
+        )
+      })
+    : ledgerEvents
+  const total = filteredEvents.length
   const offset = (page - 1) * pageSize
-  const pageEvents = ledgerEvents.slice(offset, offset + pageSize)
+  const pageEvents = filteredEvents.slice(offset, offset + pageSize)
 
   if (!pageEvents.length) {
     return {

@@ -434,6 +434,8 @@ export function BankPage() {
     useState<BankHistoryPage | null>(null)
   const [historyLoading, setHistoryLoading] = useState(false)
   const [historyError, setHistoryError] = useState('')
+  const [historySearchOpen, setHistorySearchOpen] = useState(false)
+  const [historySearchQuery, setHistorySearchQuery] = useState('')
 
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
   const [editingTransactionId, setEditingTransactionId] = useState<
@@ -466,6 +468,7 @@ export function BankPage() {
     useState(false)
   const [paymentAutocompleteOpen, setPaymentAutocompleteOpen] = useState(false)
 
+  const canSearchAccountHistory = canAccess(user?.role, 'reports.view')
   const canCreateTransaction = canAccess(user?.role, 'bank.transaction.create')
   const canExportBankTransactions = canAccess(user?.role, 'bank.export')
 
@@ -745,7 +748,9 @@ export function BankPage() {
       historyAccountId,
       historyPage,
       HISTORY_PAGE_SIZE,
-      historySummary.balance
+      historySummary.balance,
+      undefined,
+      historySearchQuery
     )
       .then((data) => {
         if (cancelled) return
@@ -771,7 +776,7 @@ export function BankPage() {
     return () => {
       cancelled = true
     }
-  }, [historyAccountId, historyPage, historySummary])
+  }, [historyAccountId, historyPage, historySummary, historySearchQuery])
 
   useEffect(() => {
     if (!isCreateModalOpen) return
@@ -870,6 +875,8 @@ export function BankPage() {
     setHistoryPage(1)
     setHistoryPageData(null)
     setHistoryError('')
+    setHistorySearchOpen(false)
+    setHistorySearchQuery('')
   }
 
   function closeHistory() {
@@ -877,6 +884,8 @@ export function BankPage() {
     setHistoryPage(1)
     setHistoryPageData(null)
     setHistoryError('')
+    setHistorySearchOpen(false)
+    setHistorySearchQuery('')
   }
 
   function openCreateModal() {
@@ -1814,15 +1823,69 @@ export function BankPage() {
                 </p>
               </div>
 
-              <button
-                type="button"
-                className="bank-modal-close"
-                onClick={closeHistory}
-                aria-label="Tutup history"
-              >
-                <X aria-hidden="true" />
-              </button>
+              <div className="bank-history-header-actions">
+                {canSearchAccountHistory ? (
+                  <button
+                    type="button"
+                    className={`bank-history-search-toggle${historySearchOpen ? ' is-active' : ''}`}
+                    onClick={() => {
+                      setHistorySearchOpen((open) => {
+                        if (open) {
+                          setHistorySearchQuery('')
+                          setHistoryPage(1)
+                        }
+                        return !open
+                      })
+                    }}
+                    aria-label={historySearchOpen ? 'Tutup pencarian transaksi' : 'Cari transaksi'}
+                    title="Cari transaksi"
+                    aria-expanded={historySearchOpen}
+                  >
+                    <Search aria-hidden="true" />
+                    <span>Cari</span>
+                  </button>
+                ) : null}
+                <button
+                  type="button"
+                  className="bank-modal-close"
+                  onClick={closeHistory}
+                  aria-label="Tutup history"
+                >
+                  <X aria-hidden="true" />
+                </button>
+              </div>
             </header>
+
+            {canSearchAccountHistory && historySearchOpen ? (
+              <div className="bank-history-search">
+                <Search aria-hidden="true" />
+                <input
+                  type="search"
+                  value={historySearchQuery}
+                  onChange={(event) => {
+                    setHistorySearchQuery(event.target.value)
+                    setHistoryPage(1)
+                    setHistoryLoading(true)
+                  }}
+                  placeholder="Cari keperluan, catatan, penerima, bank, atau nomor rekening..."
+                  aria-label="Cari transaksi berdasarkan keperluan, catatan, atau rekening tujuan"
+                  autoFocus
+                />
+                {historySearchQuery ? (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setHistorySearchQuery('')
+                      setHistoryPage(1)
+                      setHistoryLoading(true)
+                    }}
+                    aria-label="Hapus pencarian"
+                  >
+                    <X aria-hidden="true" />
+                  </button>
+                ) : null}
+              </div>
+            ) : null}
 
             <div className="bank-history-summary">
               <div className="bank-history-current">
@@ -1889,7 +1952,9 @@ export function BankPage() {
                 <div className="bank-error">{historyError}</div>
               ) : historyTransactions.length === 0 ? (
                 <div className="bank-empty">
-                  Tidak ada transaksi pada periode ini.
+                  {historySearchQuery.trim()
+                    ? 'Tidak ada transaksi yang cocok dengan pencarian.'
+                    : 'Tidak ada transaksi pada periode ini.'}
                 </div>
               ) : (
                 historyTransactions.map((item) => {

@@ -738,6 +738,105 @@ section.bank-form-modal {
   min-width: 0;
 }
 
+.bank-history-header-actions {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 8px;
+}
+
+.bank-history-search-toggle {
+  display: inline-flex;
+  min-height: 36px;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 0 11px;
+  border: 1px solid var(--theme-border-strong);
+  border-radius: 10px;
+  background: var(--theme-surface-raised);
+  color: var(--theme-text-secondary);
+  font: inherit;
+  font-size: 11px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.bank-history-search-toggle svg {
+  width: 15px;
+  height: 15px;
+}
+
+.bank-history-search-toggle:hover,
+.bank-history-search-toggle.is-active {
+  border-color: var(--theme-primary);
+  color: var(--theme-primary);
+}
+
+.bank-history-search {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 12px 14px 0;
+  padding: 0 12px;
+  min-height: 42px;
+  border: 1px solid var(--theme-border-strong);
+  border-radius: 11px;
+  background: var(--theme-surface-raised);
+  color: var(--theme-text-muted);
+}
+
+.bank-history-search > svg {
+  width: 17px;
+  height: 17px;
+  flex: 0 0 auto;
+}
+
+.bank-history-search input {
+  width: 100%;
+  min-width: 0;
+  height: 40px;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: var(--theme-text-primary);
+  font: inherit;
+  font-size: 12px;
+}
+
+.bank-history-search input::placeholder {
+  color: var(--theme-text-muted);
+}
+
+.bank-history-search button {
+  display: grid;
+  width: 28px;
+  height: 28px;
+  flex: 0 0 auto;
+  place-items: center;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--theme-text-secondary);
+  cursor: pointer;
+}
+
+.bank-history-search button svg {
+  width: 15px;
+  height: 15px;
+}
+
+@media (max-width: 520px) {
+  .bank-history-search-toggle {
+    width: 36px;
+    padding: 0;
+  }
+
+  .bank-history-search-toggle span {
+    display: none;
+  }
+}
+
 .bank-history-modal-header h2 {
   margin: 0;
   color: var(--theme-text-primary);
