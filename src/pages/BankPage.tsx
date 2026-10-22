@@ -1952,7 +1952,9 @@ export function BankPage() {
                 <div className="bank-error">{historyError}</div>
               ) : historyTransactions.length === 0 ? (
                 <div className="bank-empty">
-                  Tidak ada transaksi pada periode ini.
+                  {historySearchQuery.trim()
+                    ? 'Tidak ada transaksi yang cocok dengan pencarian.'
+                    : 'Tidak ada transaksi pada periode ini.'}
                 </div>
               ) : (
                 historyTransactions.map((item) => {
