@@ -412,30 +412,36 @@ test('Maker OPS HARIAN supports custom recipient plus optional note', () => {
   assert.equal(mapped.amount, 1000000)
 })
 
-test('Koperasi Arutala payout card keeps mapped GAS and custom non-GAS payments distinct', () => {
+test('Koperasi Arutala payout card parses both GAS cylinder sizes and custom non-GAS payments', () => {
   const parsed = parseMakerDocument([
     'Cipetir, 23-Okt-2026',
     'GAS : Koperasi Arutala / Gas 12kg (4 tabung) - BNI / 1985322260 · 1.080.000',
-    'OPS HARIAN : Koperasi Arutala - BNI / 1985322260 · Pembayaran plastik · 500.000'
+    'GAS : Koperasi Arutala / Gas 50kg (2 tabung) - BNI / 1985322260 · 540.000',
+    'OPS HARIAN : Koperasi Arutala - BNI / 1985322260 · Pembayaran plastik (HDPE) · 500.000'
   ].join('\n'))
 
   assert.equal(parsed.error, null)
-  assert.equal(parsed.rows.length, 2)
+  assert.equal(parsed.rows.length, 3)
 
-  const gas = parsed.rows[0]
-  assert.equal(gas.kind, 'gas')
-  assert.equal(gas.recipientName, 'Koperasi Arutala')
-  assert.equal(gas.bank, 'BNI')
-  assert.equal(gas.accountNumber, '1985322260')
-  assert.equal(gas.details, 'Gas 12kg (4 tabung)')
-  assert.equal(gas.amount, 1080000)
+  const gas12 = parsed.rows[0]
+  assert.equal(gas12.kind, 'gas')
+  assert.equal(gas12.recipientName, 'Koperasi Arutala')
+  assert.equal(gas12.bank, 'BNI')
+  assert.equal(gas12.accountNumber, '1985322260')
+  assert.equal(gas12.details, 'Gas 12kg (4 tabung)')
+  assert.equal(gas12.amount, 1080000)
 
-  const custom = parsed.rows[1]
+  const gas50 = parsed.rows[1]
+  assert.equal(gas50.kind, 'gas')
+  assert.equal(gas50.details, 'Gas 50kg (2 tabung)')
+  assert.equal(gas50.amount, 540000)
+
+  const custom = parsed.rows[2]
   assert.equal(custom.kind, 'ops_harian')
   assert.equal(custom.manualFlow, 'ops_disbursement')
   assert.equal(custom.recipientName, 'Koperasi Arutala')
   assert.equal(custom.bank, 'BNI')
   assert.equal(custom.accountNumber, '1985322260')
-  assert.equal(custom.details, 'Pembayaran plastik')
+  assert.equal(custom.details, 'Pembayaran plastik (HDPE)')
   assert.equal(custom.amount, 500000)
 })
