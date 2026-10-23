@@ -400,11 +400,11 @@ function makeRow(
     kind === 'vehicle_rent'
       ? 'Jenis kendaraan: ' + (vehicleMatch?.[1] ?? '—') + ' · Periode sewa: ' + (vehicleMatch?.[2] ?? '')
       : kind === 'gas'
-        ? /^pembayaran\\b/i.test(gasDetails) ? gasDetails : 'Pembayaran ' + gasDetails
+        ? /^pembayaran\b/i.test(gasDetails) ? gasDetails : 'Pembayaran ' + gasDetails
         : kind === 'ops_harian'
           ? (() => {
               const description = parsed.details || 'Ops Harian'
-              return /^pembayaran\\b/i.test(description) ? description : 'Pembayaran ' + description
+              return /^pembayaran\b/i.test(description) ? description : 'Pembayaran ' + description
             })()
           : kind === 'rab'
             ? formatMakerProductList(parsed.details)
