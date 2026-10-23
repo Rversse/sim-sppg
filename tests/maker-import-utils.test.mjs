@@ -389,7 +389,7 @@ test('Maker OPS HARIAN supports custom recipient plus optional note', () => {
   const parsed = parseMakerDocument([
     'Cisepat, 23-Okt-2026',
     'OPS HARIAN : Petugas Cadangan - BCA / 1234567890 · Pembayaran BBM genset · 320.000',
-    'OPS HARIAN : Petugas Mapping - BRI / 407701032673505 · 1.000.000'
+    'OPS HARIAN : Petugas Mapping - BRI / 407701032673505 · Ops Harian · 1.000.000'
   ].join('\n'))
 
   assert.equal(parsed.error, null)

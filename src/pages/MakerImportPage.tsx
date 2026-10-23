@@ -477,6 +477,10 @@ function getValidation(
       rule.target_role === 'aslap'
     )
     matchedOperationalRule = opsMatches.length === 1 ? opsMatches[0] : undefined
+    const normalizedOpsDetails = (row.details ?? '').trim().toLocaleLowerCase('id-ID')
+    if (row.kind === 'ops_harian' && !['ops harian', 'gas'].includes(normalizedOpsDetails)) {
+      confirmations.push('Catatan custom OPS Harian bukan "Ops Harian" atau "Gas". Periksa tujuan transaksi lalu centang verifikasi manual sebelum menyimpan.')
+    }
     if (opsMatches.length === 0 && row.kind === 'ops_harian') {
       confirmations.push('Rekening OPS Harian ini di luar mapping dapur. Periksa nama penerima, bank, dan nomor rekening, lalu centang verifikasi manual untuk melanjutkan.')
     } else if (opsMatches.length !== 1) {
