@@ -446,29 +446,3 @@ test('Maker GAS cylinder output with supplier-owner suffix imports consistently 
   assert.equal(custom.details, 'Pembayaran plastik (HDPE)')
   assert.equal(custom.amount, 500000)
 })
-
-  assert.equal(parsed.error, null)
-  assert.equal(parsed.rows.length, 3)
-
-  const gas12 = parsed.rows[0]
-  assert.equal(gas12.kind, 'gas')
-  assert.equal(gas12.recipientName, 'Koperasi Arutala')
-  assert.equal(gas12.bank, 'BNI')
-  assert.equal(gas12.accountNumber, '1985322260')
-  assert.equal(gas12.details, 'Gas 12kg (4 tabung)')
-  assert.equal(gas12.amount, 1080000)
-
-  const gas50 = parsed.rows[1]
-  assert.equal(gas50.kind, 'gas')
-  assert.equal(gas50.details, 'Gas 50kg (2 tabung)')
-  assert.equal(gas50.amount, 540000)
-
-  const custom = parsed.rows[2]
-  assert.equal(custom.kind, 'ops_harian')
-  assert.equal(custom.manualFlow, 'ops_disbursement')
-  assert.equal(custom.recipientName, 'Koperasi Arutala')
-  assert.equal(custom.bank, 'BNI')
-  assert.equal(custom.accountNumber, '1985322260')
-  assert.equal(custom.details, 'Pembayaran plastik (HDPE)')
-  assert.equal(custom.amount, 500000)
-})
