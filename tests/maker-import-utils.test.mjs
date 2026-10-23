@@ -384,3 +384,30 @@ test('Maker account-recipient matching stays strict when business or owner diffe
   assert.equal(matchesMakerAccountRecipient('CV Kramat', mapping), true)
   assert.equal(matchesMakerAccountRecipient('Ayi Suherlan', mapping), true)
 })
+
+test('Maker OPS HARIAN supports custom recipient plus optional note', () => {
+  const parsed = parseMakerDocument([
+    'Cisepat, 23-Okt-2026',
+    'OPS HARIAN : Petugas Cadangan - BCA / 1234567890 · Pembayaran BBM genset · 320.000',
+    'OPS HARIAN : Petugas Mapping - BRI / 407701032673505 · 1.000.000'
+  ].join('\\n'))
+
+  assert.equal(parsed.error, null)
+  assert.equal(parsed.rows.length, 2)
+
+  const custom = parsed.rows[0]
+  assert.equal(custom.kind, 'ops_harian')
+  assert.equal(custom.manualFlow, 'ops_disbursement')
+  assert.equal(custom.recipientName, 'Petugas Cadangan')
+  assert.equal(custom.bank, 'BCA')
+  assert.equal(custom.accountNumber, '1234567890')
+  assert.equal(custom.details, 'Pembayaran BBM genset')
+  assert.equal(custom.amount, 320000)
+
+  const mapped = parsed.rows[1]
+  assert.equal(mapped.kind, 'ops_harian')
+  assert.equal(mapped.manualFlow, 'ops_disbursement')
+  assert.equal(mapped.recipientName, 'Petugas Mapping')
+  assert.equal(mapped.details, 'Ops Harian')
+  assert.equal(mapped.amount, 1000000)
+})
