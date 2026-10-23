@@ -411,3 +411,31 @@ test('Maker OPS HARIAN supports custom recipient plus optional note', () => {
   assert.equal(mapped.details, 'Ops Harian')
   assert.equal(mapped.amount, 1000000)
 })
+
+test('Koperasi Arutala payout card keeps mapped GAS and custom non-GAS payments distinct', () => {
+  const parsed = parseMakerDocument([
+    'Cipetir, 23-Okt-2026',
+    'GAS : Koperasi Arutala / Gas 12kg (4 tabung) - BNI / 1985322260 · 1.080.000',
+    'OPS HARIAN : Koperasi Arutala - BNI / 1985322260 · Pembayaran plastik · 500.000'
+  ].join('\\n'))
+
+  assert.equal(parsed.error, null)
+  assert.equal(parsed.rows.length, 2)
+
+  const gas = parsed.rows[0]
+  assert.equal(gas.kind, 'gas')
+  assert.equal(gas.recipientName, 'Koperasi Arutala')
+  assert.equal(gas.bank, 'BNI')
+  assert.equal(gas.accountNumber, '1985322260')
+  assert.equal(gas.details, 'Gas 12kg (4 tabung)')
+  assert.equal(gas.amount, 1080000)
+
+  const custom = parsed.rows[1]
+  assert.equal(custom.kind, 'ops_harian')
+  assert.equal(custom.manualFlow, 'ops_disbursement')
+  assert.equal(custom.recipientName, 'Koperasi Arutala')
+  assert.equal(custom.bank, 'BNI')
+  assert.equal(custom.accountNumber, '1985322260')
+  assert.equal(custom.details, 'Pembayaran plastik')
+  assert.equal(custom.amount, 500000)
+})
