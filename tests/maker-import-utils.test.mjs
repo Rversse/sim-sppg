@@ -418,7 +418,7 @@ test('Koperasi Arutala payout card parses both GAS cylinder sizes and custom non
     'GAS : Koperasi Arutala / Gas 12kg (4 tabung) - BNI / 1985322260 · 1.080.000',
     'GAS : Koperasi Arutala / Gas 50kg (2 tabung) - BNI / 1985322260 · 540.000',
     'OPS HARIAN : Koperasi Arutala - BNI / 1985322260 · Pembayaran plastik (HDPE) · 500.000'
-  ].join('\\n'))
+  ].join('\n'))
 
   assert.equal(parsed.error, null)
   assert.equal(parsed.rows.length, 3)
