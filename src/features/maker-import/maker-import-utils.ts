@@ -381,9 +381,10 @@ function makeRow(
     }
   }
 
-  // Maker emits GAS descriptions as "Recipient / Gas 12kg (3 tabung)".
+  // Maker emits the mapped GAS row as "Recipient / Gas 12kg (3 tabung)"
+  // or "Recipient / Gas 50kg (2 tabung)" before the bank/account marker.
   // Split that note back out so the mapped recipient remains the account name,
-  // while the cylinder type/count is kept in the transaction note.
+  // while cylinder size/count is kept in the transaction note for SIM-SPPG.
   const gasRecipientParts = kind === 'gas'
     ? parsed.recipientName.split(/\s\/\s/)
     : []
