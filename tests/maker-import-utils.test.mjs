@@ -417,7 +417,7 @@ test('Koperasi Arutala payout card keeps mapped GAS and custom non-GAS payments 
     'Cipetir, 23-Okt-2026',
     'GAS : Koperasi Arutala / Gas 12kg (4 tabung) - BNI / 1985322260 · 1.080.000',
     'OPS HARIAN : Koperasi Arutala - BNI / 1985322260 · Pembayaran plastik · 500.000'
-  ].join('\\n'))
+  ].join('\n'))
 
   assert.equal(parsed.error, null)
   assert.equal(parsed.rows.length, 2)
