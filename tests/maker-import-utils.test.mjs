@@ -412,11 +412,11 @@ test('Maker OPS HARIAN supports custom recipient plus optional note', () => {
   assert.equal(mapped.amount, 1000000)
 })
 
-test('Koperasi Arutala payout card parses both GAS cylinder sizes and custom non-GAS payments', () => {
+test('Maker GAS cylinder output with supplier-owner suffix imports consistently with both sizes', () => {
   const parsed = parseMakerDocument([
     'Cipetir, 23-Okt-2026',
-    'GAS : Koperasi Arutala / Gas 12kg (4 tabung) - BNI / 1985322260 · 1.080.000',
-    'GAS : Koperasi Arutala / Gas 50kg (2 tabung) - BNI / 1985322260 · 540.000',
+    'GAS : Koperasi Arutala (Cecep) / Gas 12kg (4 tabung) - BNI / 1985322260 · 1.080.000',
+    'GAS : Koperasi Arutala (Cecep) / Gas 50kg (2 tabung) - BNI / 1985322260 · 540.000',
     'OPS HARIAN : Koperasi Arutala - BNI / 1985322260 · Pembayaran plastik (HDPE) · 500.000'
   ].join('\n'))
 
@@ -425,7 +425,7 @@ test('Koperasi Arutala payout card parses both GAS cylinder sizes and custom non
 
   const gas12 = parsed.rows[0]
   assert.equal(gas12.kind, 'gas')
-  assert.equal(gas12.recipientName, 'Koperasi Arutala')
+  assert.equal(gas12.recipientName, 'Koperasi Arutala (Cecep)')
   assert.equal(gas12.bank, 'BNI')
   assert.equal(gas12.accountNumber, '1985322260')
   assert.equal(gas12.details, 'Gas 12kg (4 tabung)')
@@ -433,6 +433,7 @@ test('Koperasi Arutala payout card parses both GAS cylinder sizes and custom non
 
   const gas50 = parsed.rows[1]
   assert.equal(gas50.kind, 'gas')
+  assert.equal(gas50.recipientName, 'Koperasi Arutala (Cecep)')
   assert.equal(gas50.details, 'Gas 50kg (2 tabung)')
   assert.equal(gas50.amount, 540000)
 
