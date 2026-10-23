@@ -401,7 +401,7 @@ function makeRow(
       : kind === 'gas'
         ? gasDetails
         : kind === 'ops_harian'
-          ? 'Ops Harian'
+          ? parsed.details || 'Ops Harian'
           : kind === 'rab'
             ? formatMakerProductList(parsed.details)
             : parsed.details
