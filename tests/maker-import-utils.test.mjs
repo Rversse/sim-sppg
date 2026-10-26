@@ -391,7 +391,7 @@ test('Maker OPS HARIAN preserves custom purchase notes for mapped neutral routin
     'OPS HARIAN : Koperasi Arutala - BNI / 1985322260 · Tali Rafia · 240.000',
     'OPS HARIAN : Koperasi Arutala - BNI / 1985322260 · Kertas Nasi Bento · 110.000',
     'OPS HARIAN : Rachmat Surya - BRI / 407701032673505 · Ops Harian · 1.651.500'
-  ].join('\\n'))
+  ].join('\n'))
 
   assert.equal(parsed.error, null)
   assert.equal(parsed.rows.length, 3)
