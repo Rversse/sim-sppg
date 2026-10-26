@@ -450,6 +450,13 @@ function getValidation(
       confirmations.push('Nama penerima berbeda dari nama rekening di database.')
     }
 
+    if (
+      flow === 'neutral_ops_harian' &&
+      !['ops harian', 'gas'].includes(normalizeMakerText(row.details))
+    ) {
+      confirmations.push('OPS HARIAN dengan catatan custom akan dicatat sebagai transaksi netral kategori OPS. Periksa rekening tujuan dan centang verifikasi manual sebelum menyimpan.')
+    }
+
     if (flow === 'gas' && kitchen && ['sukaraja', 'cihaur'].includes(normalizeMakerText(kitchen.name))) {
       errors.push('GAS tidak tersedia untuk dapur Sukaraja dan Cihaur.')
     }
