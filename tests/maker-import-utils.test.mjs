@@ -385,6 +385,21 @@ test('Maker account-recipient matching stays strict when business or owner diffe
   assert.equal(matchesMakerAccountRecipient('Ayi Suherlan', mapping), true)
 })
 
+test('Maker OPS HARIAN preserves custom purchase notes for mapped neutral routing', () => {
+  const parsed = parseMakerDocument([
+    'Kertajadi, 26-Okt-2026',
+    'OPS HARIAN : Koperasi Arutala - BNI / 1985322260 · Tali Rafia · 240.000',
+    'OPS HARIAN : Koperasi Arutala - BNI / 1985322260 · Kertas Nasi Bento · 110.000',
+    'OPS HARIAN : Rachmat Surya - BRI / 407701032673505 · Ops Harian · 1.651.500'
+  ].join('\\n'))
+
+  assert.equal(parsed.error, null)
+  assert.equal(parsed.rows.length, 3)
+  assert.deepEqual(parsed.rows.map((row) => row.kind), ['ops_harian', 'ops_harian', 'ops_harian'])
+  assert.deepEqual(parsed.rows.map((row) => row.details), ['Tali Rafia', 'Kertas Nasi Bento', 'Ops Harian'])
+  assert.deepEqual(parsed.rows.map((row) => row.accountNumber), ['1985322260', '1985322260', '407701032673505'])
+})
+
 test('Maker OPS HARIAN supports custom recipient plus optional note', () => {
   const parsed = parseMakerDocument([
     'Cisepat, 23-Okt-2026',
