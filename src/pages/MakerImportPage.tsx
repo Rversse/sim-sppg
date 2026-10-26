@@ -235,26 +235,44 @@ function applyInitialMappings(
       }
     }
 
-    // A mapped Akuntan/Aslap OPS payout is identified by the exact "Ops Harian"
-    // note. Other OPS HARIAN notes are purchases paid to their mapped neutral
-    // destination account. This is global and follows each kitchen's mappings.
-    if (row.kind === 'ops_harian' && normalizeMakerText(row.details) !== 'ops harian') {
+    // Only the exact "Ops Harian" note to an active Akuntan/Aslap mapping
+    // is an OPS disbursement. Every other OPS HARIAN row follows its mapped
+    // neutral destination account (for example Koperasi Arutala), globally.
+    if (row.kind === 'ops_harian') {
+      const normalizedDetails = normalizeMakerText(row.details)
+      const standardOpsMatches = refs.operationalRules.filter((rule) =>
+        rule.kitchen_id === kitchenId &&
+        rule.rule_type === 'ops_harian' &&
+        rule.mapping_status === 'active' &&
+        (rule.target_role === 'akuntan' || rule.target_role === 'aslap') &&
+        operationalRuleMatchesRow(rule, row)
+      )
+      if (normalizedDetails === 'ops harian' && standardOpsMatches.length === 1) {
+        return {
+          ...row,
+          manualFlow: 'ops_disbursement',
+          operationalType: '',
+          accountId: '',
+          operationalRuleId: standardOpsMatches[0].id
+        }
+      }
+
       const neutralAccountIds = new Set(
         refs.accountRules
           .filter((rule) => rule.kitchen_id === kitchenId && rule.flow_type === 'neutral')
           .map((rule) => rule.account_id)
       )
-      const matches = refs.accounts.filter((account) =>
+      const neutralMatches = refs.accounts.filter((account) =>
         neutralAccountIds.has(account.id) &&
         accountMatchesRow(account, row) &&
         accountNameMatchesRecipient(account, row.recipientName)
       )
-      if (matches.length === 1) {
+      if (neutralMatches.length === 1) {
         return {
           ...row,
           manualFlow: 'neutral_ops_harian',
           operationalType: '',
-          accountId: matches[0].id,
+          accountId: neutralMatches[0].id,
           operationalRuleId: ''
         }
       }
@@ -500,17 +518,17 @@ function getValidation(
       operationalRuleMatchesRow(rule, row)
     )
     const opsMatches = matchingOpsRules.filter((rule) =>
-      row.kind !== 'lain_lain' ||
+      (row.kind !== 'lain_lain' && row.kind !== 'ops_harian') ||
       rule.target_role === 'akuntan' ||
       rule.target_role === 'aslap'
     )
     matchedOperationalRule = opsMatches.length === 1 ? opsMatches[0] : undefined
-    const normalizedOpsDetails = (row.details ?? '').trim().toLocaleLowerCase('id-ID')
-    if (row.kind === 'ops_harian' && !['ops harian', 'gas'].includes(normalizedOpsDetails)) {
-      confirmations.push('Catatan custom OPS Harian bukan "Ops Harian" atau "Gas". Periksa tujuan transaksi lalu centang verifikasi manual sebelum menyimpan.')
+    const normalizedOpsDetails = normalizeMakerText(row.details)
+    if (row.kind === 'ops_harian' && normalizedOpsDetails !== 'ops harian') {
+      errors.push('OPS HARIAN dengan deskripsi selain "Ops Harian" harus cocok dengan rekening netral yang dimapping pada dapur.')
     }
-    if (opsMatches.length === 0 && row.kind === 'ops_harian') {
-      confirmations.push('Rekening OPS Harian ini di luar mapping dapur. Periksa nama penerima, bank, dan nomor rekening, lalu centang verifikasi manual untuk melanjutkan.')
+    if (opsMatches.length === 0 && row.kind === 'ops_harian' && normalizedOpsDetails === 'ops harian') {
+      errors.push('OPS HARIAN berdeskripsi "Ops Harian" harus memakai rekening Akuntan atau Aslap yang aktif dimapping.')
     } else if (opsMatches.length !== 1) {
       errors.push(row.kind === 'lain_lain'
         ? opsMatches.length === 0
@@ -1209,7 +1227,7 @@ export function MakerImportPage() {
                     ) : null}
 
                     <div className="maker-import-readonly-kind">
-                      Jenis transaksi: <strong>{row.kind === 'lain_lain' ? (flow === 'neutral_lain_lain' ? 'Lain-lain / Netral' : flow === 'neutral_ops_harian' ? 'OPS HARIAN / Netral' : 'OPS / Pencairan') : row.kind === 'combined_payroll' ? 'Payroll gabungan' : flow === 'income' ? 'RAB / Pencairan' : flow === 'gas' ? 'GAS' : flow === 'ops_disbursement' ? 'OPS / Pencairan' : flow === 'real_ops' ? 'OPS / Real' : 'Pencairan Operasional — ' + operationalTypeLabel(row.operationalType || defaultOperationalType(row.kind))}</strong>
+                      Jenis transaksi: <strong>{flow === 'neutral_ops_harian' ? 'OPS HARIAN / Netral' : row.kind === 'lain_lain' ? (flow === 'neutral_lain_lain' ? 'Lain-lain / Netral' : 'OPS / Pencairan') : row.kind === 'combined_payroll' ? 'Payroll gabungan' : flow === 'income' ? 'RAB / Pencairan' : flow === 'gas' ? 'GAS' : flow === 'ops_disbursement' ? 'OPS / Pencairan' : flow === 'real_ops' ? 'OPS / Real' : 'Pencairan Operasional — ' + operationalTypeLabel(row.operationalType || defaultOperationalType(row.kind))}</strong>
                     </div>
 
                     {row.kind === 'lain_lain' && row.manualDecision === 'allow' ? (
