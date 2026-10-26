@@ -433,7 +433,9 @@ function getValidation(
       if (!matchedAccount || !ruleAccountIds.has(matchedAccount.id)) {
         errors.push(flow === 'income'
           ? 'Rekening ini belum dimapping sebagai RAB/Pencairan untuk dapur terpilih.'
-          : 'Rekening Lain-lain belum dimapping sebagai rekening netral untuk dapur terpilih.')
+          : flow === 'neutral_ops_harian'
+            ? 'Rekening OPS HARIAN custom belum dimapping sebagai rekening netral untuk dapur terpilih.'
+            : 'Rekening Lain-lain belum dimapping sebagai rekening netral untuk dapur terpilih.')
       } else if (
         flow === 'neutral_lain_lain' &&
         !isKoperasiArutalaBniAccount(matchedAccount)
