@@ -156,7 +156,7 @@ function getOperationalRuleType(row: MakerImportDraftRow): string | null {
 function getExpectedAccountFlow(row: MakerImportDraftRow): 'income' | 'neutral' | null {
   const flow = getRowFlow(row)
   if (flow === 'income') return 'income'
-  if (flow === 'gas' || flow === 'neutral_lain_lain') return 'neutral'
+  if (flow === 'gas' || flow === 'neutral_lain_lain' || flow === 'neutral_ops_harian') return 'neutral'
   return null
 }
 
@@ -235,8 +235,36 @@ function applyInitialMappings(
       }
     }
 
+    // A mapped Akuntan/Aslap OPS payout is identified by the exact "Ops Harian"
+    // note. Other OPS HARIAN notes are purchases paid to their mapped neutral
+    // destination account. This is global and follows each kitchen's mappings.
+    if (row.kind === 'ops_harian' && normalizeMakerText(row.details) !== 'ops harian') {
+      const neutralAccountIds = new Set(
+        refs.accountRules
+          .filter((rule) => rule.kitchen_id === kitchenId && rule.flow_type === 'neutral')
+          .map((rule) => rule.account_id)
+      )
+      const matches = refs.accounts.filter((account) =>
+        neutralAccountIds.has(account.id) &&
+        accountMatchesRow(account, row) &&
+        accountNameMatchesRecipient(account, row.recipientName)
+      )
+      if (matches.length === 1) {
+        return {
+          ...row,
+          manualFlow: 'neutral_ops_harian',
+          operationalType: '',
+          accountId: matches[0].id,
+          operationalRuleId: ''
+        }
+      }
+      if (row.manualFlow === 'neutral_ops_harian') {
+        row = { ...row, manualFlow: 'ops_disbursement', accountId: '', operationalRuleId: '' }
+      }
+    }
+
     const flow = getRowFlow(row)
-    if (flow === 'income' || flow === 'gas') {
+    if (flow === 'income' || flow === 'gas' || flow === 'neutral_ops_harian') {
       const requiredFlow = flow === 'income' ? 'income' : 'neutral'
       const mappedAccountIds = new Set(
         refs.accountRules
@@ -358,7 +386,7 @@ function getValidation(
   let matchedAccount: AccountRef | undefined
   let matchedOperationalRule: OperationalAccountRule | undefined
 
-  if (flow === 'income' || flow === 'gas' || flow === 'neutral_lain_lain') {
+  if (flow === 'income' || flow === 'gas' || flow === 'neutral_lain_lain' || flow === 'neutral_ops_harian') {
     const expectedFlow = flow === 'income' ? 'income' : 'neutral'
     const ruleAccountIds = new Set(
       refs.accountRules
@@ -522,6 +550,9 @@ function effectiveDatabaseFlow(row: MakerImportDraftRow): {
   }
   if (flow === 'neutral_lain_lain') {
     return { flow_type: 'neutral', category: 'LAIN_LAIN', operational_type: null }
+  }
+  if (flow === 'neutral_ops_harian') {
+    return { flow_type: 'neutral', category: 'OPS', operational_type: null }
   }
   if (flow === 'ops_disbursement') {
     return { flow_type: 'ops_disbursement', category: 'OPS', operational_type: null }
@@ -1178,7 +1209,7 @@ export function MakerImportPage() {
                     ) : null}
 
                     <div className="maker-import-readonly-kind">
-                      Jenis transaksi: <strong>{row.kind === 'lain_lain' ? (flow === 'neutral_lain_lain' ? 'Lain-lain / Netral' : 'OPS / Pencairan') : row.kind === 'combined_payroll' ? 'Payroll gabungan' : flow === 'income' ? 'RAB / Pencairan' : flow === 'gas' ? 'GAS' : flow === 'ops_disbursement' ? 'OPS / Pencairan' : flow === 'real_ops' ? 'OPS / Real' : 'Pencairan Operasional — ' + operationalTypeLabel(row.operationalType || defaultOperationalType(row.kind))}</strong>
+                      Jenis transaksi: <strong>{row.kind === 'lain_lain' ? (flow === 'neutral_lain_lain' ? 'Lain-lain / Netral' : flow === 'neutral_ops_harian' ? 'OPS HARIAN / Netral' : 'OPS / Pencairan') : row.kind === 'combined_payroll' ? 'Payroll gabungan' : flow === 'income' ? 'RAB / Pencairan' : flow === 'gas' ? 'GAS' : flow === 'ops_disbursement' ? 'OPS / Pencairan' : flow === 'real_ops' ? 'OPS / Real' : 'Pencairan Operasional — ' + operationalTypeLabel(row.operationalType || defaultOperationalType(row.kind))}</strong>
                     </div>
 
                     {row.kind === 'lain_lain' && row.manualDecision === 'allow' ? (
@@ -1198,7 +1229,7 @@ export function MakerImportPage() {
                       </div>
                     ) : null}
 
-                    {flow === 'income' || flow === 'neutral_lain_lain' ? (
+                    {flow === 'income' || flow === 'neutral_lain_lain' || flow === 'neutral_ops_harian' ? (
                       <label className="maker-import-account-select">
                         <span>{flow === 'income' ? 'Rekening terhubung ke mapping dapur' : 'Rekening netral terhubung ke mapping dapur'}</span>
                         <select
