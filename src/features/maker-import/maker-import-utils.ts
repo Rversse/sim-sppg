@@ -19,6 +19,7 @@ export type MakerManualFlow =
   | 'income'
   | 'gas'
   | 'neutral_lain_lain'
+  | 'neutral_ops_harian'
   | 'operational_disbursement'
 
 export type MakerOperationalType =
