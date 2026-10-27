@@ -235,16 +235,16 @@ function applyInitialMappings(
       }
     }
 
-    // Only the exact "Ops Harian" note to an active Akuntan/Aslap mapping
-    // is an OPS disbursement. Every other OPS HARIAN row follows its mapped
-    // neutral destination account (for example Koperasi Arutala), globally.
+    // An exact "Ops Harian" note uses any active operational account mapping
+    // for this kitchen, regardless of target role (including PIC Yayasan,
+    // supplier, and other mapped roles). Custom notes can still route to a
+    // mapped neutral destination account.
     if (row.kind === 'ops_harian') {
       const normalizedDetails = normalizeMakerText(row.details)
       const standardOpsMatches = refs.operationalRules.filter((rule) =>
         rule.kitchen_id === kitchenId &&
         rule.rule_type === 'ops_harian' &&
         rule.mapping_status === 'active' &&
-        (rule.target_role === 'akuntan' || rule.target_role === 'aslap') &&
         operationalRuleMatchesRow(rule, row)
       )
       if (normalizedDetails === 'ops harian' && standardOpsMatches.length === 1) {
@@ -527,23 +527,17 @@ function getValidation(
       operationalRuleMatchesRow(rule, row)
     )
     const opsMatches = matchingOpsRules.filter((rule) =>
-      (row.kind !== 'lain_lain' && row.kind !== 'ops_harian') ||
-      rule.target_role === 'akuntan' ||
-      rule.target_role === 'aslap'
+      row.kind !== 'lain_lain' || rule.target_role === 'akuntan' || rule.target_role === 'aslap'
     )
     matchedOperationalRule = opsMatches.length === 1 ? opsMatches[0] : undefined
-    const normalizedOpsDetails = normalizeMakerText(row.details)
-    if (row.kind === 'ops_harian' && normalizedOpsDetails !== 'ops harian') {
-      errors.push('OPS HARIAN dengan deskripsi selain "Ops Harian" harus cocok dengan rekening netral yang dimapping pada dapur.')
-    }
-    if (opsMatches.length === 0 && row.kind === 'ops_harian' && normalizedOpsDetails === 'ops harian') {
-      errors.push('OPS HARIAN berdeskripsi "Ops Harian" harus memakai rekening Akuntan atau Aslap yang aktif dimapping.')
-    } else if (opsMatches.length !== 1) {
+    if (opsMatches.length !== 1) {
       errors.push(row.kind === 'lain_lain'
         ? opsMatches.length === 0
           ? 'Lain-lain hanya bisa Allow jika rekening terdeteksi sebagai Akuntan, Aslap, atau Koperasi Arutala BNI.'
           : 'Mapping Akuntan/Aslap lebih dari satu untuk rekening ini. Periksa mapping aktif di database.'
-        : 'Mapping Ops Harian lebih dari satu. Periksa mapping aktif di database.')
+        : opsMatches.length === 0
+          ? 'Rekening OPS HARIAN belum cocok dengan mapping aktif di Data Rekening.'
+          : 'Mapping rekening OPS HARIAN lebih dari satu. Periksa mapping aktif di Data Rekening.')
     }
   } else if (flow === 'real_ops') {
     if (row.kind !== 'real_ops') {
