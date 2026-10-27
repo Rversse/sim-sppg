@@ -149,3 +149,25 @@ test('Cidaun parser supports kitchen and amount on the same line without mistaki
   assert.equal(parsed.rows[0].kitchenName, 'Cisepat')
   assert.equal(parsed.rows[0].amount, 12784000)
 })
+
+
+test('Cidaun parser reads compact numeric-date report and spaced thousand separator', () => {
+  const parsed = parseRealImportDocument('cidaun', [
+    'Belanja Hari Selasa Cidaun 27/10/2026',
+    'Rp 13.589.000',
+    '',
+    '1 . Cisepat    9.349.000',
+    '2 . Kertajdi  4. 240.000',
+    'BRI/Aisa oktapiani 408501016060533'
+  ].join('\n'))
+
+  assert.equal(parsed.error, null)
+  assert.equal(parsed.transactionDate, '2026-10-27')
+  assert.deepEqual(parsed.rows.map((row) => [row.kitchenName, row.amount]), [
+    ['Cisepat', 9349000],
+    ['Kertajadi', 4240000]
+  ])
+  assert.equal(parsed.sourceTotal, 13589000)
+  assert.equal(parsed.rows.reduce((sum, row) => sum + row.amount, 0), 13589000)
+  assert.equal(parsed.warnings.length, 0)
+})
