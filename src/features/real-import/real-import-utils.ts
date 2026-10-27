@@ -38,6 +38,7 @@ const KITCHEN_ALIASES: Array<{ alias: string; kitchen: string }> = [
   { alias: 'Cikondang', kitchen: 'Cikondang' },
   { alias: 'Cisepat', kitchen: 'Cisepat' },
   { alias: 'Kertajadi', kitchen: 'Kertajadi' },
+  { alias: 'Kertajdi', kitchen: 'Kertajadi' },
   { alias: 'Cipetir', kitchen: 'Cipetir' },
   { alias: 'Mayak', kitchen: 'Cipetir' },
   { alias: 'Sukamaju', kitchen: 'Cimanggu' },
@@ -83,12 +84,18 @@ function parseCianjurDate(sourceText: string): string | null {
 }
 
 function parseCidaunDate(sourceText: string): string | null {
-  const match = sourceText.match(
+  const textDate = sourceText.match(
     /\b(?:kaping\s+)?(\d{1,2})\s+(januari|februari|maret|april|mei|juni|juli|agustus|september|oktober|november|desember)\s+(\d{4})\b/i
   )
-  if (!match) return null
-  const month = INDONESIAN_MONTHS[match[2].toLowerCase()]
-  return month ? toIsoDate(Number(match[1]), month, Number(match[3])) : null
+  if (textDate) {
+    const month = INDONESIAN_MONTHS[textDate[2].toLowerCase()]
+    return month ? toIsoDate(Number(textDate[1]), month, Number(textDate[3])) : null
+  }
+
+  // Cidaun also sends a compact header such as "Belanja Hari Selasa Cidaun 27/10/2026".
+  const numericDate = sourceText.match(/\b(\d{1,2})\/(\d{1,2})\/(\d{4})\b/)
+  if (!numericDate) return null
+  return toIsoDate(Number(numericDate[1]), Number(numericDate[2]), Number(numericDate[3]))
 }
 
 export function parseRealImportAmount(raw: string): number | null {
@@ -214,9 +221,10 @@ export function parseRealImportDocument(
       const line = rawLine.trim()
       if (!line) return
 
-      const totalMatch = line.match(/\btotal\s*:\s*((?:Rp\s*)?\d+(?:[.\s]+\d+)*)/i)
-      if (totalMatch) {
-        sourceTotal = parseRealImportAmount(totalMatch[1])
+      const totalMatch = line.match(/\btotal\s*:?\s*((?:Rp\s*)?\d+(?:[.\s]+\d+)*)/i)
+      const standaloneRpTotal = line.match(/^\s*Rp\s*((?:\d{1,3}(?:[.\s]+\d{3})+|\d+))\s*$/i)
+      if (totalMatch || standaloneRpTotal) {
+        sourceTotal = parseRealImportAmount((totalMatch ?? standaloneRpTotal)![1])
         return
       }
 
@@ -230,7 +238,7 @@ export function parseRealImportDocument(
 
         const colon = line.lastIndexOf(':')
         const afterColon = colon >= 0 ? line.slice(colon + 1) : ''
-        const amountOnlyRemainder = /^(?:Rp\s*)?\d{1,3}(?:\.\d{3})+(?:\s*\+\s*(?:Rp\s*)?\d{1,3}(?:\.\d{3})+)*$/i.test(kitchenMatch.rest)
+        const amountOnlyRemainder = /^(?:Rp\s*)?\d{1,3}(?:\.\s*\d{3})+(?:\s*\+\s*(?:Rp\s*)?\d{1,3}(?:\.\s*\d{3})+)*$/i.test(kitchenMatch.rest)
         const sameLineAmounts = colon >= 0
           ? extractAmounts(afterColon)
           : amountOnlyRemainder
