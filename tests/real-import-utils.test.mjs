@@ -186,7 +186,7 @@ test('Cianjur combined supplier report recognizes Cidaun kitchens and mixed thou
     'Cisepat        5,112,500',
     'Kertajadi     12.042.000',
     'Sukaraharja    6,900,000'
-  ].join('\\n'))
+  ].join('\n'))
 
   assert.equal(parsed.error, null)
   assert.equal(parsed.transactionDate, '2026-10-29')
