@@ -235,45 +235,23 @@ function applyInitialMappings(
       }
     }
 
-    // An exact "Ops Harian" note uses any active operational account mapping
-    // for this kitchen, regardless of target role (including PIC Yayasan,
-    // supplier, and other mapped roles). Custom notes can still route to a
-    // mapped neutral destination account.
+    // OPS HARIAN always resolves against active operational-account mappings.
+    // Exact "Ops Harian" notes import automatically; custom descriptions require
+    // Admin verification and remain audit-only until verified.
     if (row.kind === 'ops_harian') {
-      const normalizedDetails = normalizeMakerText(row.details)
-      const standardOpsMatches = refs.operationalRules.filter((rule) =>
+      const opsMatches = refs.operationalRules.filter((rule) =>
         rule.kitchen_id === kitchenId &&
         rule.rule_type === 'ops_harian' &&
         rule.mapping_status === 'active' &&
         operationalRuleMatchesRow(rule, row)
       )
-      if (normalizedDetails === 'ops harian' && standardOpsMatches.length === 1) {
+      if (opsMatches.length === 1) {
         return {
           ...row,
           manualFlow: 'ops_disbursement',
           operationalType: '',
           accountId: '',
-          operationalRuleId: standardOpsMatches[0].id
-        }
-      }
-
-      const neutralAccountIds = new Set(
-        refs.accountRules
-          .filter((rule) => rule.kitchen_id === kitchenId && rule.flow_type === 'neutral')
-          .map((rule) => rule.account_id)
-      )
-      const neutralMatches = refs.accounts.filter((account) =>
-        neutralAccountIds.has(account.id) &&
-        accountMatchesRow(account, row) &&
-        accountNameMatchesRecipient(account, row.recipientName)
-      )
-      if (neutralMatches.length === 1) {
-        return {
-          ...row,
-          manualFlow: 'neutral_ops_harian',
-          operationalType: '',
-          accountId: neutralMatches[0].id,
-          operationalRuleId: ''
+          operationalRuleId: opsMatches[0].id
         }
       }
       if (row.manualFlow === 'neutral_ops_harian') {
@@ -318,6 +296,17 @@ function getRowDisposition(
   kitchenId: string,
   refs: ImportReferences
 ): RowDisposition {
+  if (
+    row.kind === 'ops_harian' &&
+    normalizeMakerText(row.details) !== 'ops harian' &&
+    !row.verified
+  ) {
+    return {
+      status: 'excluded',
+      reason: 'Deskripsi OPS HARIAN berbeda dari Ops Harian dan belum divalidasi. Baris hanya disimpan untuk audit.'
+    }
+  }
+
   if (row.kind === 'combined_payroll') {
     return {
       status: 'excluded',
@@ -451,10 +440,10 @@ function getValidation(
     }
 
     if (
-      flow === 'neutral_ops_harian' &&
-      !['ops harian', 'gas'].includes(normalizeMakerText(row.details))
+      row.kind === 'ops_harian' &&
+      normalizeMakerText(row.details) !== 'ops harian'
     ) {
-      confirmations.push('OPS HARIAN dengan catatan custom akan dicatat sebagai transaksi netral kategori OPS. Periksa rekening tujuan dan centang verifikasi manual sebelum menyimpan.')
+      confirmations.push('Deskripsi OPS HARIAN berbeda dari Ops Harian. Validasi agar transaksi masuk ke OPS / Pencairan; jika tidak divalidasi, baris hanya disimpan untuk audit.')
     }
 
     if (flow === 'gas' && kitchen && ['sukaraja', 'cihaur'].includes(normalizeMakerText(kitchen.name))) {
