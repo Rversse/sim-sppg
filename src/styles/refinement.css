@@ -1,0 +1,121 @@
+/* =========================================================
+   SIM-SPPG — QUIET UI REFINEMENT
+   Restrained contrast, cleaner surfaces, and purposeful motion.
+   Keep page-specific layout and business behavior in their owners.
+   ========================================================= */
+
+:root {
+  --theme-shadow-card: 0 1px 2px rgb(15 23 42 / 0.035), 0 4px 14px rgb(15 23 42 / 0.035);
+  --theme-shadow-hover: 0 8px 20px rgb(15 23 42 / 0.075), 0 2px 5px rgb(15 23 42 / 0.035);
+}
+
+/* App frame: quiet separation instead of heavy chrome. */
+.app-sidebar {
+  border-right: 1px solid var(--theme-border);
+  box-shadow: 1px 0 0 color-mix(in srgb, var(--theme-surface) 70%, transparent);
+}
+
+.app-brand-mark {
+  border-radius: 11px;
+  box-shadow: none;
+}
+
+.app-nav {
+  gap: 20px;
+}
+
+.app-nav-section-label {
+  letter-spacing: 0.095em;
+}
+
+.app-nav-link {
+  min-height: 42px;
+  border-radius: 9px;
+}
+
+.app-nav-link:hover:not(.is-active) .app-nav-icon {
+  transform: translateX(1px);
+}
+
+.app-nav-link.is-active {
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--theme-primary) 13%, transparent);
+}
+
+.app-nav-link.is-active .app-nav-icon {
+  background: color-mix(in srgb, var(--theme-primary) 12%, var(--theme-surface));
+}
+
+.app-header {
+  border-bottom-color: color-mix(in srgb, var(--theme-border) 80%, transparent);
+  box-shadow: 0 2px 10px rgb(15 23 42 / 0.025);
+}
+
+.app-page-title {
+  letter-spacing: -0.035em;
+}
+
+.app-main {
+  padding-top: 20px;
+}
+
+/* Functional surfaces: consistent edges, restrained hover, no gratuitous glow. */
+.dashboard-filter-card,
+.dashboard-panel,
+.dashboard-kpi,
+.payment-card,
+.kitchen-card,
+.supplier-card,
+.vehicle-card,
+.disbursement-account-card {
+  box-shadow: var(--theme-shadow-card);
+}
+
+.dashboard-filter-card,
+.dashboard-panel {
+  border-radius: 13px;
+}
+
+.dashboard-kpi {
+  border-radius: 13px;
+  min-height: 96px;
+}
+
+.dashboard-kpi:hover {
+  transform: translateY(-1px);
+}
+
+.dashboard-kpi::after {
+  animation: none;
+  opacity: 0.65;
+}
+
+.dashboard-panel:hover {
+  border-color: var(--theme-border);
+}
+
+.dashboard-filter-card {
+  padding: 17px 18px;
+}
+
+/* Inputs get a clearer focus state without permanently glowing. */
+input:not([type='checkbox']):not([type='radio']):focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: none;
+  border-color: var(--theme-primary);
+  box-shadow: var(--theme-focus-ring);
+}
+
+button:not(:disabled),
+[role='button']:not([aria-disabled='true']) {
+  transition-timing-function: cubic-bezier(0.2, 0.7, 0.25, 1);
+}
+
+/* Respect the user's motion preference and keep interactions quick. */
+@media (prefers-reduced-motion: reduce) {
+  .app-nav-link,
+  .dashboard-kpi,
+  [data-slot='button'] {
+    transform: none !important;
+  }
+}
