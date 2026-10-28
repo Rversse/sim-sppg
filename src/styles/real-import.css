@@ -272,3 +272,94 @@
   color: var(--theme-danger);
   box-shadow: none;
 }
+
+
+/* Compact transaction review: dense list rows instead of tall transaction cards. */
+.real-import-rows {
+  gap: 6px;
+}
+.real-import-row {
+  display: grid;
+  grid-template-columns: minmax(150px, .8fr) minmax(140px, .65fr) minmax(190px, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 10px;
+  border-left-width: 3px;
+  border-radius: 8px;
+  box-shadow: none;
+}
+.real-import-row-head {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  gap: 8px;
+  margin: 0;
+}
+.real-import-row-head > div > span {
+  display: block;
+  font-size: 8px;
+  letter-spacing: .04em;
+}
+.real-import-row-head h4 {
+  margin: 2px 0 0;
+  font-size: 12px;
+  line-height: 1.3;
+}
+.real-import-row-head p {
+  display: none;
+}
+.real-import-status {
+  padding: 4px 6px;
+  font-size: 9px;
+}
+.real-import-row-fields {
+  display: contents;
+}
+.real-import-row-fields label {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 6px;
+}
+.real-import-row-fields label > span {
+  font-size: 9px;
+  white-space: nowrap;
+}
+.real-import-row-fields input,
+.real-import-row-fields select {
+  height: 32px;
+  padding-inline: 8px;
+  border-radius: 7px;
+  font-size: 11px;
+}
+.real-import-row-fields .real-import-note {
+  grid-column: auto;
+}
+.real-import-duplicate-warning {
+  grid-column: 1 / -1;
+  margin-top: 0;
+  padding: 8px;
+}
+@media (max-width: 900px) {
+  .real-import-row {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
+    gap: 8px;
+  }
+  .real-import-row-head { grid-column: 1 / -1; }
+  .real-import-row-fields .real-import-note { grid-column: 1 / -1; }
+}
+@media (max-width: 620px) {
+  .real-import-row {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 7px;
+    padding: 9px;
+  }
+  .real-import-row-head { grid-column: 1; flex-direction: row; }
+  .real-import-row-fields label {
+    grid-template-columns: 68px minmax(0, 1fr);
+  }
+  .real-import-row-fields .real-import-note { grid-column: 1; }
+  .real-import-status { margin-left: auto; }
+  .real-import-duplicate-warning { flex-wrap: wrap; }
+  .real-import-duplicate-warning button { width: 100%; }
+}
