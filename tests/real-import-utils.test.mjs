@@ -171,3 +171,37 @@ test('Cidaun parser reads compact numeric-date report and spaced thousand separa
   assert.equal(parsed.rows.reduce((sum, row) => sum + row.amount, 0), 13589000)
   assert.equal(parsed.warnings.length, 0)
 })
+
+test('Cianjur combined supplier report recognizes Cidaun kitchens and mixed thousand separators', () => {
+  const parsed = parseRealImportDocument('cianjur', [
+    'Belanja Harian Rabu 29/10/2026',
+    '',
+    'Ereng         19,464,000',
+    'Bunder        21,631,000',
+    'Warbit        14,099,000',
+    'Cipetir       16,348,000',
+    'Cimanggu      17,329,000',
+    'Camul         11,415,000',
+    'Cikondang     11,932,200',
+    'Cisepat        5,112,500',
+    'Kertajadi     12.042.000',
+    'Sukaraharja    6,900,000'
+  ].join('\\n'))
+
+  assert.equal(parsed.error, null)
+  assert.equal(parsed.transactionDate, '2026-10-29')
+  assert.equal(parsed.rows.length, 10)
+  assert.equal(parsed.warnings.length, 0)
+  assert.deepEqual(parsed.rows.map((row) => [row.kitchenName, row.amount]), [
+    ['Cihaur', 19464000],
+    ['Cibaregbeg', 21631000],
+    ['Warungbitung', 14099000],
+    ['Cipetir', 16348000],
+    ['Cimanggu', 17329000],
+    ['Campakamulya', 11415000],
+    ['Cikondang', 11932200],
+    ['Cisepat', 5112500],
+    ['Kertajadi', 12042000],
+    ['Sukaraharja', 6900000]
+  ])
+})
