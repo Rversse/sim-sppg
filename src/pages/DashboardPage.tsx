@@ -233,10 +233,8 @@ export function DashboardPage() {
     supplierFilter: ''
   })
 
-  const selectedOperationalMonth = getOperationalMonthRange(filters.startDate)
-  const isDefaultDashboardRange = filters.startDate === today && filters.endDate === today
-  const dashboardPeriod = isDefaultDashboardRange ? operationalMonth : selectedOperationalMonth
-  const showOperationalMonth = selectedOperationalMonth.month >= 1
+  const dashboardPeriod = operationalMonth
+  const showOperationalMonth = true
 
   const [kitchens, setKitchens] = useState<DashboardKitchen[]>([])
   const [operationalDestinationRoles, setOperationalDestinationRoles] = useState<OperationalDestinationRoleMapping[]>([])
@@ -331,7 +329,7 @@ export function DashboardPage() {
       const [nextSummary, nextStatus, nextKitchens, nextTransactions, nextRabBalance] =
         await Promise.all([
           getDashboardSummary(filters),
-          getDailyStatus(dashboardPeriod.startDate, supabase, dashboardPeriod.endDate),
+          getDailyStatus(filters.startDate, supabase),
           kitchenPromise,
           getDashboardTransactionPage(
             filters,
@@ -352,7 +350,7 @@ export function DashboardPage() {
         transactions: nextTransactions
       }
     },
-    [filters, dashboardPeriod.startDate, dashboardPeriod.endDate]
+    [filters]
   )
 
   useEffect(() => {
@@ -398,7 +396,7 @@ export function DashboardPage() {
     async (page: number) => {
       const [nextSummary, nextStatus, nextTransactions, nextRabBalance] = await Promise.all([
         getDashboardSummary(filters),
-        getDailyStatus(dashboardPeriod.startDate, supabase, dashboardPeriod.endDate),
+        getDailyStatus(filters.startDate, supabase),
         getDashboardTransactionPage(
           filters,
           page,
@@ -417,7 +415,7 @@ export function DashboardPage() {
         transactions: nextTransactions
       }
     },
-    [filters, dashboardPeriod.startDate, dashboardPeriod.endDate]
+    [filters]
   )
 
   const applyDashboardLiveData = useCallback(
@@ -458,7 +456,7 @@ export function DashboardPage() {
         setError('Gagal memuat halaman riwayat transaksi.')
       }
     },
-    [filters, dashboardPeriod.startDate, dashboardPeriod.endDate]
+    [filters]
   )
 
   const refreshDashboard = useCallback(
