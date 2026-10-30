@@ -234,10 +234,8 @@ export function DashboardPage() {
   })
 
   const selectedOperationalMonth = getOperationalMonthRange(filters.startDate)
-  const isDefaultDashboardRange = filters.startDate === today && filters.endDate === today
-  const isFullOperationalMonth = selectedOperationalMonth.month >= 1 && filters.startDate === selectedOperationalMonth.startDate && filters.endDate === selectedOperationalMonth.endDate
   const dashboardPeriod = isDefaultDashboardRange ? operationalMonth : selectedOperationalMonth
-  const showOperationalMonth = isDefaultDashboardRange || isFullOperationalMonth
+  const showOperationalMonth = selectedOperationalMonth.month >= 1
 
   const [kitchens, setKitchens] = useState<DashboardKitchen[]>([])
   const [operationalDestinationRoles, setOperationalDestinationRoles] = useState<OperationalDestinationRoleMapping[]>([])
@@ -332,7 +330,7 @@ export function DashboardPage() {
       const [nextSummary, nextStatus, nextKitchens, nextTransactions, nextRabBalance] =
         await Promise.all([
           getDashboardSummary(filters),
-          getDailyStatus(filters.startDate, supabase),
+          getDailyStatus(dashboardPeriod.startDate, supabase, dashboardPeriod.endDate),
           kitchenPromise,
           getDashboardTransactionPage(
             filters,
@@ -399,7 +397,7 @@ export function DashboardPage() {
     async (page: number) => {
       const [nextSummary, nextStatus, nextTransactions, nextRabBalance] = await Promise.all([
         getDashboardSummary(filters),
-        getDailyStatus(filters.startDate, supabase),
+        getDailyStatus(dashboardPeriod.startDate, supabase, dashboardPeriod.endDate),
         getDashboardTransactionPage(
           filters,
           page,
@@ -1685,11 +1683,11 @@ export function DashboardPage() {
               <div className={`dashboard-operational-period ${showOperationalMonth ? '' : 'is-custom-range'}`}>
                 <div className="dashboard-operational-period-heading">
                   <strong>{showOperationalMonth ? `Bulan Operasional ${dashboardPeriod.month}` : 'Rentang tanggal dipilih'}</strong>
-                  <span>{formatDate(filters.startDate)} – {formatDate(filters.endDate)}</span>
+                  <span>{formatDate(dashboardPeriod.startDate)} – {formatDate(dashboardPeriod.endDate)}</span>
                 </div>
                 {showOperationalMonth ? (
-                  <div className="dashboard-operational-progress" role="progressbar" aria-valuemin={0} aria-valuemax={28} aria-valuenow={isDefaultDashboardRange ? operationalMonth.day : 28} aria-label={isDefaultDashboardRange ? `Hari ke-${operationalMonth.day} dari 28` : 'Satu bulan operasional penuh'}>
-                    <span style={{ width: `${isDefaultDashboardRange ? operationalMonth.progress : 100}%` }} />
+                  <div className="dashboard-operational-progress" role="progressbar" aria-valuemin={0} aria-valuemax={28} aria-valuenow={dashboardPeriod.day} aria-label={`Hari ke-${dashboardPeriod.day} dari 28`}>
+                    <span style={{ width: `${dashboardPeriod.progress}%` }} />
                   </div>
                 ) : <div className="dashboard-operational-divider" aria-hidden="true" />}
               </div>
