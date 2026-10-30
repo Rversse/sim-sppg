@@ -19,6 +19,7 @@ import {
 } from '@/components/ui/date-range-picker'
 import { formatCurrency, formatDate, getTodayLocal } from '@/lib/formatters'
 import { supabase } from '@/lib/supabase'
+import { getOperationalMonthOptions, type OperationalMonthRange } from '@/features/operational-month/operational-month'
 
 type ReportTab = 'overall' | 'pencairan' | 'supplier'
 
@@ -328,15 +329,44 @@ function ReportDateRange({
   setStartDate: (value: string) => void
   setEndDate: (value: string) => void
 }) {
+  const [selectedMonth, setSelectedMonth] = useState('')
+  const monthOptions: OperationalMonthRange[] = getOperationalMonthOptions(getTodayLocal())
+
   return (
-    <DateFilter
-      startDate={startDate}
-      endDate={endDate}
-      onChange={({ startDate: nextStartDate, endDate: nextEndDate }) => {
-        setStartDate(nextStartDate)
-        setEndDate(nextEndDate)
-      }}
-    />
+    <>
+      <div className="reports-operational-month-field">
+        <label htmlFor="reports-operational-month">Bulan Operasional</label>
+        <select
+          id="reports-operational-month"
+          value={selectedMonth}
+          onChange={(event) => {
+            const value = event.target.value
+            setSelectedMonth(value)
+            const selected = monthOptions.find((item) => String(item.month) === value)
+            if (selected) {
+              setStartDate(selected.startDate)
+              setEndDate(selected.endDate)
+            }
+          }}
+        >
+          <option value="">Pilih bulan operasional</option>
+          {monthOptions.map((item) => (
+            <option key={item.month} value={item.month}>
+              Bulan {item.month} · {formatDate(item.startDate)} – {formatDate(item.endDate)}
+            </option>
+          ))}
+        </select>
+      </div>
+      <DateFilter
+        startDate={startDate}
+        endDate={endDate}
+        onChange={({ startDate: nextStartDate, endDate: nextEndDate }) => {
+          setSelectedMonth('')
+          setStartDate(nextStartDate)
+          setEndDate(nextEndDate)
+        }}
+      />
+    </>
   )
 }
 
