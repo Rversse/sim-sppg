@@ -128,7 +128,7 @@
   align-self: center;
 }
 
-.reports-filter-panel > .reports-date-range-field .date-range-trigger {
+.reports-period-filter-group > .reports-date-range-field .date-range-trigger {
   display: flex;
   width: 100%;
   min-width: 0;
@@ -166,14 +166,14 @@
   box-shadow: var(--app-focus-ring);
 }
 
-.reports-filter-panel > .reports-date-range-field .date-range-trigger > svg {
+.reports-period-filter-group > .reports-date-range-field .date-range-trigger > svg {
   width: 15px;
   height: 15px;
   flex: 0 0 15px;
   color: var(--app-text-muted);
 }
 
-.reports-filter-panel > .reports-date-range-field .date-range-nav {
+.reports-period-filter-group > .reports-date-range-field .date-range-nav {
   width: 32px;
   height: 32px;
   min-height: 32px;
@@ -186,14 +186,14 @@
   transform: none;
 }
 
-.reports-filter-panel > .reports-date-range-field .date-range-nav:hover {
+.reports-period-filter-group > .reports-date-range-field .date-range-nav:hover {
   border-color: var(--app-border-mid);
   background: var(--app-bg-soft);
   box-shadow: none;
   transform: none;
 }
 
-.reports-filter-panel > .reports-date-range-field .date-range-reset-pending {
+.reports-period-filter-group > .reports-date-range-field .date-range-reset-pending {
   min-height: 26px;
   padding: 0 8px;
   border: 1px solid var(--app-border);
@@ -930,7 +930,7 @@
     min-width: 0;
   }
 
-  .reports-filter-panel > .reports-date-range-field,
+  .reports-period-filter-group > .reports-date-range-field,
   .reports-filter-panel > button {
     grid-column: auto;
   }
