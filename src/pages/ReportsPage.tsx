@@ -335,7 +335,6 @@ function ReportDateRange({
   return (
     <div className="reports-period-filter-group">
       <div className="reports-operational-month-field">
-        <label htmlFor="reports-operational-month">Bulan Operasional</label>
         <select
           id="reports-operational-month"
           value={selectedMonth}
