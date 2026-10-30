@@ -237,7 +237,7 @@ function MappingEditor({
             value={draft.bank}
             onChange={(event) => setDraft((current) => ({ ...current, bank: event.target.value.toUpperCase() }))}
             placeholder="Contoh: BNI"
-            disabled={saving}
+            disabled={saving || !editing}
           />
         </label>
         <label>
@@ -247,7 +247,7 @@ function MappingEditor({
             onChange={(event) => setDraft((current) => ({ ...current, accountNumber: event.target.value.replace(/\s+/g, '') }))}
             inputMode="numeric"
             placeholder="Nomor rekening"
-            disabled={saving}
+            disabled={saving || !editing}
           />
         </label>
         <label>
@@ -373,6 +373,17 @@ export function DisbursementAccountsPage() {
     !rules.some((rule) => rule.kitchen_id === addingKitchenId && rule.rule_type === type)
   )
 
+  const handleRuleSaved = (savedRule: OperationalRule) => {
+    setRules((current) => [savedRule, ...current.filter((item) => item.id !== savedRule.id)])
+    if (!rules.some((item) => item.id === savedRule.id)) {
+      setAddMappingOpen(false)
+      setAddingRuleType('')
+    }
+  }
+  const handleRuleRemoved = (ruleId: string) => {
+    setRules((current) => current.filter((item) => item.id !== ruleId))
+  }
+
   if (!canView) return <div className="app-access-denied">Akses ditolak.</div>
 
   return (
@@ -471,12 +482,8 @@ export function DisbursementAccountsPage() {
               type={addingRuleType}
               title={RULE_TYPE_LABELS[addingRuleType]}
               rule={null}
-              onSaved={async () => {
-                setAddMappingOpen(false)
-                setAddingRuleType('')
-                await load()
-              }}
-              onRemoved={load}
+              onSaved={handleRuleSaved}
+              onRemoved={handleRuleRemoved}
             />
           ) : (
             <p className="disbursement-add-hint">
@@ -544,8 +551,8 @@ export function DisbursementAccountsPage() {
                       type={type}
                       title={RULE_TYPE_LABELS[type]}
                       rule={rule}
-                      onSaved={load}
-                      onRemoved={load}
+                      onSaved={handleRuleSaved}
+                      onRemoved={handleRuleRemoved}
                     />
                   ))
                 })}
