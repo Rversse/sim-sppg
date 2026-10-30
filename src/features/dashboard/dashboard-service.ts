@@ -153,7 +153,8 @@ export async function getDashboardRABBalance(
     supplier_filter: null
   })
 
-  if (error) throw error
+  const statusError = dailyStatusResults.find((result) => result.error)?.error
+  if (statusError) throw statusError
 
   const row = data?.[0] as
     | {
