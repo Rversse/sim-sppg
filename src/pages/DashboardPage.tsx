@@ -235,7 +235,7 @@ export function DashboardPage() {
 
   const selectedOperationalMonth = getOperationalMonthRange(filters.startDate)
   const isDefaultDashboardRange = filters.startDate === today && filters.endDate === today
-  const isFullOperationalMonth = filters.startDate === selectedOperationalMonth.startDate && filters.endDate === selectedOperationalMonth.endDate
+  const isFullOperationalMonth = selectedOperationalMonth.month >= 1 && filters.startDate === selectedOperationalMonth.startDate && filters.endDate === selectedOperationalMonth.endDate
   const dashboardPeriod = isDefaultDashboardRange ? operationalMonth : selectedOperationalMonth
   const showOperationalMonth = isDefaultDashboardRange || isFullOperationalMonth
 
