@@ -663,8 +663,52 @@
   font-weight: 800;
 }
 
-.dashboard-status-summary {
+.dashboard-operational-period {
   display: grid;
+  gap: 9px;
+  margin: 12px 0 8px;
+  padding: 0 0 13px;
+  border-bottom: 1px solid var(--theme-border-soft, var(--theme-border));
+}
+
+.dashboard-operational-period-heading {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.dashboard-operational-period-heading strong {
+  color: var(--theme-text-primary);
+  font-size: 12px;
+  font-weight: 850;
+}
+
+.dashboard-operational-period-heading span {
+  color: var(--theme-text-secondary);
+  font-size: 10px;
+  font-weight: 650;
+  text-align: right;
+}
+
+.dashboard-operational-progress {
+  height: 4px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--theme-surface-soft);
+}
+
+.dashboard-operational-progress > span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--theme-primary);
+  transition: width 180ms ease;
+}
+
+.dashboard-status-summary {
+  display: none;
+  grid: none;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 7px;
   margin: 14px 0 10px;
@@ -790,6 +834,15 @@
   max-width: 180px;
   margin: 0 !important;
   overflow: hidden;
+}
+
+.dashboard-status-transaction-dots i.is-in-database {
+  background: var(--app-success);
+}
+
+.dashboard-status-transaction-dots i.is-audit-only {
+  background: #e58a22;
+  box-shadow: 0 0 0 1px color-mix(in srgb, #e58a22 24%, transparent);
 }
 
 .dashboard-status-transaction-dots i {
