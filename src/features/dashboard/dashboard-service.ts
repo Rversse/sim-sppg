@@ -536,7 +536,8 @@ export async function getDailyStatus(
     client.from('maker_import_batches').select('id, kitchen_id').gte('transaction_date', selectedDate).lte('transaction_date', endDate)
   ])
 
-  if (error) throw error
+  const statusError = dailyStatusResults.find((result) => result.error)?.error
+  if (statusError) throw statusError
   if (incomeError) throw incomeError
   if (operationalError) throw operationalError
   if (mappingError) throw mappingError
