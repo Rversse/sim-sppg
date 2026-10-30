@@ -91,16 +91,9 @@
 }
 
 .reports-operational-month-field {
-  display: grid;
+  display: flex;
   min-width: 0;
-  gap: 5px;
-}
-
-.reports-operational-month-field label {
-  color: var(--app-text-muted);
-  font-size: 9px;
-  font-weight: 850;
-  letter-spacing: 0.04em;
+  align-items: center;
 }
 
 .reports-operational-month-field select {
