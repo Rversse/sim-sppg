@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { Plus, Save, Trash2, X } from 'lucide-react'
+import { Edit3, Plus, Save, Trash2, X } from 'lucide-react'
 
 import { supabase } from '@/lib/supabase'
 import { canAccess } from '@/features/auth/role-policy'
@@ -118,12 +118,13 @@ function MappingEditor({
   type: Exclude<RuleType, 'vehicle_rent'>
   title: string
   rule: OperationalRule | null
-  onSaved: () => Promise<void>
-  onRemoved: () => Promise<void>
+  onSaved: (savedRule: OperationalRule) => void | Promise<void>
+  onRemoved: (ruleId: string) => void | Promise<void>
 }) {
   const { success, error: toastError } = useToast()
   const [draft, setDraft] = useState<MappingDraft>(() => createDraft(rule))
   const [saving, setSaving] = useState(false)
+  const [editing, setEditing] = useState(rule === null)
   const permitted = draft.status === 'active'
 
   async function save() {
@@ -150,19 +151,17 @@ function MappingEditor({
         updated_at: new Date().toISOString()
       }
 
-      const result = rule
-        ? await supabase
-            .from('kitchen_operational_account_rules')
-            .update(payload)
-            .eq('id', rule.id)
-        : await supabase
-            .from('kitchen_operational_account_rules')
-            .insert(payload)
-
-      if (result.error) throw result.error
-
+      const query = rule
+        ? supabase.from('kitchen_operational_account_rules').update(payload).eq('id', rule.id)
+        : supabase.from('kitchen_operational_account_rules').insert(payload)
+      const { data, error } = await query
+        .select('id,kitchen_id,rule_type,owner_name,bank,account_number,is_active,mapping_status,target_role')
+        .single()
+      if (error) throw error
       success('Mapping disimpan', title + ' untuk ' + kitchenName + ' berhasil disimpan.')
-      await onSaved()
+      setDraft(createDraft(data as OperationalRule))
+      setEditing(false)
+      await onSaved(data as OperationalRule)
     } catch (error) {
       console.error(error)
       toastError(
@@ -187,7 +186,7 @@ function MappingEditor({
       if (error) throw error
 
       success('Mapping dihapus', title + ' untuk ' + kitchenName + ' sekarang belum diatur.')
-      await onRemoved()
+      await onRemoved(rule.id)
     } catch (error) {
       console.error(error)
       toastError('Gagal menghapus mapping', error instanceof Error ? error.message : 'Gagal menghapus mapping rekening.')
@@ -213,7 +212,7 @@ function MappingEditor({
             type="button"
             className="app-action-button app-action-button--secondary app-action-button--icon"
             onClick={() => void remove()}
-            disabled={saving}
+            disabled={saving || editing}
             aria-label={'Hapus mapping ' + title}
             title="Hapus mapping"
           >
@@ -229,7 +228,7 @@ function MappingEditor({
             value={draft.ownerName}
             onChange={(event) => setDraft((current) => ({ ...current, ownerName: event.target.value }))}
             placeholder="Nama sesuai output Maker"
-            disabled={saving}
+            disabled={saving || !editing}
           />
         </label>
         <label>
@@ -256,7 +255,7 @@ function MappingEditor({
           <select
             value={draft.targetRole}
             onChange={(event) => setDraft((current) => ({ ...current, targetRole: event.target.value as DestinationRole }))}
-            disabled={saving}
+            disabled={saving || !editing}
           >
             {ROLE_OPTIONS.map((option) => (
               <option key={option.value || 'unspecified'} value={option.value}>{option.label}</option>
@@ -268,7 +267,7 @@ function MappingEditor({
           <select
             value={draft.status}
             onChange={(event) => setDraft((current) => ({ ...current, status: event.target.value as MappingStatus }))}
-            disabled={saving}
+            disabled={saving || !editing}
           >
             {STATUS_OPTIONS.map((option) => (
               <option key={option.value} value={option.value}>{option.label}</option>
@@ -276,15 +275,22 @@ function MappingEditor({
           </select>
         </label>
         <div className="disbursement-mapping-actions">
-          <button
-            type="button"
-            className="app-action-button"
-            onClick={() => void save()}
-            disabled={saving}
-          >
-            <Save aria-hidden="true" />
-            <span>{saving ? 'Menyimpan…' : 'Simpan mapping'}</span>
-          </button>
+          {editing ? (
+            <>
+              {rule ? (
+                <button type="button" className="app-action-button app-action-button--secondary" onClick={() => { setDraft(createDraft(rule)); setEditing(false) }} disabled={saving}>
+                  <X aria-hidden="true" /><span>Batal</span>
+                </button>
+              ) : null}
+              <button type="button" className="app-action-button" onClick={() => void save()} disabled={saving}>
+                <Save aria-hidden="true" /><span>{saving ? 'Menyimpan…' : 'Simpan mapping'}</span>
+              </button>
+            </>
+          ) : (
+            <button type="button" className="app-action-button app-action-button--secondary" onClick={() => setEditing(true)}>
+              <Edit3 aria-hidden="true" /><span>Edit</span>
+            </button>
+          )}
         </div>
       </div>
     </div>
