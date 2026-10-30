@@ -224,11 +224,6 @@ export function DashboardPage() {
   const includeSppgRent = isAdmin
   const today = getTodayLocal()
   const operationalMonth = getOperationalMonthRange(today)
-  const selectedOperationalMonth = getOperationalMonthRange(filters.startDate)
-  const isDefaultDashboardRange = filters.startDate === today && filters.endDate === today
-  const isFullOperationalMonth = filters.startDate === selectedOperationalMonth.startDate && filters.endDate === selectedOperationalMonth.endDate
-  const dashboardPeriod = isDefaultDashboardRange ? operationalMonth : selectedOperationalMonth
-  const showOperationalMonth = isDefaultDashboardRange || isFullOperationalMonth
 
   const [filters, setFilters] = useState<DashboardFilters>({
     startDate: today,
@@ -237,6 +232,12 @@ export function DashboardPage() {
     flowType: '',
     supplierFilter: ''
   })
+
+  const selectedOperationalMonth = getOperationalMonthRange(filters.startDate)
+  const isDefaultDashboardRange = filters.startDate === today && filters.endDate === today
+  const isFullOperationalMonth = filters.startDate === selectedOperationalMonth.startDate && filters.endDate === selectedOperationalMonth.endDate
+  const dashboardPeriod = isDefaultDashboardRange ? operationalMonth : selectedOperationalMonth
+  const showOperationalMonth = isDefaultDashboardRange || isFullOperationalMonth
 
   const [kitchens, setKitchens] = useState<DashboardKitchen[]>([])
   const [operationalDestinationRoles, setOperationalDestinationRoles] = useState<OperationalDestinationRoleMapping[]>([])
