@@ -810,6 +810,10 @@
   color: var(--app-success);
 }
 
+.dashboard-status-row.is-empty > div:first-child > strong {
+  color: var(--app-danger);
+}
+
 .dashboard-status-row.is-empty .dashboard-status-meta {
   color: var(--app-danger);
 }
