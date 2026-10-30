@@ -603,7 +603,7 @@
 
 .dashboard-main-grid {
   display: grid;
-  grid-template-columns: minmax(320px, 0.85fr) minmax(0, 1.4fr);
+  grid-template-columns: minmax(300px, 0.72fr) minmax(0, 1.65fr);
   align-items: stretch;
   gap: 14px;
 }
@@ -1022,7 +1022,7 @@
   flex: 1 1 auto;
   min-height: 0;
   margin-top: 12px;
-  padding: 14px 2px 2px;
+  padding: 20px 12px 8px;
   overflow-y: auto;
   border-top: 1px solid var(--app-border);
   scrollbar-width: thin;
