@@ -495,8 +495,7 @@ export async function getDailyStatus(
     { data: incomeRows, error: incomeError },
     { data: operationalRows, error: operationalError },
     { data: mappingRows, error: mappingError },
-    { data: makerBatches, error: makerBatchesError },
-    { data: realBatches, error: realBatchesError }
+    { data: makerBatches, error: makerBatchesError }
   ] = await Promise.all([
     client.rpc('get_dashboard_daily_status', {
       p_selected_date: selectedDate
@@ -526,8 +525,7 @@ export async function getDailyStatus(
         'sppg_rent'
       ]),
     client.rpc('get_dashboard_operational_mapping_types'),
-    client.from('maker_import_batches').select('id, kitchen_id').eq('transaction_date', selectedDate),
-    client.from('real_import_batches').select('id') .eq('transaction_date', selectedDate)
+    client.from('maker_import_batches').select('id, kitchen_id').eq('transaction_date', selectedDate)
   ])
 
   if (error) throw error
@@ -535,23 +533,21 @@ export async function getDailyStatus(
   if (operationalError) throw operationalError
   if (mappingError) throw mappingError
   if (makerBatchesError) throw makerBatchesError
-  if (realBatchesError) throw realBatchesError
 
   const makerBatchKitchenById = new Map(
     (makerBatches ?? []).map((batch) => [batch.id, batch.kitchen_id])
   )
   const makerBatchIds = [...makerBatchKitchenById.keys()]
-  const realBatchIds = (realBatches ?? []).map((batch) => batch.id)
-  const [makerAuditResult, realAuditResult] = await Promise.all([
-    makerBatchIds.length
-      ? client.from('maker_import_batch_rows').select('batch_id').in('batch_id', makerBatchIds).eq('disposition', 'imported').is('transaction_id', null)
-      : Promise.resolve({ data: [], error: null }),
-    realBatchIds.length
-      ? client.from('real_import_batch_rows').select('kitchen_id').in('batch_id', realBatchIds).eq('disposition', 'imported').is('transaction_id', null)
-      : Promise.resolve({ data: [], error: null })
-  ])
+  const makerAuditResult = makerBatchIds.length
+    ? await client
+        .from('maker_import_batch_rows')
+        .select('batch_id')
+        .in('batch_id', makerBatchIds)
+        .in('flow_type', ['income', 'gas', 'neutral', 'ops_disbursement', 'operational_disbursement'])
+        .eq('disposition', 'imported')
+        .is('transaction_id', null)
+    : { data: [], error: null }
   if (makerAuditResult.error) throw makerAuditResult.error
-  if (realAuditResult.error) throw realAuditResult.error
 
   type DashboardDailyStatusRpcRow = {
     kitchen_id: string
@@ -588,10 +584,6 @@ export async function getDailyStatus(
     const kitchenId = makerBatchKitchenById.get(row.batch_id)
     if (kitchenId) auditOnlyTransactionCountByKitchen.set(kitchenId, (auditOnlyTransactionCountByKitchen.get(kitchenId) ?? 0) + 1)
   }
-  for (const row of realAuditResult.data ?? []) {
-    if (row.kitchen_id) auditOnlyTransactionCountByKitchen.set(row.kitchen_id, (auditOnlyTransactionCountByKitchen.get(row.kitchen_id) ?? 0) + 1)
-  }
-
   for (const row of operationalRows ?? []) {
     if (!row.kitchen_id || !row.operational_type) continue
 
