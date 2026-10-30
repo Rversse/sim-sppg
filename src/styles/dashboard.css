@@ -691,6 +691,11 @@
   text-align: right;
 }
 
+.dashboard-operational-divider {
+  height: 1px;
+  background: var(--theme-border-soft, var(--theme-border));
+}
+
 .dashboard-operational-progress {
   height: 4px;
   overflow: hidden;
