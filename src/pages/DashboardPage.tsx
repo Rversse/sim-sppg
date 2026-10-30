@@ -352,7 +352,7 @@ export function DashboardPage() {
         transactions: nextTransactions
       }
     },
-    [filters]
+    [filters, dashboardPeriod.startDate, dashboardPeriod.endDate]
   )
 
   useEffect(() => {
@@ -417,7 +417,7 @@ export function DashboardPage() {
         transactions: nextTransactions
       }
     },
-    [filters]
+    [filters, dashboardPeriod.startDate, dashboardPeriod.endDate]
   )
 
   const applyDashboardLiveData = useCallback(
@@ -458,7 +458,7 @@ export function DashboardPage() {
         setError('Gagal memuat halaman riwayat transaksi.')
       }
     },
-    [filters]
+    [filters, dashboardPeriod.startDate, dashboardPeriod.endDate]
   )
 
   const refreshDashboard = useCallback(
