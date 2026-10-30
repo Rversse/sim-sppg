@@ -113,7 +113,8 @@ export async function getDashboardSummary(
     supplier_filter: filters.supplierFilter || null
   })
 
-  if (error) throw error
+  const statusError = dailyStatusResults.find((result) => result.error)?.error
+  if (statusError) throw statusError
 
   const row = data?.[0] as
     | {
@@ -463,7 +464,8 @@ export async function getDashboardTransactionPage(
 
 export async function getDailyStatus(
   selectedDate: string,
-  client: SupabaseClient = supabase
+  client: SupabaseClient = supabase,
+  endDate = selectedDate
 ): Promise<{
   withPencairan: number
   empty: number
@@ -490,20 +492,26 @@ export async function getDailyStatus(
     vehicleRent: boolean
   }[]
 }> {
+  const statusDates: string[] = []
+  for (let date = new Date(`${selectedDate}T00:00:00Z`); date <= new Date(`${endDate}T00:00:00Z`); date.setUTCDate(date.getUTCDate() + 1)) {
+    statusDates.push(date.toISOString().slice(0, 10))
+  }
+
   const [
-    { data, error },
+    dailyStatusResults,
     { data: incomeRows, error: incomeError },
     { data: operationalRows, error: operationalError },
     { data: mappingRows, error: mappingError },
     { data: makerBatches, error: makerBatchesError }
   ] = await Promise.all([
-    client.rpc('get_dashboard_daily_status', {
-      p_selected_date: selectedDate
-    }),
+    Promise.all(statusDates.map((date) => client.rpc('get_dashboard_daily_status', {
+      p_selected_date: date
+    }))),
     client
       .from('transactions')
       .select('kitchen_id')
-      .eq('transaction_date', selectedDate)
+      .gte('transaction_date', selectedDate)
+      .lte('transaction_date', endDate)
       .in('flow_type', [
         'income',
         'gas',
@@ -514,7 +522,8 @@ export async function getDailyStatus(
     client
       .from('transactions')
       .select('kitchen_id, operational_type')
-      .eq('transaction_date', selectedDate)
+      .gte('transaction_date', selectedDate)
+      .lte('transaction_date', endDate)
       .eq('flow_type', 'operational_disbursement')
       .in('operational_type', [
         'relawan_salary',
@@ -525,7 +534,7 @@ export async function getDailyStatus(
         'sppg_rent'
       ]),
     client.rpc('get_dashboard_operational_mapping_types'),
-    client.from('maker_import_batches').select('id, kitchen_id').eq('transaction_date', selectedDate)
+    client.from('maker_import_batches').select('id, kitchen_id').gte('transaction_date', selectedDate).lte('transaction_date', endDate)
   ])
 
   if (error) throw error
@@ -564,7 +573,22 @@ export async function getDailyStatus(
     rule_type: string
   }
 
-  const typedData = (data ?? []) as DashboardDailyStatusRpcRow[]
+  const statusByKitchen = new Map<string, DashboardDailyStatusRpcRow>()
+  for (const result of dailyStatusResults) {
+    for (const row of (result.data ?? []) as DashboardDailyStatusRpcRow[]) {
+      const current = statusByKitchen.get(row.kitchen_id)
+      if (!current) {
+        statusByKitchen.set(row.kitchen_id, { ...row })
+      } else {
+        current.income = Boolean(current.income || row.income)
+        current.expense = Boolean(current.expense || row.expense)
+        current.gas = Boolean(current.gas || row.gas)
+        current.operational = Boolean(current.operational || row.operational)
+        current.real_operational = Boolean(current.real_operational || row.real_operational)
+      }
+    }
+  }
+  const typedData = [...statusByKitchen.values()]
   const typedMappingRows = (mappingRows ?? []) as DashboardOperationalMappingRow[]
   const disbursementTransactionCountByKitchen = new Map<string, number>()
   const auditOnlyTransactionCountByKitchen = new Map<string, number>()
