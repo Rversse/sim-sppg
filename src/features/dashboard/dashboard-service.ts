@@ -175,7 +175,8 @@ export async function getActiveKitchens(
     .eq('is_active', true)
     .order('name')
 
-  if (error) throw error
+  const statusError = dailyStatusResults.find((result) => result.error)?.error
+  if (statusError) throw statusError
 
   return (data ?? []) as DashboardKitchen[]
 }
