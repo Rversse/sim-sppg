@@ -83,6 +83,45 @@
   box-shadow: var(--app-shadow-card);
 }
 
+.reports-period-filter-group {
+  display: grid;
+  grid-template-columns: minmax(210px, 260px) 240px;
+  align-items: end;
+  gap: 10px;
+}
+
+.reports-operational-month-field {
+  display: grid;
+  min-width: 0;
+  gap: 5px;
+}
+
+.reports-operational-month-field label {
+  color: var(--app-text-muted);
+  font-size: 9px;
+  font-weight: 850;
+  letter-spacing: 0.04em;
+}
+
+.reports-operational-month-field select {
+  width: 100%;
+  min-width: 0;
+  height: 40px;
+  padding: 0 30px 0 10px;
+  border: 1px solid var(--app-border-strong);
+  border-radius: 10px;
+  background: var(--app-white);
+  color: var(--app-text);
+  font: inherit;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.reports-operational-month-field select:focus-visible {
+  outline: 2px solid var(--app-accent);
+  outline-offset: 2px;
+}
+
 .reports-date-range-field {
   width: 240px;
   min-width: 240px;
@@ -879,6 +918,11 @@
     max-width: none;
     padding: 12px;
     border-radius: 13px;
+  }
+
+  .reports-period-filter-group {
+    grid-template-columns: 1fr;
+    width: 100%;
   }
 
   .reports-date-range-field {
