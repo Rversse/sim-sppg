@@ -341,45 +341,21 @@
 
 .disbursement-mapping-groups {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: minmax(0, 1fr);
   align-items: start;
-  gap: 14px;
+  gap: 12px;
 }
 
-/* Keep the shared vehicle account aligned with the OPS card on the right. */
-.disbursement-group-sppg_rent {
-  grid-column: 1;
-  grid-row: 1;
-}
-
-.disbursement-vehicle-group {
-  grid-column: 2;
-  grid-row: 1;
-}
-
-.disbursement-group-gaji_relawan {
-  grid-column: 1;
-  grid-row: 2;
-}
-
-.disbursement-group-ops_harian {
-  grid-column: 2;
-  grid-row: 2;
-}
-
-.disbursement-group-pic_incentive {
-  grid-column: 1;
-  grid-row: 3;
-}
 
 .disbursement-mapping-group {
   display: grid;
   min-width: 0;
-  gap: 12px;
-  padding: 16px;
-  border: 1px solid var(--theme-border);
-  border-radius: 15px;
-  background: var(--theme-surface);
+  gap: 4px;
+  padding: 0;
+  border: 0;
+  border-bottom: 1px solid var(--theme-border);
+  border-radius: 0;
+  background: transparent;
 }
 
 .disbursement-mapping-group > header {
@@ -387,7 +363,7 @@
   align-items: center;
   justify-content: flex-start;
   gap: 12px;
-  padding: 0 2px;
+  padding: 8px 2px;
 }
 
 .disbursement-mapping-group > header h3 {
@@ -422,11 +398,10 @@
 
 .disbursement-mapping-row {
   display: grid;
-  gap: 12px;
-  padding: 13px;
-  border: 1px solid var(--theme-border);
-  border-radius: 12px;
-  background: var(--theme-surface-soft);
+  gap: 10px;
+  padding: 10px 8px;
+  border-bottom: 1px solid var(--theme-border);
+  background: transparent;
 }
 
 .disbursement-mapping-row-head {
@@ -482,7 +457,8 @@
 
 .disbursement-mapping-fields {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: minmax(150px, 1.2fr) minmax(90px, 0.65fr) minmax(130px, 1fr) minmax(145px, 1fr) minmax(130px, 0.9fr) auto;
+  align-items: end;
   gap: 10px;
 }
 
@@ -508,14 +484,16 @@
 }
 
 .disbursement-mapping-status-field {
-  grid-column: 1;
+  grid-column: auto;
 }
 
 .disbursement-mapping-actions {
   display: flex;
   align-items: flex-end;
   justify-content: flex-end;
-  grid-column: 2;
+  gap: 6px;
+  grid-column: auto;
+  white-space: nowrap;
 }
 
 .disbursement-mapping-actions .app-action-button {
@@ -558,13 +536,8 @@
     grid-template-columns: minmax(0, 1fr);
   }
 
-  .disbursement-group-sppg_rent,
-  .disbursement-vehicle-group,
-  .disbursement-group-gaji_relawan,
-  .disbursement-group-ops_harian,
-  .disbursement-group-pic_incentive {
-    grid-column: auto;
-    grid-row: auto;
+  .disbursement-mapping-fields {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
