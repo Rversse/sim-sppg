@@ -113,8 +113,7 @@ export async function getDashboardSummary(
     supplier_filter: filters.supplierFilter || null
   })
 
-  const statusError = dailyStatusResults.find((result) => result.error)?.error
-  if (statusError) throw statusError
+  if (error) throw error
 
   const row = data?.[0] as
     | {
@@ -153,8 +152,7 @@ export async function getDashboardRABBalance(
     supplier_filter: null
   })
 
-  const statusError = dailyStatusResults.find((result) => result.error)?.error
-  if (statusError) throw statusError
+  if (error) throw error
 
   const row = data?.[0] as
     | {
@@ -175,8 +173,7 @@ export async function getActiveKitchens(
     .eq('is_active', true)
     .order('name')
 
-  const statusError = dailyStatusResults.find((result) => result.error)?.error
-  if (statusError) throw statusError
+  if (error) throw error
 
   return (data ?? []) as DashboardKitchen[]
 }
