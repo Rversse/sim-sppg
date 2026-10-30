@@ -543,8 +543,7 @@ export async function getDailyStatus(
         .from('maker_import_batch_rows')
         .select('batch_id')
         .in('batch_id', makerBatchIds)
-        .in('flow_type', ['income', 'gas', 'neutral', 'ops_disbursement', 'operational_disbursement'])
-        .eq('disposition', 'imported')
+        .in('disposition', ['imported', 'excluded'])
         .is('transaction_id', null)
     : { data: [], error: null }
   if (makerAuditResult.error) throw makerAuditResult.error
