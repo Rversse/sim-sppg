@@ -63,7 +63,7 @@ import {
   getTodayLocal
 } from '@/lib/formatters'
 
-const DASHBOARD_HISTORY_PAGE_SIZE = 5
+const DASHBOARD_HISTORY_PAGE_SIZE = 10
 
 const FLOW_OPTIONS: { value: DashboardFlow | ''; label: string }[] = [
   { value: '', label: 'Semua transaksi' },
@@ -1681,7 +1681,7 @@ export function DashboardPage() {
             <>
               <div className={`dashboard-operational-period ${showOperationalMonth ? '' : 'is-custom-range'}`}>
                 <div className="dashboard-operational-period-heading">
-                  <strong>{showOperationalMonth ? `Bulan Operasional ${dashboardPeriod.month}` : 'Rentang tanggal dipilih'}</strong>
+                  <strong>{showOperationalMonth ? `Bulan Operasional Ke-${dashboardPeriod.month}` : 'Rentang tanggal dipilih'}</strong>
                   <span>{formatDate(dashboardPeriod.startDate)} – {formatDate(dashboardPeriod.endDate)}</span>
                 </div>
                 {showOperationalMonth ? (
@@ -1709,8 +1709,8 @@ export function DashboardPage() {
                           {(row.transactionCount + row.auditOnlyTransactionCount) > 0 ? (
                             <span
                               className="dashboard-status-transaction-count"
-                              aria-label={`${row.transactionCount} transaksi masuk database, ${row.auditOnlyTransactionCount} hanya tercatat di audit`}
-                              title={`${row.transactionCount} masuk database · ${row.auditOnlyTransactionCount} audit-only`}
+                              aria-label={`${row.transactionCount} valid, ${row.auditOnlyTransactionCount} audit`}
+                              title={`${row.transactionCount} Valid · ${row.auditOnlyTransactionCount} Audit`}
                             >
                               <span aria-hidden="true">|</span>
                               <span className="dashboard-status-transaction-dots" aria-hidden="true">
