@@ -150,7 +150,7 @@
   text-align: left;
 }
 
-.reports-filter-panel
+.reports-period-filter-group
   > .reports-date-range-field
   .date-range-trigger:hover:not(:disabled) {
   border-color: var(--app-border-mid);
@@ -159,7 +159,7 @@
   transform: none;
 }
 
-.reports-filter-panel
+.reports-period-filter-group
   > .reports-date-range-field
   .date-range-trigger:focus-visible {
   border-color: var(--app-accent);
