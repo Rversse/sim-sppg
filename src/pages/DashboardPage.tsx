@@ -224,6 +224,11 @@ export function DashboardPage() {
   const includeSppgRent = isAdmin
   const today = getTodayLocal()
   const operationalMonth = getOperationalMonthRange(today)
+  const selectedOperationalMonth = getOperationalMonthRange(filters.startDate)
+  const isDefaultDashboardRange = filters.startDate === today && filters.endDate === today
+  const isFullOperationalMonth = filters.endDate === selectedOperationalMonth.endDate
+  const dashboardPeriod = isDefaultDashboardRange ? operationalMonth : selectedOperationalMonth
+  const showOperationalMonth = isDefaultDashboardRange || isFullOperationalMonth
 
   const [filters, setFilters] = useState<DashboardFilters>({
     startDate: today,
@@ -1676,14 +1681,16 @@ export function DashboardPage() {
 
           {dailyStatus ? (
             <>
-              <div className="dashboard-operational-period" aria-label={`Bulan Operasional ${operationalMonth.month}, hari ke-${operationalMonth.day} dari 28`}>
+              <div className={`dashboard-operational-period ${showOperationalMonth ? '' : 'is-custom-range'}`}>
                 <div className="dashboard-operational-period-heading">
-                  <strong>Bulan Operasional {operationalMonth.month}</strong>
-                  <span>{formatDate(operationalMonth.startDate)} – {formatDate(operationalMonth.endDate)}</span>
+                  <strong>{showOperationalMonth ? `Bulan Operasional ${dashboardPeriod.month}` : 'Rentang tanggal dipilih'}</strong>
+                  <span>{formatDate(filters.startDate)} – {formatDate(filters.endDate)}</span>
                 </div>
-                <div className="dashboard-operational-progress" role="progressbar" aria-valuemin={0} aria-valuemax={28} aria-valuenow={operationalMonth.day} aria-label={`Hari ke-${operationalMonth.day} dari 28`}>
-                  <span style={{ width: `${operationalMonth.progress}%` }} />
-                </div>
+                {showOperationalMonth ? (
+                  <div className="dashboard-operational-progress" role="progressbar" aria-valuemin={0} aria-valuemax={28} aria-valuenow={isDefaultDashboardRange ? operationalMonth.day : 28} aria-label={isDefaultDashboardRange ? `Hari ke-${operationalMonth.day} dari 28` : 'Satu bulan operasional penuh'}>
+                    <span style={{ width: `${isDefaultDashboardRange ? operationalMonth.progress : 100}%` }} />
+                  </div>
+                ) : <div className="dashboard-operational-divider" aria-hidden="true" />}
               </div>
 
               <div className="dashboard-status-list">
