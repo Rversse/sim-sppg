@@ -11,6 +11,7 @@ import {
 } from 'lucide-react'
 
 import { supabase } from '@/lib/supabase'
+import { getOperationalMonthRange } from '@/features/operational-month/operational-month'
 import { useAuth } from '@/features/auth/use-auth'
 import {
   getActiveKitchens,
@@ -222,6 +223,7 @@ export function DashboardPage() {
   const isAdmin = user?.role === 'admin'
   const includeSppgRent = isAdmin
   const today = getTodayLocal()
+  const operationalMonth = getOperationalMonthRange(today)
 
   const [filters, setFilters] = useState<DashboardFilters>({
     startDate: today,
@@ -1674,13 +1676,14 @@ export function DashboardPage() {
 
           {dailyStatus ? (
             <>
-              <div className="dashboard-status-summary">
-                <span className="status-summary-green">
-                  <b>{dailyStatus.withPencairan}</b> Ada pencairan
-                </span>
-                <span className="status-summary-red">
-                  <b>{dailyStatus.empty}</b> Belum ada transaksi
-                </span>
+              <div className="dashboard-operational-period" aria-label={`Bulan Operasional ${operationalMonth.month}, hari ke-${operationalMonth.day} dari 28`}>
+                <div className="dashboard-operational-period-heading">
+                  <strong>Bulan Operasional {operationalMonth.month}</strong>
+                  <span>{formatDate(operationalMonth.startDate)} – {formatDate(operationalMonth.endDate)}</span>
+                </div>
+                <div className="dashboard-operational-progress" role="progressbar" aria-valuemin={0} aria-valuemax={28} aria-valuenow={operationalMonth.day} aria-label={`Hari ke-${operationalMonth.day} dari 28`}>
+                  <span style={{ width: `${operationalMonth.progress}%` }} />
+                </div>
               </div>
 
               <div className="dashboard-status-list">
@@ -1698,25 +1701,20 @@ export function DashboardPage() {
                       <div>
                         <strong>{row.kitchen}</strong>
                         <span className="dashboard-status-meta">
-                          <span className="dashboard-status-text">
-                            {row.income
-                              ? 'Ada pencairan'
-                              : 'Belum ada transaksi'}
-                          </span>
-                          {row.transactionCount > 0 ? (
+                          {(row.transactionCount + row.auditOnlyTransactionCount) > 0 ? (
                             <span
                               className="dashboard-status-transaction-count"
-                              aria-label={`${row.transactionCount} transaksi pencairan`}
-                              title={`${row.transactionCount} transaksi pencairan`}
+                              aria-label={`${row.transactionCount} transaksi masuk database, ${row.auditOnlyTransactionCount} hanya tercatat di audit`}
+                              title={`${row.transactionCount} masuk database · ${row.auditOnlyTransactionCount} audit-only`}
                             >
                               <span aria-hidden="true">|</span>
                               <span className="dashboard-status-transaction-dots" aria-hidden="true">
-                                {Array.from(
-                                  { length: row.transactionCount },
-                                  (_, index) => (
-                                    <i key={index} />
-                                  )
-                                )}
+                                {Array.from({ length: row.transactionCount }, (_, index) => (
+                                  <i className="is-in-database" key={`db-${index}`} />
+                                ))}
+                                {Array.from({ length: row.auditOnlyTransactionCount }, (_, index) => (
+                                  <i className="is-audit-only" key={`audit-${index}`} />
+                                ))}
                               </span>
                             </span>
                           ) : null}
