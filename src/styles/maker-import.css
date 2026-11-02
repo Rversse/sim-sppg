@@ -582,3 +582,24 @@
   .maker-import-manual-decision-actions { display: grid; grid-template-columns: 1fr; }
   .maker-import-decision-button { width: 100%; }
 }
+
+/* Verification rows: compact list layout aligned with Data Rekening. */
+.maker-import-row-list{display:grid;grid-template-columns:minmax(0,1fr);gap:0;align-items:stretch}
+.maker-import-row{display:grid;gap:7px;padding:10px 4px;border:0;border-bottom:1px solid var(--theme-border);border-left:0;border-radius:0;background:transparent;box-shadow:none}
+.maker-import-row.is-invalid,.maker-import-row.is-valid,.maker-import-row.is-blocked{border-left:0;background:transparent}
+.maker-import-row-head{align-items:center;gap:12px}
+.maker-import-row h4{display:inline;margin:0;font-size:12px}
+.maker-import-row-number{display:block;margin-bottom:2px;font-size:8px}
+.maker-import-readonly-kind{margin:0;font-size:11px}
+.maker-import-account-select{display:grid;grid-template-columns:minmax(150px,220px) minmax(0,1fr);align-items:center;gap:8px 12px;margin:2px 0;padding:7px 9px;border-radius:8px}
+.maker-import-account-select>span{text-align:left;font-size:9px}
+.maker-import-account-select select{height:34px;font-size:10px}
+.maker-import-fields{grid-template-columns:minmax(0,1.45fr) minmax(76px,.55fr) minmax(0,1.05fr) minmax(0,.75fr);gap:7px 9px}
+.maker-import-fields label>span{font-size:9px}
+.maker-import-fields input{height:34px;padding-inline:9px;font-size:10px}
+.maker-import-detail-field{grid-column:1/-1}
+.maker-import-row-issues{margin-top:2px}
+.maker-import-verify{margin-top:2px;padding:7px 9px}
+.maker-import-manual-decision{margin:2px 0;padding:7px}
+@media(max-width:980px){.maker-import-fields{grid-template-columns:repeat(2,minmax(0,1fr))}.maker-import-account-select{grid-template-columns:minmax(0,1fr)}}
+@media(max-width:660px){.maker-import-row{padding:10px 2px}.maker-import-fields{grid-template-columns:minmax(0,1fr)}.maker-import-detail-field{grid-column:auto}}
