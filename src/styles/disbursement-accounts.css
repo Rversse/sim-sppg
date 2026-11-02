@@ -7,20 +7,23 @@
 
 .disbursement-toolbar-grid {
   display: grid;
-  grid-template-columns: minmax(240px, 1.15fr) minmax(190px, 0.9fr) auto;
+  grid-template-columns: minmax(240px, 0.95fr) minmax(220px, 0.75fr) auto;
   align-items: end;
   gap: 12px;
   min-width: 0;
+  width: 100%;
 }
 
 .disbursement-toolbar-grid .disbursement-kitchen-picker {
   width: 100%;
+  max-width: 520px;
 }
 
 .disbursement-status-field {
   display: grid;
   gap: 6px;
   min-width: 0;
+  max-width: 420px;
 }
 
 .disbursement-status-field > span {
@@ -457,9 +460,9 @@
 
 .disbursement-mapping-fields {
   display: grid;
-  grid-template-columns: minmax(150px, 1.2fr) minmax(90px, 0.65fr) minmax(130px, 1fr) minmax(145px, 1fr) minmax(130px, 0.9fr) auto;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.65fr) minmax(0, 0.95fr) minmax(0, 0.95fr) minmax(0, 0.9fr) 76px;
   align-items: end;
-  gap: 10px;
+  gap: 9px;
 }
 
 .disbursement-mapping-fields label {
@@ -489,11 +492,17 @@
 
 .disbursement-mapping-actions {
   display: flex;
+  min-width: 76px;
   align-items: flex-end;
   justify-content: flex-end;
   gap: 6px;
   grid-column: auto;
   white-space: nowrap;
+}
+
+.disbursement-mapping-actions[aria-hidden='true'] {
+  visibility: hidden;
+  pointer-events: none;
 }
 
 .disbursement-mapping-actions .app-action-button {
@@ -544,6 +553,11 @@
 @media (max-width: 700px) {
   .disbursement-toolbar-grid {
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+
+  .disbursement-toolbar-grid .disbursement-kitchen-picker,
+  .disbursement-status-field {
+    max-width: none;
   }
 
   .disbursement-add-mapping-button {
