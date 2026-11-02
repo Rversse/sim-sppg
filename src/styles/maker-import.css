@@ -764,3 +764,22 @@
     pointer-events: none;
   }
 }
+
+/* Center field content inside Maker import verification cards only.
+   Keep page, step, card, and status headers unchanged. */
+@media (min-width: 601px) {
+  .maker-import-row .maker-import-fields input,
+  .maker-import-row .maker-import-fields select,
+  .maker-import-row .maker-import-account-select select {
+    text-align: center;
+    text-align-last: center;
+  }
+}
+@media (max-width: 600px) {
+  .maker-import-row .maker-import-fields input,
+  .maker-import-row .maker-import-fields select,
+  .maker-import-row .maker-import-account-select select {
+    text-align: center;
+    text-align-last: center;
+  }
+}
