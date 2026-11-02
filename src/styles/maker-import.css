@@ -713,3 +713,37 @@
     display: grid;
   }
 }
+
+
+/* Compact mapping control: keep its label and selector aligned with the fields. */
+@media (min-width: 901px) {
+  .maker-import-row {
+    grid-template-columns:
+      minmax(76px, .62fr)
+      minmax(160px, 1.2fr)
+      minmax(140px, 1.1fr)
+      minmax(68px, .55fr)
+      minmax(135px, 1.05fr)
+      minmax(90px, .72fr)
+      minmax(130px, 1fr);
+    align-items: end;
+  }
+
+  .maker-import-account-select > span {
+    font-size: 0;
+    white-space: nowrap;
+    overflow: visible;
+    align-self: center;
+  }
+
+  .maker-import-account-select > span::before {
+    content: "Mapping ke";
+    font-size: 10px;
+    font-weight: 700;
+    line-height: 1.25;
+  }
+
+  .maker-import-account-select select {
+    align-self: end;
+  }
+}
