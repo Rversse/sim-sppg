@@ -16,6 +16,8 @@ type RuleType =
   | 'ops_harian'
   | 'sppg_rent'
   | 'gaji_relawan'
+  | 'gaji_akuntan'
+  | 'gaji_ahli_gizi'
   | 'pic_incentive_school'
   | 'pic_incentive_posyandu'
   | 'vehicle_rent'
@@ -58,6 +60,8 @@ const RULE_GROUPS: MappingGroup[] = [
   { id: 'ops_harian', title: 'OPS / Pencairan', types: ['ops_harian'] },
   { id: 'sppg_rent', title: 'Insentif Fasilitas SPPG', types: ['sppg_rent'] },
   { id: 'gaji_relawan', title: 'Gaji Relawan', types: ['gaji_relawan'] },
+  { id: 'gaji_akuntan', title: 'Gaji Akuntan', types: ['gaji_akuntan'] },
+  { id: 'gaji_ahli_gizi', title: 'Gaji Ahli Gizi', types: ['gaji_ahli_gizi'] },
   {
     id: 'pic_incentive',
     title: 'Insentif PIC',
@@ -69,6 +73,8 @@ const RULE_TYPE_LABELS: Record<Exclude<RuleType, 'vehicle_rent'>, string> = {
   ops_harian: 'OPS / Pencairan',
   sppg_rent: 'Insentif Fasilitas SPPG',
   gaji_relawan: 'Gaji Relawan',
+  gaji_akuntan: 'Gaji Akuntan',
+  gaji_ahli_gizi: 'Gaji Ahli Gizi',
   pic_incentive_school: 'Insentif PIC Sekolah',
   pic_incentive_posyandu: 'Insentif Kader Posyandu'
 }
@@ -77,6 +83,8 @@ const ADDABLE_RULE_TYPES: Array<Exclude<RuleType, 'vehicle_rent'>> = [
   'ops_harian',
   'sppg_rent',
   'gaji_relawan',
+  'gaji_akuntan',
+  'gaji_ahli_gizi',
   'pic_incentive_school',
   'pic_incentive_posyandu'
 ]
@@ -528,10 +536,6 @@ export function DisbursementAccountsPage() {
             </section>
             {RULE_GROUPS.map((group) => (
               <section className={`disbursement-mapping-group disbursement-group-${group.id}`} key={group.id}>
-                <header>
-                  <h3>{group.title}</h3>
-                </header>
-
                 {group.types.map((type) => {
                   const typeRules = selectedRules.filter((rule) => rule.rule_type === type)
                   if (!typeRules.length) {
