@@ -1260,7 +1260,7 @@ export function MakerImportPage() {
                   <article className={'maker-import-row' + (rowBlocked ? ' is-blocked' : rowInvalid ? ' is-invalid' : ' is-valid')} key={row.id}>
                     <div className="maker-import-row-head">
                       <div>
-                        <span className="maker-import-row-number">BARIS {row.lineNumber}</span>
+                        <span className="maker-import-row-number">{row.lineNumber}</span>
                         <h4>{title}</h4>
                       </div>
                       <span className={'maker-import-row-status' + (rowBlocked ? ' is-blocked' : rowInvalid ? ' is-invalid' : ' is-valid')}>
