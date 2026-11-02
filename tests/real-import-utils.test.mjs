@@ -225,7 +225,7 @@ test('combined Cibeber and Cidaun report keeps section notes and skips BOP rows'
     'Cisepat     12.911.500',
     'Kertajadi    1.387.500',
     'BOP Sukaraharja 999.000'
-  ].join('\\n'))
+  ].join('\n'))
 
   assert.equal(parsed.error, null)
   assert.equal(parsed.transactionDate, '2026-11-02')
