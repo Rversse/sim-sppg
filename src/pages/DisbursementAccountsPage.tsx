@@ -519,10 +519,19 @@ export function DisbursementAccountsPage() {
 
           <div className="disbursement-mapping-groups">
             <section className="disbursement-mapping-group disbursement-vehicle-group">
-              <header>
-                <h3>SEWA KENDARAAN</h3>
-              </header>
               {vehicleReference ? (
+                <>
+                <div className="disbursement-mapping-row-head">
+                  <div>
+                    <strong>Sewa Kendaraan</strong>
+                    <span
+                      className={'disbursement-status-dot ' + (vehicleReference.mapping_status === 'active' ? 'is-allowed' : 'is-blocked')}
+                      title={vehicleReference.mapping_status === 'active' ? 'Masuk ke database diperbolehkan' : 'Diblokir dari database'}
+                      aria-label={vehicleReference.mapping_status === 'active' ? 'Masuk ke database diperbolehkan' : 'Diblokir dari database'}
+                      role="img"
+                    />
+                  </div>
+                </div>
                 <div className="disbursement-fixed-account">
                   <strong>{vehicleReference.owner_name}</strong>
                   <span>{vehicleReference.bank} · {vehicleReference.account_number}</span>
@@ -530,6 +539,7 @@ export function DisbursementAccountsPage() {
                     <small className="is-warning">Rekening Sewa Kendaraan berbeda antar-dapur. Samakan sebelum digunakan.</small>
                   ) : null}
                 </div>
+                </>
               ) : (
                 <div className="disbursement-page-error">Mapping rekening Sewa Kendaraan belum tersedia.</div>
               )}
