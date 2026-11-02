@@ -509,9 +509,12 @@
 }
 
 .disbursement-mapping-actions .app-action-button {
+  width: 36px;
+  min-width: 36px;
   min-height: 36px;
   height: 36px;
-  padding: 0 12px;
+  padding: 0;
+  justify-content: center;
   font-size: 10px;
 }
 
