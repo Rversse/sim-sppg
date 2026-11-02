@@ -60,7 +60,7 @@ function kitchenKey(value: string): string {
 
 export function RealImportPage() {
   const { success: toastSuccess, error: toastError } = useToast()
-  const [sourceType, setSourceType] = useState<RealImportSource>('cianjur')
+  const sourceType: RealImportSource = 'cianjur'
   const [sourceText, setSourceText] = useState('')
   const [kitchens, setKitchens] = useState<KitchenRef[]>([])
   const [supplier, setSupplier] = useState<SupplierRef | null>(null)
@@ -114,7 +114,7 @@ export function RealImportPage() {
   const excludedRows = useMemo(() => rows.filter((row) => row.disposition === 'excluded'), [rows])
   const importedTotal = useMemo(() => importedRows.reduce((sum, row) => sum + row.amount, 0), [importedRows])
   const excludedTotal = useMemo(() => excludedRows.reduce((sum, row) => sum + row.amount, 0), [excludedRows])
-  const sourceTotalMismatch = sourceType === 'cidaun' && (sourceTotal === null || sourceTotal !== totalAmount)
+  const sourceTotalMismatch = false
   const unknownKitchenRows = rows.filter((row) => !row.kitchenId)
   const duplicateImportRows = importedRows.filter((row) => duplicateReasons[row.id])
   const canContinue = draftReady &&
@@ -178,7 +178,6 @@ export function RealImportPage() {
         const { data: priorBatches, error: priorBatchError } = await supabase
           .from('real_import_batches')
           .select('id')
-          .eq('source_type', sourceType)
           .eq('transaction_date', transactionDate)
         if (priorBatchError) throw priorBatchError
 
@@ -212,7 +211,7 @@ export function RealImportPage() {
           // or same-source audited row with the same key must block this import.
           const blockingExistingTransaction = duplicates.some((item) => {
             const sources = auditByTransaction.get(item.id) ?? []
-            return sources.length === 0 || sources.includes(sourceType)
+            return true
           })
 
           if (existsInSameSourceAudit || blockingExistingTransaction) {
@@ -275,7 +274,7 @@ export function RealImportPage() {
     setDuplicateBatchMessage('')
     setDuplicateCheckError('')
     setDuplicateReasons({})
-    const parsed = parseRealImportDocument(sourceType, sourceText)
+    const parsed = parseRealImportDocument('combined', sourceText)
     if (parsed.error || !parsed.transactionDate) {
       setDraftReady(false)
       setRows([])
@@ -287,9 +286,9 @@ export function RealImportPage() {
       const kitchen = kitchens.find((item) => kitchenKey(item.name) === kitchenKey(row.kitchenName))
       return {
         ...row,
-        id: sourceType + '-' + row.rowNumber,
+        id: row.sourceType + '-' + row.rowNumber,
         kitchenId: kitchen?.id ?? '',
-        note: sourceType === 'cianjur' ? 'Belanja Cianjur' : 'Belanja Cidaun',
+        note: row.sourceType === 'cianjur' ? 'Koperasi Cianjur' : 'Koperasi Cidaun',
         disposition: 'import',
         exclusionReason: ''
       }
@@ -352,7 +351,8 @@ export function RealImportPage() {
         kitchen_name: kitchens.find((item) => item.id === row.kitchenId)?.name || row.kitchenName,
         amount: row.amount,
         raw_line: row.rawLine,
-        note: row.note.trim() || 'Belanja ' + sourceLabel(sourceType),
+        source_type: row.sourceType,
+        note: row.note.trim() || (row.sourceType === 'cianjur' ? 'Koperasi Cianjur' : 'Koperasi Cidaun'),
         disposition: row.disposition,
         exclusion_reason: row.disposition === 'excluded' ? row.exclusionReason : null
       }))
@@ -403,35 +403,29 @@ export function RealImportPage() {
           <div>
             <span>LANGKAH 1</span>
             <h3>Input Data</h3>
-            <p>Pilih format sumber sebelum menempel teks.</p>
+            <p>Tempel satu laporan gabungan Cibeber dan Cidaun.</p>
           </div>
           <button className="maker-import-secondary" type="button" onClick={resetForm} disabled={saving}>
             <RotateCcw aria-hidden="true" /> Reset
           </button>
         </div>
         <div className="real-import-source-tools">
-          <label>
-            <span>Sumber laporan</span>
-            <select value={sourceType} onChange={(event) => { setSourceType(event.target.value as RealImportSource); setDraftReady(false); setDuplicateBatch(false); setDuplicateReasons({}); setDuplicateCheckError(''); setCheckingDuplicates(false); setDuplicateBatchMessage(''); }}>
-              <option value="cianjur">Cianjur — Belanja Harian DD/MM/YYYY</option>
-              <option value="cidaun">Cidaun — tanggal teks Bahasa Indonesia</option>
-            </select>
-          </label>
+
           <div className="real-import-fixed-supplier">
             <span>Supplier transaksi</span>
             <strong>{supplier?.name ?? 'Memuat supplier…'}</strong>
-            <small>Semua dapur termasuk Sukaraharja menggunakan Koperasi Arutala untuk import ini.</small>
+            <small>Semua baris menggunakan supplier Koperasi Arutala. Catatan mengikuti bagian laporan.</small>
           </div>
         </div>
         <textarea
           className="maker-import-source"
           value={sourceText}
           onChange={(event) => { setSourceText(event.target.value); setDraftReady(false); setParseError(''); setSaveError(''); setDuplicateBatch(false); setDuplicateBatchMessage(''); setDuplicateReasons({}); setDuplicateCheckError(''); setCheckingDuplicates(false); }}
-          placeholder={'Tempel laporan dari ' + sourceLabel(sourceType) + ' di sini…'}
+          placeholder={'Tempel laporan gabungan Belanja Harian di sini…'}
           spellCheck={false}
         />
         <div className="maker-import-source-footer">
-          <span>Format Cianjur menerima 12/10/2026; Cidaun menerima 12 oktober 2026. Baris dengan tanda + menjadi transaksi terpisah.</span>
+          <span>Tanggal DD/MM/YYYY. Pemisah ribuan titik, koma, atau spasi didukung.</span>
           <button type="button" className="maker-import-primary" onClick={() => void handleParse()} disabled={loadingReferences || !supplier || !sourceText.trim()}>
             <ClipboardPaste aria-hidden="true" /> Decode
           </button>
@@ -446,7 +440,7 @@ export function RealImportPage() {
             <div>
               <span>LANGKAH 2</span>
               <h3>Periksa setiap transaksi</h3>
-              <p>{sourceLabel(sourceType)} · {transactionDate} · {rows.length} transaksi hasil parsing</p>
+              <p>Belanja Harian · {transactionDate} · {rows.length} transaksi hasil parsing</p>
             </div>
             <div className="maker-import-chip">{checkingDuplicates ? 'Memeriksa duplikat…' : duplicateImportRows.length ? 'Ada duplikat' : 'Draft diperiksa'}</div>
           </div>
@@ -529,7 +523,7 @@ export function RealImportPage() {
         description={'Periksa ringkasan batch ' + sourceLabel(sourceType) + ' tanggal ' + transactionDate + '. Transaksi akan masuk sebagai RAB / Real dengan supplier Koperasi Arutala.'}
         details={[
           { label: 'Tanggal', value: transactionDate },
-          { label: 'Sumber', value: sourceLabel(sourceType) },
+          { label: 'Sumber', value: 'Gabungan Cibeber + Cidaun' },
           { label: 'Transaksi masuk', value: importedRows.length + ' baris' },
           { label: 'Total masuk', value: 'Rp ' + formatRealImportAmount(importedTotal) },
           { label: 'Audit saja', value: excludedRows.length + ' baris' },
