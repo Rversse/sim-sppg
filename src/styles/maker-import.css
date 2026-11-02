@@ -1047,3 +1047,99 @@
     min-height: 1px;
   }
 }
+
+
+/* Maker verification: compact page, consistent field tracks, mapping inline with type. */
+.maker-import-page {
+  width: min(100%, 1120px);
+  max-width: 1120px;
+  margin-inline: auto;
+  padding-inline: 12px;
+  box-sizing: border-box;
+}
+.maker-import-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 8px;
+  padding: 11px 12px;
+}
+.maker-import-readonly-kind {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+  min-width: 0;
+  margin: 0;
+  line-height: 1.35;
+}
+.maker-import-account-select {
+  display: inline-flex;
+  align-items: center;
+  min-width: 0;
+  width: min(360px, 100%);
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+.maker-import-account-select > span { display: none !important; }
+.maker-import-account-select select {
+  width: 100%;
+  min-width: 0;
+  height: 32px;
+  padding: 0 9px;
+  text-align: left;
+  text-align-last: left;
+}
+.maker-import-fields {
+  display: grid;
+  grid-template-columns:
+    minmax(175px, 1.3fr)
+    minmax(76px, .55fr)
+    minmax(125px, .92fr)
+    minmax(115px, .82fr)
+    minmax(205px, 1.55fr);
+  gap: 7px 9px;
+  align-items: end;
+}
+.maker-import-fields > label {
+  min-width: 0;
+  align-self: end;
+}
+.maker-import-fields > label > span {
+  display: flex;
+  min-height: 24px;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.2;
+  font-size: 9px;
+}
+.maker-import-fields > label > input,
+.maker-import-fields > label > select {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  text-align: center;
+  text-align-last: center;
+}
+.maker-import-fields--real-ops {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+.maker-import-fields--real-ops .maker-import-field-spacer { display: none; }
+@media (max-width: 900px) {
+  .maker-import-page { width: min(100%, 100%); padding-inline: 10px; }
+  .maker-import-fields { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .maker-import-detail-field { grid-column: 1 / -1; }
+  .maker-import-account-select { width: min(360px, 100%); }
+}
+@media (max-width: 600px) {
+  .maker-import-page { padding-inline: 8px; }
+  .maker-import-fields { grid-template-columns: minmax(0, 1fr); }
+  .maker-import-detail-field { grid-column: auto; }
+  .maker-import-readonly-kind { align-items: flex-start; flex-direction: column; }
+  .maker-import-account-select { width: 100%; }
+}
