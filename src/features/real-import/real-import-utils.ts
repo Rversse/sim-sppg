@@ -298,7 +298,8 @@ export function parseRealImportDocument(
               sourceLineNumber: currentKitchenLine,
               rawLine: currentKitchenRaw + '\n' + rawLine,
               kitchenName: currentKitchen,
-              amount
+              amount,
+              sourceType: 'cidaun'
             })
           }
           currentKitchenHasAmount = true
