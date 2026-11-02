@@ -150,6 +150,11 @@ function getRowOperationalType(
 }
 
 function getOperationalRuleType(row: MakerImportDraftRow): string | null {
+  if (row.kind === 'ops_harian') {
+    const details = normalizeMakerText(row.details).replace(/^pembayaran\\s+/, '')
+    if (details.includes('gaji pengawas keuangan')) return 'gaji_akuntan'
+    if (details.includes('gaji pengawas gizi')) return 'gaji_ahli_gizi'
+  }
   return operationalRuleTypeForKind(row.kind, getRowOperationalType(row))
 }
 
@@ -239,10 +244,10 @@ function applyInitialMappings(
     // Exact "Ops Harian" notes import automatically; custom descriptions require
     // Admin verification and remain audit-only until verified.
     if (row.kind === 'ops_harian') {
+      const opsRuleType = getOperationalRuleType(row) ?? 'ops_harian'
       const opsMatches = refs.operationalRules.filter((rule) =>
         rule.kitchen_id === kitchenId &&
-        rule.rule_type === 'ops_harian' &&
-        rule.mapping_status === 'active' &&
+        rule.rule_type === opsRuleType &&
         operationalRuleMatchesRow(rule, row)
       )
       if (opsMatches.length === 1) {
@@ -331,7 +336,7 @@ function getRowDisposition(
   let ruleTypes: string[] = []
 
   if (flow === 'ops_disbursement') {
-    ruleTypes = ['ops_harian']
+    ruleTypes = [getOperationalRuleType(row) ?? 'ops_harian']
   } else if (flow === 'operational_disbursement') {
     const ruleType = getOperationalRuleType(row)
     if (ruleType) ruleTypes = [ruleType]
@@ -1159,7 +1164,7 @@ export function MakerImportPage() {
                       (flow !== 'neutral_lain_lain' || isKoperasiArutalaBniAccount(account))
                     )
                   : []
-                const ruleType = flow === 'ops_disbursement' ? 'ops_harian' : getOperationalRuleType(row)
+                const ruleType = getOperationalRuleType(row)
                 const rowOperationalRules = row.kind === 'lain_lain'
                   ? refs.operationalRules.filter((rule) =>
                       rule.kitchen_id === kitchenId &&
