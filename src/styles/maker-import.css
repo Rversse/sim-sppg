@@ -960,3 +960,90 @@
     grid-column: auto;
   }
 }
+
+
+/* Final unified verification grid: identical field tracks for every transaction card. */
+@media (min-width: 901px) {
+  .maker-import-row {
+    grid-template-columns:
+      66px
+      minmax(150px, 190px)
+      minmax(150px, 1.3fr)
+      minmax(70px, .55fr)
+      minmax(120px, .95fr)
+      minmax(105px, .85fr)
+      minmax(180px, 1.5fr);
+    align-items: end;
+    column-gap: 8px;
+    row-gap: 5px;
+  }
+
+  .maker-import-row .maker-import-account-select,
+  .maker-import-row .maker-import-fields {
+    display: contents;
+  }
+
+  .maker-import-row .maker-import-mapping-spacer {
+    grid-column: span 2;
+    min-width: 0;
+    min-height: 1px;
+  }
+
+  .maker-import-row .maker-import-account-select > span {
+    align-self: center;
+    min-width: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 10px;
+    line-height: 1.2;
+    transform: none;
+    pointer-events: none;
+  }
+
+  .maker-import-row .maker-import-account-select > span::before {
+    content: "Mapping";
+    font-size: 10px;
+    font-weight: 700;
+  }
+
+  .maker-import-row .maker-import-fields > label {
+    min-width: 0;
+    align-self: end;
+  }
+
+  .maker-import-row .maker-import-fields > label > span {
+    display: flex;
+    min-width: 0;
+    min-height: 24px;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    overflow-wrap: normal;
+    line-height: 1.2;
+    font-size: 9px;
+  }
+
+  .maker-import-row .maker-import-account-select select,
+  .maker-import-row .maker-import-fields > label > input,
+  .maker-import-row .maker-import-fields > label > select {
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+    text-align: center;
+    text-align-last: center;
+  }
+
+  .maker-import-row .maker-import-fields--real-ops {
+    display: contents;
+  }
+
+  .maker-import-row .maker-import-field-spacer {
+    display: block;
+    min-width: 0;
+    min-height: 1px;
+  }
+}
