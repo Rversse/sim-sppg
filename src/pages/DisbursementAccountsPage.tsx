@@ -286,17 +286,17 @@ function MappingEditor({
           {editing ? (
             <>
               {rule ? (
-                <button type="button" className="app-action-button app-action-button--secondary" onClick={() => { setDraft(createDraft(rule)); setEditing(false) }} disabled={saving}>
-                  <X aria-hidden="true" /><span>Batal</span>
+                <button type="button" className="app-action-button app-action-button--secondary app-action-button--icon" onClick={() => { setDraft(createDraft(rule)); setEditing(false) }} disabled={saving} aria-label="Batal edit" title="Batal edit">
+                  <X aria-hidden="true" />
                 </button>
               ) : null}
-              <button type="button" className="app-action-button" onClick={() => void save()} disabled={saving}>
-                <Save aria-hidden="true" /><span>{saving ? 'Menyimpan…' : 'Simpan mapping'}</span>
+              <button type="button" className="app-action-button app-action-button--icon" onClick={() => void save()} disabled={saving} aria-label={saving ? 'Menyimpan mapping' : 'Simpan mapping'} title={saving ? 'Menyimpan mapping' : 'Simpan mapping'}>
+                <Save aria-hidden="true" />
               </button>
             </>
           ) : (
-            <button type="button" className="app-action-button app-action-button--secondary" onClick={() => setEditing(true)}>
-              <Edit3 aria-hidden="true" /><span>Edit</span>
+            <button type="button" className="app-action-button app-action-button--secondary app-action-button--icon" onClick={() => setEditing(true)} aria-label="Edit mapping" title="Edit mapping">
+              <Edit3 aria-hidden="true" />
             </button>
           )}
         </div>
@@ -427,7 +427,9 @@ export function DisbursementAccountsPage() {
         </div>
         <button
           type="button"
-          className="app-action-button app-action-button--secondary disbursement-add-mapping-button"
+          className="app-action-button app-action-button--secondary app-action-button--icon disbursement-add-mapping-button"
+          aria-label={addMappingOpen ? 'Tutup tambah mapping' : 'Tambah mapping'}
+          title={addMappingOpen ? 'Tutup tambah mapping' : 'Tambah mapping'}
           onClick={() => {
             const nextOpen = !addMappingOpen
             setAddMappingOpen(nextOpen)
@@ -437,7 +439,6 @@ export function DisbursementAccountsPage() {
           disabled={loading || kitchens.length === 0}
         >
           {addMappingOpen ? <X aria-hidden="true" /> : <Plus aria-hidden="true" />}
-          <span>{addMappingOpen ? 'Tutup' : 'Tambah Mapping'}</span>
         </button>
       </section>
 
