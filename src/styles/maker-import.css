@@ -903,3 +903,60 @@
     align-self: end;
   }
 }
+
+/* Fix mapping control sizing from the card's actual width, not viewport width. */
+.maker-import-row {
+  container-type: inline-size;
+}
+@media (min-width: 901px) {
+  .maker-import-row .maker-import-account-select > span {
+    min-width: 0;
+    white-space: nowrap;
+    overflow: visible;
+    overflow-wrap: normal;
+    font-size: 10px;
+    line-height: 1.2;
+    transform: none;
+  }
+}
+@container (max-width: 760px) {
+  .maker-import-row {
+    grid-template-columns: minmax(0, 1fr);
+    align-items: stretch;
+  }
+  .maker-import-row .maker-import-account-select {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 5px;
+    margin: 4px 0;
+  }
+  .maker-import-row .maker-import-account-select > span {
+    display: block;
+    min-height: 0;
+    white-space: nowrap;
+    overflow: visible;
+    font-size: 10px;
+    line-height: 1.3;
+    transform: none;
+  }
+  .maker-import-row .maker-import-account-select select {
+    width: 100%;
+    min-width: 0;
+  }
+  .maker-import-row .maker-import-fields {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 7px 8px;
+  }
+  .maker-import-row .maker-import-detail-field {
+    grid-column: 1 / -1;
+  }
+}
+@container (max-width: 420px) {
+  .maker-import-row .maker-import-fields {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .maker-import-row .maker-import-detail-field {
+    grid-column: auto;
+  }
+}
