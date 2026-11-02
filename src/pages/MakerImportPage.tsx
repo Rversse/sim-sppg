@@ -353,6 +353,14 @@ function getRowDisposition(
     operationalRuleMatchesRow(rule, row)
   )
 
+  if (row.kind === 'ops_harian' && matchingRules.length === 0) {
+    const expectedType = ruleTypes[0] ?? 'ops_harian'
+    return {
+      status: 'excluded',
+      reason: 'Mapping ' + expectedType + ' untuk rekening ini belum tersedia di Data Rekening. Baris hanya disimpan untuk audit sampai mapping dibuat dan diaktifkan.'
+    }
+  }
+
   const hasActiveMatch = matchingRules.some((rule) => rule.mapping_status === 'active')
   if (matchingRules.length > 0 && !hasActiveMatch) {
     return {
