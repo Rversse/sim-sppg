@@ -45,10 +45,6 @@ function hashText(text: string): Promise<string> {
   )
 }
 
-function sourceLabel(source: RealImportSource): string {
-  return source === 'cianjur' ? 'Cianjur' : 'Cidaun'
-}
-
 function kitchenKey(value: string): string {
   return value.normalize('NFKD').trim().replace(/\s+/g, ' ').toLocaleLowerCase('id-ID')
 }
