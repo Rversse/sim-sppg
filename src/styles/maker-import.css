@@ -783,3 +783,18 @@
     text-align-last: center;
   }
 }
+
+/* Rebalance verification row widths: more room for recipient, nominal and detail;
+   less for bank and account number. */
+@media (min-width: 901px) {
+  .maker-import-row {
+    grid-template-columns:
+      minmax(76px, .62fr)
+      minmax(150px, 1.12fr)
+      minmax(155px, 1.28fr)
+      minmax(54px, .42fr)
+      minmax(105px, .88fr)
+      minmax(95px, .82fr)
+      minmax(165px, 1.38fr);
+  }
+}
