@@ -755,3 +755,12 @@
     transform: translateY(12px);
   }
 }
+
+
+/* The decorative mapping label must never intercept pointer events near the select. */
+@media (min-width: 901px) {
+  .maker-import-account-select > span,
+  .maker-import-account-select > span::before {
+    pointer-events: none;
+  }
+}
