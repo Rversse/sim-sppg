@@ -1175,3 +1175,137 @@
     flex-basis: auto !important;
   }
 }
+
+
+/* Maker verification: consistent compact horizontal layout for every card. */
+.maker-import-page {
+  width: min(calc(100% - 32px), 1120px) !important;
+  max-width: 1120px !important;
+  margin-inline: auto !important;
+  box-sizing: border-box;
+}
+.maker-import-row {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) !important;
+  gap: 8px !important;
+  align-items: stretch !important;
+  padding: 11px 12px !important;
+}
+.maker-import-row .maker-import-row-head,
+.maker-import-row .maker-import-row-issues,
+.maker-import-row .maker-import-verify,
+.maker-import-row .maker-import-manual-decision {
+  grid-column: 1 / -1;
+}
+.maker-import-row .maker-import-readonly-kind {
+  display: flex !important;
+  flex-direction: row !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: 12px !important;
+  min-width: 0;
+  margin: 0 !important;
+  white-space: nowrap !important;
+}
+.maker-import-row .maker-import-readonly-kind > span {
+  flex: 0 1 auto;
+  min-width: 0;
+}
+.maker-import-row .maker-import-account-select {
+  display: inline-flex !important;
+  flex: 0 1 360px !important;
+  width: min(360px, 42%) !important;
+  min-width: 180px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  background: transparent !important;
+}
+.maker-import-row .maker-import-account-select > span { display: none !important; }
+.maker-import-row .maker-import-account-select select {
+  width: 100% !important;
+  min-width: 0 !important;
+  height: 34px !important;
+  box-sizing: border-box;
+}
+.maker-import-row .maker-import-fields,
+.maker-import-row .maker-import-fields--real-ops {
+  display: grid !important;
+  grid-template-columns:
+    minmax(175px, 1.3fr)
+    minmax(76px, .55fr)
+    minmax(120px, .95fr)
+    minmax(112px, .85fr)
+    minmax(190px, 1.45fr) !important;
+  gap: 7px 9px !important;
+  align-items: end !important;
+  min-width: 0;
+}
+.maker-import-row .maker-import-fields > label {
+  display: grid;
+  grid-template-rows: 22px 34px;
+  gap: 4px;
+  min-width: 0;
+  align-self: end;
+}
+.maker-import-row .maker-import-fields > label > span {
+  display: flex !important;
+  min-height: 22px !important;
+  align-items: center !important;
+  justify-content: center !important;
+  text-align: center !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis;
+  line-height: 1.15 !important;
+  font-size: 9px !important;
+}
+.maker-import-row .maker-import-fields > label > input,
+.maker-import-row .maker-import-fields > label > select {
+  width: 100% !important;
+  min-width: 0 !important;
+  height: 34px !important;
+  box-sizing: border-box;
+  text-align: center !important;
+  text-align-last: center !important;
+}
+.maker-import-row .maker-import-fields--real-ops .maker-import-field-spacer {
+  display: block !important;
+  min-width: 0;
+}
+@media (max-width: 900px) {
+  .maker-import-page {
+    width: min(calc(100% - 20px), 100%) !important;
+    max-width: 100% !important;
+  }
+  .maker-import-row .maker-import-readonly-kind {
+    flex-wrap: wrap !important;
+    white-space: normal !important;
+  }
+  .maker-import-row .maker-import-account-select {
+    width: min(360px, 100%) !important;
+    flex: 1 1 240px !important;
+  }
+  .maker-import-row .maker-import-fields,
+  .maker-import-row .maker-import-fields--real-ops {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+  .maker-import-row .maker-import-detail-field { grid-column: 1 / -1; }
+}
+@media (max-width: 600px) {
+  .maker-import-row .maker-import-fields,
+  .maker-import-row .maker-import-fields--real-ops {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+  .maker-import-row .maker-import-detail-field { grid-column: auto; }
+  .maker-import-row .maker-import-readonly-kind {
+    align-items: flex-start !important;
+    flex-direction: column !important;
+  }
+  .maker-import-row .maker-import-account-select {
+    width: 100% !important;
+    min-width: 0 !important;
+    flex-basis: auto !important;
+  }
+}
