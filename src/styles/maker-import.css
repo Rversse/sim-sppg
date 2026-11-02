@@ -1129,7 +1129,6 @@
 .maker-import-fields--real-ops {
   grid-template-columns: repeat(5, minmax(0, 1fr));
 }
-.maker-import-fields--real-ops .maker-import-field-spacer { display: none; }
 @media (max-width: 900px) {
   .maker-import-page { width: min(100%, 100%); padding-inline: 10px; }
   .maker-import-fields { grid-template-columns: repeat(2, minmax(0, 1fr)); }
