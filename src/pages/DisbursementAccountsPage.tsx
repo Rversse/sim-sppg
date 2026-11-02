@@ -578,9 +578,6 @@ export function DisbursementAccountsPage() {
             ))}
           </div>
 
-          <p className="disbursement-accounts-footnote">
-            Untuk transaksi Lain-lain, cek dulu sebelum dimasukkan ke database. Jenis pencairan lainnya mengikuti mapping di atas. Kalau mapping belum lengkap atau disetel Diblokir, transaksi akan tertahan.
-          </p>
         </>
       )}
     </main>
