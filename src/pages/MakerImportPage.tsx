@@ -1283,7 +1283,23 @@ export function MakerImportPage() {
                     ) : null}
 
                     <div className="maker-import-readonly-kind">
-                      Jenis transaksi: <strong>{flow === 'neutral_ops_harian' ? 'OPS HARIAN / Netral' : row.kind === 'lain_lain' ? (flow === 'neutral_lain_lain' ? 'Lain-lain / Netral' : 'OPS / Pencairan') : row.kind === 'combined_payroll' ? 'Payroll gabungan' : flow === 'income' ? 'RAB / Pencairan' : flow === 'gas' ? 'GAS' : flow === 'ops_disbursement' ? 'OPS / Pencairan' : flow === 'real_ops' ? 'OPS / Real' : 'Pencairan Operasional — ' + operationalTypeLabel(row.operationalType || defaultOperationalType(row.kind))}</strong>
+                      <span>Jenis transaksi: <strong>{flow === 'neutral_ops_harian' ? 'OPS HARIAN / Netral' : row.kind === 'lain_lain' ? (flow === 'neutral_lain_lain' ? 'Lain-lain / Netral' : 'OPS / Pencairan') : row.kind === 'combined_payroll' ? 'Payroll gabungan' : flow === 'income' ? 'RAB / Pencairan' : flow === 'gas' ? 'GAS' : flow === 'ops_disbursement' ? 'OPS / Pencairan' : flow === 'real_ops' ? 'OPS / Real' : 'Pencairan Operasional — ' + operationalTypeLabel(row.operationalType || defaultOperationalType(row.kind))}</strong></span>
+                      {flow === 'income' || flow === 'neutral_lain_lain' || flow === 'neutral_ops_harian' ? (
+                        <label className="maker-import-account-select">
+                          <select value={row.accountId} onChange={(event) => chooseAccount(row, event.target.value)} disabled={saving || rowLocked || !kitchenId}>
+                            <option value="">Pilih rekening yang dimapping</option>
+                            {rowAccounts.map((account) => <option key={account.id} value={account.id}>{getAccountOptionLabel(account)}</option>)}
+                          </select>
+                        </label>
+                      ) : null}
+                      {flow === 'operational_disbursement' && !usesAutomaticRecipientMapping(row) ? (
+                        <label className="maker-import-account-select">
+                          <select value={row.operationalRuleId} onChange={(event) => chooseOperationalRule(row, event.target.value)} disabled={saving || rowLocked || !kitchenId || rowOperationalRules.length === 0 || disposition.status === 'excluded'}>
+                            <option value="">Pilih mapping untuk dapur ini</option>
+                            {rowOperationalRules.map((rule) => <option key={rule.id} value={rule.id}>{rule.owner_name} — {rule.bank} / {rule.account_number}</option>)}
+                          </select>
+                        </label>
+                      ) : null}
                     </div>
 
                     {row.kind === 'lain_lain' && row.manualDecision === 'allow' ? (
@@ -1301,45 +1317,6 @@ export function MakerImportPage() {
                               : 'Tidak cocok dengan tujuan yang diizinkan'
                         }</strong>
                       </div>
-                    ) : null}
-
-                    {flow === 'income' || flow === 'neutral_lain_lain' || flow === 'neutral_ops_harian' ? (
-                      <label className="maker-import-account-select">
-                        <span>Mapping ke</span>
-                        <select
-                          value={row.accountId}
-                          onChange={(event) => chooseAccount(row, event.target.value)}
-                          disabled={saving || rowLocked || !kitchenId}
-                        >
-                          <option value="">Pilih rekening yang dimapping</option>
-                          {rowAccounts.map((account) => (
-                            <option key={account.id} value={account.id}>{getAccountOptionLabel(account)}</option>
-                          ))}
-                        </select>
-                      </label>
-                    ) : null}
-
-                    {flow === 'operational_disbursement' && !usesAutomaticRecipientMapping(row) ? (
-                      <label className="maker-import-account-select">
-                        <span>Mapping ke</span>
-                        <select
-                          value={row.operationalRuleId}
-                          onChange={(event) => chooseOperationalRule(row, event.target.value)}
-                          disabled={saving || rowLocked || !kitchenId || rowOperationalRules.length === 0 || disposition.status === 'excluded'}
-                        >
-                          <option value="">Pilih mapping untuk dapur ini</option>
-                          {rowOperationalRules.map((rule) => (
-                            <option key={rule.id} value={rule.id}>
-                              {rule.owner_name} — {rule.bank} / {rule.account_number}
-                            </option>
-                          ))}
-                        </select>
-                      </label>
-                    ) : null}
-
-                    {!(flow === 'income' || flow === 'neutral_lain_lain' || flow === 'neutral_ops_harian' ||
-                      (flow === 'operational_disbursement' && !usesAutomaticRecipientMapping(row))) ? (
-                      <div className="maker-import-mapping-spacer" aria-hidden="true" />
                     ) : null}
 
                     {row.kind === 'real_ops' ? (
