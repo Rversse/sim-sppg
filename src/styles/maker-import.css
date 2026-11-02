@@ -798,3 +798,50 @@
       minmax(165px, 1.38fr);
   }
 }
+
+/* Final field sizing and alignment for Maker verification rows. */
+.maker-import-fields {
+  display: grid;
+  grid-template-columns:
+    minmax(155px, 1.25fr)  /* recipient: slightly wider */
+    minmax(72px, .58fr)    /* bank: compact */
+    minmax(112px, .88fr)   /* account number: compact */
+    minmax(108px, .86fr)   /* nominal: a little wider */
+    minmax(190px, 1.5fr);  /* detail: widest */
+  gap: 7px 9px;
+  align-items: end;
+}
+.maker-import-fields > label {
+  min-width: 0;
+  align-self: end;
+}
+.maker-import-fields > label > span {
+  display: flex;
+  min-height: 24px;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  line-height: 1.2;
+  font-size: 9px;
+}
+.maker-import-fields > label > input,
+.maker-import-fields > label > select {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  text-align: center;
+}
+.maker-import-detail-field { grid-column: auto; }
+
+@media (max-width: 1100px) {
+  .maker-import-fields {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .maker-import-detail-field { grid-column: 1 / -1; }
+}
+@media (max-width: 660px) {
+  .maker-import-fields { grid-template-columns: minmax(0, 1fr); }
+  .maker-import-detail-field { grid-column: auto; }
+}
