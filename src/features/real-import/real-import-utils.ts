@@ -6,6 +6,7 @@ export type RealImportDraftRow = {
   rawLine: string
   kitchenName: string
   amount: number
+  sourceType: RealImportSource
 }
 
 export type RealImportParseResult = {
@@ -100,9 +101,10 @@ function parseCidaunDate(sourceText: string): string | null {
 
 export function parseRealImportAmount(raw: string): number | null {
   const value = raw.trim().replace(/^Rp\s*/i, '')
-  if (!value || !/^(?:\d+|\d{1,3}(?:(?:\.\s*|\s+)\d{3})+)$/.test(value)) return null
-
-  const amount = Number(value.replace(/[.\s]/g, ''))
+  if (!value || !/^\d+(?:[.,\s]+\d+)*$/.test(value)) return null
+  const groups = value.split(/[.,\s]+/)
+  if (groups.length > 1 && (groups[0].length > 3 || groups.slice(1).some((group) => group.length !== 3))) return null
+  const amount = Number(value.replace(/[.,\s]/g, ''))
   return Number.isSafeInteger(amount) && amount > 0 ? amount : null
 }
 
@@ -155,12 +157,38 @@ function extractCianjurAmounts(text: string): number[] {
 }
 
 export function parseRealImportDocument(
-  sourceType: RealImportSource,
+  sourceType: RealImportSource | 'combined',
   sourceText: string
 ): RealImportParseResult {
   const text = sourceText.replace(/\r\n?/g, '\n').trim()
   if (!text) {
-    return { error: 'Tempel laporan Cianjur atau Cidaun terlebih dahulu.', transactionDate: null, rows: [], sourceTotal: null, warnings: [] }
+    return { error: 'Tempel laporan belanja harian terlebih dahulu.', transactionDate: null, rows: [], sourceTotal: null, warnings: [] }
+  }
+
+
+  if (sourceType === 'combined') {
+    const transactionDate = parseCianjurDate(text)
+    if (!transactionDate) return { error: 'Tanggal tidak ditemukan. Gunakan format DD/MM/YYYY, misalnya 02/11/2026.', transactionDate: null, rows: [], sourceTotal: null, warnings: [] }
+    let section: RealImportSource = 'cianjur'
+    const combinedRows: Array<Omit<RealImportDraftRow, 'rowNumber'>> = []
+    const warnings: string[] = []
+    text.split('\\n').forEach((rawLine, index) => {
+      const line = rawLine.trim()
+      if (!line || /^belan(?:j|aj)a\\s+harian\\b/i.test(line)) return
+      if (/^\\*?\\s*dari\\s+koperasi\\s+cibeber\\b/i.test(line)) { section = 'cianjur'; return }
+      if (/^\\*?\\s*dari\\s+suplayer\\s+cidaun\\b/i.test(line)) { section = 'cidaun'; return }
+      if (/\\bbop\\b/i.test(line)) return
+      const kitchenMatch = matchKitchenAtStart(line)
+      if (!kitchenMatch) {
+        if (/\\d/.test(line) && !/^total\\b/i.test(line) && !/^\\*/.test(line)) warnings.push('Baris ' + (index + 1) + ': nama dapur tidak dikenali — ' + line)
+        return
+      }
+      const amounts = extractCianjurAmounts(kitchenMatch.rest)
+      if (!amounts.length) { warnings.push('Baris ' + (index + 1) + ': nominal tidak terbaca — ' + line); return }
+      for (const amount of amounts) combinedRows.push({ sourceLineNumber: index + 1, rawLine, kitchenName: kitchenMatch.kitchen, amount, sourceType: section })
+    })
+    if (!combinedRows.length) return { error: 'Tidak ada transaksi yang berhasil dibaca. Periksa format nama dapur dan nominal.', transactionDate, rows: [], sourceTotal: null, warnings }
+    return { error: null, transactionDate, rows: combinedRows.map((row, index) => ({ ...row, rowNumber: index + 1 })), sourceTotal: null, warnings }
   }
 
   const transactionDate = sourceType === 'cianjur'
@@ -201,7 +229,8 @@ export function parseRealImportDocument(
             sourceLineNumber: index + 1,
             rawLine,
             kitchenName: kitchenMatch.kitchen,
-            amount
+            amount,
+            sourceType: 'cianjur'
           })
         }
         return
@@ -250,7 +279,8 @@ export function parseRealImportDocument(
               sourceLineNumber: currentKitchenLine,
               rawLine,
               kitchenName: currentKitchen,
-              amount
+              amount,
+              sourceType: 'cidaun'
             })
           }
           currentKitchenHasAmount = true
