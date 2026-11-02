@@ -1337,8 +1337,16 @@ export function MakerImportPage() {
                       </label>
                     ) : null}
 
+                    {!(flow === 'income' || flow === 'neutral_lain_lain' || flow === 'neutral_ops_harian' ||
+                      (flow === 'operational_disbursement' && !usesAutomaticRecipientMapping(row))) ? (
+                      <div className="maker-import-mapping-spacer" aria-hidden="true" />
+                    ) : null}
+
                     {row.kind === 'real_ops' ? (
-                      <div className="maker-import-fields">
+                      <div className="maker-import-fields maker-import-fields--real-ops">
+                        <span className="maker-import-field-spacer" aria-hidden="true" />
+                        <span className="maker-import-field-spacer" aria-hidden="true" />
+                        <span className="maker-import-field-spacer" aria-hidden="true" />
                         <label>
                           <span>Nominal (Rp)</span>
                           <input inputMode="numeric" value={formatAmount(row.amount)} onChange={(event) => {
@@ -1347,6 +1355,7 @@ export function MakerImportPage() {
                             updateRow(row.id, { amount: amount !== null && Number.isSafeInteger(amount) ? amount : null, verified: false })
                           }} title="Nominal OPS / Real dapat dikoreksi. Sumber asli tetap disimpan untuk audit." disabled={saving || rowLocked} />
                         </label>
+                        <span className="maker-import-field-spacer" aria-hidden="true" />
                       </div>
                     ) : (
                       <div className="maker-import-fields">
