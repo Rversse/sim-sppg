@@ -520,26 +520,30 @@ export function DisbursementAccountsPage() {
           <div className="disbursement-mapping-groups">
             <section className="disbursement-mapping-group disbursement-vehicle-group">
               {vehicleReference ? (
-                <>
-                <div className="disbursement-mapping-row-head">
-                  <div>
-                    <strong>Sewa Kendaraan</strong>
-                    <span
-                      className={'disbursement-status-dot ' + (vehicleReference.mapping_status === 'active' ? 'is-allowed' : 'is-blocked')}
-                      title={vehicleReference.mapping_status === 'active' ? 'Masuk ke database diperbolehkan' : 'Diblokir dari database'}
-                      aria-label={vehicleReference.mapping_status === 'active' ? 'Masuk ke database diperbolehkan' : 'Diblokir dari database'}
-                      role="img"
-                    />
+                <div className="disbursement-mapping-row">
+                  <div className="disbursement-mapping-row-head">
+                    <div>
+                      <strong>Sewa Kendaraan</strong>
+                      <span
+                        className={'disbursement-status-dot ' + (vehicleReference.mapping_status === 'active' ? 'is-allowed' : 'is-blocked')}
+                        title={vehicleReference.mapping_status === 'active' ? 'Masuk ke database diperbolehkan' : 'Diblokir dari database'}
+                        aria-label={vehicleReference.mapping_status === 'active' ? 'Masuk ke database diperbolehkan' : 'Diblokir dari database'}
+                        role="img"
+                      />
+                    </div>
                   </div>
-                </div>
-                <div className="disbursement-fixed-account">
-                  <strong>{vehicleReference.owner_name}</strong>
-                  <span>{vehicleReference.bank} · {vehicleReference.account_number}</span>
+                  <div className="disbursement-mapping-fields">
+                    <label><span>Nama penerima / pemilik</span><input value={vehicleReference.owner_name} disabled readOnly /></label>
+                    <label><span>Bank</span><input value={vehicleReference.bank} disabled readOnly /></label>
+                    <label><span>Nomor rekening</span><input value={vehicleReference.account_number} disabled readOnly /></label>
+                    <label><span>Tujuan Rekening</span><input value="Berkah Mandiri Putra" disabled readOnly /></label>
+                    <label className="disbursement-mapping-status-field"><span>Input ke Database</span><input value={vehicleReference.mapping_status === 'active' ? 'Masuk' : 'Diblokir'} disabled readOnly /></label>
+                    <div className="disbursement-mapping-actions" aria-hidden="true" />
+                  </div>
                   {!vehicleConsistent ? (
                     <small className="is-warning">Rekening Sewa Kendaraan berbeda antar-dapur. Samakan sebelum digunakan.</small>
                   ) : null}
                 </div>
-                </>
               ) : (
                 <div className="disbursement-page-error">Mapping rekening Sewa Kendaraan belum tersedia.</div>
               )}
