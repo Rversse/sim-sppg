@@ -205,3 +205,51 @@ test('Cianjur combined supplier report recognizes Cidaun kitchens and mixed thou
     ['Sukaraharja', 6900000]
   ])
 })
+
+
+test('combined Cibeber and Cidaun report keeps section notes and skips BOP rows', () => {
+  const parsed = parseRealImportDocument('combined', [
+    'Belanja Harian Senin 02/11/2026',
+    '* Dari koperasi cibeber',
+    'Ereng        17,318,500',
+    'bunder       17,197,500',
+    'warbit       19,565,800',
+    'Cipetir      11,167,600',
+    'Cimanggu     14,617,800',
+    'camul        13,568,500',
+    'cikondang     9,926,700',
+    'cisepat      24,129,500',
+    'kertajadi    31,071,500',
+    'sukaraharja     446,000',
+    '* Dari suplayer cidaun',
+    'Cisepat     12.911.500',
+    'Kertajadi    1.387.500',
+    'BOP Sukaraharja 999.000'
+  ].join('\\n'))
+
+  assert.equal(parsed.error, null)
+  assert.equal(parsed.transactionDate, '2026-11-02')
+  assert.equal(parsed.rows.length, 12)
+  assert.deepEqual(parsed.rows.map((row) => [row.kitchenName, row.amount, row.sourceType]), [
+    ['Cihaur', 17318500, 'cianjur'],
+    ['Cibaregbeg', 17197500, 'cianjur'],
+    ['Warungbitung', 19565800, 'cianjur'],
+    ['Cipetir', 11167600, 'cianjur'],
+    ['Cimanggu', 14617800, 'cianjur'],
+    ['Campakamulya', 13568500, 'cianjur'],
+    ['Cikondang', 9926700, 'cianjur'],
+    ['Cisepat', 24129500, 'cianjur'],
+    ['Kertajadi', 31071500, 'cianjur'],
+    ['Sukaraharja', 446000, 'cianjur'],
+    ['Cisepat', 12911500, 'cidaun'],
+    ['Kertajadi', 1387500, 'cidaun']
+  ])
+  assert.equal(parsed.warnings.length, 0)
+})
+
+test('amount parser accepts spaces, dots, commas and mixed separators', () => {
+  assert.equal(parseRealImportAmount('17 318 500'), 17318500)
+  assert.equal(parseRealImportAmount('4. 240.000'), 4240000)
+  assert.equal(parseRealImportAmount('12,911,500'), 12911500)
+  assert.equal(parseRealImportAmount('12.911.500'), 12911500)
+})
