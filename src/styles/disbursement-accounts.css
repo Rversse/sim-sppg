@@ -19,14 +19,14 @@
 
 .disbursement-toolbar-grid .disbursement-kitchen-picker {
   width: 100%;
-  max-width: 340px;
+  max-width: 420px;
 }
 
 .disbursement-status-field {
   display: grid;
   gap: 6px;
   min-width: 0;
-  max-width: 420px;
+  max-width: 340px;
 }
 
 .disbursement-status-field > span {
