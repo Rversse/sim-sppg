@@ -610,4 +610,8 @@
     width: 100%;
     justify-content: center;
   }
+
+  .disbursement-mapping-actions[aria-hidden='true'] {
+    display: none;
+  }
 }
