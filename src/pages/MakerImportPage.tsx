@@ -1305,7 +1305,7 @@ export function MakerImportPage() {
 
                     {flow === 'income' || flow === 'neutral_lain_lain' || flow === 'neutral_ops_harian' ? (
                       <label className="maker-import-account-select">
-                        <span>{flow === 'income' ? 'Rekening terhubung ke mapping dapur' : 'Rekening netral terhubung ke mapping dapur'}</span>
+                        <span>Mapping ke</span>
                         <select
                           value={row.accountId}
                           onChange={(event) => chooseAccount(row, event.target.value)}
@@ -1321,7 +1321,7 @@ export function MakerImportPage() {
 
                     {flow === 'operational_disbursement' && !usesAutomaticRecipientMapping(row) ? (
                       <label className="maker-import-account-select">
-                        <span>Mapping rekening operasional database</span>
+                        <span>Mapping ke</span>
                         <select
                           value={row.operationalRuleId}
                           onChange={(event) => chooseOperationalRule(row, event.target.value)}
