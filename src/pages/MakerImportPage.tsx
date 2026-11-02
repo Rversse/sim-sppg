@@ -151,7 +151,7 @@ function getRowOperationalType(
 
 function getOperationalRuleType(row: MakerImportDraftRow): string | null {
   if (row.kind === 'ops_harian') {
-    const details = normalizeMakerText(row.details).replace(/^pembayaran\\s+/, '')
+    const details = normalizeMakerText(row.details).replace(/^pembayaran\s+/, '')
     if (details.includes('gaji pengawas keuangan')) return 'gaji_akuntan'
     if (details.includes('gaji pengawas gizi')) return 'gaji_ahli_gizi'
   }
