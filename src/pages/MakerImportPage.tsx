@@ -125,6 +125,32 @@ function isKoperasiArutalaBniAccount(account: AccountRef): boolean {
     normalizeMakerText(account.name) === 'koperasi arutala'
 }
 
+function isOpsHarianArutalaAccount(account: AccountRef, row: MakerImportDraftRow): boolean {
+  return isKoperasiArutalaBniAccount(account) &&
+    normalizeMakerAccountNumber(account.account_number) === '1985322260' &&
+    normalizeMakerText(row.recipientName) === 'koperasi arutala' &&
+    normalizeMakerBank(row.bank) === 'BNI' &&
+    normalizeMakerAccountNumber(row.accountNumber) === '1985322260'
+}
+
+function hasMappedOpsHarianArutalaAccount(
+  row: MakerImportDraftRow,
+  kitchenId: string,
+  refs: ImportReferences
+): boolean {
+  if (row.kind !== 'ops_harian') return false
+  const neutralAccountIds = new Set(
+    refs.accountRules
+      .filter((rule) => rule.kitchen_id === kitchenId && rule.flow_type === 'neutral')
+      .map((rule) => rule.account_id)
+  )
+  return refs.accounts.some((account) =>
+    neutralAccountIds.has(account.id) &&
+    account.id === row.accountId &&
+    isOpsHarianArutalaAccount(account, row)
+  )
+}
+
 function operationalTargetRoleLabel(role: OperationalAccountRule['target_role']): string {
   switch (role) {
     case 'akuntan': return 'Akuntan'
@@ -240,7 +266,30 @@ function applyInitialMappings(
       }
     }
 
-    // OPS HARIAN always resolves against active operational-account mappings.
+    // OPS HARIAN paid to the exact Koperasi Arutala BNI account is treated
+    // like GAS: resolve the kitchen's neutral account mapping and import under OPS.
+    if (row.kind === 'ops_harian') {
+      const neutralArutalaAccountIds = new Set(
+        refs.accountRules
+          .filter((rule) => rule.kitchen_id === kitchenId && rule.flow_type === 'neutral')
+          .map((rule) => rule.account_id)
+      )
+      const arutalaMatches = refs.accounts.filter((account) =>
+        neutralArutalaAccountIds.has(account.id) &&
+        isOpsHarianArutalaAccount(account, row)
+      )
+      if (arutalaMatches.length === 1) {
+        return {
+          ...row,
+          manualFlow: 'neutral_ops_harian',
+          operationalType: '',
+          accountId: arutalaMatches[0].id,
+          operationalRuleId: ''
+        }
+      }
+    }
+
+    // Other OPS HARIAN rows keep the existing operational-account mapping flow.
     // Exact "Ops Harian" notes import automatically; custom descriptions require
     // Admin verification and remain audit-only until verified.
     if (row.kind === 'ops_harian') {
@@ -304,6 +353,7 @@ function getRowDisposition(
   if (
     row.kind === 'ops_harian' &&
     normalizeMakerText(row.details) !== 'ops harian' &&
+    !hasMappedOpsHarianArutalaAccount(row, kitchenId, refs) &&
     !row.verified
   ) {
     return {
@@ -454,7 +504,8 @@ function getValidation(
 
     if (
       row.kind === 'ops_harian' &&
-      normalizeMakerText(row.details) !== 'ops harian'
+      normalizeMakerText(row.details) !== 'ops harian' &&
+      !hasMappedOpsHarianArutalaAccount(row, kitchenId, refs)
     ) {
       confirmations.push('Deskripsi OPS HARIAN berbeda dari Ops Harian. Validasi agar transaksi masuk ke OPS / Pencairan; jika tidak divalidasi, baris hanya disimpan untuk audit.')
     }
