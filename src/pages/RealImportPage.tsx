@@ -28,11 +28,6 @@ type ExistingTransaction = {
   amount: number | string
 }
 
-type ImportAuditRow = {
-  transaction_id: string | null
-  source_type: RealImportSource
-}
-
 type ExistingSourceAuditRow = {
   kitchen_id: string | null
   amount: number | string
@@ -152,29 +147,8 @@ export function RealImportPage() {
 
         if (transactionError) throw transactionError
         const existing = (transactionData ?? []) as ExistingTransaction[]
-        const transactionIds = existing.map((item) => item.id)
 
-        let transactionAuditRows: ImportAuditRow[] = []
-        if (transactionIds.length > 0) {
-          const { data: audits, error: auditError } = await supabase
-            .from('real_import_batch_rows')
-            .select('transaction_id,source_type')
-            .in('transaction_id', transactionIds)
-          if (auditError) throw auditError
-          transactionAuditRows = (audits ?? []) as ImportAuditRow[]
-        }
-
-        const auditByTransaction = new Map<string, RealImportSource[]>()
-        for (const audit of transactionAuditRows) {
-          if (!audit.transaction_id) continue
-          const sources = auditByTransaction.get(audit.transaction_id) ?? []
-          sources.push(audit.source_type)
-          auditByTransaction.set(audit.transaction_id, sources)
-        }
-
-        // Also inspect same-source audit rows directly. Their transaction can have
-        // been deleted (ON DELETE SET NULL); that historical row must still stop
-        // the same source/kitchen/date/supplier/amount from being posted again.
+        // Inspect audit rows directly as well, including historical rows whose transaction was deleted.
         const { data: priorBatches, error: priorBatchError } = await supabase
           .from('real_import_batches')
           .select('id')
@@ -206,13 +180,8 @@ export function RealImportPage() {
           const duplicates = existing.filter((item) =>
             item.kitchen_id === row.kitchenId && Number(item.amount) === row.amount
           )
-          // A match from another source is intentionally allowed because the
-          // Cianjur and Cidaun purchases are separate. However, ANY manual row
-          // or same-source audited row with the same key must block this import.
-          const blockingExistingTransaction = duplicates.some((item) => {
-            const sources = auditByTransaction.get(item.id) ?? []
-            return true
-          })
+          // The combined report must block matching transactions regardless of section.
+          const blockingExistingTransaction = duplicates.length > 0
 
           if (existsInSameSourceAudit || blockingExistingTransaction) {
             reasons[row.id] = 'Tanggal, dapur, supplier Koperasi Arutala, dan nominal ini sudah ada untuk sumber yang sama. Baris tidak bisa disimpan dua kali.'
@@ -448,13 +417,13 @@ export function RealImportPage() {
           <div className="real-import-summary">
             <div><span>Transaksi masuk</span><strong>{importedRows.length}</strong><small>Rp {formatRealImportAmount(importedTotal)}</small></div>
             <div><span>Dikecualikan</span><strong>{excludedRows.length}</strong><small>Rp {formatRealImportAmount(excludedTotal)}</small></div>
-            <div><span>Total sumber</span><strong>{sourceTotal === null ? '—' : 'Rp ' + formatRealImportAmount(sourceTotal)}</strong><small>{sourceTotal === null ? 'Tidak tersedia pada format Cianjur' : sourceTotalMismatch ? 'Tidak sama dengan total baris' : 'Total cocok'}</small></div>
+            <div><span>Total sumber</span><strong>{sourceTotal === null ? '—' : 'Rp ' + formatRealImportAmount(sourceTotal)}</strong><small>{sourceTotal === null ? 'Tidak ada total gabungan pada laporan ini' : sourceTotalMismatch ? 'Tidak sama dengan total baris' : 'Total cocok'}</small></div>
             <div><span>Supplier</span><strong>{supplier?.name ?? '—'}</strong><small>Semua transaksi import</small></div>
           </div>
 
           {duplicateBatchMessage ? <div className="maker-import-message is-error"><ShieldAlert /> {duplicateBatchMessage}</div> : null}
           {duplicateCheckError ? <div className="maker-import-message is-error"><ShieldAlert /> Pengecekan duplikat gagal: {duplicateCheckError}</div> : null}
-          {sourceTotalMismatch ? <div className="maker-import-message is-error"><AlertTriangle /> Total sumber Cidaun tidak sama dengan jumlah baris. Periksa nominal sebelum melanjutkan.</div> : null}
+          {sourceTotalMismatch ? <div className="maker-import-message is-error"><AlertTriangle /> Total sumber tidak sama dengan jumlah baris. Periksa nominal sebelum melanjutkan.</div> : null}
           {warnings.map((warning) => <div className="maker-import-message is-error" key={warning}><AlertTriangle /> {warning}</div>)}
           {unknownKitchenRows.map((row) => <div className="maker-import-message is-error" key={row.id}><AlertTriangle /> Dapur belum cocok: {row.kitchenName}. Import diblokir sampai dapur valid.</div>)}
 
@@ -520,7 +489,7 @@ export function RealImportPage() {
       <ImportConfirmationDialog
         open={confirmOpen}
         title="Simpan Import RAB / Real?"
-        description={'Periksa ringkasan batch ' + sourceLabel(sourceType) + ' tanggal ' + transactionDate + '. Transaksi akan masuk sebagai RAB / Real dengan supplier Koperasi Arutala.'}
+        description={'Periksa ringkasan batch ' + 'Gabungan Cibeber + Cidaun' + ' tanggal ' + transactionDate + '. Transaksi akan masuk sebagai RAB / Real dengan supplier Koperasi Arutala.'}
         details={[
           { label: 'Tanggal', value: transactionDate },
           { label: 'Sumber', value: 'Gabungan Cibeber + Cidaun' },
