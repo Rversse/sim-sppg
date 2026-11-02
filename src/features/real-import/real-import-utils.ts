@@ -172,7 +172,7 @@ export function parseRealImportDocument(
     let section: RealImportSource = 'cianjur'
     const combinedRows: Array<Omit<RealImportDraftRow, 'rowNumber'>> = []
     const warnings: string[] = []
-    text.split('\\n').forEach((rawLine, index) => {
+    text.split('\n').forEach((rawLine, index) => {
       const line = rawLine.trim()
       if (!line || /^belan(?:j|aj)a\\s+harian\\b/i.test(line)) return
       if (/^\\*?\\s*dari\\s+koperasi\\s+cibeber\\b/i.test(line)) { section = 'cianjur'; return }
