@@ -174,13 +174,13 @@ export function parseRealImportDocument(
     const warnings: string[] = []
     text.split('\n').forEach((rawLine, index) => {
       const line = rawLine.trim()
-      if (!line || /^belan(?:j|aj)a\\s+harian\\b/i.test(line)) return
-      if (/^\\*?\\s*dari\\s+koperasi\\s+cibeber\\b/i.test(line)) { section = 'cianjur'; return }
-      if (/^\\*?\\s*dari\\s+suplayer\\s+cidaun\\b/i.test(line)) { section = 'cidaun'; return }
-      if (/\\bbop\\b/i.test(line)) return
+      if (!line || /^belan(?:j|aj)a\s+harian\b/i.test(line)) return
+      if (/^\*?\s*dari\s+koperasi\s+cibeber\b/i.test(line)) { section = 'cianjur'; return }
+      if (/^\*?\s*dari\s+suplayer\s+cidaun\b/i.test(line)) { section = 'cidaun'; return }
+      if (/\bbop\b/i.test(line)) return
       const kitchenMatch = matchKitchenAtStart(line)
       if (!kitchenMatch) {
-        if (/\\d/.test(line) && !/^total\\b/i.test(line) && !/^\\*/.test(line)) warnings.push('Baris ' + (index + 1) + ': nama dapur tidak dikenali — ' + line)
+        if (/\d/.test(line) && !/^total\b/i.test(line) && !/^\*/.test(line)) warnings.push('Baris ' + (index + 1) + ': nama dapur tidak dikenali — ' + line)
         return
       }
       const amounts = extractCianjurAmounts(kitchenMatch.rest)
