@@ -747,3 +747,11 @@
     align-self: end;
   }
 }
+
+
+/* Vertically center the compact mapping label against the input controls. */
+@media (min-width: 901px) {
+  .maker-import-account-select > span {
+    transform: translateY(12px);
+  }
+}
