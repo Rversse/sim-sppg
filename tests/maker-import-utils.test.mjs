@@ -344,7 +344,7 @@ test('Maker vehicle rent preserves unit count and compact rental period as trans
   assert.deepEqual(parsed.rows.map((row) => row.kind), ['vehicle_rent', 'vehicle_rent', 'vehicle_rent'])
   assert.equal(parsed.rows[0].details, 'Pencairan Sewa 2 Unit Mobil · Periode 16-Nov s.d. 21-Nov-2026')
   assert.equal(parsed.rows[1].details, 'Pencairan Sewa 1 Unit Mobil · Periode 09-13 Nov 2026')
-  assert.equal(parsed.rows[2].details, 'Pencairan Sewa 1 Unit Motor · Periode 28-Dec-2026 s.d. 05-Jan-2027')
+  assert.equal(parsed.rows[2].details, 'Pencairan Sewa 1 Unit Motor · Periode 28-12-2026 s.d. 05-01-2027')
   assert.equal(parsed.rows[0].operationalType, 'vehicle_rent')
   assert.equal(parsed.rows[1].operationalType, 'vehicle_rent')
   assert.equal(parsed.rows[2].operationalType, 'vehicle_rent')
