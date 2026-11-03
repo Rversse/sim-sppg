@@ -336,7 +336,7 @@ test('Maker vehicle rent preserves unit count and compact rental period as trans
     'Cipetir, 03-Nov-2026',
     'SEWA KENDARAAN 2 UNIT MOBIL (16-11 s.d. 21-11 2026) : Berkah Mandiri Putra - MANDIRI / 1820015963523 · 2.525',
     'SEWA KENDARAAN 1 UNIT MOTOR (28-12-2026 s.d. 05-01-2027) : Berkah Mandiri Putra - MANDIRI / 1820015963523 · 500.000'
-  ].join('\\n'))
+  ].join('\n'))
 
   assert.equal(parsed.error, null)
   assert.equal(parsed.rows.length, 2)
