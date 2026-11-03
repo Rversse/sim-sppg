@@ -198,7 +198,7 @@ test('Maker parser reads italic OPS Real as a nominal-only per-kitchen realizati
   assert.equal(parsed.error, null)
   assert.equal(parsed.kitchenName, 'Cimanggu')
   assert.equal(parsed.transactionDate, '2026-10-15')
-  assert.equal(parsed.rows.length, 2)
+  assert.equal(parsed.rows.length, 3)
   const realization = parsed.rows[1]
   assert.equal(realization.kind, 'real_ops')
   assert.equal(realization.sourceCategory, 'OPS Real')
@@ -334,15 +334,17 @@ test('Uppercase output categories and full bank account numbers remain importabl
 test('Maker vehicle rent preserves unit count and compact rental period as transaction note', () => {
   const parsed = parseMakerDocument([
     'Cipetir, 03-Nov-2026',
-    'SEWA KENDARAAN 2 UNIT MOBIL (16-11 s.d. 21-11 2026) : Berkah Mandiri Putra - MANDIRI / 1820015963523 · 2.525',
+    'SEWA KENDARAAN 2 UNIT MOBIL (16-Nov s.d. 21-Nov-2026) : Berkah Mandiri Putra - MANDIRI / 1820015963523 · 2.525',
+    'SEWA KENDARAAN 1 UNIT MOBIL (09-13 Nov 2026) : Berkah Mandiri Putra - MANDIRI / 1820015963523 · 10.800.000',
     'SEWA KENDARAAN 1 UNIT MOTOR (28-12-2026 s.d. 05-01-2027) : Berkah Mandiri Putra - MANDIRI / 1820015963523 · 500.000'
   ].join('\n'))
 
   assert.equal(parsed.error, null)
   assert.equal(parsed.rows.length, 2)
-  assert.deepEqual(parsed.rows.map((row) => row.kind), ['vehicle_rent', 'vehicle_rent'])
-  assert.equal(parsed.rows[0].details, 'Pencairan Sewa 2 Unit Mobil · 16-11 s.d. 21-11 2026')
-  assert.equal(parsed.rows[1].details, 'Pencairan Sewa 1 Unit Motor · 28-12-2026 s.d. 05-01-2027')
+  assert.deepEqual(parsed.rows.map((row) => row.kind), ['vehicle_rent', 'vehicle_rent', 'vehicle_rent'])
+  assert.equal(parsed.rows[0].details, 'Pencairan Sewa 2 Unit Mobil · Periode 16-Nov s.d. 21-Nov-2026')
+  assert.equal(parsed.rows[1].details, 'Pencairan Sewa 1 Unit Motor · Periode 28-Dec-2026 s.d. 05-Jan-2027')
+  assert.equal(parsed.rows[2].details, 'Pencairan Sewa 1 Unit Mobil · Periode 09-13 Nov 2026')
   assert.equal(parsed.rows[0].operationalType, 'vehicle_rent')
   assert.equal(parsed.rows[1].operationalType, 'vehicle_rent')
 })
