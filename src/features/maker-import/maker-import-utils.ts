@@ -316,7 +316,7 @@ function makeRow(
   }
 
   const vehicleMatch = label.match(
-    /^Sewa Kendaraan\s+(Mobil|Motor)\s*\((.*?)\)$/i
+    /^Sewa Kendaraan\s+(?:(\d+)\s+Unit\s+)?(Mobil|Motor)\s*\((.*?)\)$/i
   )
   const normalizedLabel = normalizeMakerText(label)
   const isSppgRentLabel = ['sewa sppg', 'insentif fasilitas sppg'].includes(normalizedLabel)
@@ -399,7 +399,9 @@ function makeRow(
 
   const details =
     kind === 'vehicle_rent'
-      ? 'Jenis kendaraan: ' + (vehicleMatch?.[1] ?? '—') + ' · Periode sewa: ' + (vehicleMatch?.[2] ?? '')
+      ? vehicleMatch?.[1]
+        ? 'Pencairan Sewa ' + vehicleMatch[1] + ' Unit ' + vehicleMatch[2] + ' · ' + vehicleMatch[3]
+        : 'Jenis kendaraan: ' + (vehicleMatch?.[2] ?? '—') + ' · Periode sewa: ' + (vehicleMatch?.[3] ?? '')
       : kind === 'gas'
         ? gasDetails
         : kind === 'ops_harian'
