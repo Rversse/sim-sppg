@@ -400,7 +400,7 @@ function makeRow(
   const details =
     kind === 'vehicle_rent'
       ? vehicleMatch?.[1]
-        ? 'Pencairan Sewa ' + vehicleMatch[1] + ' Unit ' + vehicleMatch[2] + ' · ' + vehicleMatch[3]
+        ? 'Pencairan Sewa ' + vehicleMatch[1] + ' Unit ' + vehicleMatch[2].toLocaleLowerCase('id-ID').replace(/^./, (letter) => letter.toLocaleUpperCase('id-ID')) + ' · ' + vehicleMatch[3]
         : 'Jenis kendaraan: ' + (vehicleMatch?.[2] ?? '—') + ' · Periode sewa: ' + (vehicleMatch?.[3] ?? '')
       : kind === 'gas'
         ? gasDetails
