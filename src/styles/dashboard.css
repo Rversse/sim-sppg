@@ -2158,7 +2158,7 @@
 }
 
 .dashboard-status-flags .status-flag-pic-incentive.is-done {
-  color: var(--theme-data-purple);
+  color: var(--flow-pencairan-ops);
 }
 
 .dashboard-status-flags span[aria-label='Gaji Relawan']::after {
@@ -2174,7 +2174,7 @@
 }
 
 .dashboard-status-flags .status-flag-sppg-rent.is-done {
-  color: var(--theme-data-amber);
+  color: var(--flow-pencairan-ops);
 }
 
 .dashboard-status-flags span[aria-label='Insentif Fasilitas SPPG']::after {
@@ -2186,7 +2186,7 @@
 }
 
 .dashboard-status-flags .status-flag-vehicle-rent.is-done {
-  color: var(--theme-data-teal);
+  color: var(--flow-pencairan-ops);
 }
 
 .dashboard-status-flags span[aria-label='Sewa Kendaraan']::after {
@@ -2197,7 +2197,7 @@
 .dashboard-history-party-name.dashboard-flow-sppg-rent {
   border: 0;
   background: transparent;
-  color: var(--theme-data-amber);
+  color: var(--flow-pencairan-ops);
   padding: 0;
 }
 

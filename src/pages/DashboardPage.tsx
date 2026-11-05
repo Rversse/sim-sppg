@@ -133,7 +133,7 @@ function flowClass(flow: DashboardFlow) {
     return 'dashboard-flow dashboard-flow-ops-disbursement'
   }
   if (flow === 'operational_disbursement') {
-    return 'dashboard-flow dashboard-flow-sppg-rent'
+    return 'dashboard-flow dashboard-flow-ops-disbursement'
   }
   return 'dashboard-flow dashboard-flow-real-ops'
 }
