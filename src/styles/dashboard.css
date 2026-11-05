@@ -2150,7 +2150,7 @@
 }
 
 .dashboard-status-flags .status-flag-relawan-salary.is-done {
-  color: var(--flow-pencairan-ops);
+  color: var(--theme-data-amber);
 }
 
 .dashboard-status-flags .status-flag-pic-incentive {
@@ -2158,7 +2158,7 @@
 }
 
 .dashboard-status-flags .status-flag-pic-incentive.is-done {
-  color: var(--flow-pencairan-ops);
+  color: var(--theme-data-amber);
 }
 
 .dashboard-status-flags span[aria-label='Gaji Relawan']::after {
@@ -2174,7 +2174,7 @@
 }
 
 .dashboard-status-flags .status-flag-sppg-rent.is-done {
-  color: var(--flow-pencairan-ops);
+  color: var(--theme-data-amber);
 }
 
 .dashboard-status-flags span[aria-label='Insentif Fasilitas SPPG']::after {
@@ -2186,7 +2186,7 @@
 }
 
 .dashboard-status-flags .status-flag-vehicle-rent.is-done {
-  color: var(--flow-pencairan-ops);
+  color: var(--theme-data-amber);
 }
 
 .dashboard-status-flags span[aria-label='Sewa Kendaraan']::after {
@@ -2197,8 +2197,17 @@
 .dashboard-history-party-name.dashboard-flow-sppg-rent {
   border: 0;
   background: transparent;
-  color: var(--flow-pencairan-ops);
+  color: var(--theme-data-amber);
   padding: 0;
+}
+
+/* Relawan, PIC, vehicle and SPPG operational expenses share one distinct flow color. */
+.dashboard-flow-operational-expense {
+  color: var(--theme-data-amber);
+}
+
+.dashboard-history-party-name.dashboard-flow-operational-expense {
+  color: var(--theme-data-amber);
 }
 
 
