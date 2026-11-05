@@ -1,15 +1,12 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 
 import {
-  ArrowDownToLine,
   BadgePercent,
   Building2,
   Car,
   Landmark,
-  ReceiptText,
   Settings2,
   Users,
-  Wallet,
   WalletCards
 } from 'lucide-react'
 
@@ -70,19 +67,19 @@ const DASHBOARD_HISTORY_PAGE_SIZE = 10
 
 const FLOW_OPTIONS: { value: DashboardFlow | ''; label: string }[] = [
   { value: '', label: 'Semua transaksi' },
-  { value: 'income', label: 'Total Pencairan RAB' },
-  { value: 'expense', label: 'Realisasi RAB' },
-  { value: 'gas', label: 'Operasional Masuk Arutala' },
-  { value: 'ops_disbursement', label: 'Pencairan Operasional' },
+  { value: 'income', label: 'RAB / Pencairan' },
+  { value: 'expense', label: 'RAB / Real' },
+  { value: 'gas', label: 'OPS / Arutala' },
+  { value: 'ops_disbursement', label: 'OPS / Pencairan' },
   { value: 'real_ops', label: 'OPS / Real' },
   { value: 'operational_disbursement', label: 'Pencairan Operasional' }
 ]
 
 function flowLabel(flow: DashboardFlow) {
-  if (flow === 'income') return 'Total Pencairan RAB'
-  if (flow === 'expense') return 'Realisasi RAB'
-  if (flow === 'gas' || flow === 'neutral') return 'Operasional Masuk Arutala'
-  if (flow === 'ops_disbursement') return 'Pencairan Operasional'
+  if (flow === 'income') return 'RAB / Pencairan'
+  if (flow === 'expense') return 'RAB / Real'
+  if (flow === 'gas' || flow === 'neutral') return 'OPS / Arutala'
+  if (flow === 'ops_disbursement') return 'OPS / Pencairan'
   if (flow === 'operational_disbursement') return 'Pencairan Operasional'
   return 'OPS / Real'
 }
@@ -112,15 +109,11 @@ function FlowIcon({ flow }: { flow: DashboardFlow }) {
   }
 
   if (flow === 'expense') {
-    return <ReceiptText aria-hidden="true" />
+    return <WalletCards aria-hidden="true" />
   }
 
   if (flow === 'gas' || flow === 'neutral') {
     return <Landmark aria-hidden="true" />
-  }
-
-  if (flow === 'ops_disbursement') {
-    return <ArrowDownToLine aria-hidden="true" />
   }
 
   if (flow === 'operational_disbursement') {
@@ -1609,11 +1602,11 @@ export function DashboardPage() {
           <span className="dashboard-kpi-icon">
             <WalletCards aria-hidden="true" />
           </span>
-          <span>Total Pencairan RAB</span>
+          <span>RAB / Pencairan</span>
           <strong>
             {loading ? 'Memuat…' : formatCurrency(summary.income)}
           </strong>
-          <small>Total dana RAB yang dicairkan pada periode terpilih</small>
+          <small>Total RAB pada periode terpilih</small>
         </article>
 
         <article
@@ -1622,24 +1615,24 @@ export function DashboardPage() {
           }`}
         >
           <span className="dashboard-kpi-icon">
-            <ReceiptText aria-hidden="true" />
+            <WalletCards aria-hidden="true" />
           </span>
-          <span>Realisasi RAB</span>
+          <span>RAB / Real</span>
           <strong>
             {loading ? 'Memuat…' : formatCurrency(summary.expense)}
           </strong>
-          <small>Total realisasi belanja supplier pada periode terpilih</small>
+          <small>Total realisasi supplier pada periode terpilih</small>
         </article>
 
         <article className="dashboard-kpi dashboard-kpi-rab-balance">
           <span className="dashboard-kpi-icon">
-            <Wallet aria-hidden="true" />
+            <WalletCards aria-hidden="true" />
           </span>
-          <span>Sisa Anggaran RAB</span>
+          <span>Sisa RAB</span>
           <strong>
             {loading ? 'Memuat…' : formatCurrency(rabBalance)}
           </strong>
-          <small>Total pencairan RAB dikurangi realisasi belanja pada periode dan dapur terpilih</small>
+          <small>RAB / Pencairan dikurangi RAB / Real pada periode dan dapur terpilih</small>
         </article>
 
         <article
@@ -1650,11 +1643,11 @@ export function DashboardPage() {
           <span className="dashboard-kpi-icon">
             <Landmark aria-hidden="true" />
           </span>
-          <span>Operasional Masuk Arutala</span>
+          <span>OPS / Arutala</span>
           <strong>
             {loading ? 'Memuat…' : formatCurrency(summary.gas)}
           </strong>
-          <small>Total dana operasional yang masuk ke rekening Arutala pada periode terpilih</small>
+          <small>Total operasional masuk ke rekening Arutala pada periode terpilih</small>
         </article>
 
         <article
@@ -1665,14 +1658,15 @@ export function DashboardPage() {
           }`}
         >
           <span className="dashboard-kpi-icon">
-            <ArrowDownToLine aria-hidden="true" />
+            <Settings2 aria-hidden="true" />
           </span>
-          <span>Pencairan Operasional</span>
+          <span>OPS / Pencairan</span>
           <strong>
             {loading ? 'Memuat…' : formatCurrency(summary.operationalDisbursement)}
           </strong>
-          <small>Total dana operasional yang dicairkan ke rekening Akuntan / Aslap pada periode terpilih</small>
+          <small>Total pencairan operasional masuk ke rekening Akuntan / Aslap pada periode terpilih</small>
         </article>
+
       </section>
 
       <section className="dashboard-main-grid">
