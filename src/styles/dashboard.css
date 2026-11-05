@@ -2251,18 +2251,18 @@
 }
 
 
-/* Admin-only net RAB balance: incoming RAB less Real / supplier spend. */
+/* Admin-only net RAB balance: intentionally neutral charcoal, not a transaction color. */
 .dashboard-kpi-grid > .dashboard-kpi.dashboard-kpi-rab-balance {
-  border-color: color-mix(in srgb, var(--theme-primary) 32%, var(--theme-border));
-  background: color-mix(in srgb, var(--theme-primary) 9%, var(--theme-surface-raised));
+  border-color: #252a32;
+  background: #252a32;
 }
 .dashboard-kpi-grid > .dashboard-kpi.dashboard-kpi-rab-balance > .dashboard-kpi-icon {
-  color: var(--theme-primary);
+  color: #ffffff;
 }
 .dashboard-kpi-grid > .dashboard-kpi.dashboard-kpi-rab-balance > span,
 .dashboard-kpi-grid > .dashboard-kpi.dashboard-kpi-rab-balance > strong {
-  color: var(--theme-primary);
+  color: #ffffff;
 }
 .dashboard-kpi-grid > .dashboard-kpi.dashboard-kpi-rab-balance > small {
-  color: color-mix(in srgb, var(--theme-primary) 72%, var(--theme-text-secondary));
+  color: #e2e5e9;
 }
