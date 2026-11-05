@@ -7,8 +7,8 @@
 .dashboard-page {
   --flow-rab: var(--theme-data-teal);
   --flow-real-rab: var(--theme-data-red);
-  --flow-gas: var(--theme-data-blue);
-  --flow-pencairan-ops: var(--theme-data-purple);
+  --flow-gas: var(--theme-data-purple);
+  --flow-pencairan-ops: var(--theme-data-cyan);
   --flow-real-ops: var(--theme-data-cyan);
   --flow-inactive: var(--theme-text-muted);
 
@@ -384,7 +384,7 @@
   color: var(--flow-real-rab);
 }
 .dashboard-kpi-grid > .dashboard-kpi:nth-child(3) .dashboard-kpi-icon {
-  color: var(--flow-rab-balance, var(--flow-gas));
+  color: var(--theme-text-primary);
 }
 .dashboard-kpi-grid > .dashboard-kpi:nth-child(4) .dashboard-kpi-icon {
   color: var(--flow-gas);
@@ -504,27 +504,18 @@
 }
 
 .dashboard-kpi-grid > .dashboard-kpi:nth-child(3) {
-  border-color: color-mix(
-    in srgb,
-    var(--flow-rab-balance, var(--flow-gas)) 28%,
-    var(--theme-border)
-  );
-  background: color-mix(
-    in srgb,
-    var(--flow-rab-balance, var(--flow-gas)) 8%,
-    var(--theme-surface-raised)
-  );
+  border-color: #252a32;
+  background: #252a32;
 }
 .dashboard-kpi-grid > .dashboard-kpi:nth-child(3) > span,
 .dashboard-kpi-grid > .dashboard-kpi:nth-child(3) > strong {
-  color: var(--flow-rab-balance, var(--flow-gas));
+  color: #ffffff;
 }
 .dashboard-kpi-grid > .dashboard-kpi:nth-child(3) > small {
-  color: color-mix(
-    in srgb,
-    var(--flow-rab-balance, var(--flow-gas)) 72%,
-    var(--theme-text-secondary)
-  );
+  color: #e2e5e9;
+}
+.dashboard-kpi-grid > .dashboard-kpi:nth-child(3)::after {
+  background: color-mix(in srgb, #ffffff 8%, transparent);
 }
 
 .dashboard-kpi-grid > .dashboard-kpi:nth-child(4) {
