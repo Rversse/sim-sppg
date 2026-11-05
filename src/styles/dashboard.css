@@ -7,8 +7,8 @@
 .dashboard-page {
   --flow-rab: var(--theme-data-teal);
   --flow-real-rab: var(--theme-data-red);
-  --flow-gas: var(--theme-data-blue);
-  --flow-pencairan-ops: var(--theme-data-purple);
+  --flow-gas: var(--theme-data-purple);
+  --flow-pencairan-ops: var(--theme-data-cyan);
   --flow-real-ops: var(--theme-data-cyan);
   --flow-inactive: var(--theme-text-muted);
 
@@ -384,13 +384,13 @@
   color: var(--flow-real-rab);
 }
 .dashboard-kpi-grid > .dashboard-kpi:nth-child(3) .dashboard-kpi-icon {
-  color: var(--flow-gas);
+  color: var(--theme-text-primary);
 }
 .dashboard-kpi-grid > .dashboard-kpi:nth-child(4) .dashboard-kpi-icon {
-  color: var(--flow-pencairan-ops);
+  color: var(--flow-gas);
 }
 .dashboard-kpi-grid > .dashboard-kpi:nth-child(5) .dashboard-kpi-icon {
-  color: var(--flow-real-ops);
+  color: var(--flow-pencairan-ops);
 }
 
 .dashboard-kpi > span,
@@ -504,6 +504,21 @@
 }
 
 .dashboard-kpi-grid > .dashboard-kpi:nth-child(3) {
+  border-color: #252a32;
+  background: #252a32;
+}
+.dashboard-kpi-grid > .dashboard-kpi:nth-child(3) > span,
+.dashboard-kpi-grid > .dashboard-kpi:nth-child(3) > strong {
+  color: #ffffff;
+}
+.dashboard-kpi-grid > .dashboard-kpi:nth-child(3) > small {
+  color: #e2e5e9;
+}
+.dashboard-kpi-grid > .dashboard-kpi:nth-child(3)::after {
+  background: color-mix(in srgb, #ffffff 8%, transparent);
+}
+
+.dashboard-kpi-grid > .dashboard-kpi:nth-child(4) {
   border-color: color-mix(
     in srgb,
     var(--flow-gas) 28%,
@@ -515,11 +530,11 @@
     var(--theme-surface-raised)
   );
 }
-.dashboard-kpi-grid > .dashboard-kpi:nth-child(3) > span,
-.dashboard-kpi-grid > .dashboard-kpi:nth-child(3) > strong {
+.dashboard-kpi-grid > .dashboard-kpi:nth-child(4) > span,
+.dashboard-kpi-grid > .dashboard-kpi:nth-child(4) > strong {
   color: var(--flow-gas);
 }
-.dashboard-kpi-grid > .dashboard-kpi:nth-child(3) > small {
+.dashboard-kpi-grid > .dashboard-kpi:nth-child(4) > small {
   color: color-mix(
     in srgb,
     var(--flow-gas) 72%,
@@ -527,7 +542,7 @@
   );
 }
 
-.dashboard-kpi-grid > .dashboard-kpi:nth-child(4) {
+.dashboard-kpi-grid > .dashboard-kpi:nth-child(5) {
   border-color: color-mix(
     in srgb,
     var(--flow-pencairan-ops) 28%,
@@ -535,31 +550,7 @@
   );
   background: color-mix(
     in srgb,
-    var(--flow-pencairan-ops) 8%,
-    var(--theme-surface-raised)
-  );
-}
-.dashboard-kpi-grid > .dashboard-kpi:nth-child(4) > span,
-.dashboard-kpi-grid > .dashboard-kpi:nth-child(4) > strong {
-  color: var(--flow-pencairan-ops);
-}
-.dashboard-kpi-grid > .dashboard-kpi:nth-child(4) > small {
-  color: color-mix(
-    in srgb,
-    var(--flow-pencairan-ops) 72%,
-    var(--theme-text-secondary)
-  );
-}
-
-.dashboard-kpi-grid > .dashboard-kpi:nth-child(5) {
-  border-color: color-mix(
-    in srgb,
-    var(--flow-real-ops) 28%,
-    var(--theme-border)
-  );
-  background: color-mix(
-    in srgb,
-    var(--flow-real-ops) 9%,
+    var(--flow-pencairan-ops) 9%,
     var(--theme-surface-raised)
   );
   box-shadow: var(--theme-shadow-card);
@@ -567,22 +558,22 @@
 .dashboard-kpi-grid > .dashboard-kpi:nth-child(5):hover {
   border-color: color-mix(
     in srgb,
-    var(--flow-real-ops) 44%,
+    var(--flow-pencairan-ops) 44%,
     var(--theme-border)
   );
   box-shadow: var(--theme-shadow-hover);
 }
 .dashboard-kpi-grid > .dashboard-kpi:nth-child(5)::after {
-  background: color-mix(in srgb, var(--flow-real-ops) 10%, transparent);
+  background: color-mix(in srgb, var(--flow-pencairan-ops) 10%, transparent);
 }
 .dashboard-kpi-grid > .dashboard-kpi:nth-child(5) > span,
 .dashboard-kpi-grid > .dashboard-kpi:nth-child(5) > strong {
-  color: var(--flow-real-ops);
+  color: var(--flow-pencairan-ops);
 }
 .dashboard-kpi-grid > .dashboard-kpi:nth-child(5) > small {
   color: color-mix(
     in srgb,
-    var(--flow-real-ops) 76%,
+    var(--flow-pencairan-ops) 76%,
     var(--theme-text-secondary)
   );
 }
