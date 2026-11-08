@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { Skeleton } from '@/components/ui/skeleton'
 
 import {
   getOverallReport,
@@ -305,7 +306,17 @@ function ReportActions({
 }
 
 function LoadingState() {
-  return <div className="reports-empty">Memuat laporan...</div>
+  return (
+    <div className="reports-skeleton" role="status" aria-label="Memuat laporan" aria-busy="true">
+      <div className="reports-skeleton-summary">
+        {Array.from({ length: 4 }, (_, i) => <div key={i}><Skeleton className="reports-skeleton-label" /><Skeleton className="reports-skeleton-value" /></div>)}
+      </div>
+      <div className="reports-skeleton-table">
+        <div className="reports-skeleton-row">{Array.from({ length: 5 }, (_, i) => <Skeleton key={i} />)}</div>
+        {Array.from({ length: 7 }, (_, row) => <div className="reports-skeleton-row" key={row}>{Array.from({ length: 5 }, (_, col) => <Skeleton key={col} />)}</div>)}
+      </div>
+    </div>
+  )
 }
 
 function ErrorState({ message }: { message: string }) {
