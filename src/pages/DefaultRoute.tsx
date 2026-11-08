@@ -1,4 +1,5 @@
 import { Navigate } from 'react-router-dom'
+import { Skeleton } from '@/components/ui/skeleton'
 
 import { useAuth } from '@/features/auth/use-auth'
 
@@ -7,8 +8,8 @@ export function DefaultRoute() {
 
   if (isLoading) {
     return (
-      <div className="flex min-h-screen items-center justify-center">
-        <p className="text-sm text-muted-foreground">Memuat sesi...</p>
+      <div className="default-route-loading" role="status" aria-label="Memuat sesi" aria-busy="true">
+        <Skeleton className="default-route-skeleton" />
       </div>
     )
   }
