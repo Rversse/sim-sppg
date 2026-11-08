@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { AlertTriangle, CheckCircle2, ClipboardPaste, FileCheck2, LoaderCircle, RotateCcw, ShieldAlert } from 'lucide-react'
 import { ImportConfirmationDialog } from '@/components/ui/import-confirmation-dialog'
+import { Skeleton } from '@/components/ui/skeleton'
 import { useToast } from '@/features/ui/toast-context'
 import {
   formatRealImportAmount,
@@ -378,7 +379,7 @@ export function RealImportPage() {
 
           <div className="real-import-fixed-supplier">
             <span>Supplier transaksi</span>
-            <strong>{supplier?.name ?? 'Memuat supplier…'}</strong>
+            {loadingReferences ? <Skeleton className="real-import-supplier-skeleton" /> : <strong>{supplier?.name ?? 'Supplier belum tersedia'}</strong>}
             <small>Semua baris menggunakan supplier Koperasi Arutala. Catatan mengikuti bagian laporan.</small>
           </div>
         </div>

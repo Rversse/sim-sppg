@@ -1505,3 +1505,72 @@ textarea:disabled {
     animation: none;
   }
 }
+
+
+/* =========================================================
+   PAGE-LEVEL SKELETONS
+   Shared by data-heavy pages while preserving final layout.
+   ========================================================= */
+.dashboard-kpi-skeleton { display: block; width: min(180px, 78%); height: 28px; margin-top: 5px; }
+.disbursement-skeleton-heading { display: block; width: 190px; height: 18px; margin-bottom: 14px; }
+.disbursement-skeleton-label { display: block; width: 82px; height: 10px; margin-bottom: 7px; }
+.disbursement-skeleton-field { display: block; width: 100%; height: 40px; }
+.disbursement-mapping-group .disbursement-mapping-fields > label { min-width: 0; }
+.supplier-skeleton-wrap { display: grid; gap: 14px; padding: 16px; }
+.supplier-skeleton-toolbar { display: flex; justify-content: space-between; gap: 12px; }
+.supplier-skeleton-toolbar > :first-child { width: min(260px, 55%); height: 34px; }
+.supplier-skeleton-toolbar > :last-child { width: 130px; height: 34px; }
+.supplier-skeleton-table { display: grid; gap: 8px; min-width: 0; }
+.supplier-skeleton-row { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 10px; align-items: center; min-height: 38px; }
+.supplier-skeleton-row > * { width: 100%; height: 18px; }
+.supplier-skeleton-head > * { height: 12px; }
+.bank-loading-layout { display: grid; gap: 16px; }
+.bank-loading-layout .bank-summary-grid { display: grid; }
+.bank-skeleton-label { display: block; width: 68%; height: 12px; }
+.bank-skeleton-value { display: block; width: 82%; height: 27px; margin-top: 9px; }
+.bank-skeleton-caption { display: block; width: 60%; height: 10px; margin-top: 8px; }
+.bank-skeleton-heading { display: block; width: 190px; height: 18px; margin-bottom: 16px; }
+.bank-skeleton-row { display: grid; grid-template-columns: 1.1fr 1fr 1fr 1.2fr .8fr; gap: 12px; padding: 12px 0; border-top: 1px solid var(--theme-border); }
+.bank-skeleton-row > * { height: 18px; }
+.reports-skeleton { display: grid; gap: 18px; }
+.reports-skeleton-summary { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+.reports-skeleton-summary > div { display: grid; gap: 10px; padding: 14px; border: 1px solid var(--theme-border); border-radius: 12px; }
+.reports-skeleton-label { width: 65%; height: 11px; }
+.reports-skeleton-value { width: 85%; height: 25px; }
+.reports-skeleton-table { display: grid; gap: 8px; }
+.reports-skeleton-row { display: grid; grid-template-columns: 1.2fr repeat(4, minmax(0, 1fr)); gap: 12px; align-items: center; padding: 10px 12px; border-bottom: 1px solid var(--theme-border); }
+.reports-skeleton-row > * { height: 17px; }
+.reports-skeleton-row:first-child > * { height: 12px; }
+.maker-import-reference-skeleton { display: grid; gap: 14px; }
+.maker-import-skeleton-heading { width: 190px; height: 18px; }
+.maker-import-skeleton-fields { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.maker-import-skeleton-fields > * { height: 40px; }
+.maker-import-skeleton-note { width: 58%; height: 12px; }
+.real-import-supplier-skeleton { display: block; width: min(240px, 100%); height: 18px; }
+.login-session-skeleton { width: min(460px, 100%); }
+.login-skeleton-card { display: grid; justify-items: center; gap: 14px; width: 100%; padding: 30px; border: 1px solid var(--theme-border); border-radius: 20px; background: var(--theme-surface-raised); box-shadow: var(--theme-shadow-card); }
+.login-skeleton-mark { width: 58px; height: 58px; border-radius: 16px; }
+.login-skeleton-title { width: 65%; height: 27px; }
+.login-skeleton-subtitle { width: 48%; height: 12px; }
+.login-skeleton-buttons { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; width: 100%; margin: 10px 0; }
+.login-skeleton-buttons > * { height: 42px; }
+.login-skeleton-input { width: 100%; height: 52px; }
+.login-skeleton-submit { width: 100%; height: 44px; }
+.default-route-loading { display: grid; min-height: 60vh; place-items: center; padding: 24px; }
+.default-route-skeleton { width: min(240px, 80vw); height: 16px; }
+@media (max-width: 760px) {
+  .supplier-skeleton-row { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .supplier-skeleton-row > :nth-child(n+4) { display: none; }
+  .reports-skeleton-summary { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .maker-import-skeleton-fields { grid-template-columns: 1fr; }
+}
+@media (max-width: 520px) {
+  .bank-skeleton-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .bank-skeleton-row > :nth-child(n+3) { display: none; }
+  .reports-skeleton-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .reports-skeleton-row > :nth-child(n+3) { display: none; }
+  .login-skeleton-card { padding: 22px 16px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ui-skeleton::after { animation: none !important; }
+}
