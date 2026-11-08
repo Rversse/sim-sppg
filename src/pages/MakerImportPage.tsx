@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { ImportConfirmationDialog } from '@/components/ui/import-confirmation-dialog'
+import { Skeleton } from '@/components/ui/skeleton'
 import { AlertTriangle, CheckCircle2, ClipboardPaste, Database, FileCheck2, LoaderCircle, RotateCcw, ShieldAlert } from 'lucide-react'
 import { isOperationalTypeAvailable } from '@/features/transactions/operational-policy'
 import {
@@ -1108,7 +1109,13 @@ export function MakerImportPage() {
       {refsError ? <div className="maker-import-message is-error"><AlertTriangle /> {refsError}</div> : null}
       {duplicateBatchMessage ? <div className="maker-import-message is-error"><ShieldAlert /> {duplicateBatchMessage}</div> : null}
       {duplicateCheckError ? <div className="maker-import-message is-error"><ShieldAlert /> Pemeriksaan duplikat gagal: {duplicateCheckError}</div> : null}
-      {loadingRefs ? <div className="maker-import-loading"><LoaderCircle className="is-spinning" /> Mengambil dapur dan mapping rekening dari database…</div> : null}
+      {loadingRefs ? (
+        <section className="maker-import-panel maker-import-reference-skeleton" role="status" aria-label="Memuat referensi rekening dan dapur" aria-busy="true">
+          <Skeleton className="maker-import-skeleton-heading" />
+          <div className="maker-import-skeleton-fields">{Array.from({ length: 3 }, (_, i) => <Skeleton key={i} />)}</div>
+          <Skeleton className="maker-import-skeleton-note" />
+        </section>
+      ) : null}
 
       <section className="maker-import-panel maker-import-source-panel">
         <div className="maker-import-panel-head">
