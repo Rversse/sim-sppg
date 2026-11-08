@@ -52,6 +52,7 @@ import {
   isOperationalTypeAvailable,
   OPERATIONAL_TYPE_OPTIONS
 } from '@/features/transactions/operational-policy'
+import { Skeleton } from '@/components/ui/skeleton'
 import { DateRangePicker } from '@/components/ui/date-range-picker'
 import { SingleDatePicker } from '@/components/ui/date-picker'
 import { AnimatedSelect } from '@/components/ui/animated-select'
@@ -1604,7 +1605,7 @@ export function DashboardPage() {
           </span>
           <span>RAB / Pencairan</span>
           <strong>
-            {loading ? 'Memuat…' : formatCurrency(summary.income)}
+            {loading ? <Skeleton className="dashboard-kpi-skeleton" /> : formatCurrency(summary.income)}
           </strong>
           <small>Total RAB pada periode terpilih</small>
         </article>
@@ -1619,7 +1620,7 @@ export function DashboardPage() {
           </span>
           <span>RAB / Real</span>
           <strong>
-            {loading ? 'Memuat…' : formatCurrency(summary.expense)}
+            {loading ? <Skeleton className="dashboard-kpi-skeleton" /> : formatCurrency(summary.expense)}
           </strong>
           <small>Total realisasi supplier pada periode terpilih</small>
         </article>
@@ -1630,7 +1631,7 @@ export function DashboardPage() {
           </span>
           <span>Sisa RAB</span>
           <strong>
-            {loading ? 'Memuat…' : formatCurrency(rabBalance)}
+            {loading ? <Skeleton className="dashboard-kpi-skeleton" /> : formatCurrency(rabBalance)}
           </strong>
           <small>RAB / Pencairan dikurangi RAB / Real pada periode dan dapur terpilih</small>
         </article>
@@ -1645,7 +1646,7 @@ export function DashboardPage() {
           </span>
           <span>OPS / Arutala</span>
           <strong>
-            {loading ? 'Memuat…' : formatCurrency(summary.gas)}
+            {loading ? <Skeleton className="dashboard-kpi-skeleton" /> : formatCurrency(summary.gas)}
           </strong>
           <small>Total operasional masuk ke rekening Arutala pada periode terpilih</small>
         </article>
@@ -1662,7 +1663,7 @@ export function DashboardPage() {
           </span>
           <span>OPS / Pencairan</span>
           <strong>
-            {loading ? 'Memuat…' : formatCurrency(summary.operationalDisbursement)}
+            {loading ? <Skeleton className="dashboard-kpi-skeleton" /> : formatCurrency(summary.operationalDisbursement)}
           </strong>
           <small>Total pencairan operasional masuk ke rekening Akuntan / Aslap pada periode terpilih</small>
         </article>
