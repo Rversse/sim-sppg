@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { Skeleton } from '@/components/ui/skeleton'
 import {
   Download,
   History,
@@ -1120,9 +1121,15 @@ export function BankPage() {
     <>
       <div className="bank-page">
         {loading ? (
-          <section className="bank-accounts-panel">
-            <div className="bank-empty">Memuat data rekening...</div>
-          </section>
+          <div className="bank-loading-layout" role="status" aria-label="Memuat data rekening dan transaksi" aria-busy="true">
+            <div className="bank-summary-grid">
+              {Array.from({ length: 4 }, (_, i) => <article className="bank-summary-card" key={i}><Skeleton className="bank-skeleton-label" /><Skeleton className="bank-skeleton-value" /><Skeleton className="bank-skeleton-caption" /></article>)}
+            </div>
+            <section className="bank-accounts-panel">
+              <Skeleton className="bank-skeleton-heading" />
+              {Array.from({ length: 5 }, (_, row) => <div className="bank-skeleton-row" key={row}>{Array.from({ length: 5 }, (_, col) => <Skeleton key={col} />)}</div>)}
+            </section>
+          </div>
         ) : errorMessage ? (
           <section className="bank-accounts-panel">
             <div className="bank-empty bank-error">{errorMessage}</div>
