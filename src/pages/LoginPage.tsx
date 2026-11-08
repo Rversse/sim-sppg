@@ -4,6 +4,7 @@ import { Building2 } from 'lucide-react'
 import { Navigate, useNavigate } from 'react-router-dom'
 
 import { Button } from '@/components/ui/button'
+import { Skeleton } from '@/components/ui/skeleton'
 import { useAuth } from '@/features/auth/use-auth'
 import { useToast } from '@/features/ui/toast-context'
 import { loginWithUsername } from '@/features/auth/auth-service'
@@ -37,11 +38,15 @@ export function LoginPage() {
   if (isLoading) {
     return (
       <main className="login-page">
-        <section className="login-loading" aria-live="polite">
-          <span className="login-loading-mark" aria-hidden="true">
-            <Building2 size={22} strokeWidth={2} />
-          </span>
-          <p>Memuat sesi...</p>
+        <section className="login-loading login-session-skeleton" aria-live="polite" aria-busy="true" aria-label="Memuat sesi">
+          <div className="login-skeleton-card">
+            <Skeleton className="login-skeleton-mark" />
+            <Skeleton className="login-skeleton-title" />
+            <Skeleton className="login-skeleton-subtitle" />
+            <div className="login-skeleton-buttons">{Array.from({ length: 3 }, (_, i) => <Skeleton key={i} />)}</div>
+            <Skeleton className="login-skeleton-input" />
+            <Skeleton className="login-skeleton-submit" />
+          </div>
         </section>
       </main>
     )
