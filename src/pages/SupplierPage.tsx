@@ -10,6 +10,7 @@ import {
   X
 } from 'lucide-react'
 
+import { Skeleton } from '@/components/ui/skeleton'
 import { canAccess } from '@/features/auth/role-policy'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/features/auth/use-auth'
@@ -472,7 +473,17 @@ export function SupplierPage() {
 
       <div className="supplier-panel">
         {loading ? (
-          <div className="supplier-empty">Memuat data supplier...</div>
+          <div className="supplier-skeleton-wrap" role="status" aria-label="Memuat data supplier" aria-busy="true">
+            <div className="supplier-skeleton-toolbar"><Skeleton /><Skeleton /></div>
+            <div className="supplier-skeleton-table">
+              <div className="supplier-skeleton-row supplier-skeleton-head">{Array.from({ length: canManage ? 7 : 6 }, (_, i) => <Skeleton key={i} />)}</div>
+              {Array.from({ length: 6 }, (_, row) => (
+                <div className="supplier-skeleton-row" key={row}>
+                  {Array.from({ length: canManage ? 7 : 6 }, (_, col) => <Skeleton key={col} />)}
+                </div>
+              ))}
+            </div>
+          </div>
         ) : error ? (
           <div className="supplier-empty supplier-state-error">{error}</div>
         ) : !filtered.length ? (
