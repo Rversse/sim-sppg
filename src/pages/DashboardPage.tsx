@@ -1604,9 +1604,7 @@ export function DashboardPage() {
             <WalletCards aria-hidden="true" />
           </span>
           <span>RAB / Pencairan</span>
-          <strong>
-            {loading ? <Skeleton className="dashboard-kpi-skeleton" /> : formatCurrency(summary.income)}
-          </strong>
+          {loading ? <Skeleton className="dashboard-kpi-skeleton" /> : <strong>{formatCurrency(summary.income)}</strong>}
           <small>Total RAB pada periode terpilih</small>
         </article>
 
@@ -1619,9 +1617,7 @@ export function DashboardPage() {
             <WalletCards aria-hidden="true" />
           </span>
           <span>RAB / Real</span>
-          <strong>
-            {loading ? <Skeleton className="dashboard-kpi-skeleton" /> : formatCurrency(summary.expense)}
-          </strong>
+          {loading ? <Skeleton className="dashboard-kpi-skeleton" /> : <strong>{formatCurrency(summary.expense)}</strong>}
           <small>Total realisasi supplier pada periode terpilih</small>
         </article>
 
@@ -1630,9 +1626,7 @@ export function DashboardPage() {
             <WalletCards aria-hidden="true" />
           </span>
           <span>Sisa RAB</span>
-          <strong>
-            {loading ? <Skeleton className="dashboard-kpi-skeleton" /> : formatCurrency(rabBalance)}
-          </strong>
+          {loading ? <Skeleton className="dashboard-kpi-skeleton" /> : <strong>{formatCurrency(rabBalance)}</strong>}
           <small>RAB / Pencairan dikurangi RAB / Real pada periode dan dapur terpilih</small>
         </article>
 
@@ -1645,9 +1639,7 @@ export function DashboardPage() {
             <Landmark aria-hidden="true" />
           </span>
           <span>OPS / Arutala</span>
-          <strong>
-            {loading ? <Skeleton className="dashboard-kpi-skeleton" /> : formatCurrency(summary.gas)}
-          </strong>
+          {loading ? <Skeleton className="dashboard-kpi-skeleton" /> : <strong>{formatCurrency(summary.gas)}</strong>}
           <small>Total operasional masuk ke rekening Arutala pada periode terpilih</small>
         </article>
 
@@ -1662,9 +1654,7 @@ export function DashboardPage() {
             <Settings2 aria-hidden="true" />
           </span>
           <span>OPS / Pencairan</span>
-          <strong>
-            {loading ? <Skeleton className="dashboard-kpi-skeleton" /> : formatCurrency(summary.operationalDisbursement)}
-          </strong>
+          {loading ? <Skeleton className="dashboard-kpi-skeleton" /> : <strong>{formatCurrency(summary.operationalDisbursement)}</strong>}
           <small>Total pencairan operasional masuk ke rekening Akuntan / Aslap pada periode terpilih</small>
         </article>
 
