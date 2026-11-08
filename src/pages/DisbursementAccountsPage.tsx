@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Edit3, Plus, Save, Trash2, X } from 'lucide-react'
+import { Skeleton } from '@/components/ui/skeleton'
 
 import { supabase } from '@/lib/supabase'
 import { canAccess } from '@/features/auth/role-policy'
@@ -505,7 +506,18 @@ export function DisbursementAccountsPage() {
       ) : null}
 
       {loading ? (
-        <div className="disbursement-empty-state">Memuat konfigurasi rekening…</div>
+        <section className="disbursement-mapping-groups" aria-label="Memuat konfigurasi rekening" aria-busy="true">
+          {Array.from({ length: 3 }, (_, group) => (
+            <div className="disbursement-mapping-group" key={group}>
+              <Skeleton className="disbursement-skeleton-heading" />
+              <div className="disbursement-mapping-fields">
+                {Array.from({ length: 4 }, (_, field) => (
+                  <label key={field}><Skeleton className="disbursement-skeleton-label" /><Skeleton className="disbursement-skeleton-field" /></label>
+                ))}
+              </div>
+            </div>
+          ))}
+        </section>
       ) : !selectedKitchen ? (
         <div className="disbursement-empty-state">Belum ada data dapur.</div>
       ) : (
