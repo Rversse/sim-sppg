@@ -618,6 +618,17 @@ export function DashboardPage() {
           scheduleRealtimeRefresh()
         }
       )
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'kitchen_operational_account_rules'
+        },
+        () => {
+          scheduleRealtimeRefresh()
+        }
+      )
       .subscribe()
 
     return () => {
@@ -1866,21 +1877,28 @@ export function DashboardPage() {
                           : accountSupplier?.business_name?.trim() ||
                             account?.name?.trim() ||
                             'Transaksi'
+                const operationalMapping =
+                  transaction.flow_type === 'operational_disbursement'
+                    ? transaction.operational_account_mapping
+                    : null
                 const ownerName =
                   transaction.flow_type === 'operational_disbursement'
-                    ? getOperationalDestinationLabel(
+                    ? operationalMapping?.owner_name ||
+                      getOperationalDestinationLabel(
                         kitchen?.name,
                         transaction.operational_type,
                         transaction.transaction_date
-                      ) ?? ''
+                      ) || ''
                     : transaction.flow_type === 'expense' ||
                         transaction.flow_type === 'ops_disbursement' ||
                         transaction.flow_type === 'real_ops'
                       ? ''
                       : accountSupplier?.owner_name?.trim() || ''
-                const bankAccount = account
-                  ? account.bank + ' - ' + account.account_number
-                  : ''
+                const bankAccount = operationalMapping
+                  ? `${operationalMapping.bank} - ${operationalMapping.account_number}`
+                  : account
+                    ? account.bank + ' - ' + account.account_number
+                    : ''
 
                 return (
                   <div className="dashboard-history-row" key={transaction.id}>
