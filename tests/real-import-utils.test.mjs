@@ -253,3 +253,52 @@ test('amount parser accepts spaces, dots, commas and mixed separators', () => {
   assert.equal(parseRealImportAmount('12,911,500'), 12911500)
   assert.equal(parseRealImportAmount('12.911.500'), 12911500)
 })
+
+
+test('combined November report reads mixed separators and keeps Sukaraharja under Cibeber', () => {
+  const parsed = parseRealImportDocument('combined', [
+    'Belanja Harian Senin 09/11/2026',
+    '',
+    '* Dari koperasi cibeber',
+    '',
+    'bunder       18.887.500',
+    'warbit       19,172.000',
+    'Cipetir      14.493.000',
+    'Cimanggu     17.593.500',
+    'camul        11.914.000',
+    'cikondang    14.807.500',
+    'cisepat      21.323.000',
+    'kertajadi    23.972.000',
+    'Sukaraharja  446.000',
+    '',
+    '* Dari suplayer cidaun',
+    'Cisepat       8.824.500',
+    'Kertajadi    12.387.000'
+  ].join('\n'))
+
+  assert.equal(parsed.error, null)
+  assert.equal(parsed.transactionDate, '2026-11-09')
+  assert.equal(parsed.warnings.length, 0)
+  assert.equal(parsed.rows.length, 11)
+  assert.deepEqual(parsed.rows.map((row) => [row.kitchenName, row.amount, row.sourceType]), [
+    ['Cibaregbeg', 18887500, 'cianjur'],
+    ['Warungbitung', 19172000, 'cianjur'],
+    ['Cipetir', 14493000, 'cianjur'],
+    ['Cimanggu', 17593500, 'cianjur'],
+    ['Campakamulya', 11914000, 'cianjur'],
+    ['Cikondang', 14807500, 'cianjur'],
+    ['Cisepat', 21323000, 'cianjur'],
+    ['Kertajadi', 23972000, 'cianjur'],
+    ['Sukaraharja', 446000, 'cianjur'],
+    ['Cisepat', 8824500, 'cidaun'],
+    ['Kertajadi', 12387000, 'cidaun']
+  ])
+  assert.equal(
+    parsed.rows.filter((row) => row.sourceType === 'cianjur').reduce((sum, row) => sum + row.amount, 0),
+    142608500
+  )
+  assert.equal(
+    parsed.rows.filter((row) => row.sourceType === 'cidaun').reduce((sum, row) => sum + row.amount, 0),
+    21211500
+  )
+})
