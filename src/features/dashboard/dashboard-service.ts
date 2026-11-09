@@ -52,6 +52,12 @@ export type DashboardTransactionAccount = {
     | null
 }
 
+export type DashboardOperationalAccountMapping = {
+  owner_name: string
+  bank: string
+  account_number: string
+}
+
 export type DashboardTransactionSupplier = {
   id: string
   name: string | null
@@ -77,6 +83,7 @@ export type DashboardTransaction = {
     | 'sppg_rent'
     | null
   created_at: string
+  operational_account_mapping?: DashboardOperationalAccountMapping | null
   accounts:
     | DashboardTransactionAccount
     | DashboardTransactionAccount[]
@@ -455,8 +462,96 @@ export async function getDashboardTransactionPage(
 
   if (error) throw error
 
+  const transactions = (data ?? []) as DashboardTransaction[]
+  const kitchenIds = [...new Set(
+    transactions
+      .map((transaction) => transaction.kitchen_id)
+      .filter((kitchenId): kitchenId is string => Boolean(kitchenId))
+  )]
+
+  if (kitchenIds.length === 0 || transactions.every(
+    (transaction) => transaction.flow_type !== 'operational_disbursement'
+  )) {
+    return { data: transactions, total: count ?? 0 }
+  }
+
+  const [kitchenRuleResult, vehicleRuleResult] = await Promise.all([
+    client
+      .from('kitchen_operational_account_rules')
+      .select('kitchen_id,rule_type,owner_name,bank,account_number')
+      .in('kitchen_id', kitchenIds)
+      .in('rule_type', [
+        'gaji_relawan',
+        'pic_incentive_school',
+        'pic_incentive_posyandu',
+        'vehicle_rent',
+        'sppg_rent'
+      ]),
+    client
+      .from('kitchen_operational_account_rules')
+      .select('kitchen_id,rule_type,owner_name,bank,account_number')
+      .eq('rule_type', 'vehicle_rent')
+  ])
+
+  if (kitchenRuleResult.error) throw kitchenRuleResult.error
+  if (vehicleRuleResult.error) throw vehicleRuleResult.error
+
+  type OperationalRuleRow = {
+    kitchen_id: string
+    rule_type: string
+    owner_name: string
+    bank: string
+    account_number: string
+  }
+
+  const rulesByKitchenAndType = new Map<string, OperationalRuleRow>()
+  for (const rule of (kitchenRuleResult.data ?? []) as OperationalRuleRow[]) {
+    rulesByKitchenAndType.set(`${rule.kitchen_id}:${rule.rule_type}`, rule)
+  }
+
+  const sharedVehicleRule = ((vehicleRuleResult.data ?? []) as OperationalRuleRow[])
+    .find((rule) => rule.owner_name?.trim() && rule.bank?.trim() && rule.account_number?.trim())
+
+  function findOperationalMapping(transaction: DashboardTransaction) {
+    const kitchenId = transaction.kitchen_id
+    if (!kitchenId) return null
+
+    const getRule = (ruleType: string) =>
+      rulesByKitchenAndType.get(`${kitchenId}:${ruleType}`) ?? null
+    const type = transaction.operational_type
+
+    const candidates = type === 'relawan_salary'
+      ? [getRule('gaji_relawan')]
+      : type === 'school_pic_incentive'
+        ? [getRule('pic_incentive_school'), getRule('pic_incentive_posyandu')]
+        : type === 'kader_incentive'
+          ? [getRule('pic_incentive_posyandu'), getRule('pic_incentive_school')]
+          : type === 'pic_incentive'
+            ? [getRule('pic_incentive_school'), getRule('pic_incentive_posyandu')]
+            : type === 'sppg_rent'
+              ? [getRule('sppg_rent')]
+              : type === 'vehicle_rent'
+                ? [getRule('vehicle_rent'), sharedVehicleRule]
+                : []
+
+    const mapping = candidates.find((rule) => rule?.owner_name?.trim() && rule.bank?.trim() && rule.account_number?.trim())
+    if (!mapping) return null
+
+    return {
+      owner_name: mapping.owner_name.trim(),
+      bank: mapping.bank.trim(),
+      account_number: mapping.account_number.trim()
+    }
+  }
+
   return {
-    data: (data ?? []) as DashboardTransaction[],
+    data: transactions.map((transaction) => ({
+      ...transaction,
+      operational_account_mapping:
+        transaction.flow_type === 'operational_disbursement'
+          ? findOperationalMapping(transaction)
+          : null
+    })),
     total: count ?? 0
   }
 }
