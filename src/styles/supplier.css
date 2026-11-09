@@ -16,7 +16,7 @@
   margin: 0;
   color: var(--theme-text-primary);
   font-size: 28px;
-  font-weight: 800;
+  font-weight: var(--ui-weight-strong);
 }
 
 .supplier-header p {
@@ -34,10 +34,7 @@
 }
 
 .supplier-header > .app-action-button:hover:not(:disabled) {
-  transform: translateY(-1px) scale(1.01);
-  box-shadow:
-    0 12px 28px color-mix(in srgb, var(--theme-primary) 18%, transparent),
-    0 2px 6px color-mix(in srgb, var(--theme-text-primary) 4%, transparent);
+  box-shadow: var(--theme-shadow-card);
 }
 
 .supplier-toolbar {
@@ -62,7 +59,7 @@
   background: color-mix(in srgb, var(--theme-surface-raised) 78%, transparent);
   box-shadow: 0 3px 10px rgb(15 23 42 / 0.025);
   color: var(--app-text-muted);
-  font-size: 10px;
+  font-size: var(--ui-text-xs);
   white-space: nowrap;
 }
 
@@ -94,7 +91,7 @@
   outline: none;
   font-family: inherit;
   font-size: 14px;
-  font-weight: 650;
+  font-weight: var(--ui-weight-strong);
   line-height: 1;
   transition:
     border-color var(--theme-motion-fast) ease,
@@ -127,7 +124,7 @@
   color: var(--theme-text-secondary);
   box-shadow: none;
   font-size: 11px;
-  font-weight: 800;
+  font-weight: var(--ui-weight-strong);
   white-space: nowrap;
 }
 
@@ -189,34 +186,9 @@
     background-color 220ms ease;
 }
 
-.supplier-panel::before {
-  position: absolute;
-  inset: 0 0 auto;
-  height: 2px;
-  border-radius: 16px 16px 0 0;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    color-mix(in srgb, var(--theme-primary) 55%, transparent),
-    transparent
-  );
-  content: '';
-  opacity: 0;
-  transform: scaleX(0.35);
-  transition:
-    opacity var(--app-motion) ease,
-    transform var(--app-motion-slow) var(--app-ease);
-  pointer-events: none;
-}
-
 .supplier-panel:hover {
   border-color: var(--theme-border-strong);
   box-shadow: var(--theme-shadow-hover);
-}
-
-.supplier-panel:hover::before {
-  opacity: 1;
-  transform: scaleX(1);
 }
 
 .supplier-table {
@@ -239,11 +211,11 @@
   padding-bottom: 12px;
   background: var(--app-bg-soft);
   color: var(--theme-text-secondary);
-  font-size: 10px;
-  font-weight: 900;
-  letter-spacing: 0.055em;
+  font-size: var(--ui-text-xs);
+  font-weight: var(--ui-weight-medium);
+  letter-spacing: 0;
   text-align: center;
-  text-transform: uppercase;
+  text-transform: none;
 }
 
 .supplier-table td {
@@ -290,8 +262,8 @@
   background: var(--theme-primary-soft);
   color: var(--theme-primary);
   cursor: pointer;
-  font-size: 10px;
-  font-weight: 800;
+  font-size: var(--ui-text-xs);
+  font-weight: var(--ui-weight-medium);
   transition:
     transform var(--app-motion-fast) var(--app-ease),
     box-shadow var(--app-motion-fast) ease,
@@ -299,9 +271,8 @@
 }
 
 .supplier-account-count-button:hover {
-  transform: translateY(-1px);
   background: var(--theme-primary-soft);
-  box-shadow: 0 7px 16px rgb(59 130 246 / 0.1);
+  box-shadow: var(--theme-shadow-card);
 }
 
 .supplier-account-count-button svg {
@@ -348,7 +319,7 @@
   display: block;
   margin-top: 3px;
   color: var(--theme-text-secondary);
-  font-size: 9px;
+  font-size: var(--ui-text-xs);
 }
 
 .supplier-modal-body {
@@ -375,7 +346,7 @@
 .supplier-field label {
   color: var(--theme-text-secondary);
   font-size: 11px;
-  font-weight: 800;
+  font-weight: var(--ui-weight-strong);
 }
 
 .supplier-field input,
@@ -452,7 +423,7 @@
 .supplier-account-number {
   margin-top: 4px;
   color: var(--app-text-muted);
-  font-size: 10px;
+  font-size: var(--ui-text-xs);
 }
 
 .supplier-account-mapping {
@@ -461,7 +432,7 @@
   margin-top: 4px;
   overflow: hidden;
   color: var(--app-text-subtle);
-  font-size: 9px;
+  font-size: var(--ui-text-xs);
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -494,7 +465,7 @@
   border-radius: 9px;
   background: var(--theme-surface);
   color: var(--theme-text-primary);
-  font-size: 10px;
+  font-size: var(--ui-text-xs);
   cursor: pointer;
   transition:
     background-color var(--theme-motion-fast) ease,
@@ -528,13 +499,7 @@
 }
 
 .supplier-account-modal.is-readonly .supplier-account-card {
-  background:
-    radial-gradient(circle at 95% 0%, rgb(57 255 136 / 0.06), transparent 28%),
-    linear-gradient(
-      180deg,
-      var(--theme-surface-raised),
-      var(--theme-surface-soft)
-    );
+  background: var(--theme-surface-raised);
   box-shadow: 0 10px 26px
     color-mix(in srgb, var(--theme-text-primary) 5%, transparent);
 }
@@ -547,7 +512,7 @@
   padding-top: 10px;
   border-top: 1px dashed var(--theme-border-strong);
   color: var(--theme-text-secondary);
-  font-size: 10px;
+  font-size: var(--ui-text-xs);
 }
 
 .supplier-account-readonly-meta strong {
@@ -633,10 +598,6 @@
   .supplier-header > .app-action-button {
     transition: none;
   }
-
-  .supplier-panel::before {
-    transition: none;
-  }
 }
 
 /* Topbar already owns "Data Supplier". Keep only page actions. */
@@ -718,17 +679,7 @@
 }
 
 .supplier-account-modal.is-readonly .supplier-account-card {
-  background:
-    radial-gradient(
-      circle at 95% 0%,
-      color-mix(in srgb, var(--theme-primary) 7%, transparent),
-      transparent 28%
-    ),
-    linear-gradient(
-      180deg,
-      var(--theme-surface-raised),
-      var(--theme-surface-soft)
-    );
+  background: var(--theme-surface-raised);
 }
 
 @media (max-width: 480px) {
@@ -774,7 +725,7 @@
   box-shadow: none;
   font-family: inherit;
   font-size: 14px;
-  font-weight: 650;
+  font-weight: var(--ui-weight-strong);
   line-height: 1.2;
   transition:
     border-color var(--theme-motion-fast) ease,
@@ -848,7 +799,7 @@
   color: var(--theme-text-secondary);
   box-shadow: none;
   font-size: 11px;
-  font-weight: 800;
+  font-weight: var(--ui-weight-strong);
   line-height: 1;
   white-space: nowrap;
 }
@@ -883,7 +834,7 @@
   color: var(--theme-text-secondary);
   box-shadow: none;
   font-size: 11px;
-  font-weight: 800;
+  font-weight: var(--ui-weight-strong);
   line-height: 1;
   white-space: nowrap;
 }
@@ -934,8 +885,8 @@
   gap: 7px;
   padding: 0 13px;
   border-radius: var(--app-control-radius);
-  font-size: 10px;
-  font-weight: 800;
+  font-size: var(--ui-text-xs);
+  font-weight: var(--ui-weight-medium);
   line-height: 1;
 }
 

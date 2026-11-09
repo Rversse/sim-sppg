@@ -32,8 +32,8 @@
 .disbursement-status-field > span {
   color: var(--theme-text-secondary);
   font-size: 11px;
-  font-weight: 750;
-  letter-spacing: 0.035em;
+  font-weight: var(--ui-weight-strong);
+  letter-spacing: 0;
 }
 
 .disbursement-status-control {
@@ -52,7 +52,7 @@
 
 .disbursement-status-control strong {
   font-size: 12px;
-  font-weight: 800;
+  font-weight: var(--ui-weight-strong);
 }
 
 .disbursement-status-control.is-empty {
@@ -105,8 +105,8 @@
   margin: 0;
   color: var(--theme-text-primary);
   font-size: 21px;
-  font-weight: 850;
-  letter-spacing: -0.035em;
+  font-weight: var(--ui-weight-strong);
+  letter-spacing: 0;
 }
 
 .disbursement-accounts-heading p {
@@ -144,7 +144,7 @@
   margin: 0;
   color: var(--theme-text-primary);
   font-size: 14px;
-  font-weight: 850;
+  font-weight: var(--ui-weight-strong);
 }
 
 .disbursement-add-panel-header p {
@@ -167,9 +167,9 @@
 
 .disbursement-add-form-fields label > span {
   color: var(--theme-text-secondary);
-  font-size: 10px;
-  font-weight: 800;
-  letter-spacing: 0.07em;
+  font-size: var(--ui-text-xs);
+  font-weight: var(--ui-weight-medium);
+  letter-spacing: 0;
   text-align: center;
 }
 
@@ -201,7 +201,7 @@
 .disbursement-kitchen-picker > span {
   color: var(--theme-text-secondary);
   font-size: 11px;
-  font-weight: 750;
+  font-weight: var(--ui-weight-strong);
 }
 
 .disbursement-kitchen-picker select,
@@ -253,7 +253,7 @@
 .disbursement-kitchen-status > span {
   color: var(--theme-text-muted);
   font-size: 11px;
-  font-weight: 700;
+  font-weight: var(--ui-weight-strong);
 }
 
 .disbursement-kitchen-status strong {
@@ -290,9 +290,9 @@
   margin: 0;
   color: var(--theme-text-primary);
   font-size: 15px;
-  font-weight: 850;
-  text-transform: uppercase;
-  letter-spacing: 0.035em;
+  font-weight: var(--ui-weight-strong);
+  text-transform: none;
+  letter-spacing: 0;
 }
 
 .disbursement-fixed-account {
@@ -332,12 +332,12 @@
 .disbursement-fixed-account span {
   color: var(--theme-text-secondary);
   font-size: 12px;
-  font-weight: 700;
+  font-weight: var(--ui-weight-strong);
 }
 
 .disbursement-fixed-account small {
   color: var(--theme-danger);
-  font-size: 10px;
+  font-size: var(--ui-text-xs);
   line-height: 1.4;
 }
 
@@ -380,9 +380,9 @@
   margin: 0;
   color: var(--theme-text-primary);
   font-size: 12px;
-  font-weight: 900;
-  letter-spacing: 0.055em;
-  text-transform: uppercase;
+  font-weight: var(--ui-weight-strong);
+  letter-spacing: 0;
+  text-transform: none;
 }
 
 .disbursement-unconfigured {
@@ -403,7 +403,7 @@
 
 .disbursement-unconfigured span {
   color: var(--theme-text-muted);
-  font-size: 10px;
+  font-size: var(--ui-text-xs);
 }
 
 .disbursement-mapping-row {
@@ -480,11 +480,11 @@
 
 .disbursement-mapping-fields label > span {
   color: var(--theme-text-secondary);
-  font-size: 10px;
-  font-weight: 800;
-  letter-spacing: 0.055em;
+  font-size: var(--ui-text-xs);
+  font-weight: var(--ui-weight-medium);
+  letter-spacing: 0;
   text-align: center;
-  text-transform: uppercase;
+  text-transform: none;
 }
 
 .disbursement-mapping-fields input,
@@ -519,7 +519,7 @@
   height: 36px;
   padding: 0;
   justify-content: center;
-  font-size: 10px;
+  font-size: var(--ui-text-xs);
 }
 
 .disbursement-mapping-actions .app-action-button svg {
