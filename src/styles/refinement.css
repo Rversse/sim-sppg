@@ -35,22 +35,13 @@
 }
 
 .dashboard-filter-card,
-.dashboard-panel {
-  border-radius: 13px;
+.dashboard-panel,
+.dashboard-kpi {
+  border-radius: var(--ui-radius-card);
 }
 
 .dashboard-kpi {
-  border-radius: 13px;
   min-height: 96px;
-}
-
-.dashboard-kpi:hover {
-  transform: translateY(-1px);
-}
-
-.dashboard-kpi::after {
-  animation: none;
-  opacity: 0.65;
 }
 
 .dashboard-panel:hover {
@@ -58,7 +49,7 @@
 }
 
 .dashboard-filter-card {
-  padding: 17px 18px;
+  padding: 16px 20px;
 }
 
 /* Inputs get a clearer focus state without permanently glowing. */
