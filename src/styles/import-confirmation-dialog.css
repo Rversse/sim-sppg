@@ -47,17 +47,17 @@
 .import-confirmation-head > div { min-width: 0; padding-right: 24px; }
 .import-confirmation-head > div > span {
   color: var(--theme-primary);
-  font-size: 9px;
-  font-weight: 900;
-  letter-spacing: .12em;
+  font-size: var(--ui-text-xs);
+  font-weight: var(--ui-weight-strong);
+  letter-spacing: 0;
 }
 
 .import-confirmation-head h2 {
   margin: 4px 0 5px;
   color: var(--theme-text-primary);
   font-size: 19px;
-  font-weight: 900;
-  letter-spacing: -.025em;
+  font-weight: var(--ui-weight-strong);
+  letter-spacing: 0;
 }
 
 .import-confirmation-head p {
@@ -103,14 +103,14 @@
 
 .import-confirmation-summary > div > span {
   color: var(--theme-text-muted);
-  font-size: 10px;
-  font-weight: 750;
+  font-size: var(--ui-text-xs);
+  font-weight: var(--ui-weight-strong);
 }
 
 .import-confirmation-summary strong {
   color: var(--theme-text-primary);
   font-size: 14px;
-  font-weight: 900;
+  font-weight: var(--ui-weight-strong);
   overflow-wrap: anywhere;
   font-variant-numeric: tabular-nums;
 }
@@ -154,7 +154,7 @@
   border-radius: 10px;
   font: inherit;
   font-size: 12px;
-  font-weight: 800;
+  font-weight: var(--ui-weight-strong);
   cursor: pointer;
   transition: background-color 140ms ease, border-color 140ms ease, transform 140ms ease;
 }
@@ -169,7 +169,6 @@
 }
 .import-confirmation-primary:hover:not(:disabled) {
   background: var(--theme-primary-hover);
-  transform: translateY(-1px);
 }
 .import-confirmation-actions .is-spinning { width: 14px; height: 14px; animation: import-confirmation-spin 900ms linear infinite; }
 

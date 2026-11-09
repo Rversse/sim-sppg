@@ -46,8 +46,8 @@
   border-radius: 999px;
   background: var(--theme-danger);
   color: var(--theme-danger-foreground);
-  font-size: 8px;
-  font-weight: 900;
+  font-size: var(--ui-text-xs);
+  font-weight: var(--ui-weight-strong);
   line-height: 1;
   box-shadow: 0 3px 8px rgb(239 68 68 / 0.22);
 }
@@ -77,8 +77,8 @@
 .vehicle-notification-head strong {
   color: var(--theme-text-primary);
   font-size: 13px;
-  font-weight: 900;
-  letter-spacing: -0.01em;
+  font-weight: var(--ui-weight-strong);
+  letter-spacing: 0;
 }
 
 .vehicle-notification-close {
@@ -151,9 +151,9 @@
   align-items: center;
   padding: 0 7px;
   border-radius: 999px;
-  font-size: 8px;
-  font-weight: 900;
-  letter-spacing: 0.04em;
+  font-size: var(--ui-text-xs);
+  font-weight: var(--ui-weight-strong);
+  letter-spacing: 0;
 }
 
 .vehicle-notification-item.is-danger .vehicle-notification-item-top strong {
@@ -168,8 +168,8 @@
 
 .vehicle-notification-item-top span {
   color: var(--theme-text-secondary);
-  font-size: 9px;
-  font-weight: 800;
+  font-size: var(--ui-text-xs);
+  font-weight: var(--ui-weight-strong);
   white-space: nowrap;
 }
 
@@ -186,7 +186,7 @@
   overflow: hidden;
   color: var(--theme-text-primary);
   font-size: 11px;
-  font-weight: 800;
+  font-weight: var(--ui-weight-strong);
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -198,7 +198,7 @@
   gap: 10px;
   margin-top: 3px;
   color: var(--theme-text-secondary);
-  font-size: 9px;
+  font-size: var(--ui-text-xs);
   line-height: 1.4;
 }
 
@@ -219,7 +219,7 @@
 .vehicle-notification-empty {
   padding: 26px 16px;
   color: var(--theme-text-muted);
-  font-size: 10px;
+  font-size: var(--ui-text-xs);
   line-height: 1.5;
   text-align: center;
 }
@@ -256,7 +256,6 @@
 }
 
 .vehicle-notification-button:hover {
-  transform: translateY(-1px);
   box-shadow: 0 8px 20px rgb(15 23 42 / 0.06);
 }
 
