@@ -274,7 +274,7 @@ test('combined November report reads mixed separators and keeps Sukaraharja unde
     '* Dari suplayer cidaun',
     'Cisepat       8.824.500',
     'Kertajadi    12.387.000'
-  ].join('\\n'))
+  ].join('\n'))
 
   assert.equal(parsed.error, null)
   assert.equal(parsed.transactionDate, '2026-11-09')
