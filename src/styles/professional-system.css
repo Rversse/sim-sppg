@@ -264,3 +264,184 @@ button:focus-visible, [role='button']:focus-visible, a:focus-visible { outline: 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
 }
+
+
+/* Remaining audit fixes: mobile navigation, importer and authentication. */
+.app-mobile-link small,
+.app-mobile-link span {
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.app-action-button {
+  min-height: 38px;
+  font-size: 12px;
+  font-weight: 600;
+  transition: background-color var(--theme-motion-fast) ease, border-color var(--theme-motion-fast) ease, color var(--theme-motion-fast) ease;
+}
+
+.maker-import-hero {
+  background: var(--theme-surface);
+  border-color: var(--theme-border);
+  border-radius: 12px;
+}
+
+.maker-import-hero-icon {
+  border-color: var(--theme-border);
+  border-radius: 10px;
+  background: var(--theme-primary-soft);
+}
+
+.maker-import-eyebrow,
+.maker-import-panel-head > div > span {
+  color: var(--theme-text-secondary);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0;
+}
+
+.maker-import-hero h2 {
+  color: var(--theme-text-primary);
+  font-weight: 600;
+  letter-spacing: -.02em;
+}
+
+.maker-import-panel-head h3 {
+  font-weight: 600;
+  letter-spacing: -.01em;
+}
+
+.maker-import-panel-head p,
+.maker-import-source-footer > span {
+  font-size: 12px;
+}
+
+.maker-import-primary,
+.maker-import-secondary {
+  min-height: 38px;
+  font-size: 12px;
+  font-weight: 600;
+  transition: background-color var(--theme-motion-fast) ease, border-color var(--theme-motion-fast) ease, color var(--theme-motion-fast) ease;
+}
+
+.maker-import-primary:hover:not(:disabled) {
+  transform: none;
+}
+
+.maker-import-source-panel {
+  border-color: var(--theme-border);
+  box-shadow: var(--theme-shadow-card);
+}
+
+.login-page {
+  background: var(--theme-page-bg);
+}
+
+.login-page::before,
+.login-page::after,
+.login-card::after {
+  display: none;
+  animation: none;
+}
+
+.login-card {
+  border: 1px solid var(--theme-border);
+  border-radius: 14px;
+  background: var(--theme-surface);
+  box-shadow: var(--theme-shadow-card);
+  backdrop-filter: none;
+  animation: none;
+}
+
+.login-card::before {
+  display: none;
+}
+
+.login-brand-mark {
+  border: 1px solid var(--theme-border);
+  border-radius: 12px;
+  background: var(--theme-surface-soft);
+  color: var(--theme-primary);
+  box-shadow: none;
+  transition: none;
+}
+
+.login-brand-mark:hover {
+  transform: none;
+  box-shadow: none;
+}
+
+.login-header h1 {
+  color: var(--theme-text-primary);
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: -.02em;
+  line-height: 1.25;
+}
+
+.login-header p {
+  color: var(--theme-text-secondary);
+}
+
+.login-account-grid {
+  border-color: var(--theme-border);
+  border-radius: 10px;
+  background: var(--theme-surface-soft);
+}
+
+.login-account-button {
+  border-radius: 8px !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+}
+
+.login-account-button:not(:disabled):hover {
+  transform: none;
+}
+
+.login-pin-field label {
+  color: var(--theme-text-secondary);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.login-pin-input {
+  border-radius: 8px;
+  color: var(--theme-text-primary);
+  font-weight: 500;
+  letter-spacing: .2em;
+  box-shadow: none;
+}
+
+.login-pin-input:focus {
+  border-color: var(--theme-primary);
+  box-shadow: var(--theme-focus-ring);
+}
+
+.login-pin-hint,
+.login-status,
+.login-error {
+  font-size: 12px;
+}
+
+.vehicle-notification-badge {
+  animation: none;
+}
+
+.vehicle-notification-item:hover {
+  filter: none;
+}
+
+.vehicle-notification-button:hover {
+  transform: none;
+  box-shadow: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .login-card,
+  .login-brand-mark,
+  .vehicle-notification-badge {
+    animation: none !important;
+    transition: none !important;
+  }
+}
