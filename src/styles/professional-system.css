@@ -445,3 +445,38 @@ button:focus-visible, [role='button']:focus-visible, a:focus-visible { outline: 
     transition: none !important;
   }
 }
+
+
+/* Small interaction refinements from the full slop audit. */
+.dashboard-kpi > .dashboard-kpi-icon,
+.dashboard-kpi-grid > .dashboard-kpi:nth-child(1) .dashboard-kpi-icon,
+.dashboard-kpi-grid > .dashboard-kpi:nth-child(2) .dashboard-kpi-icon,
+.dashboard-kpi-grid > .dashboard-kpi:nth-child(3) .dashboard-kpi-icon,
+.dashboard-kpi-grid > .dashboard-kpi:nth-child(4) .dashboard-kpi-icon,
+.dashboard-kpi-grid > .dashboard-kpi:nth-child(5) .dashboard-kpi-icon {
+  transition: color var(--theme-motion-fast) ease, background-color var(--theme-motion-fast) ease;
+}
+
+.dashboard-kpi > .dashboard-kpi-icon:hover,
+.dashboard-history-actions button:hover {
+  transform: none;
+}
+
+:where(
+  .bank-modal,
+  .bank-form-modal,
+  .bank-history-modal,
+  .dashboard-transaction-modal,
+  .kitchen-modal,
+  .supplier-modal,
+  .vehicle-modal,
+  .disbursement-modal,
+  .modal
+)::before {
+  display: none;
+}
+
+.app-mobile-link small {
+  font-size: 11px;
+  line-height: 1.25;
+}
