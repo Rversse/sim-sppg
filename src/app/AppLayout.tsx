@@ -173,9 +173,6 @@ export function AppLayout() {
     }))
     .filter((section) => section.items.length > 0)
   const visibleNavigation = visibleSections.flatMap((section) => section.items)
-  const activeSectionLabel = visibleSections.find((section) =>
-    section.items.some((item) => item.to === pathname)
-  )?.label
   async function handleLogout() {
     const { error: signOutError } = await supabase.auth.signOut()
     if (signOutError) {
