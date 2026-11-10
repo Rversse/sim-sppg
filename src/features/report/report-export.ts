@@ -255,7 +255,6 @@ function addDailyDetailRows(
       row.expense,
       row.totalRAB,
       row.operational,
-      row.realOperational,
       row.totalOperational,
       row.gas
     ])
@@ -275,7 +274,6 @@ function createOverallDetailSheet(
     'RAB / Real',
     'Total RAB',
     'OPS / Pencairan',
-    'OPS / Real',
     'Total Ops',
     'OPS / Arutala'
   ])
@@ -289,7 +287,6 @@ function createOverallDetailSheet(
     report.totals.expense,
     report.totals.totalRAB,
     report.totals.operational,
-    report.totals.realOperational,
     report.totals.totalOperational,
     report.totals.gas
   ])
@@ -433,7 +430,6 @@ function createOverallSummarySheet(
     'RAB / Real',
     'Total RAB',
     'OPS / Pencairan',
-    'OPS / Real',
     'Total Ops',
     'OPS / Arutala'
   ])
@@ -447,7 +443,6 @@ function createOverallSummarySheet(
       row.expense,
       row.totalRAB,
       row.operational,
-      row.realOperational,
       row.totalOperational,
       row.gas
     ])
@@ -459,7 +454,6 @@ function createOverallSummarySheet(
     report.totals.expense,
     report.totals.totalRAB,
     report.totals.operational,
-    report.totals.realOperational,
     report.totals.totalOperational,
     report.totals.gas
   ])

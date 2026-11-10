@@ -65,8 +65,8 @@ type ImportRowPayload = {
   maker_kind: MakerImportKind
   disposition: 'import' | 'excluded'
   excluded_reason: string | null
-  flow_type: 'income' | 'neutral' | 'ops_disbursement' | 'real_ops' | 'operational_disbursement' | null
-  category: 'RAB' | 'GAS' | 'LAIN_LAIN' | 'OPS' | 'REAL_OPS' | 'OPERATIONAL' | null
+  flow_type: 'income' | 'neutral' | 'ops_disbursement' | 'operational_disbursement' | null
+  category: 'RAB' | 'GAS' | 'LAIN_LAIN' | 'OPS' | 'OPERATIONAL' | null
   operational_type: Exclude<MakerOperationalType, ''> | null
   account_id: string | null
   supplier_id: null
@@ -593,13 +593,6 @@ function getValidation(
           ? 'Rekening OPS HARIAN belum cocok dengan mapping aktif di Data Rekening.'
           : 'Mapping rekening OPS HARIAN lebih dari satu. Periksa mapping aktif di Data Rekening.')
     }
-  } else if (flow === 'real_ops') {
-    if (row.kind !== 'real_ops') {
-      errors.push('OPS / Real harus memakai jenis sumber OPS Real.')
-    }
-    if (row.recipientName.trim() || row.bank.trim() || row.accountNumber.trim() || row.accountId || row.operationalRuleId) {
-      errors.push('OPS / Real hanya menyimpan nominal per dapur dan tidak memakai mapping rekening.')
-    }
   }
 
   if (confirmations.length > 0 && !row.verified) {
@@ -631,9 +624,6 @@ function effectiveDatabaseFlow(row: MakerImportDraftRow): {
   }
   if (flow === 'ops_disbursement') {
     return { flow_type: 'ops_disbursement', category: 'OPS', operational_type: null }
-  }
-  if (flow === 'real_ops') {
-    return { flow_type: 'real_ops', category: 'REAL_OPS', operational_type: null }
   }
   if (flow === 'operational_disbursement') {
     const operationalType = getRowOperationalType(row)
@@ -1290,7 +1280,7 @@ export function MakerImportPage() {
                     ) : null}
 
                     <div className="maker-import-readonly-kind">
-                      <span>Jenis transaksi: <strong>{flow === 'neutral_ops_harian' ? 'OPS HARIAN / Netral' : row.kind === 'lain_lain' ? (flow === 'neutral_lain_lain' ? 'Lain-lain / Netral' : 'OPS / Pencairan') : row.kind === 'combined_payroll' ? 'Payroll gabungan' : flow === 'income' ? 'RAB / Pencairan' : flow === 'gas' ? 'GAS' : flow === 'ops_disbursement' ? 'OPS / Pencairan' : flow === 'real_ops' ? 'OPS / Real' : 'Pencairan Operasional — ' + operationalTypeLabel(row.operationalType || defaultOperationalType(row.kind))}</strong></span>
+                      <span>Jenis transaksi: <strong>{flow === 'neutral_ops_harian' ? 'OPS HARIAN / Netral' : row.kind === 'lain_lain' ? (flow === 'neutral_lain_lain' ? 'Lain-lain / Netral' : 'OPS / Pencairan') : row.kind === 'combined_payroll' ? 'Payroll gabungan' : flow === 'income' ? 'RAB / Pencairan' : flow === 'gas' ? 'GAS' : flow === 'ops_disbursement' ? 'OPS / Pencairan' : 'Pencairan Operasional — ' + operationalTypeLabel(row.operationalType || defaultOperationalType(row.kind))}</strong></span>
                       {flow === 'income' || flow === 'neutral_lain_lain' || flow === 'neutral_ops_harian' ? (
                         <label className="maker-import-account-select">
                           <select value={row.accountId} onChange={(event) => chooseAccount(row, event.target.value)} disabled={saving || rowLocked || !kitchenId}>
@@ -1326,23 +1316,7 @@ export function MakerImportPage() {
                       </div>
                     ) : null}
 
-                    {row.kind === 'real_ops' ? (
-                      <div className="maker-import-fields maker-import-fields--real-ops">
-                        <span className="maker-import-field-spacer" aria-hidden="true" />
-                        <span className="maker-import-field-spacer" aria-hidden="true" />
-                        <span className="maker-import-field-spacer" aria-hidden="true" />
-                        <label>
-                          <span>Nominal (Rp)</span>
-                          <input inputMode="numeric" value={formatAmount(row.amount)} onChange={(event) => {
-                            const digits = event.target.value.replace(/[^0-9]/g, '')
-                            const amount = digits ? Number(digits) : null
-                            updateRow(row.id, { amount: amount !== null && Number.isSafeInteger(amount) ? amount : null, verified: false })
-                          }} title="Nominal OPS / Real dapat dikoreksi. Sumber asli tetap disimpan untuk audit." disabled={saving || rowLocked} />
-                        </label>
-                        <span className="maker-import-field-spacer" aria-hidden="true" />
-                      </div>
-                    ) : (
-                      <div className="maker-import-fields">
+                    <div className="maker-import-fields">
                         <label>
                           <span>Nama penerima / rekening</span>
                           <input value={row.recipientName} onChange={(event) => updateRow(row.id, { recipientName: event.target.value, accountId: '', operationalRuleId: '', verified: false })} title="Draft dapat dikoreksi. Teks sumber asli tetap tersimpan untuk audit; identitas rekening harus cocok dengan mapping database." disabled={saving || rowLocked} />
@@ -1367,8 +1341,7 @@ export function MakerImportPage() {
                           <span>Detail / produk / periode / keperluan</span>
                           <input value={row.details} onChange={(event) => updateRow(row.id, { details: event.target.value, verified: false })} title="Detail draft dapat dikoreksi; baris sumber asli tetap disimpan untuk audit." disabled={saving || rowLocked} />
                         </label>
-                      </div>
-                    )}
+                    </div>
 
                     {((row.kind !== 'lain_lain' || row.manualDecision === 'allow') && (validation.errors.length > 0 || validation.confirmations.length > 0)) || (duplicateRows[row.id] && disposition.status === 'import') ? (
                       <div className="maker-import-row-issues">
