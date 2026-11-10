@@ -1705,26 +1705,23 @@ export function DashboardPage() {
                       className={`dashboard-status-row ${rowClass}`}
                       key={row.kitchen}
                     >
-                      <div>
+                      <div className="dashboard-status-identity">
                         <strong>{row.kitchen}</strong>
-                        <span className="dashboard-status-meta">
-                          {(row.transactionCount + row.auditOnlyTransactionCount) > 0 ? (
-                            <span
-                              className="dashboard-status-transaction-count"
-                              aria-label={`${row.transactionCount} valid, ${row.auditOnlyTransactionCount} audit`}
-                              title={`${row.transactionCount} Valid · ${row.auditOnlyTransactionCount} Audit`}
-                            >
-                              <span className="dashboard-status-transaction-dots" aria-hidden="true">
-                                {Array.from({ length: row.transactionCount }, (_, index) => (
-                                  <i className="is-in-database" key={`db-${index}`} />
-                                ))}
-                                {Array.from({ length: row.auditOnlyTransactionCount }, (_, index) => (
-                                  <i className="is-audit-only" key={`audit-${index}`} />
-                                ))}
-                              </span>
-                            </span>
-                          ) : null}
-                        </span>
+                        {(row.transactionCount + row.auditOnlyTransactionCount) > 0 ? (
+                          <div
+                            className="sppg-status-dots-track"
+                            aria-label={`${row.transactionCount} valid, ${row.auditOnlyTransactionCount} audit`}
+                            title={`${row.transactionCount} Valid · ${row.auditOnlyTransactionCount} Audit`}
+                            role="img"
+                          >
+                            {Array.from({ length: row.transactionCount }, (_, index) => (
+                              <i className="sppg-status-dot sppg-status-dot--valid" key={`db-${index}`} />
+                            ))}
+                            {Array.from({ length: row.auditOnlyTransactionCount }, (_, index) => (
+                              <i className="sppg-status-dot sppg-status-dot--audit" key={`audit-${index}`} />
+                            ))}
+                          </div>
+                        ) : null}
                       </div>
 
                       <div className="dashboard-status-row-actions">
