@@ -1204,3 +1204,187 @@ button:focus-visible, [role='button']:focus-visible, a:focus-visible { outline: 
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
 }
+
+
+/* User-requested usability refinements — 2026-11-10. */
+/* The sidebar owns its own scroll area so browser zoom cannot hide navigation. */
+.app-shell {
+  min-height: 100vh;
+  min-height: 100dvh;
+  align-items: flex-start;
+}
+
+.app-sidebar {
+  position: sticky;
+  top: 0;
+  align-self: flex-start;
+  height: 100vh;
+  height: 100dvh;
+  max-height: 100vh;
+  max-height: 100dvh;
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: var(--theme-border-strong) transparent;
+}
+
+.app-brand {
+  justify-items: center;
+}
+
+.app-brand-home {
+  justify-content: center;
+  width: 100%;
+}
+
+.app-brand-mark {
+  margin-inline: auto;
+}
+
+.app-content {
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.app-main {
+  min-width: 0;
+}
+
+/* Compact, keyboard-accessible expandable navigation groups. */
+.app-nav-section-toggle {
+  display: flex;
+  width: 100%;
+  min-height: 30px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 3px 10px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--theme-text-muted);
+  cursor: pointer;
+  text-align: left;
+}
+
+.app-nav-section-toggle:hover {
+  background: var(--theme-sidebar-hover);
+  color: var(--theme-text-primary);
+}
+
+.app-nav-section-toggle:focus-visible {
+  outline: 2px solid var(--theme-primary);
+  outline-offset: 2px;
+}
+
+.app-nav-section-toggle .app-nav-section-label {
+  padding: 0;
+  color: inherit;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: .045em;
+  text-transform: uppercase;
+}
+
+.app-nav-section-chevron {
+  width: 14px;
+  height: 14px;
+  flex: 0 0 auto;
+  color: var(--theme-text-muted);
+  transition: transform 160ms ease;
+}
+
+.app-nav-section-toggle[aria-expanded='true'] .app-nav-section-chevron {
+  transform: rotate(180deg);
+}
+
+.app-nav-section-items {
+  min-width: 0;
+}
+
+/* Keep every bank ledger column readable; scroll horizontally when needed. */
+.bank-account-table-wrap {
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: visible;
+  overscroll-behavior-x: contain;
+  scrollbar-width: thin;
+}
+
+.bank-account-table thead th {
+  position: static;
+  top: auto;
+  z-index: auto;
+  box-shadow: none;
+}
+
+/* Dashboard kitchen rows have clearer separation and dots without a fake axis. */
+.dashboard-status-list {
+  display: grid;
+  align-content: start;
+  gap: 7px;
+}
+
+.dashboard-status-row {
+  min-width: 0;
+  margin: 0;
+  padding: 12px 10px;
+  border: 1px solid var(--theme-border);
+  border-radius: 10px;
+  background: var(--theme-surface);
+}
+
+.dashboard-status-row:last-child {
+  border-bottom-color: var(--theme-border);
+}
+
+.dashboard-status-row:hover {
+  border-color: var(--theme-border-strong);
+  background: var(--theme-surface-soft);
+}
+
+.dashboard-status-transaction-count {
+  display: inline-flex;
+  align-items: center;
+  gap: 0;
+  border: 0;
+  padding: 0;
+  background: transparent;
+}
+
+.dashboard-status-transaction-dots {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  min-height: 12px;
+  padding: 2px 0;
+}
+
+.dashboard-status-transaction-dots i {
+  display: block;
+  width: 5px;
+  height: 5px;
+  flex: 0 0 5px;
+  border-radius: 50%;
+}
+
+/* At high zoom, keep the sidebar independently scrollable and content fluid. */
+@media (max-width: 900px) {
+  .app-sidebar {
+    width: min(var(--sidebar-width), 34vw);
+    flex-basis: min(var(--sidebar-width), 34vw);
+  }
+}
+
+@media (max-width: 760px) {
+  .app-sidebar {
+    position: fixed;
+    inset: 0 auto 0 0;
+    z-index: 40;
+    width: min(82vw, 300px);
+    max-height: 100dvh;
+    transform: translateX(-100%);
+  }
+}
