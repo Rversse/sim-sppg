@@ -501,6 +501,18 @@ export function parseMakerDocument(text: string): ParsedMakerDocument {
     }
   }
 
+  const containsUnsupportedLegacyCategory = allLines.slice(1).some((line) =>
+    /^_OPS Real_\\s*·/.test(line.trim())
+  )
+  if (containsUnsupportedLegacyCategory) {
+    return {
+      kitchenName: header[1].trim(),
+      transactionDate,
+      rows: [],
+      error: 'Dokumen mengandung kategori transaksi yang sudah tidak didukung. Hapus baris tersebut sebelum impor.'
+    }
+  }
+
   const rows = allLines.slice(1).map((rawLine, index) => ({
     line: rawLine.trim(),
     lineNumber: index + 2
