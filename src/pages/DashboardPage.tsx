@@ -1714,7 +1714,6 @@ export function DashboardPage() {
                               aria-label={`${row.transactionCount} valid, ${row.auditOnlyTransactionCount} audit`}
                               title={`${row.transactionCount} Valid · ${row.auditOnlyTransactionCount} Audit`}
                             >
-                              <span aria-hidden="true">|</span>
                               <span className="dashboard-status-transaction-dots" aria-hidden="true">
                                 {Array.from({ length: row.transactionCount }, (_, index) => (
                                   <i className="is-in-database" key={`db-${index}`} />
