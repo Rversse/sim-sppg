@@ -61,7 +61,6 @@ input[type=file]::file-selector-button { min-height:34px; margin:3px 10px 3px 0;
 :where(.form-field,.form-group,.field-group,.bank-form-grid>label,.kitchen-field,.supplier-field,.vehicle-field,.dashboard-transaction-form-grid>label,.maker-import-fields>label,.real-import-row-fields>label) { min-width:0; max-width:100%; overflow-wrap:anywhere; }
 :where(.form-field,.form-group,.field-group,.bank-form-grid>label,.kitchen-field,.supplier-field,.vehicle-field,.dashboard-transaction-form-grid>label,.maker-import-fields>label,.real-import-row-fields>label)>:where(input,select,textarea,.animated-select,.single-date-picker) { width:100%; min-width:0; max-width:100%; }
 :where(.app-main,.app-content,.dashboard-page,.bank-page,.reports-page,.kitchen-page,.supplier-page,.vehicle-page,.maker-import-page,.real-import-page,.disbursement-accounts-page) { min-width:0; max-width:100%; }
-:where(button,a,label,p,span,strong,small,th,td) { overflow-wrap:anywhere; }
 
 @media(max-width:900px) {
   :root { --form-height:44px; }
