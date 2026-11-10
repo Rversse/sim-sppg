@@ -787,6 +787,27 @@
   overflow: hidden;
 }
 
+/* Keep transaction indicators in their original horizontal dot track. */
+.dashboard-status-row .dashboard-status-meta,
+.dashboard-status-row .dashboard-status-transaction-count,
+.dashboard-status-row .dashboard-status-transaction-dots {
+  flex-direction: row !important;
+  writing-mode: horizontal-tb;
+}
+
+.dashboard-status-row .dashboard-status-transaction-dots {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: flex-start;
+  width: max-content;
+  height: auto;
+  white-space: nowrap;
+}
+
+.dashboard-status-row .dashboard-status-transaction-dots i {
+  flex: 0 0 4px;
+}
+
 .dashboard-status-transaction-dots i.is-in-database {
   background: var(--app-success);
 }
