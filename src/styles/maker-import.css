@@ -1037,9 +1037,6 @@
     text-align-last: center;
   }
 
-  .maker-import-row .maker-import-fields--real-ops {
-    display: contents;
-  }
 
   .maker-import-row .maker-import-field-spacer {
     display: block;
@@ -1133,36 +1130,17 @@
   text-align: center !important;
   text-align-last: center !important;
 }
-.maker-import-row .maker-import-fields--real-ops {
-  display: grid !important;
-  grid-template-columns:
-    minmax(175px, 1.35fr)
-    minmax(78px, .58fr)
-    minmax(125px, .98fr)
-    minmax(118px, .88fr)
-    minmax(205px, 1.6fr) !important;
-}
-.maker-import-row .maker-import-fields--real-ops .maker-import-field-spacer {
-  display: block !important;
-  min-width: 0;
-}
 @media (max-width: 900px) {
   .maker-import-page {
     width: min(100% - 20px, 100%) !important;
     max-width: 100% !important;
   }
   .maker-import-row .maker-import-fields,
-  .maker-import-row .maker-import-fields--real-ops {
-    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-  }
   .maker-import-row .maker-import-detail-field { grid-column: 1 / -1; }
   .maker-import-row .maker-import-readonly-kind { flex-wrap: wrap !important; }
 }
 @media (max-width: 600px) {
   .maker-import-row .maker-import-fields,
-  .maker-import-row .maker-import-fields--real-ops {
-    grid-template-columns: minmax(0, 1fr) !important;
-  }
   .maker-import-row .maker-import-detail-field { grid-column: auto; }
   .maker-import-row .maker-import-readonly-kind {
     align-items: flex-start !important;
@@ -1230,18 +1208,6 @@
   box-sizing: border-box;
 }
 .maker-import-row .maker-import-fields,
-.maker-import-row .maker-import-fields--real-ops {
-  display: grid !important;
-  grid-template-columns:
-    minmax(175px, 1.3fr)
-    minmax(76px, .55fr)
-    minmax(120px, .95fr)
-    minmax(112px, .85fr)
-    minmax(190px, 1.45fr) !important;
-  gap: 7px 9px !important;
-  align-items: end !important;
-  min-width: 0;
-}
 .maker-import-row .maker-import-fields > label {
   display: grid;
   grid-template-rows: 22px 34px;
@@ -1270,10 +1236,6 @@
   text-align: center !important;
   text-align-last: center !important;
 }
-.maker-import-row .maker-import-fields--real-ops .maker-import-field-spacer {
-  display: block !important;
-  min-width: 0;
-}
 @media (max-width: 900px) {
   .maker-import-page {
     width: min(calc(100% - 20px), 100%) !important;
@@ -1288,16 +1250,10 @@
     flex: 1 1 240px !important;
   }
   .maker-import-row .maker-import-fields,
-  .maker-import-row .maker-import-fields--real-ops {
-    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-  }
   .maker-import-row .maker-import-detail-field { grid-column: 1 / -1; }
 }
 @media (max-width: 600px) {
   .maker-import-row .maker-import-fields,
-  .maker-import-row .maker-import-fields--real-ops {
-    grid-template-columns: minmax(0, 1fr) !important;
-  }
   .maker-import-row .maker-import-detail-field { grid-column: auto; }
   .maker-import-row .maker-import-readonly-kind {
     align-items: flex-start !important;

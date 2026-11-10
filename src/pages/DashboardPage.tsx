@@ -72,7 +72,6 @@ const FLOW_OPTIONS: { value: DashboardFlow | ''; label: string }[] = [
   { value: 'expense', label: 'RAB / Real' },
   { value: 'gas', label: 'OPS / Arutala' },
   { value: 'ops_disbursement', label: 'OPS / Pencairan' },
-  { value: 'real_ops', label: 'OPS / Real' },
   { value: 'operational_disbursement', label: 'Pencairan Operasional' }
 ]
 
@@ -82,7 +81,7 @@ function flowLabel(flow: DashboardFlow) {
   if (flow === 'gas' || flow === 'neutral') return 'OPS / Arutala'
   if (flow === 'ops_disbursement') return 'OPS / Pencairan'
   if (flow === 'operational_disbursement') return 'Pencairan Operasional'
-  return 'OPS / Real'
+  return 'Transaksi'
 }
 
 function operationalTypeLabel(
@@ -136,7 +135,7 @@ function flowClass(flow: DashboardFlow) {
   if (flow === 'operational_disbursement') {
     return 'dashboard-flow dashboard-flow-operational-expense'
   }
-  return 'dashboard-flow dashboard-flow-real-ops'
+  return 'dashboard-flow'
 }
 
 function getAvailableFlowsForKitchen(
@@ -150,7 +149,7 @@ function getAvailableFlowsForKitchen(
     flows.push('gas')
   }
 
-  flows.push('ops_disbursement', 'real_ops')
+  flows.push('ops_disbursement')
 
   if (includeOperationalDisbursements) {
     flows.push('operational_disbursement')
@@ -254,7 +253,6 @@ export function DashboardPage() {
     gas: 0,
     operational: 0,
     operationalDisbursement: 0,
-    realOperational: 0,
     sppgRent: 0
   })
   const [rabBalance, setRabBalance] = useState(0)
@@ -665,7 +663,6 @@ export function DashboardPage() {
   const supplierDisabled =
     filters.flowType === 'gas' ||
     filters.flowType === 'ops_disbursement' ||
-    filters.flowType === 'real_ops' ||
     supplierLockedToArutala
 
   const supplierFilterLabel =
@@ -677,9 +674,7 @@ export function DashboardPage() {
           ? 'Rekening Operasional'
           : filters.flowType === 'ops_disbursement'
             ? 'Tujuan Ops'
-            : filters.flowType === 'real_ops'
-              ? 'Rekening'
-              : filters.flowType === 'operational_disbursement'
+            : filters.flowType === 'operational_disbursement'
                 ? 'Jenis Operasional'
                 : 'Supplier / Rekening'
 
@@ -692,9 +687,7 @@ export function DashboardPage() {
       ? 'KOPERASI ARUTALA BNI'
       : filters.flowType === 'ops_disbursement'
         ? (operationalDestination ?? 'Akuntan + Dapur')
-        : filters.flowType === 'real_ops'
-          ? 'Tidak diperlukan'
-          : filters.flowType === 'operational_disbursement'
+        : filters.flowType === 'operational_disbursement'
             ? 'Semua jenis operasional'
           : supplierDisabled
             ? 'Koperasi Arutala'
@@ -889,16 +882,6 @@ export function DashboardPage() {
       setFormSuppliers([])
       return
     }
-
-    if (flowType === 'real_ops') {
-      setFormAccounts([])
-      setFormSuppliers([])
-      setFormAccountId('')
-      setFormSupplierId('')
-      setFormEntryUnlocked(true)
-      return
-    }
-
     if (flowType === 'operational_disbursement') {
       setFormAccounts([])
       setFormSuppliers([])
@@ -1181,7 +1164,6 @@ export function DashboardPage() {
       } else if (
         value === 'gas' ||
         value === 'ops_disbursement' ||
-        value === 'real_ops' ||
         value === 'operational_disbursement'
       ) {
         focusNominalInput()
@@ -1224,9 +1206,7 @@ export function DashboardPage() {
                 ? 'Tujuan operasional belum siap.'
                 : formFlowType === 'operational_disbursement'
                   ? 'Jenis operasional belum dipilih.'
-                  : formFlowType === 'real_ops'
-                    ? 'Dapur belum siap.'
-                    : 'Lengkapi dapur dan jenis transaksi terlebih dahulu.'
+                  : 'Lengkapi dapur dan jenis transaksi terlebih dahulu.'
       )
       return
     }
@@ -1287,7 +1267,6 @@ export function DashboardPage() {
           : formKitchenId,
       amount,
       note:
-        formFlowType === 'real_ops' ||
         formFlowType === 'operational_disbursement'
           ? null
           : formNote.trim() || null,
@@ -1304,8 +1283,6 @@ export function DashboardPage() {
             ? 'Supplier'
             : formFlowType === 'gas'
               ? 'GAS'
-              : formFlowType === 'real_ops'
-              ? 'REAL_OPS'
               : formFlowType === 'operational_disbursement'
                 ? 'OPERATIONAL'
                 : 'OPS',
@@ -1403,9 +1380,6 @@ export function DashboardPage() {
           setFormAccountId('')
           setFormOperationalType('')
           setFormEntryUnlocked(false)
-        } else if (formFlowType === 'real_ops') {
-          setFormAccountId('')
-          setFormEntryUnlocked(true)
         }
       }
 
@@ -1762,14 +1736,6 @@ export function DashboardPage() {
                               <Settings2 aria-hidden="true" />
                             </span>
                           ) : null}
-                          <span
-                            className={`status-flag-real-ops ${
-                              row.realOperational ? 'is-done' : ''
-                            }`}
-                            aria-label="OPS / Real"
-                          >
-                            <Settings2 aria-hidden="true" />
-                          </span>
                           {row.relawanSalaryAvailable ? (
                             <span
                               className={`status-flag-relawan-salary ${
@@ -1866,9 +1832,7 @@ export function DashboardPage() {
                     ? supplier?.name?.trim() || 'Supplier tidak diketahui'
                     : transaction.flow_type === 'ops_disbursement'
                       ? temporaryDestination || 'Tujuan operasional'
-                      : transaction.flow_type === 'real_ops'
-                        ? 'OPS / Real'
-                        : transaction.flow_type === 'operational_disbursement'
+                      : transaction.flow_type === 'operational_disbursement'
                           ? operationalTypeLabel(transaction.operational_type)
                           : accountSupplier?.business_name?.trim() ||
                             account?.name?.trim() ||
@@ -1886,8 +1850,7 @@ export function DashboardPage() {
                         transaction.transaction_date
                       ) || ''
                     : transaction.flow_type === 'expense' ||
-                        transaction.flow_type === 'ops_disbursement' ||
-                        transaction.flow_type === 'real_ops'
+                        transaction.flow_type === 'ops_disbursement'
                       ? ''
                       : accountSupplier?.owner_name?.trim() || ''
                 const bankAccount = operationalMapping
@@ -2194,7 +2157,7 @@ export function DashboardPage() {
                 </select>
               </label>
 
-              {formFlowType === 'real_ops' ? null : formFlowType === 'operational_disbursement' ? (
+              {formFlowType === 'operational_disbursement' ? (
                 <label>
                   <span>Jenis Operasional</span>
                   <select
@@ -2379,8 +2342,7 @@ export function DashboardPage() {
                 />
               </label>
 
-              {formFlowType !== 'real_ops' &&
-              formFlowType !== 'operational_disbursement' ? (
+              {formFlowType !== 'operational_disbursement' ? (
                 <label className="dashboard-transaction-form-note">
                   <span>Catatan</span>
                   <textarea

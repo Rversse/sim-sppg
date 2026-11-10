@@ -452,7 +452,7 @@ function OverallReportView() {
                 >
                   {formatCurrency(report.totals.totalOperational)}
                 </strong>
-                <small>Operasional harian dikurangi operasional real</small>
+                <small>Total OPS / Pencairan pada periode terpilih</small>
               </article>
 
               <article className="reports-summary-card reports-summary-card--arutala">
@@ -473,7 +473,6 @@ function OverallReportView() {
                   <th className="reports-col-real-rab">RAB / REAL</th>
                   <th className="reports-col-total">TOTAL RAB</th>
                   <th className="reports-col-ops">OPS / PENCAIRAN</th>
-                  <th className="reports-col-real-ops">OPS / REAL</th>
                   <th className="reports-col-total">TOTAL OPS</th>
                   <th className="reports-col-gas">OPS / ARUTALA</th>
                 </tr>
@@ -494,7 +493,6 @@ function OverallReportView() {
                       {formatCurrencyOrDash(item.totalRAB)}
                     </td>
                     <td>{formatCurrencyOrDash(item.operational)}</td>
-                    <td>{formatCurrencyOrDash(item.realOperational)}</td>
                     <td
                       className={
                         item.totalOperational < 0 ? 'negative' : 'positive'
@@ -517,7 +515,6 @@ function OverallReportView() {
                     {formatCurrencyOrDash(report.totals.totalRAB)}
                   </td>
                   <td>{formatCurrencyOrDash(report.totals.operational)}</td>
-                  <td>{formatCurrencyOrDash(report.totals.realOperational)}</td>
                   <td
                     className={
                       report.totals.totalOperational < 0

@@ -187,7 +187,7 @@ test('Koperasi Arutala BNI Lain-lain mapping is detected across kitchen names', 
   )
 })
 
-test('Maker parser reads italic OPS Real as a nominal-only per-kitchen realization row', () => {
+test('Maker parser rejects the retired nominal-only category instead of treating it as Lain-lain', () => {
   const parsed = parseMakerDocument([
     'Cimanggu, 15-Okt-2026',
     'RAB : CV TEST - BNI / 1111 · Beras · 125.000',
@@ -195,21 +195,10 @@ test('Maker parser reads italic OPS Real as a nominal-only per-kitchen realizati
     '_OPS Real_ · 1.200.000'
   ].join('\n'))
 
-  assert.equal(parsed.error, null)
+  assert.match(parsed.error ?? '', /kategori transaksi yang sudah tidak didukung/i)
   assert.equal(parsed.kitchenName, 'Cimanggu')
   assert.equal(parsed.transactionDate, '2026-10-15')
-  assert.equal(parsed.rows.length, 2)
-  const realization = parsed.rows[1]
-  assert.equal(realization.kind, 'real_ops')
-  assert.equal(realization.sourceCategory, 'OPS Real')
-  assert.equal(realization.manualFlow, 'real_ops')
-  assert.equal(realization.amount, 1200000)
-  assert.equal(realization.recipientName, '')
-  assert.equal(realization.bank, '')
-  assert.equal(realization.accountNumber, '')
-  assert.equal(realization.accountId, '')
-  assert.equal(realization.operationalRuleId, '')
-  assert.equal(realization.lineNumber, 4)
+  assert.equal(parsed.rows.length, 0)
 })
 
 test('Maker parser rejects invalid headers and preserves physical source line numbers', () => {

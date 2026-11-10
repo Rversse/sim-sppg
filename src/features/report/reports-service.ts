@@ -27,7 +27,6 @@ export type OverallKitchenReport = {
   expense: number
   gas: number
   operational: number
-  realOperational: number
   relawanSalary: number
   picIncentive: number
   vehicleRent: number
@@ -43,7 +42,6 @@ export type OverallDailyReport = {
   expense: number
   gas: number
   operational: number
-  realOperational: number
   sppgRent: number
   totalRAB: number
   totalOperational: number
@@ -65,8 +63,7 @@ export type OverallReport = {
     expense: number
     gas: number
     operational: number
-    realOperational: number
-    relawanSalary: number
+      relawanSalary: number
     picIncentive: number
     vehicleRent: number
     sppgRent: number
@@ -202,7 +199,6 @@ type ReportTransaction = {
     | 'expense'
     | 'gas'
     | 'ops_disbursement'
-    | 'real_ops'
     | 'operational_disbursement'
     | 'neutral'
   kitchen_id: string | null
@@ -506,7 +502,6 @@ export async function getOverallReport(
       expense: 0,
       gas: 0,
       operational: 0,
-      realOperational: 0,
       relawanSalary: 0,
       picIncentive: 0,
       vehicleRent: 0,
@@ -554,8 +549,6 @@ export async function getOverallReport(
       kitchen.gas += amount
     } else if (transaction.flow_type === 'ops_disbursement') {
       kitchen.operational += amount
-    } else if (transaction.flow_type === 'real_ops') {
-      kitchen.realOperational += amount
     } else if (transaction.flow_type === 'operational_disbursement') {
       if (
         isOperationalTypeAvailable(
@@ -597,8 +590,7 @@ export async function getOverallReport(
         expense: 0,
         gas: 0,
         operational: 0,
-        realOperational: 0,
-        sppgRent: 0,
+          sppgRent: 0,
         totalRAB: 0,
         totalOperational: 0
       }
@@ -617,8 +609,6 @@ export async function getOverallReport(
       dailyRow.gas += amount
     } else if (transaction.flow_type === 'ops_disbursement') {
       dailyRow.operational += amount
-    } else if (transaction.flow_type === 'real_ops') {
-      dailyRow.realOperational += amount
     } else if (
       transaction.flow_type === 'operational_disbursement' &&
       transaction.operational_type === 'sppg_rent' &&
@@ -636,7 +626,6 @@ export async function getOverallReport(
   let totalExpense = 0
   let totalGas = 0
   let totalOperational = 0
-  let totalRealOperational = 0
   let totalRelawanSalary = 0
   let totalPicIncentive = 0
   let totalVehicleRent = 0
@@ -648,13 +637,12 @@ export async function getOverallReport(
   for (const kitchen of grouped.values()) {
     kitchen.totalRAB = kitchen.income - kitchen.expense
     kitchen.totalOperational =
-      kitchen.operational - kitchen.realOperational
+      kitchen.operational
 
     totalIncome += kitchen.income
     totalExpense += kitchen.expense
     totalGas += kitchen.gas
     totalOperational += kitchen.operational
-    totalRealOperational += kitchen.realOperational
     kitchen.totalSalaryAndIncentive = kitchen.relawanSalary + kitchen.picIncentive
     totalRelawanSalary += kitchen.relawanSalary
     totalPicIncentive += kitchen.picIncentive
@@ -667,7 +655,7 @@ export async function getOverallReport(
 
   for (const row of daily.values()) {
     row.totalRAB = row.income - row.expense
-    row.totalOperational = row.operational - row.realOperational
+    row.totalOperational = row.operational
   }
 
   return {
@@ -688,7 +676,6 @@ export async function getOverallReport(
       expense: totalExpense,
       gas: totalGas,
       operational: totalOperational,
-      realOperational: totalRealOperational,
       relawanSalary: totalRelawanSalary,
       picIncentive: totalPicIncentive,
       vehicleRent: totalVehicleRent,

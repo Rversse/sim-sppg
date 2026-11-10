@@ -7,7 +7,6 @@ export type TransactionFlow =
   | 'expense'
   | 'gas'
   | 'ops_disbursement'
-  | 'real_ops'
   | 'operational_disbursement'
   | 'neutral'
 
@@ -30,7 +29,6 @@ export type TransactionPayload = {
     | 'KPWS'
     | 'OPS'
     | 'GAS'
-    | 'REAL_OPS'
     | 'OPERATIONAL'
   operational_type:
     | 'relawan_salary'
@@ -241,18 +239,6 @@ export function buildTransactionPayload(
         operational_type: null
       }
 
-    case 'real_ops':
-      return {
-        ...base,
-        flow_type: 'real_ops',
-        category: 'REAL_OPS',
-        operational_type: null,
-        account_id: null,
-        supplier_id: null,
-        destination_label: null,
-        note: null
-      }
-
     case 'operational_disbursement':
       return {
         ...base,
@@ -349,8 +335,6 @@ export async function hasDuplicateTransaction(
     query = query
       .is('account_id', null)
       .eq('destination_label', payload.destination_label)
-  } else if (payload.flow_type === 'real_ops') {
-    query = query.is('account_id', null)
   }
 
   const { count, error } = await query

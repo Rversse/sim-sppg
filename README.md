@@ -177,7 +177,6 @@ Workflow membutuhkan repository Actions Variables berikut:
 Beberapa batas domain yang harus dijaga saat mengembangkan aplikasi:
 
 - Transaksi operasional Dashboard dan ledger Transaksi Bank merupakan sumber data yang berbeda.
-- Flow `real_ops` digunakan untuk realisasi operasional; flow ini tidak dimasukkan ke ledger Transaksi Bank.
 - Saldo rekening dihitung dari saldo awal dan mutasi yang relevan, bukan sekadar total laporan pada periode terpilih.
 - Aturan bisnis yang melibatkan transaksi, mapping, impor, atau perhitungan laporan perlu diperiksa bersama service TypeScript dan migration SQL terkait.
 - Jangan mengubah schema, RPC, permission, atau kebijakan database hanya untuk menyelesaikan perubahan tampilan.

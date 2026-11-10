@@ -7,7 +7,6 @@ export type DashboardFlow =
   | 'expense'
   | 'gas'
   | 'ops_disbursement'
-  | 'real_ops'
   | 'operational_disbursement'
   | 'neutral'
 
@@ -25,7 +24,6 @@ export type DashboardSummary = {
   gas: number
   operational: number
   operationalDisbursement: number
-  realOperational: number
   sppgRent: number
 }
 
@@ -129,7 +127,6 @@ export async function getDashboardSummary(
         gas?: number
         operational?: number
         operational_disbursement?: number
-        real_operational?: number
         sppg_rent?: number
       }
     | undefined
@@ -142,7 +139,6 @@ export async function getDashboardSummary(
     operationalDisbursement: Number(
       row?.operational_disbursement ?? 0
     ),
-    realOperational: Number(row?.real_operational ?? 0),
     sppgRent: Number(row?.sppg_rent ?? 0)
   }
 }
@@ -449,8 +445,6 @@ export async function getDashboardTransactionPage(
       query = query.eq('destination_label', filters.supplierFilter)
     } else if (filters.flowType === 'operational_disbursement') {
       query = query.eq('operational_type', filters.supplierFilter)
-    } else if (filters.flowType === 'real_ops') {
-      // Real / Ops intentionally has no account filter.
     } else {
       query = query
         .in('flow_type', ['income', 'gas', 'neutral'])
@@ -574,7 +568,6 @@ export async function getDailyStatus(
     gasAvailable: boolean
     operational: boolean
     opsHarianAvailable: boolean
-    realOperational: boolean
     sppgRentAvailable: boolean
     sppgRent: boolean
     relawanSalaryAvailable: boolean
@@ -650,7 +643,6 @@ export async function getDailyStatus(
     expense: boolean | null
     gas: boolean | null
     operational: boolean | null
-    real_operational: boolean | null
   }
 
   type DashboardOperationalMappingRow = {
@@ -714,7 +706,6 @@ export async function getDailyStatus(
     const auditOnlyTransactionCount =
       auditOnlyTransactionCountByKitchen.get(row.kitchen_id) ?? 0
     const expense = Boolean(row.expense)
-    const realOperational = Boolean(row.real_operational)
 
     const activeMappings = mappingTypesByKitchen.get(row.kitchen_id) ?? new Set<string>()
     const opsHarianAvailable = activeMappings.has('ops_harian')
@@ -764,7 +755,6 @@ export async function getDailyStatus(
       gasAvailable,
       operational,
       opsHarianAvailable,
-      realOperational,
       sppgRentAvailable,
       sppgRent,
       relawanSalaryAvailable,
