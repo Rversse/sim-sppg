@@ -200,7 +200,7 @@ body { font-size: 13px; line-height: 1.5; font-variant-numeric: tabular-nums; }
 .dashboard-status-row, .dashboard-history-row { border-color: var(--theme-border); }
 .dashboard-status-row:hover, .dashboard-history-row:hover { background: var(--theme-surface-soft); }
 .dashboard-status-row strong, .dashboard-history-heading > strong { color: var(--theme-text-primary); font-weight: 600; }
-.dashboard-status-meta, .dashboard-history-timestamp, .dashboard-history-note { color: var(--theme-text-muted); }
+.dashboard-history-timestamp, .dashboard-history-note { color: var(--theme-text-muted); }
 .dashboard-flow { box-shadow: none; }
 .dashboard-flow:hover { transform: none; }
 
@@ -1345,14 +1345,6 @@ button:focus-visible, [role='button']:focus-visible, a:focus-visible { outline: 
   background: var(--theme-surface-soft);
 }
 
-.dashboard-status-transaction-count {
-  display: inline-flex;
-  align-items: center;
-  gap: 0;
-  border: 0;
-  padding: 0;
-  background: transparent;
-}
 
 /* At high zoom, keep the sidebar independently scrollable and content fluid. */
 @media (max-width: 900px) {
