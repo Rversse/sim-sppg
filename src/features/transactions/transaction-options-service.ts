@@ -14,7 +14,6 @@ export type TransactionFlow =
   | 'expense'
   | 'gas'
   | 'ops_disbursement'
-  | 'real_ops'
   | 'operational_disbursement'
 
 export type TransactionAccount = {
@@ -333,7 +332,7 @@ export async function getAvailableTransactionFlows(
     flows.push('gas')
   }
 
-  flows.push('ops_disbursement', 'real_ops', 'operational_disbursement')
+  flows.push('ops_disbursement', 'operational_disbursement')
 
   return flows
 }
