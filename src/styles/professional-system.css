@@ -480,3 +480,657 @@ button:focus-visible, [role='button']:focus-visible, a:focus-visible { outline: 
   font-size: 11px;
   line-height: 1.25;
 }
+
+
+/* =========================================================
+   PRODUCT-SPECIFIC FINISH
+   These selectors map to the actual page stylesheets and keep
+   report/data color semantics intact while unifying surfaces.
+   ========================================================= */
+
+/* Shared page rhythm and page-level headings */
+.dashboard-page,
+.reports-page,
+.disbursement-accounts-page,
+.maker-import-page,
+.real-import-page {
+  color: var(--theme-text-primary);
+}
+
+.reports-page,
+.disbursement-accounts-page,
+.maker-import-page,
+.real-import-page {
+  gap: 20px;
+}
+
+.disbursement-accounts-header {
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.disbursement-accounts-header h1,
+.disbursement-global-card h2,
+.disbursement-accounts-intro h2 {
+  color: var(--theme-text-primary);
+  font-weight: 600;
+  letter-spacing: -.02em;
+}
+
+.disbursement-accounts-header p,
+.disbursement-add-panel-header p {
+  color: var(--theme-text-secondary);
+  line-height: 1.55;
+}
+
+/* Reports: structured, quiet controls and clearly separated data */
+.reports-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  padding: 4px;
+  border: 1px solid var(--theme-border);
+  border-radius: 10px;
+  background: var(--theme-surface-soft);
+}
+
+.reports-tabs button {
+  min-height: 34px;
+  padding: 0 12px;
+  border: 1px solid transparent;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--theme-text-secondary);
+  font-size: 12px;
+  font-weight: 500;
+  transition: background-color var(--theme-motion-fast) ease, color var(--theme-motion-fast) ease, border-color var(--theme-motion-fast) ease;
+}
+
+.reports-tabs button:hover {
+  background: var(--theme-surface);
+  color: var(--theme-text-primary);
+}
+
+.reports-tabs button.active {
+  border-color: var(--theme-border);
+  background: var(--theme-surface);
+  color: var(--theme-primary);
+  box-shadow: 0 1px 2px rgb(15 23 42 / 5%);
+  font-weight: 600;
+}
+
+.reports-filter-panel {
+  gap: 12px;
+  border: 1px solid var(--theme-border);
+  border-radius: 12px;
+  background: var(--theme-surface);
+  box-shadow: var(--theme-shadow-card);
+}
+
+.reports-period-filter-group {
+  gap: 10px;
+}
+
+.reports-filter-panel > button,
+.reports-print-actions > button {
+  min-height: 36px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.reports-summary-card {
+  border: 1px solid var(--theme-border);
+  border-radius: 11px;
+  background: var(--theme-surface);
+  box-shadow: var(--theme-shadow-card);
+}
+
+.reports-summary-card > span,
+.reports-summary-card > small {
+  color: var(--theme-text-secondary);
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.reports-summary-card > strong {
+  color: var(--theme-text-primary);
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: -.02em;
+  font-variant-numeric: tabular-nums;
+}
+
+.reports-subsection-title {
+  color: var(--theme-text-primary);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: -.01em;
+}
+
+.reports-table-wrapper {
+  overflow-x: auto;
+  border: 1px solid var(--theme-border);
+  border-radius: 10px;
+  background: var(--theme-surface);
+  box-shadow: none;
+}
+
+.reports-table {
+  min-width: 680px;
+}
+
+.reports-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  padding: 10px 12px;
+  background: var(--theme-surface-soft);
+  color: var(--theme-text-secondary);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: .02em;
+  text-transform: none;
+}
+
+.reports-table tbody td {
+  padding: 9px 12px;
+  border-bottom: 1px solid var(--theme-border);
+  color: var(--theme-text-primary);
+  font-size: 12px;
+}
+
+.reports-table tbody tr:hover:not(.reports-total-row) {
+  background: var(--theme-surface-soft);
+}
+
+.reports-total-row td {
+  background: var(--theme-surface-soft);
+  font-weight: 600;
+}
+
+.reports-detail > summary {
+  min-height: 42px;
+  border: 1px solid var(--theme-border);
+  border-radius: 9px;
+  background: var(--theme-surface);
+  color: var(--theme-text-primary);
+  font-weight: 600;
+}
+
+.reports-detail[open] > summary {
+  border-color: var(--theme-border-strong);
+  border-radius: 9px 9px 0 0;
+}
+
+.reports-empty,
+.reports-error {
+  border: 1px dashed var(--theme-border-strong);
+  border-radius: 10px;
+  background: var(--theme-surface);
+  color: var(--theme-text-secondary);
+}
+
+/* Bank ledger and its forms */
+.bank-accounts-panel {
+  border: 1px solid var(--theme-border);
+  border-radius: 12px;
+  background: var(--theme-surface);
+  box-shadow: var(--theme-shadow-card);
+}
+
+.bank-summary-grid {
+  gap: 12px;
+}
+
+.bank-summary-card {
+  min-height: 100px;
+  border: 1px solid var(--theme-border);
+  border-radius: 11px;
+  background: var(--theme-surface);
+  box-shadow: var(--theme-shadow-card);
+}
+
+.bank-summary-card:hover {
+  transform: none;
+  box-shadow: var(--theme-shadow-card);
+}
+
+.bank-panel-header h2 {
+  color: var(--theme-text-primary);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.bank-count,
+.bank-account-group-title small {
+  border: 1px solid var(--theme-border);
+  border-radius: 6px;
+  background: var(--theme-surface-soft);
+  color: var(--theme-text-secondary);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.bank-account-table-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--theme-border);
+  border-radius: 10px;
+}
+
+.bank-account-table {
+  min-width: 640px;
+}
+
+.bank-account-table thead th {
+  padding: 10px 12px;
+  background: var(--theme-surface-soft);
+  color: var(--theme-text-secondary);
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.bank-account-table tbody td {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--theme-border);
+}
+
+.bank-account-group-row th {
+  background: var(--theme-surface-soft);
+  color: var(--theme-text-secondary);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.bank-account-row:hover td {
+  background: var(--theme-surface-soft);
+}
+
+.bank-account-search {
+  border: 1px solid var(--theme-border-strong);
+  border-radius: 8px;
+  background: var(--theme-surface-raised);
+}
+
+.bank-account-search:focus-within {
+  border-color: var(--theme-primary);
+  box-shadow: var(--theme-focus-ring);
+}
+
+/* Master data pages share one coherent CRUD surface */
+.kitchen-panel,
+.supplier-panel,
+.vehicle-panel {
+  border: 1px solid var(--theme-border);
+  border-radius: 12px;
+  background: var(--theme-surface);
+  box-shadow: var(--theme-shadow-card);
+}
+
+.kitchen-panel:hover,
+.supplier-panel:hover,
+.vehicle-panel:hover {
+  transform: none;
+  box-shadow: var(--theme-shadow-card);
+}
+
+.kitchen-header h1,
+.supplier-header h1,
+.vehicle-header h1 {
+  color: var(--theme-text-primary);
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: -.02em;
+}
+
+.kitchen-header p,
+.supplier-header p,
+.vehicle-header p {
+  color: var(--theme-text-secondary);
+  font-size: 12px;
+}
+
+.kitchen-toolbar,
+.supplier-toolbar,
+.vehicle-toolbar {
+  gap: 10px;
+}
+
+.kitchen-input,
+.supplier-input,
+.vehicle-input {
+  min-height: 38px;
+  border: 1px solid var(--theme-border-strong);
+  border-radius: 8px;
+  background: var(--theme-surface-raised);
+  color: var(--theme-text-primary);
+  font-size: 12px;
+}
+
+.kitchen-input:focus,
+.supplier-input:focus,
+.vehicle-input:focus {
+  border-color: var(--theme-primary);
+  box-shadow: var(--theme-focus-ring);
+  outline: none;
+}
+
+.kitchen-toolbar-action,
+.supplier-toolbar-action,
+.vehicle-toolbar-action {
+  min-height: 38px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.kitchen-table,
+.supplier-table,
+.vehicle-table {
+  min-width: 620px;
+}
+
+.kitchen-table th,
+.supplier-table th,
+.vehicle-table th {
+  padding: 10px 12px;
+  background: var(--theme-surface-soft);
+  color: var(--theme-text-secondary);
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.kitchen-table td,
+.supplier-table td,
+.vehicle-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--theme-border);
+  color: var(--theme-text-primary);
+  font-size: 12px;
+}
+
+.kitchen-table tbody tr:hover td,
+.supplier-table tbody tr:hover td,
+.vehicle-table tbody tr:hover td {
+  background: var(--theme-surface-soft);
+}
+
+.kitchen-empty,
+.supplier-empty {
+  color: var(--theme-text-secondary);
+}
+
+/* Disbursement account mapping: status is semantic, not decorative */
+.disbursement-global-card,
+.disbursement-mapping-group,
+.disbursement-add-panel {
+  border: 1px solid var(--theme-border);
+  border-radius: 12px;
+  background: var(--theme-surface);
+  box-shadow: var(--theme-shadow-card);
+}
+
+.disbursement-mapping-group > header {
+  border-bottom: 1px solid var(--theme-border);
+  background: var(--theme-surface-soft);
+}
+
+.disbursement-mapping-row {
+  border-bottom: 1px solid var(--theme-border);
+}
+
+.disbursement-mapping-row-head strong,
+.disbursement-kitchen-status strong {
+  color: var(--theme-text-primary);
+  font-weight: 600;
+}
+
+.disbursement-status-control,
+.disbursement-kitchen-status {
+  border: 1px solid var(--theme-border);
+  border-radius: 8px;
+  background: var(--theme-surface-soft);
+}
+
+.disbursement-add-form-fields select,
+.disbursement-kitchen-picker select,
+.disbursement-mapping-fields input,
+.disbursement-mapping-fields select {
+  min-height: 38px;
+  border: 1px solid var(--theme-border-strong);
+  border-radius: 8px;
+  background: var(--theme-surface-raised);
+  color: var(--theme-text-primary);
+}
+
+/* Import/reconciliation screens: information density without cramped controls */
+.maker-import-hero {
+  border: 1px solid var(--theme-border);
+  border-radius: 12px;
+  background: var(--theme-surface);
+  box-shadow: none;
+}
+
+.maker-import-hero-icon {
+  border: 1px solid var(--theme-border);
+  border-radius: 9px;
+  background: var(--theme-primary-soft);
+  color: var(--theme-primary);
+}
+
+.maker-import-eyebrow,
+.maker-import-panel-head > div > span {
+  color: var(--theme-text-secondary);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.maker-import-hero h2,
+.maker-import-panel-head h3 {
+  color: var(--theme-text-primary);
+  font-weight: 600;
+  letter-spacing: -.015em;
+}
+
+.maker-import-panel,
+.maker-import-source-panel,
+.real-import-source-panel {
+  border: 1px solid var(--theme-border);
+  border-radius: 12px;
+  background: var(--theme-surface);
+  box-shadow: var(--theme-shadow-card);
+}
+
+.maker-import-summary > div,
+.real-import-summary > div {
+  border: 1px solid var(--theme-border);
+  border-radius: 9px;
+  background: var(--theme-surface-soft);
+}
+
+.maker-import-summary small,
+.real-import-summary small {
+  color: var(--theme-text-secondary);
+  font-size: 11px;
+}
+
+.maker-import-summary strong,
+.real-import-summary strong {
+  color: var(--theme-text-primary);
+  font-size: 18px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.maker-import-row,
+.real-import-row {
+  border: 1px solid var(--theme-border);
+  border-radius: 10px;
+  background: var(--theme-surface);
+  box-shadow: none;
+}
+
+.maker-import-row h4,
+.real-import-row-head h4 {
+  color: var(--theme-text-primary);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.maker-import-row-issues,
+.real-import-duplicate-warning {
+  border-radius: 8px;
+}
+
+.maker-import-row-status,
+.real-import-status {
+  font-size: 11px;
+  font-weight: 600;
+}
+
+/* Dialogs: consistent geometry across CRUD and workflow confirmations */
+:where(
+  .bank-form-modal,
+  .bank-history-modal,
+  .bank-export-modal,
+  .dashboard-transaction-modal,
+  .kitchen-modal,
+  .supplier-modal,
+  .supplier-mapping-modal,
+  .vehicle-modal,
+  .import-confirmation-dialog
+) {
+  border: 1px solid var(--theme-border);
+  border-radius: 14px;
+  background: var(--theme-surface-raised);
+  box-shadow: var(--theme-shadow-modal);
+}
+
+:where(
+  .kitchen-modal-head,
+  .supplier-modal-head,
+  .vehicle-modal-head,
+  .bank-history-modal-header,
+  .bank-export-modal-header,
+  .dashboard-transaction-modal-header,
+  .import-confirmation-head
+) {
+  border-bottom: 1px solid var(--theme-border);
+  background: var(--theme-surface);
+}
+
+:where(
+  .kitchen-modal-head h2,
+  .supplier-modal-head h2,
+  .vehicle-modal-head h2,
+  .bank-history-modal-header h2,
+  .bank-export-modal-header h2,
+  .dashboard-transaction-modal-header h2,
+  .import-confirmation-head h2
+) {
+  color: var(--theme-text-primary);
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: -.015em;
+}
+
+:where(
+  .kitchen-modal-body,
+  .supplier-modal-body,
+  .vehicle-modal-body,
+  .bank-form-content,
+  .bank-export-modal-content
+) {
+  background: var(--theme-surface-raised);
+}
+
+:where(
+  .kitchen-modal-actions,
+  .supplier-modal-actions,
+  .vehicle-actions,
+  .bank-form-actions,
+  .bank-export-modal-actions,
+  .dashboard-transaction-modal-actions
+) {
+  border-top: 1px solid var(--theme-border);
+}
+
+/* Date pickers and toasts: same component language, restrained motion */
+:where(.single-date-picker__popover, .date-range-popover) {
+  border: 1px solid var(--theme-border);
+  border-radius: 10px;
+  background: var(--theme-surface-raised);
+  box-shadow: var(--theme-shadow-modal);
+}
+
+:where(.single-date-picker__trigger, .date-range-trigger) {
+  border-radius: 8px;
+  background: var(--theme-surface);
+}
+
+.app-toast {
+  border-radius: 10px;
+  box-shadow: var(--theme-shadow-modal);
+}
+
+.app-toast-content strong {
+  font-size: 12px;
+}
+
+.app-toast-content p {
+  font-size: 12px;
+}
+
+/* Keep compact helper text readable without changing dense table data. */
+:where(
+  .dashboard-filter-heading span,
+  .dashboard-kpi > span,
+  .dashboard-kpi > small,
+  .bank-summary-card span,
+  .bank-summary-card small,
+  .maker-import-batch-grid label > span,
+  .maker-import-fields label > span,
+  .real-import-row-fields label > span,
+  .disbursement-mapping-fields label > span
+) {
+  font-size: 11px;
+}
+
+@media (max-width: 760px) {
+  .reports-filter-panel,
+  .disbursement-toolbar-grid,
+  .kitchen-toolbar,
+  .supplier-toolbar,
+  .vehicle-toolbar {
+    gap: 8px;
+  }
+
+  .reports-tabs {
+    overflow-x: auto;
+    flex-wrap: nowrap;
+  }
+
+  .reports-tabs button {
+    flex: 0 0 auto;
+  }
+
+  .reports-table-wrapper,
+  .bank-account-table-wrap,
+  .kitchen-panel,
+  .supplier-panel,
+  .vehicle-panel {
+    max-width: 100%;
+  }
+
+  .disbursement-accounts-header {
+    flex-direction: column;
+  }
+
+  .app-toast-region {
+    top: 12px;
+    right: 12px;
+    width: calc(100vw - 24px);
+  }
+}
