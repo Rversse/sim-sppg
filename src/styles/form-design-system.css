@@ -1,0 +1,87 @@
+/* SIM-SPPG shared form controls — visual layer only. */
+:root {
+  --form-height: 42px;
+  --form-radius: 10px;
+  --form-border: var(--theme-border-strong, #cbd5e1);
+  --form-bg: var(--theme-surface-raised, #fff);
+  --form-text: var(--theme-text-primary, #172033);
+  --form-muted: var(--theme-text-muted, #64748b);
+  --form-focus: var(--theme-primary, #2563eb);
+  --form-ring: var(--theme-focus-ring, 0 0 0 3px rgb(37 99 235 / .14));
+  --form-speed: 150ms cubic-bezier(.2,.7,.25,1);
+}
+:where(input:not([type=checkbox]):not([type=radio]):not([type=range]):not([type=color]), select:not([multiple]):not([size]), textarea) {
+  box-sizing:border-box; min-width:0; max-width:100%; color:var(--form-text);
+  border:1px solid var(--form-border); border-radius:var(--form-radius);
+  background:var(--form-bg); box-shadow:0 1px 2px rgb(15 23 42 / .035);
+  font:inherit; transition:border-color var(--form-speed),background-color var(--form-speed),box-shadow var(--form-speed);
+}
+:where(input:not([type=checkbox]):not([type=radio]):not([type=range]):not([type=color]),select:not([multiple]):not([size])) {
+  min-height:var(--form-height); padding:0 12px; line-height:1.35;
+}
+:where(textarea) { min-height:104px; padding:10px 12px; line-height:1.5; resize:vertical; }
+:where(input:not([type=checkbox]):not([type=radio]):not([type=range]):not([type=color]),textarea)::placeholder { color:var(--form-muted); opacity:.82; }
+:where(input:not([type=checkbox]):not([type=radio]):not([type=range]):not([type=color]),select:not([multiple]):not([size]),textarea):hover:not(:disabled):not([aria-disabled=true]) {
+  border-color:color-mix(in srgb,var(--form-focus) 48%,var(--form-border));
+}
+:where(input:not([type=checkbox]):not([type=radio]):not([type=range]):not([type=color]),select:not([multiple]):not([size]),textarea):focus-visible {
+  outline:0; border-color:var(--form-focus); box-shadow:var(--form-ring);
+}
+:where(input:not([type=checkbox]):not([type=radio]),select,textarea):disabled,
+:where(input:not([type=checkbox]):not([type=radio]),select,textarea)[aria-disabled=true] {
+  color:var(--form-muted); background:color-mix(in srgb,var(--form-bg) 78%,var(--form-muted)); cursor:not-allowed; opacity:.76;
+}
+:where(input:not([type=checkbox]):not([type=radio]),select,textarea)[aria-invalid=true],
+:where(input:not([type=checkbox]):not([type=radio]),select,textarea).is-invalid { border-color:#dc6464; }
+:where(input:not([type=checkbox]):not([type=radio]),select,textarea)[aria-invalid=true]:focus-visible { box-shadow:0 0 0 3px rgb(220 100 100 / .14); }
+select:not([multiple]):not([size]) { padding-right:36px; cursor:pointer; }
+input[type=number],input[inputmode=numeric],input[inputmode=decimal] { font-variant-numeric:tabular-nums; }
+input[type=date],input[type=datetime-local],input[type=month],input[type=time] { min-width:0; max-width:100%; color-scheme:light; }
+[data-theme=dark] input[type=date],[data-theme=dark] input[type=datetime-local],[data-theme=dark] input[type=month],[data-theme=dark] input[type=time],.dark input[type=date],.dark input[type=datetime-local],.dark input[type=month],.dark input[type=time] { color-scheme:dark; }
+input[type=file] { width:100%; min-width:0; max-width:100%; color:var(--form-muted); font:inherit; }
+input[type=file]::file-selector-button { min-height:34px; margin:3px 10px 3px 0; padding:0 12px; border:1px solid var(--form-border); border-radius:8px; color:var(--form-text); background:var(--form-bg); font:inherit; cursor:pointer; }
+:where(input[type=checkbox],input[type=radio]) { width:16px; height:16px; min-width:16px; min-height:16px; accent-color:var(--form-focus); vertical-align:middle; cursor:pointer; }
+:where(input[type=checkbox],input[type=radio]):disabled { cursor:not-allowed; opacity:.6; }
+
+/* Custom dropdown: same control geometry, readable menu and bounded viewport. */
+.animated-select { min-width:0; max-width:100%; }
+.animated-select__trigger { box-sizing:border-box; min-height:var(--form-height); min-width:0; max-width:100%; border:1px solid var(--form-border); border-radius:var(--form-radius); background:var(--form-bg); color:var(--form-text); box-shadow:0 1px 2px rgb(15 23 42 / .035); transition:border-color var(--form-speed),box-shadow var(--form-speed); }
+.animated-select__trigger:hover:not(:disabled),.animated-select.is-open .animated-select__trigger { border-color:var(--form-focus); }
+.animated-select__trigger:focus-visible { outline:0; border-color:var(--form-focus); box-shadow:var(--form-ring); }
+.animated-select__menu { box-sizing:border-box; max-width:min(360px,calc(100vw - 24px)); max-height:min(320px,calc(100dvh - 120px)); overflow-x:hidden; overflow-y:auto; overscroll-behavior:contain; border:1px solid var(--form-border); border-radius:12px; background:var(--form-bg); box-shadow:0 14px 38px rgb(15 23 42 / .16),0 2px 8px rgb(15 23 42 / .06); z-index:80; }
+.animated-select__option { min-height:40px; padding:9px 12px; color:var(--form-text); text-align:left; overflow-wrap:anywhere; }
+.animated-select__option.is-active,.animated-select__option:hover:not(:disabled) { background:color-mix(in srgb,var(--form-focus) 9%,var(--form-bg)); }
+.animated-select__option.is-selected { color:var(--form-focus); font-weight:650; }
+
+/* Date pickers and field wrappers shrink instead of clipping at zoom. */
+.single-date-picker,.date-range-picker { min-width:0; max-width:100%; }
+.single-date-picker__trigger { box-sizing:border-box; min-height:var(--form-height); min-width:0; max-width:100%; border-radius:var(--form-radius); }
+.single-date-picker__popover,.date-range-popover { box-sizing:border-box; width:min(320px,calc(100vw - 24px)); max-width:calc(100vw - 24px); max-height:min(560px,calc(100dvh - 24px)); overflow-x:hidden; overflow-y:auto; overscroll-behavior:contain; border:1px solid var(--form-border); border-radius:14px; box-shadow:0 16px 44px rgb(15 23 42 / .17),0 2px 8px rgb(15 23 42 / .06); }
+.single-date-picker__month-year select { min-width:0; max-width:100%; }
+:where(.form-field,.form-group,.field-group,.bank-form-grid>label,.kitchen-field,.supplier-field,.vehicle-field,.dashboard-transaction-form-grid>label,.maker-import-fields>label,.real-import-row-fields>label) { min-width:0; max-width:100%; overflow-wrap:anywhere; }
+:where(.form-field,.form-group,.field-group,.bank-form-grid>label,.kitchen-field,.supplier-field,.vehicle-field,.dashboard-transaction-form-grid>label,.maker-import-fields>label,.real-import-row-fields>label)>:where(input,select,textarea,.animated-select,.single-date-picker) { width:100%; min-width:0; max-width:100%; }
+:where(.app-main,.app-content,.dashboard-page,.bank-page,.reports-page,.kitchen-page,.supplier-page,.vehicle-page,.maker-import-page,.real-import-page,.disbursement-accounts-page) { min-width:0; max-width:100%; }
+:where(button,a,label,p,span,strong,small,th,td) { overflow-wrap:anywhere; }
+
+@media(max-width:900px) {
+  :root { --form-height:44px; }
+  :where(.bank-form-grid,.dashboard-transaction-form-grid,.disbursement-add-form-fields,.disbursement-mapping-fields,.kitchen-form-grid,.supplier-form-grid,.vehicle-form-grid) { grid-template-columns:repeat(2,minmax(0,1fr)); }
+}
+@media(max-width:600px) {
+  :root { --form-height:46px; --form-radius:9px; }
+  :where(.bank-form-grid,.dashboard-transaction-form-grid,.disbursement-add-form-fields,.disbursement-mapping-fields,.kitchen-form-grid,.supplier-form-grid,.vehicle-form-grid) { grid-template-columns:minmax(0,1fr); }
+  :where(.bank-form-grid>label,.dashboard-transaction-form-grid>label,.kitchen-field,.supplier-field,.vehicle-field) { grid-column:1/-1; }
+  .single-date-picker__popover,.date-range-popover { width:min(320px,calc(100vw - 16px)); max-width:calc(100vw - 16px); max-height:calc(100dvh - 16px); }
+  .animated-select__menu { max-width:calc(100vw - 16px); max-height:min(280px,calc(100dvh - 90px)); }
+}
+@media(max-width:380px) {
+  :root { --form-height:44px; }
+  :where(input,select,textarea,button) { max-width:100%; }
+  .single-date-picker__popover,.date-range-popover,.animated-select__menu { max-width:calc(100vw - 12px); }
+}
+@media(max-width:960px) and (max-height:520px) {
+  .single-date-picker__popover,.date-range-popover,.animated-select__menu { max-height:calc(100dvh - 16px); }
+}
+@media(prefers-reduced-motion:reduce) {
+  :where(input,select,textarea,button,.animated-select__trigger) { scroll-behavior:auto; transition-duration:.01ms!important; }
+}
