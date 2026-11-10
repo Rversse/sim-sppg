@@ -176,6 +176,14 @@ export function AppLayout() {
   const activeSectionLabel = visibleSections.find((section) =>
     section.items.some((item) => item.to === pathname)
   )?.label
+  useEffect(() => {
+    if (!activeSectionLabel) return
+    setExpandedSections((current) =>
+      current.includes(activeSectionLabel)
+        ? current
+        : [...current, activeSectionLabel]
+    )
+  }, [activeSectionLabel])
   async function handleLogout() {
     const { error: signOutError } = await supabase.auth.signOut()
     if (signOutError) {
@@ -240,7 +248,7 @@ export function AppLayout() {
                 <button
                   type="button"
                   className="app-nav-section-toggle"
-                  aria-expanded={expandedSections.includes(section.label) || activeSectionLabel === section.label}
+                  aria-expanded={expandedSections.includes(section.label)}
                   aria-controls={`nav-section-${section.label.toLowerCase().replace(/\\s+/g, '-')}`}
                   onClick={() => setExpandedSections((current) =>
                     current.includes(section.label)
@@ -255,7 +263,7 @@ export function AppLayout() {
                   />
                 </button>
               ) : null}
-              {(!section.label || expandedSections.includes(section.label) || activeSectionLabel === section.label) ? (
+              {(!section.label || expandedSections.includes(section.label)) ? (
                 <div
                   className="app-nav-section-items"
                   id={section.label ? `nav-section-${section.label.toLowerCase().replace(/\\s+/g, '-')}` : undefined}
