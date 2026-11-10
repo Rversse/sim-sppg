@@ -502,7 +502,7 @@ export function parseMakerDocument(text: string): ParsedMakerDocument {
   }
 
   const containsUnsupportedLegacyCategory = allLines.slice(1).some((line) =>
-    /^_OPS Real_\\s*·/.test(line.trim())
+    /^_OPS Real_\s*·/.test(line.trim())
   )
   if (containsUnsupportedLegacyCategory) {
     return {
