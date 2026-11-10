@@ -6,6 +6,7 @@ import {
   Building2,
   Car,
   ChefHat,
+  ChevronDown,
   FileText,
   ClipboardPaste,
   FileSpreadsheet,
@@ -140,6 +141,7 @@ export function AppLayout() {
   const { user } = useAuth()
   const { success, error } = useToast()
   const { pathname } = useLocation()
+  const [expandedSections, setExpandedSections] = useState<string[]>([])
   const [theme, setTheme] = useState<'dark' | 'light'>(() => {
     if (typeof window === 'undefined') return 'dark'
     try {
@@ -171,6 +173,9 @@ export function AppLayout() {
     }))
     .filter((section) => section.items.length > 0)
   const visibleNavigation = visibleSections.flatMap((section) => section.items)
+  const activeSectionLabel = visibleSections.find((section) =>
+    section.items.some((item) => item.to === pathname)
+  )?.label
   async function handleLogout() {
     const { error: signOutError } = await supabase.auth.signOut()
     if (signOutError) {
@@ -232,31 +237,52 @@ export function AppLayout() {
           {visibleSections.map((section) => (
             <div className="app-nav-section" key={section.label}>
               {section.label ? (
-                <span className="app-nav-section-label">{section.label}</span>
+                <button
+                  type="button"
+                  className="app-nav-section-toggle"
+                  aria-expanded={expandedSections.includes(section.label) || activeSectionLabel === section.label}
+                  aria-controls={`nav-section-${section.label.toLowerCase().replace(/\\s+/g, '-')}`}
+                  onClick={() => setExpandedSections((current) =>
+                    current.includes(section.label)
+                      ? current.filter((label) => label !== section.label)
+                      : [...current, section.label]
+                  )}
+                >
+                  <span className="app-nav-section-label">{section.label}</span>
+                  <ChevronDown
+                    className="app-nav-section-chevron"
+                    aria-hidden="true"
+                  />
+                </button>
               ) : null}
-              <div className="app-nav-section-items">
-                {section.items.map((item) => {
-                  const Icon = item.icon
-                  return (
-                    <NavLink
-                      key={item.to}
-                      to={item.to}
-                      viewTransition
-                      onMouseEnter={() => preloadPage(item.to)}
-                      onFocus={() => preloadPage(item.to)}
-                      className={({ isActive }) =>
-                        `app-nav-link${isActive ? ' is-active' : ''}`
-                      }
-                      aria-label={item.label}
-                    >
-                      <span className="app-nav-icon" aria-hidden="true">
-                        <Icon />
-                      </span>
-                      <span className="app-nav-label">{item.label}</span>
-                    </NavLink>
-                  )
-                })}
-              </div>
+              {(!section.label || expandedSections.includes(section.label) || activeSectionLabel === section.label) ? (
+                <div
+                  className="app-nav-section-items"
+                  id={section.label ? `nav-section-${section.label.toLowerCase().replace(/\\s+/g, '-')}` : undefined}
+                >
+                  {section.items.map((item) => {
+                    const Icon = item.icon
+                    return (
+                      <NavLink
+                        key={item.to}
+                        to={item.to}
+                        viewTransition
+                        onMouseEnter={() => preloadPage(item.to)}
+                        onFocus={() => preloadPage(item.to)}
+                        className={({ isActive }) =>
+                          `app-nav-link${isActive ? ' is-active' : ''}`
+                        }
+                        aria-label={item.label}
+                      >
+                        <span className="app-nav-icon" aria-hidden="true">
+                          <Icon />
+                        </span>
+                        <span className="app-nav-label">{item.label}</span>
+                      </NavLink>
+                    )
+                  })}
+                </div>
+              ) : null}
             </div>
           ))}
         </nav>
