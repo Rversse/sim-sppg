@@ -733,98 +733,14 @@
   font-weight: var(--ui-weight-strong);
 }
 
-.dashboard-status-meta {
-  display: inline-flex !important;
-  align-items: center;
-  gap: 7px;
-  margin-top: 3px;
-  color: var(--theme-text-muted);
-  font-size: var(--ui-text-xs);
-}
-
 .dashboard-status-text {
   color: inherit;
   font-size: inherit;
   line-height: 1.2;
 }
 
-.dashboard-status-row.is-has-pencairan .dashboard-status-meta {
-  color: var(--app-success);
-}
-
-.dashboard-status-row.is-empty > div:first-child > strong {
+.dashboard-status-row.is-empty > .dashboard-status-identity > strong {
   color: var(--app-danger);
-}
-
-.dashboard-status-row.is-empty .dashboard-status-meta {
-  color: var(--app-danger);
-}
-
-.dashboard-status-transaction-count {
-  display: inline-flex !important;
-  align-items: center;
-  gap: 5px;
-  margin: 0 !important;
-  color: currentColor;
-  line-height: 1;
-}
-
-.dashboard-status-transaction-count > span:first-child {
-  display: inline !important;
-  margin: 0 !important;
-  color: currentColor;
-  font-size: var(--ui-text-xs) !important;
-  font-weight: var(--ui-weight-medium);
-  opacity: 0.7;
-}
-
-.dashboard-status-transaction-dots {
-  display: inline-flex !important;
-  align-items: center;
-  gap: 2px;
-  max-width: 180px;
-  margin: 0 !important;
-  overflow: hidden;
-}
-
-/* Keep transaction indicators in their original horizontal dot track. */
-.dashboard-status-row .dashboard-status-meta,
-.dashboard-status-row .dashboard-status-transaction-count,
-.dashboard-status-row .dashboard-status-transaction-dots {
-  flex-direction: row !important;
-  writing-mode: horizontal-tb;
-}
-
-.dashboard-status-row .dashboard-status-transaction-dots {
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: flex-start;
-  width: max-content;
-  height: auto;
-  white-space: nowrap;
-}
-
-.dashboard-status-row .dashboard-status-transaction-dots i {
-  flex: 0 0 4px;
-}
-
-.dashboard-status-transaction-dots i.is-in-database {
-  background: var(--app-success);
-}
-
-.dashboard-status-transaction-dots i.is-audit-only {
-  background: #e58a22;
-  box-shadow: 0 0 0 1px color-mix(in srgb, #e58a22 24%, transparent);
-}
-
-.dashboard-status-transaction-dots i {
-  display: block;
-  width: 4px;
-  height: 4px;
-  flex: 0 0 4px;
-  border-radius: 50%;
-  background: currentColor;
-  opacity: 0.78;
 }
 
 .dashboard-status-flags {
