@@ -1497,7 +1497,9 @@ export function BankPage() {
 
             <div className="bank-form-content">
               <div className="bank-form-grid">
-                <SingleDatePicker
+                <div className="bank-date-field">
+                  <span>Tanggal</span>
+                  <SingleDatePicker
                   label="Tanggal"
                   value={transferForm.transactionDate}
                   minDate={BANK_MODULE_START_DATE}
@@ -1509,7 +1511,8 @@ export function BankPage() {
                       transactionDate: value
                     }))
                   }
-                />
+                  />
+                </div>
 
                 <label>
                   <span>Nama Pengirim</span>
