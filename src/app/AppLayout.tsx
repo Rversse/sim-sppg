@@ -249,7 +249,7 @@ export function AppLayout() {
                   type="button"
                   className="app-nav-section-toggle"
                   aria-expanded={expandedSections.includes(section.label)}
-                  aria-controls={`nav-section-${section.label.toLowerCase().replace(/\\s+/g, '-')}`}
+                  aria-controls={`nav-section-${section.label.toLowerCase().replace(/\s+/g, '-')}`}
                   onClick={() => setExpandedSections((current) =>
                     current.includes(section.label)
                       ? current.filter((label) => label !== section.label)
@@ -266,7 +266,7 @@ export function AppLayout() {
               {(!section.label || expandedSections.includes(section.label)) ? (
                 <div
                   className="app-nav-section-items"
-                  id={section.label ? `nav-section-${section.label.toLowerCase().replace(/\\s+/g, '-')}` : undefined}
+                  id={section.label ? `nav-section-${section.label.toLowerCase().replace(/\s+/g, '-')}` : undefined}
                 >
                   {section.items.map((item) => {
                     const Icon = item.icon
