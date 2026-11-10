@@ -37,7 +37,6 @@
 .date-range-trigger:hover:not(:disabled) {
   border-color: var(--theme-border-strong);
   background: var(--theme-surface-raised);
-  transform: translateY(-1px);
 }
 
 .date-range-trigger:focus-visible {
@@ -64,7 +63,7 @@
   overflow: hidden;
   flex: 1 1 auto;
   color: var(--theme-text-primary);
-  font-weight: 700;
+  font-weight: var(--ui-weight-strong);
   text-align: left;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -73,7 +72,7 @@
 .date-range-trigger-caret {
   flex: 0 0 auto;
   color: var(--theme-text-muted);
-  font-size: 9px;
+  font-size: var(--ui-text-xs);
 }
 
 .date-range-popover {
@@ -119,7 +118,6 @@
 .date-range-nav:hover {
   border-color: var(--theme-border-strong);
   background: var(--theme-surface-raised);
-  transform: translateY(-1px);
 }
 
 .date-range-nav:active {
@@ -154,10 +152,10 @@
 
 .date-range-weekdays span {
   color: var(--theme-text-muted);
-  font-size: 8px;
-  font-weight: 900;
+  font-size: var(--ui-text-xs);
+  font-weight: var(--ui-weight-strong);
   text-align: center;
-  text-transform: uppercase;
+  text-transform: none;
 }
 
 .date-range-day {
@@ -172,8 +170,8 @@
   background: transparent;
   color: var(--theme-text-primary);
   cursor: pointer;
-  font-size: 10px;
-  font-weight: 700;
+  font-size: var(--ui-text-xs);
+  font-weight: var(--ui-weight-strong);
   transition:
     border-color var(--theme-motion-fast) ease,
     background-color var(--theme-motion-fast) ease,
@@ -223,7 +221,7 @@
   border-top: 1px solid var(--theme-border);
   background: var(--theme-surface-soft);
   color: var(--theme-text-muted);
-  font-size: 8px;
+  font-size: var(--ui-text-xs);
 }
 
 .date-range-reset-pending {
@@ -234,8 +232,8 @@
   background: var(--theme-surface-raised);
   color: var(--theme-text-muted);
   cursor: pointer;
-  font-size: 8px;
-  font-weight: 800;
+  font-size: var(--ui-text-xs);
+  font-weight: var(--ui-weight-strong);
   transition:
     border-color var(--theme-motion-fast) ease,
     background-color var(--theme-motion-fast) ease,
@@ -247,7 +245,6 @@
   border-color: var(--theme-border-strong);
   background: var(--theme-surface-raised);
   color: var(--theme-primary-hover);
-  transform: translateY(-1px);
 }
 
 .date-range-month-year-trigger {
@@ -265,7 +262,7 @@
   cursor: pointer;
   font: inherit;
   font-size: 11px;
-  font-weight: 900;
+  font-weight: var(--ui-weight-strong);
   text-transform: capitalize;
   transition:
     border-color var(--theme-motion-fast) ease,
@@ -315,10 +312,10 @@
 
 .date-range-month-year-fields label > span {
   color: var(--theme-text-muted);
-  font-size: 8px;
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
+  font-size: var(--ui-text-xs);
+  font-weight: var(--ui-weight-strong);
+  text-transform: none;
+  letter-spacing: 0;
 }
 
 .date-range-month-year-fields select {
@@ -333,8 +330,8 @@
   color: var(--theme-text-primary);
   cursor: pointer;
   font: inherit;
-  font-size: 10px;
-  font-weight: 700;
+  font-size: var(--ui-text-xs);
+  font-weight: var(--ui-weight-strong);
   transition:
     border-color var(--theme-motion-fast) ease,
     box-shadow var(--theme-motion-fast) ease,

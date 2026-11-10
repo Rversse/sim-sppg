@@ -1,0 +1,1206 @@
+/*
+ * SIM-SPPG professional visual system
+ * Product: operational and financial management for SPPG teams.
+ * Character: dependable, precise, practical.
+ * World: a well-run operations desk; records, food service and clear signals.
+ * Moments: operational status and financial summaries.
+ * Signature: consistent status markers and tabular figures.
+ *
+ * Adapted with reference to Unslop by Damir Sokolovsky, CC BY 4.0.
+ * https://github.com/heydamir/unslop
+ */
+
+:root {
+  --theme-page-bg: #f6f7f9;
+  --theme-surface: #fff;
+  --theme-surface-soft: #f1f3f6;
+  --theme-surface-raised: #fff;
+  --theme-text-primary: #1c2430;
+  --theme-text-secondary: #515e6e;
+  --theme-text-muted: #737f8d;
+  --theme-border: #e1e5eb;
+  --theme-border-strong: #cbd2dc;
+  --theme-primary: #326eb5;
+  --theme-primary-hover: #285c9a;
+  --theme-primary-soft: #eaf1f9;
+  --theme-primary-foreground: #fff;
+  --theme-success: #247a50;
+  --theme-success-hover: #1b6541;
+  --theme-success-soft: #eaf4ee;
+  --theme-warning: #996016;
+  --theme-warning-hover: #7d4e10;
+  --theme-warning-soft: #f8f1e5;
+  --theme-danger: #b94747;
+  --theme-danger-soft: #f9eded;
+  --theme-focus-ring: 0 0 0 3px rgb(50 110 181 / 16%);
+  --theme-shadow-card: 0 1px 2px rgb(25 39 58 / 4%), 0 4px 12px rgb(25 39 58 / 3%);
+  --theme-shadow-hover: 0 6px 18px rgb(25 39 58 / 7%);
+  --theme-shadow-modal: 0 20px 56px rgb(15 23 42 / 18%);
+  --theme-sidebar-bg: #fbfcfd;
+  --theme-sidebar-text: #515e6e;
+  --theme-sidebar-text-muted: #737f8d;
+  --theme-sidebar-text-active: #285c9a;
+  --theme-sidebar-hover: #f1f4f7;
+  --theme-sidebar-active: #eaf1f9;
+  --theme-header-bg: rgb(255 255 255 / 96%);
+  --theme-header-shadow: none;
+  --theme-overlay: rgb(15 23 42 / 42%);
+  --theme-motion-fast: 130ms;
+  --theme-motion: 180ms;
+  --theme-motion-slow: 260ms;
+  --theme-ease: cubic-bezier(.22, 1, .36, 1);
+  --ui-text-xs: 11px;
+  --ui-text-sm: 12px;
+  --ui-text-base: 13px;
+  --ui-text-md: 14px;
+  --ui-text-lg: 16px;
+  --ui-text-xl: 18px;
+  --ui-text-2xl: 24px;
+  --ui-text-display: 30px;
+  --ui-weight-regular: 400;
+  --ui-weight-medium: 500;
+  --ui-weight-strong: 600;
+  --ui-radius-sm: 6px;
+  --ui-radius-control: 8px;
+  --ui-radius-card: 12px;
+  --ui-radius-panel: 16px;
+  --app-header-height: 64px;
+  --app-control-height: 40px;
+  --app-control-radius: 8px;
+  --app-modal-radius: 14px;
+  --app-page-width: 100%;
+  --app-page-max-width: 1600px;
+  --app-page-margin: 0 auto;
+  --app-page-gap: 20px;
+  --app-page-padding: 0;
+  --ui-hairline: color-mix(in srgb, var(--theme-text-primary) 9%, transparent);
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --theme-page-bg: #12161c;
+  --theme-surface: #191f27;
+  --theme-surface-soft: #202832;
+  --theme-surface-raised: #1c242e;
+  --theme-text-primary: #e8edf3;
+  --theme-text-secondary: #b2bdc9;
+  --theme-text-muted: #8d99a7;
+  --theme-border: #303a46;
+  --theme-border-strong: #43505f;
+  --theme-primary: #8bb6e8;
+  --theme-primary-hover: #a6c8ef;
+  --theme-primary-soft: #24364b;
+  --theme-primary-foreground: #15202d;
+  --theme-success: #78c49a;
+  --theme-success-hover: #91d4ad;
+  --theme-success-soft: #20372d;
+  --theme-warning: #dfb66f;
+  --theme-warning-hover: #edc987;
+  --theme-warning-soft: #3a3021;
+  --theme-danger: #e28b8b;
+  --theme-danger-soft: #3b2729;
+  --theme-focus-ring: 0 0 0 3px rgb(139 182 232 / 22%);
+  --theme-shadow-card: 0 1px 2px rgb(0 0 0 / 20%);
+  --theme-shadow-hover: 0 7px 18px rgb(0 0 0 / 24%);
+  --theme-shadow-modal: 0 24px 64px rgb(0 0 0 / 48%);
+  --theme-sidebar-bg: #151b22;
+  --theme-sidebar-text: #b2bdc9;
+  --theme-sidebar-text-muted: #8d99a7;
+  --theme-sidebar-text-active: #b8d3f2;
+  --theme-sidebar-hover: #202832;
+  --theme-sidebar-active: #24364b;
+  --theme-header-bg: rgb(18 22 28 / 96%);
+  --theme-header-shadow: none;
+  --theme-overlay: rgb(0 0 0 / 64%);
+  --ui-hairline: color-mix(in srgb, var(--theme-text-primary) 10%, transparent);
+  --color-background: var(--theme-page-bg);
+  --color-foreground: var(--theme-text-primary);
+  --color-primary: var(--theme-primary);
+  --color-primary-foreground: var(--theme-primary-foreground);
+  --color-accent: var(--theme-primary);
+  --color-muted: var(--theme-surface-soft);
+  --color-muted-foreground: var(--theme-text-secondary);
+  --color-border: var(--theme-border);
+  --color-success: var(--theme-success);
+  --color-warning: var(--theme-warning);
+  --color-danger: var(--theme-danger);
+}
+
+:root[data-theme='light'] {
+  color-scheme: light;
+  --color-background: var(--theme-page-bg);
+  --color-foreground: var(--theme-text-primary);
+  --color-primary: var(--theme-primary);
+  --color-primary-foreground: var(--theme-primary-foreground);
+  --color-accent: var(--theme-primary);
+  --color-muted: var(--theme-surface-soft);
+  --color-muted-foreground: var(--theme-text-secondary);
+  --color-border: var(--theme-border);
+  --color-success: var(--theme-success);
+  --color-warning: var(--theme-warning);
+  --color-danger: var(--theme-danger);
+}
+
+html, body {
+  background: var(--theme-page-bg);
+  color: var(--theme-text-primary);
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-synthesis: none;
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+body { font-size: 13px; line-height: 1.5; font-variant-numeric: tabular-nums; }
+
+.app-shell { background: var(--theme-page-bg); }
+.app-sidebar { background: var(--theme-sidebar-bg) !important; border-right: 1px solid var(--theme-border); }
+.app-brand { gap: 12px; padding: 18px 12px 8px; }
+.app-brand-mark { border: 1px solid var(--theme-border); border-radius: 10px; background: var(--theme-surface); box-shadow: none; }
+.app-nav { gap: 20px; padding: 16px 12px; }
+.app-nav-section { gap: 6px; }
+.app-nav-section-label { padding-inline: 10px; color: var(--theme-text-muted); font-size: 10px; font-weight: 600; letter-spacing: .045em; text-transform: uppercase; }
+.app-nav-section-items { gap: 2px; }
+.app-nav-link { min-height: 36px; gap: 9px; border-radius: 8px; color: var(--theme-sidebar-text); font-size: 12px; font-weight: 500; }
+.app-nav-link::before { width: 2px; background: var(--theme-primary); }
+.app-nav-link:hover { background: var(--theme-sidebar-hover); color: var(--theme-text-primary); }
+.app-nav-link.is-active { background: var(--theme-sidebar-active); color: var(--theme-sidebar-text-active); box-shadow: none; font-weight: 600; }
+.app-nav-icon { width: 26px; height: 26px; flex-basis: 26px; border-radius: 7px; background: transparent; color: inherit; }
+.app-nav-link.is-active .app-nav-icon { background: color-mix(in srgb, var(--theme-primary) 12%, transparent); color: var(--theme-primary); }
+.app-nav-icon svg { width: 16px; height: 16px; stroke-width: 1.8; }
+.app-header { height: var(--app-header-height); padding-inline: clamp(16px, 2.2vw, 32px); border-bottom: 1px solid var(--theme-border); background: var(--theme-header-bg); box-shadow: none; backdrop-filter: blur(10px); }
+.app-page-title { color: var(--theme-text-primary); font-size: 18px; font-weight: 600; letter-spacing: -.02em; }
+.app-user-role { border: 1px solid var(--theme-border); border-radius: 7px; background: var(--theme-surface); color: var(--theme-text-secondary); font-size: 11px; font-weight: 500; }
+.app-logout-button { border: 1px solid var(--theme-border); border-radius: 8px; background: var(--theme-surface); color: var(--theme-text-secondary); }
+.app-main { width: min(var(--app-page-max-width), 100%); margin-inline: auto; padding: 24px clamp(16px, 2.2vw, 32px) 36px; }
+
+.dashboard-hero h1, .maker-import-hero h2, .supplier-header h1, .kitchen-header h1, .vehicle-header h1, .disbursement-accounts-heading h1 {
+  color: var(--theme-text-primary); font-size: 20px; font-weight: 600; letter-spacing: -.025em; line-height: 1.3;
+}
+.maker-import-hero p, .supplier-header p, .kitchen-header p, .vehicle-header p, .disbursement-accounts-heading p {
+  color: var(--theme-text-secondary); font-size: 12px; line-height: 1.6;
+}
+
+.dashboard-filter-card, .dashboard-panel, .dashboard-kpi, .reports-filter-panel, .reports-summary-card, .bank-summary-card, .supplier-panel, .kitchen-panel, .vehicle-panel, .disbursement-global-card, .disbursement-mapping-group, .maker-import-panel, .maker-import-source-panel, .real-import-source-panel, .maker-import-row, .real-import-row {
+  border: 1px solid var(--theme-border); border-radius: var(--ui-radius-card); background: var(--theme-surface); box-shadow: var(--theme-shadow-card);
+}
+.dashboard-panel:hover, .dashboard-kpi:hover, .supplier-panel:hover, .kitchen-panel:hover, .vehicle-panel:hover, .bank-summary-card:hover {
+  transform: none; box-shadow: var(--theme-shadow-card);
+}
+.dashboard-panel-header, .bank-panel-header, .maker-import-panel-head { border-bottom: 1px solid var(--theme-border); }
+.dashboard-panel-header h2, .dashboard-panel-header h3, .bank-panel-header h2, .maker-import-panel-head h3 { color: var(--theme-text-primary); font-size: 14px; font-weight: 600; letter-spacing: -.01em; }
+.dashboard-panel-header p, .bank-panel-header p, .maker-import-panel-head p { color: var(--theme-text-secondary); font-size: 11px; }
+
+.dashboard-kpi { min-height: 104px; padding: 16px; border-radius: 11px; box-shadow: var(--theme-shadow-card); }
+.dashboard-kpi > span { color: var(--theme-text-secondary); font-size: 11px; font-weight: 500; letter-spacing: 0; }
+.dashboard-kpi > strong { color: var(--theme-text-primary); font-size: 22px; font-weight: 600; letter-spacing: -.025em; line-height: 1.25; }
+.dashboard-kpi > small { color: var(--theme-text-muted); font-size: 11px; }
+.dashboard-kpi > .dashboard-kpi-icon { box-shadow: none; }
+.dashboard-status-panel, .dashboard-panel { background: var(--theme-surface); }
+.dashboard-panel-badge, .dashboard-date-chip, .dashboard-status-transaction-count { border: 1px solid var(--theme-border); border-radius: 6px; background: var(--theme-surface-soft); color: var(--theme-text-secondary); }
+.dashboard-status-row, .dashboard-history-row { border-color: var(--theme-border); }
+.dashboard-status-row:hover, .dashboard-history-row:hover { background: var(--theme-surface-soft); }
+.dashboard-status-row strong, .dashboard-history-heading > strong { color: var(--theme-text-primary); font-weight: 600; }
+.dashboard-status-meta, .dashboard-history-timestamp, .dashboard-history-note { color: var(--theme-text-muted); }
+.dashboard-flow { box-shadow: none; }
+.dashboard-flow:hover { transform: none; }
+
+input:not([type='checkbox']):not([type='radio']), select, textarea {
+  border-color: var(--theme-border-strong); border-radius: 8px; background: var(--theme-surface-raised); color: var(--theme-text-primary);
+}
+input::placeholder, textarea::placeholder { color: var(--theme-text-muted); opacity: 1; }
+input:not([type='checkbox']):not([type='radio']):focus-visible, select:focus-visible, textarea:focus-visible,
+.dashboard-transaction-form-grid input:focus, .dashboard-transaction-form-grid select:focus, .dashboard-transaction-form-grid textarea:focus {
+  outline: none; border-color: var(--theme-primary); box-shadow: var(--theme-focus-ring);
+}
+label, .dashboard-transaction-form-grid label, .bank-form-grid > label { color: var(--theme-text-secondary); font-weight: 500; }
+button:focus-visible, [role='button']:focus-visible, a:focus-visible { outline: 2px solid var(--theme-primary); outline-offset: 2px; }
+
+.app-action-button, .bank-primary-button, .bank-secondary-button, .maker-import-primary, .maker-import-secondary {
+  border-radius: 8px; font-size: 12px; font-weight: 600; letter-spacing: 0; box-shadow: none;
+}
+.app-action-button:hover:not(:disabled), .bank-primary-button:hover:not(:disabled), .bank-secondary-button:hover:not(:disabled), .maker-import-primary:hover:not(:disabled), .maker-import-secondary:hover:not(:disabled) {
+  transform: none; box-shadow: none;
+}
+
+.reports-table, .bank-account-table, .supplier-table, .kitchen-table, .vehicle-table {
+  border-collapse: separate; border-spacing: 0; color: var(--theme-text-primary); font-size: 12px; font-variant-numeric: tabular-nums;
+}
+.reports-table thead th, .bank-account-table thead th, .supplier-table th, .kitchen-table th, .vehicle-table th {
+  background: var(--theme-surface-soft); color: var(--theme-text-secondary); font-size: 10px; font-weight: 600; letter-spacing: .025em; border-bottom: 1px solid var(--theme-border-strong);
+}
+.reports-table tbody td, .bank-account-table tbody td, .supplier-table tbody td, .kitchen-table tbody td, .vehicle-table tbody td {
+  border-bottom: 1px solid var(--theme-border); color: var(--theme-text-primary); font-size: 12px;
+}
+.supplier-table tbody tr:hover td, .kitchen-table tbody tr:hover td, .vehicle-table tbody tr:hover td, .bank-account-row:hover td { background: var(--theme-surface-soft); }
+.reports-table-wrapper, .bank-account-table-wrap { border: 1px solid var(--theme-border); border-radius: 10px; background: var(--theme-surface); }
+
+.maker-import-chip, .maker-import-row-status, .real-import-status { border-radius: 6px; font-size: 11px; font-weight: 600; }
+.maker-import-row, .real-import-row { box-shadow: none; }
+.maker-import-row.is-valid { border-color: color-mix(in srgb, var(--theme-success) 28%, var(--theme-border)); }
+.maker-import-row.is-invalid, .real-import-row.is-duplicate { border-color: color-mix(in srgb, var(--theme-danger) 34%, var(--theme-border)); }
+
+.supplier-modal, .kitchen-modal, .vehicle-modal, .bank-history-modal, .bank-export-modal, .dashboard-transaction-modal, .supplier-mapping-modal, section.bank-export-modal {
+  border: 1px solid var(--theme-border); border-radius: var(--app-modal-radius); background: var(--theme-surface-raised); box-shadow: var(--theme-shadow-modal);
+}
+.supplier-modal-head, .kitchen-modal-head, .vehicle-modal-head, .bank-history-modal-header, .bank-export-modal-header, .dashboard-transaction-modal-header {
+  background: var(--theme-surface); border-bottom: 1px solid var(--theme-border);
+}
+.supplier-modal-head h2, .kitchen-modal-head h2, .vehicle-modal-head h2, .bank-history-modal-header h2, .bank-export-modal-header h2, .dashboard-transaction-modal-header h2 {
+  color: var(--theme-text-primary); font-size: 16px; font-weight: 600; letter-spacing: -.015em;
+}
+
+@media (max-width: 1100px) { .app-main { padding-inline: 20px; } }
+@media (max-width: 760px) {
+  .app-header { padding-inline: 14px; }
+  .app-main { padding: 16px 14px 92px; }
+  .app-page-title { font-size: 16px; }
+  .dashboard-kpi { min-height: 92px; padding: 13px 14px; }
+  .dashboard-kpi > strong { font-size: 20px; }
+  .reports-table, .bank-account-table, .supplier-table, .kitchen-table, .vehicle-table { font-size: 11px; }
+  .app-mobile-nav { border-top: 1px solid var(--theme-border); background: var(--theme-header-bg); box-shadow: 0 -6px 18px rgb(15 23 42 / 5%); backdrop-filter: blur(12px); }
+  .app-mobile-link { color: var(--theme-text-muted); }
+  .app-mobile-link.is-active { color: var(--theme-primary); }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+}
+
+
+/* Remaining audit fixes: mobile navigation, importer and authentication. */
+.app-mobile-link small,
+.app-mobile-link span {
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.app-action-button {
+  min-height: 38px;
+  font-size: 12px;
+  font-weight: 600;
+  transition: background-color var(--theme-motion-fast) ease, border-color var(--theme-motion-fast) ease, color var(--theme-motion-fast) ease;
+}
+
+.maker-import-hero {
+  background: var(--theme-surface);
+  border-color: var(--theme-border);
+  border-radius: 12px;
+}
+
+.maker-import-hero-icon {
+  border-color: var(--theme-border);
+  border-radius: 10px;
+  background: var(--theme-primary-soft);
+}
+
+.maker-import-eyebrow,
+.maker-import-panel-head > div > span {
+  color: var(--theme-text-secondary);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0;
+}
+
+.maker-import-hero h2 {
+  color: var(--theme-text-primary);
+  font-weight: 600;
+  letter-spacing: -.02em;
+}
+
+.maker-import-panel-head h3 {
+  font-weight: 600;
+  letter-spacing: -.01em;
+}
+
+.maker-import-panel-head p,
+.maker-import-source-footer > span {
+  font-size: 12px;
+}
+
+.maker-import-primary,
+.maker-import-secondary {
+  min-height: 38px;
+  font-size: 12px;
+  font-weight: 600;
+  transition: background-color var(--theme-motion-fast) ease, border-color var(--theme-motion-fast) ease, color var(--theme-motion-fast) ease;
+}
+
+.maker-import-primary:hover:not(:disabled) {
+  transform: none;
+}
+
+.maker-import-source-panel {
+  border-color: var(--theme-border);
+  box-shadow: var(--theme-shadow-card);
+}
+
+.login-page {
+  background: var(--theme-page-bg);
+}
+
+.login-page::before,
+.login-page::after,
+.login-card::after {
+  display: none;
+  animation: none;
+}
+
+.login-card {
+  border: 1px solid var(--theme-border);
+  border-radius: 14px;
+  background: var(--theme-surface);
+  box-shadow: var(--theme-shadow-card);
+  backdrop-filter: none;
+  animation: none;
+}
+
+.login-card::before {
+  display: none;
+}
+
+.login-brand-mark {
+  border: 1px solid var(--theme-border);
+  border-radius: 12px;
+  background: var(--theme-surface-soft);
+  color: var(--theme-primary);
+  box-shadow: none;
+  transition: none;
+}
+
+.login-brand-mark:hover {
+  transform: none;
+  box-shadow: none;
+}
+
+.login-header h1 {
+  color: var(--theme-text-primary);
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: -.02em;
+  line-height: 1.25;
+}
+
+.login-header p {
+  color: var(--theme-text-secondary);
+}
+
+.login-account-grid {
+  border-color: var(--theme-border);
+  border-radius: 10px;
+  background: var(--theme-surface-soft);
+}
+
+.login-account-button {
+  border-radius: 8px !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+}
+
+.login-account-button:not(:disabled):hover {
+  transform: none;
+}
+
+.login-pin-field label {
+  color: var(--theme-text-secondary);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.login-pin-input {
+  border-radius: 8px;
+  color: var(--theme-text-primary);
+  font-weight: 500;
+  letter-spacing: .2em;
+  box-shadow: none;
+}
+
+.login-pin-input:focus {
+  border-color: var(--theme-primary);
+  box-shadow: var(--theme-focus-ring);
+}
+
+.login-pin-hint,
+.login-status,
+.login-error {
+  font-size: 12px;
+}
+
+.vehicle-notification-badge {
+  animation: none;
+}
+
+.vehicle-notification-item:hover {
+  filter: none;
+}
+
+.vehicle-notification-button:hover {
+  transform: none;
+  box-shadow: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .login-card,
+  .login-brand-mark,
+  .vehicle-notification-badge {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+
+/* Small interaction refinements from the full slop audit. */
+.dashboard-kpi > .dashboard-kpi-icon,
+.dashboard-kpi-grid > .dashboard-kpi:nth-child(1) .dashboard-kpi-icon,
+.dashboard-kpi-grid > .dashboard-kpi:nth-child(2) .dashboard-kpi-icon,
+.dashboard-kpi-grid > .dashboard-kpi:nth-child(3) .dashboard-kpi-icon,
+.dashboard-kpi-grid > .dashboard-kpi:nth-child(4) .dashboard-kpi-icon,
+.dashboard-kpi-grid > .dashboard-kpi:nth-child(5) .dashboard-kpi-icon {
+  transition: color var(--theme-motion-fast) ease, background-color var(--theme-motion-fast) ease;
+}
+
+.dashboard-kpi > .dashboard-kpi-icon:hover,
+.dashboard-history-actions button:hover {
+  transform: none;
+}
+
+:where(
+  .bank-modal,
+  .bank-form-modal,
+  .bank-history-modal,
+  .dashboard-transaction-modal,
+  .kitchen-modal,
+  .supplier-modal,
+  .vehicle-modal,
+  .disbursement-modal,
+  .modal
+)::before {
+  display: none;
+}
+
+.app-mobile-link small {
+  font-size: 11px;
+  line-height: 1.25;
+}
+
+
+/* =========================================================
+   PRODUCT-SPECIFIC FINISH
+   These selectors map to the actual page stylesheets and keep
+   report/data color semantics intact while unifying surfaces.
+   ========================================================= */
+
+/* Shared page rhythm and page-level headings */
+.dashboard-page,
+.reports-page,
+.disbursement-accounts-page,
+.maker-import-page,
+.real-import-page {
+  color: var(--theme-text-primary);
+}
+
+.reports-page,
+.disbursement-accounts-page,
+.maker-import-page,
+.real-import-page {
+  gap: 20px;
+}
+
+.disbursement-accounts-header {
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.disbursement-accounts-header h1,
+.disbursement-global-card h2,
+.disbursement-accounts-intro h2 {
+  color: var(--theme-text-primary);
+  font-weight: 600;
+  letter-spacing: -.02em;
+}
+
+.disbursement-accounts-header p,
+.disbursement-add-panel-header p {
+  color: var(--theme-text-secondary);
+  line-height: 1.55;
+}
+
+/* Reports: structured, quiet controls and clearly separated data */
+.reports-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  padding: 4px;
+  border: 1px solid var(--theme-border);
+  border-radius: 10px;
+  background: var(--theme-surface-soft);
+}
+
+.reports-tabs button {
+  min-height: 34px;
+  padding: 0 12px;
+  border: 1px solid transparent;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--theme-text-secondary);
+  font-size: 12px;
+  font-weight: 500;
+  transition: background-color var(--theme-motion-fast) ease, color var(--theme-motion-fast) ease, border-color var(--theme-motion-fast) ease;
+}
+
+.reports-tabs button:hover {
+  background: var(--theme-surface);
+  color: var(--theme-text-primary);
+}
+
+.reports-tabs button.active {
+  border-color: var(--theme-border);
+  background: var(--theme-surface);
+  color: var(--theme-primary);
+  box-shadow: 0 1px 2px rgb(15 23 42 / 5%);
+  font-weight: 600;
+}
+
+.reports-filter-panel {
+  gap: 12px;
+  border: 1px solid var(--theme-border);
+  border-radius: 12px;
+  background: var(--theme-surface);
+  box-shadow: var(--theme-shadow-card);
+}
+
+.reports-period-filter-group {
+  gap: 10px;
+}
+
+.reports-filter-panel > button,
+.reports-print-actions > button {
+  min-height: 36px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.reports-summary-card {
+  border: 1px solid var(--theme-border);
+  border-radius: 11px;
+  background: var(--theme-surface);
+  box-shadow: var(--theme-shadow-card);
+}
+
+.reports-summary-card > span,
+.reports-summary-card > small {
+  color: var(--theme-text-secondary);
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.reports-summary-card > strong {
+  color: var(--theme-text-primary);
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: -.02em;
+  font-variant-numeric: tabular-nums;
+}
+
+.reports-subsection-title {
+  color: var(--theme-text-primary);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: -.01em;
+}
+
+.reports-table-wrapper {
+  overflow-x: auto;
+  border: 1px solid var(--theme-border);
+  border-radius: 10px;
+  background: var(--theme-surface);
+  box-shadow: none;
+}
+
+.reports-table {
+  min-width: 680px;
+}
+
+.reports-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  padding: 10px 12px;
+  background: var(--theme-surface-soft);
+  color: var(--theme-text-secondary);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: .02em;
+  text-transform: none;
+}
+
+.reports-table tbody td {
+  padding: 9px 12px;
+  border-bottom: 1px solid var(--theme-border);
+  color: var(--theme-text-primary);
+  font-size: 12px;
+}
+
+.reports-table tbody tr:hover:not(.reports-total-row) {
+  background: var(--theme-surface-soft);
+}
+
+.reports-total-row td {
+  background: var(--theme-surface-soft);
+  font-weight: 600;
+}
+
+.reports-detail > summary {
+  min-height: 42px;
+  border: 1px solid var(--theme-border);
+  border-radius: 9px;
+  background: var(--theme-surface);
+  color: var(--theme-text-primary);
+  font-weight: 600;
+}
+
+.reports-detail[open] > summary {
+  border-color: var(--theme-border-strong);
+  border-radius: 9px 9px 0 0;
+}
+
+.reports-empty,
+.reports-error {
+  border: 1px dashed var(--theme-border-strong);
+  border-radius: 10px;
+  background: var(--theme-surface);
+  color: var(--theme-text-secondary);
+}
+
+/* Bank ledger and its forms */
+.bank-accounts-panel {
+  border: 1px solid var(--theme-border);
+  border-radius: 12px;
+  background: var(--theme-surface);
+  box-shadow: var(--theme-shadow-card);
+}
+
+.bank-summary-grid {
+  gap: 12px;
+}
+
+.bank-summary-card {
+  min-height: 100px;
+  border: 1px solid var(--theme-border);
+  border-radius: 11px;
+  background: var(--theme-surface);
+  box-shadow: var(--theme-shadow-card);
+}
+
+.bank-summary-card:hover {
+  transform: none;
+  box-shadow: var(--theme-shadow-card);
+}
+
+.bank-panel-header h2 {
+  color: var(--theme-text-primary);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.bank-count,
+.bank-account-group-title small {
+  border: 1px solid var(--theme-border);
+  border-radius: 6px;
+  background: var(--theme-surface-soft);
+  color: var(--theme-text-secondary);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.bank-account-table-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--theme-border);
+  border-radius: 10px;
+}
+
+.bank-account-table {
+  min-width: 640px;
+}
+
+.bank-account-table thead th {
+  padding: 10px 12px;
+  background: var(--theme-surface-soft);
+  color: var(--theme-text-secondary);
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.bank-account-table tbody td {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--theme-border);
+}
+
+.bank-account-group-row th {
+  background: var(--theme-surface-soft);
+  color: var(--theme-text-secondary);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.bank-account-row:hover td {
+  background: var(--theme-surface-soft);
+}
+
+.bank-account-search {
+  border: 1px solid var(--theme-border-strong);
+  border-radius: 8px;
+  background: var(--theme-surface-raised);
+}
+
+.bank-account-search:focus-within {
+  border-color: var(--theme-primary);
+  box-shadow: var(--theme-focus-ring);
+}
+
+/* Master data pages share one coherent CRUD surface */
+.kitchen-panel,
+.supplier-panel,
+.vehicle-panel {
+  border: 1px solid var(--theme-border);
+  border-radius: 12px;
+  background: var(--theme-surface);
+  box-shadow: var(--theme-shadow-card);
+}
+
+.kitchen-panel:hover,
+.supplier-panel:hover,
+.vehicle-panel:hover {
+  transform: none;
+  box-shadow: var(--theme-shadow-card);
+}
+
+.kitchen-header h1,
+.supplier-header h1,
+.vehicle-header h1 {
+  color: var(--theme-text-primary);
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: -.02em;
+}
+
+.kitchen-header p,
+.supplier-header p,
+.vehicle-header p {
+  color: var(--theme-text-secondary);
+  font-size: 12px;
+}
+
+.kitchen-toolbar,
+.supplier-toolbar,
+.vehicle-toolbar {
+  gap: 10px;
+}
+
+.kitchen-input,
+.supplier-input,
+.vehicle-input {
+  min-height: 38px;
+  border: 1px solid var(--theme-border-strong);
+  border-radius: 8px;
+  background: var(--theme-surface-raised);
+  color: var(--theme-text-primary);
+  font-size: 12px;
+}
+
+.kitchen-input:focus,
+.supplier-input:focus,
+.vehicle-input:focus {
+  border-color: var(--theme-primary);
+  box-shadow: var(--theme-focus-ring);
+  outline: none;
+}
+
+.kitchen-toolbar-action,
+.supplier-toolbar-action,
+.vehicle-toolbar-action {
+  min-height: 38px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.kitchen-table,
+.supplier-table,
+.vehicle-table {
+  min-width: 620px;
+}
+
+.kitchen-table th,
+.supplier-table th,
+.vehicle-table th {
+  padding: 10px 12px;
+  background: var(--theme-surface-soft);
+  color: var(--theme-text-secondary);
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.kitchen-table td,
+.supplier-table td,
+.vehicle-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--theme-border);
+  color: var(--theme-text-primary);
+  font-size: 12px;
+}
+
+.kitchen-table tbody tr:hover td,
+.supplier-table tbody tr:hover td,
+.vehicle-table tbody tr:hover td {
+  background: var(--theme-surface-soft);
+}
+
+.kitchen-empty,
+.supplier-empty {
+  color: var(--theme-text-secondary);
+}
+
+/* Disbursement account mapping: status is semantic, not decorative */
+.disbursement-global-card,
+.disbursement-mapping-group,
+.disbursement-add-panel {
+  border: 1px solid var(--theme-border);
+  border-radius: 12px;
+  background: var(--theme-surface);
+  box-shadow: var(--theme-shadow-card);
+}
+
+.disbursement-mapping-group > header {
+  border-bottom: 1px solid var(--theme-border);
+  background: var(--theme-surface-soft);
+}
+
+.disbursement-mapping-row {
+  border-bottom: 1px solid var(--theme-border);
+}
+
+.disbursement-mapping-row-head strong,
+.disbursement-kitchen-status strong {
+  color: var(--theme-text-primary);
+  font-weight: 600;
+}
+
+.disbursement-status-control,
+.disbursement-kitchen-status {
+  border: 1px solid var(--theme-border);
+  border-radius: 8px;
+  background: var(--theme-surface-soft);
+}
+
+.disbursement-add-form-fields select,
+.disbursement-kitchen-picker select,
+.disbursement-mapping-fields input,
+.disbursement-mapping-fields select {
+  min-height: 38px;
+  border: 1px solid var(--theme-border-strong);
+  border-radius: 8px;
+  background: var(--theme-surface-raised);
+  color: var(--theme-text-primary);
+}
+
+/* Import/reconciliation screens: information density without cramped controls */
+.maker-import-hero {
+  border: 1px solid var(--theme-border);
+  border-radius: 12px;
+  background: var(--theme-surface);
+  box-shadow: none;
+}
+
+.maker-import-hero-icon {
+  border: 1px solid var(--theme-border);
+  border-radius: 9px;
+  background: var(--theme-primary-soft);
+  color: var(--theme-primary);
+}
+
+.maker-import-eyebrow,
+.maker-import-panel-head > div > span {
+  color: var(--theme-text-secondary);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.maker-import-hero h2,
+.maker-import-panel-head h3 {
+  color: var(--theme-text-primary);
+  font-weight: 600;
+  letter-spacing: -.015em;
+}
+
+.maker-import-panel,
+.maker-import-source-panel,
+.real-import-source-panel {
+  border: 1px solid var(--theme-border);
+  border-radius: 12px;
+  background: var(--theme-surface);
+  box-shadow: var(--theme-shadow-card);
+}
+
+.maker-import-summary > div,
+.real-import-summary > div {
+  border: 1px solid var(--theme-border);
+  border-radius: 9px;
+  background: var(--theme-surface-soft);
+}
+
+.maker-import-summary small,
+.real-import-summary small {
+  color: var(--theme-text-secondary);
+  font-size: 11px;
+}
+
+.maker-import-summary strong,
+.real-import-summary strong {
+  color: var(--theme-text-primary);
+  font-size: 18px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.maker-import-row,
+.real-import-row {
+  border: 1px solid var(--theme-border);
+  border-radius: 10px;
+  background: var(--theme-surface);
+  box-shadow: none;
+}
+
+.maker-import-row h4,
+.real-import-row-head h4 {
+  color: var(--theme-text-primary);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.maker-import-row-issues,
+.real-import-duplicate-warning {
+  border-radius: 8px;
+}
+
+.maker-import-row-status,
+.real-import-status {
+  font-size: 11px;
+  font-weight: 600;
+}
+
+/* Dialogs: consistent geometry across CRUD and workflow confirmations */
+:where(
+  .bank-form-modal,
+  .bank-history-modal,
+  .bank-export-modal,
+  .dashboard-transaction-modal,
+  .kitchen-modal,
+  .supplier-modal,
+  .supplier-mapping-modal,
+  .vehicle-modal,
+  .import-confirmation-dialog
+) {
+  border: 1px solid var(--theme-border);
+  border-radius: 14px;
+  background: var(--theme-surface-raised);
+  box-shadow: var(--theme-shadow-modal);
+}
+
+:where(
+  .kitchen-modal-head,
+  .supplier-modal-head,
+  .vehicle-modal-head,
+  .bank-history-modal-header,
+  .bank-export-modal-header,
+  .dashboard-transaction-modal-header,
+  .import-confirmation-head
+) {
+  border-bottom: 1px solid var(--theme-border);
+  background: var(--theme-surface);
+}
+
+:where(
+  .kitchen-modal-head h2,
+  .supplier-modal-head h2,
+  .vehicle-modal-head h2,
+  .bank-history-modal-header h2,
+  .bank-export-modal-header h2,
+  .dashboard-transaction-modal-header h2,
+  .import-confirmation-head h2
+) {
+  color: var(--theme-text-primary);
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: -.015em;
+}
+
+:where(
+  .kitchen-modal-body,
+  .supplier-modal-body,
+  .vehicle-modal-body,
+  .bank-form-content,
+  .bank-export-modal-content
+) {
+  background: var(--theme-surface-raised);
+}
+
+:where(
+  .kitchen-modal-actions,
+  .supplier-modal-actions,
+  .vehicle-actions,
+  .bank-form-actions,
+  .bank-export-modal-actions,
+  .dashboard-transaction-modal-actions
+) {
+  border-top: 1px solid var(--theme-border);
+}
+
+/* Date pickers and toasts: same component language, restrained motion */
+:where(.single-date-picker__popover, .date-range-popover) {
+  border: 1px solid var(--theme-border);
+  border-radius: 10px;
+  background: var(--theme-surface-raised);
+  box-shadow: var(--theme-shadow-modal);
+}
+
+:where(.single-date-picker__trigger, .date-range-trigger) {
+  border-radius: 8px;
+  background: var(--theme-surface);
+}
+
+.app-toast {
+  border-radius: 10px;
+  box-shadow: var(--theme-shadow-modal);
+}
+
+.app-toast-content strong {
+  font-size: 12px;
+}
+
+.app-toast-content p {
+  font-size: 12px;
+}
+
+/* Keep compact helper text readable without changing dense table data. */
+:where(
+  .dashboard-filter-heading span,
+  .dashboard-kpi > span,
+  .dashboard-kpi > small,
+  .bank-summary-card span,
+  .bank-summary-card small,
+  .maker-import-batch-grid label > span,
+  .maker-import-fields label > span,
+  .real-import-row-fields label > span,
+  .disbursement-mapping-fields label > span
+) {
+  font-size: 11px;
+}
+
+@media (max-width: 760px) {
+  .reports-filter-panel,
+  .disbursement-toolbar-grid,
+  .kitchen-toolbar,
+  .supplier-toolbar,
+  .vehicle-toolbar {
+    gap: 8px;
+  }
+
+  .reports-tabs {
+    overflow-x: auto;
+    flex-wrap: nowrap;
+  }
+
+  .reports-tabs button {
+    flex: 0 0 auto;
+  }
+
+  .reports-table-wrapper,
+  .bank-account-table-wrap,
+  .kitchen-panel,
+  .supplier-panel,
+  .vehicle-panel {
+    max-width: 100%;
+  }
+
+  .disbursement-accounts-header {
+    flex-direction: column;
+  }
+
+  .app-toast-region {
+    top: 12px;
+    right: 12px;
+    width: calc(100vw - 24px);
+  }
+}
+
+
+/* Final consistency pass: eliminate micro-type and attention-seeking effects. */
+.app-mobile-link span, .app-mobile-link small { font-size: 11px; font-weight: 500; }
+.app-action-button { min-height: 36px; border-radius: 8px; font-size: 12px; font-weight: 600; letter-spacing: 0; }
+.app-action-button:hover:not(:disabled) { transform: none; box-shadow: none; }
+.dashboard-status-flags span:hover, .dashboard-flow:hover, .dashboard-history-actions button:hover, .dashboard-kpi > .dashboard-kpi-icon:hover { transform: none; filter: none; box-shadow: none; }
+
+.maker-import-hero { background: var(--theme-surface); }
+.maker-import-source-panel { border-color: var(--theme-border); box-shadow: var(--theme-shadow-card); }
+.maker-import-eyebrow, .maker-import-panel-head > div > span, .maker-import-row-number, .maker-import-readonly-kind, .maker-import-account-select > span, .maker-import-fields label > span, .maker-import-batch-grid label > span, .maker-import-row-issues p, .maker-import-row-status { font-size: 11px; font-weight: 500; letter-spacing: 0; }
+.maker-import-hero h2 { font-size: 20px; font-weight: 600; letter-spacing: -.02em; }
+.maker-import-panel-head h3, .maker-import-row h4 { font-weight: 600; letter-spacing: -.01em; }
+.maker-import-panel-head p, .maker-import-source-footer > span { font-size: 12px; }
+.maker-import-account-select select, .maker-import-fields input, .maker-import-fields select, .maker-import-batch-grid input, .maker-import-batch-grid select { min-height: 36px; font-size: 12px; }
+.maker-import-primary, .maker-import-secondary { min-height: 36px; border-radius: 8px; font-size: 12px; font-weight: 600; }
+
+.real-import-row-head > div > span, .real-import-status, .real-import-row-fields label > span { font-size: 11px; font-weight: 500; letter-spacing: 0; }
+.real-import-row-fields input, .real-import-row-fields select { min-height: 36px; font-size: 12px; }
+.real-import-row-head h4 { font-size: 13px; font-weight: 600; }
+
+.login-page { background: var(--theme-page-bg); }
+.login-page::before, .login-page::after, .login-card::before, .login-card::after { display: none; animation: none; }
+.login-card { border: 1px solid var(--theme-border); border-radius: 14px; background: var(--theme-surface); box-shadow: var(--theme-shadow-card); backdrop-filter: none; animation: none; }
+.login-brand-mark { border: 1px solid var(--theme-border); border-radius: 10px; background: var(--theme-primary-soft); color: var(--theme-primary); box-shadow: none; transition: none; }
+.login-brand-mark:hover { transform: none; box-shadow: none; }
+.login-header h1 { color: var(--theme-text-primary); font-size: 22px; font-weight: 600; letter-spacing: -.02em; line-height: 1.25; }
+.login-pin-field label { color: var(--theme-text-secondary); font-size: 12px; font-weight: 600; }
+.login-pin-input { border-radius: 8px; color: var(--theme-text-primary); font-weight: 500; letter-spacing: .18em; box-shadow: none; }
+.login-pin-input:focus { border-color: var(--theme-primary); box-shadow: var(--theme-focus-ring); }
+.login-pin-hint, .login-status, .login-error { font-size: 12px; }
+
+.vehicle-notification-badge { animation: none; }
+.vehicle-notification-button:hover { transform: none; box-shadow: none; }
+.vehicle-notification-item { transition: background-color var(--theme-motion-fast) ease; }
+.vehicle-notification-item:hover { filter: none; }
+
+:root[data-theme='dark'] .reports-table thead th,
+:root[data-theme='dark'] .bank-account-table thead th,
+:root[data-theme='dark'] .kitchen-table th,
+:root[data-theme='dark'] .supplier-table th,
+:root[data-theme='dark'] .vehicle-table th { background: var(--theme-surface-soft); color: var(--theme-text-secondary); }
+:root[data-theme='dark'] .reports-total-row td,
+:root[data-theme='dark'] .bank-account-group-row th { background: var(--theme-surface-soft); }
+
+@media (prefers-reduced-motion: reduce) {
+  .vehicle-notification-badge, .login-card, .login-brand-mark { animation: none !important; transition: none !important; }
+}
+
+
+/* Final audit corrections: keep legacy token consumers and import context intact. */
+:root {
+  --theme-text: var(--theme-text-primary);
+}
+
+:root[data-theme='dark'] {
+  --theme-text: var(--theme-text-primary);
+}
+
+/* The compact importer may shorten source context, but must not hide it. */
+.real-import-row-head p {
+  display: -webkit-box;
+  max-height: none;
+  overflow: hidden;
+  color: var(--theme-text-muted);
+  font-size: 11px;
+  line-height: 1.4;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}

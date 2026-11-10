@@ -16,7 +16,7 @@
   margin: 0;
   color: var(--theme-text-primary);
   font-size: 28px;
-  font-weight: 800;
+  font-weight: var(--ui-weight-strong);
 }
 
 .vehicle-header p {
@@ -34,10 +34,7 @@
 }
 
 .vehicle-header > .app-action-button:hover:not(:disabled) {
-  transform: translateY(-1px) scale(1.01);
-  box-shadow:
-    0 12px 28px rgb(57 255 136 / 0.18),
-    0 2px 6px rgb(15 23 42 / 0.04);
+  box-shadow: var(--theme-shadow-card);
 }
 
 .vehicle-toolbar {
@@ -68,7 +65,7 @@
   background: var(--theme-surface-soft);
   color: var(--theme-text-primary);
   font-size: 14px;
-  font-weight: 750;
+  font-weight: var(--ui-weight-strong);
 }
 
 .vehicle-toolbar > .animated-select .animated-select__label,
@@ -76,13 +73,13 @@
   top: 7px;
   left: 13px;
   max-width: calc(100% - 46px);
-  font-size: 10px;
+  font-size: var(--ui-text-xs);
 }
 
 .vehicle-toolbar > .animated-select .animated-select__value,
 .vehicle-field > .animated-select .animated-select__value {
   font-size: 14px;
-  font-weight: 750;
+  font-weight: var(--ui-weight-strong);
 }
 
 .vehicle-toolbar > .animated-select .animated-select__chevron,
@@ -127,7 +124,7 @@
   background: color-mix(in srgb, var(--theme-surface-raised) 78%, transparent);
   box-shadow: 0 3px 10px rgb(15 23 42 / 0.025);
   color: var(--app-text-muted);
-  font-size: 10px;
+  font-size: var(--ui-text-xs);
   white-space: nowrap;
 }
 
@@ -159,7 +156,7 @@
   outline: none;
   font-family: inherit;
   font-size: 14px;
-  font-weight: 650;
+  font-weight: var(--ui-weight-strong);
   line-height: 1;
   transition:
     border-color var(--theme-motion-fast) ease,
@@ -192,7 +189,7 @@
   color: var(--theme-text-secondary);
   box-shadow: none;
   font-size: 11px;
-  font-weight: 800;
+  font-weight: var(--ui-weight-strong);
   white-space: nowrap;
 }
 
@@ -254,34 +251,9 @@
     background-color 220ms ease;
 }
 
-.vehicle-panel::before {
-  position: absolute;
-  inset: 0 0 auto;
-  height: 2px;
-  border-radius: 16px 16px 0 0;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgb(57 255 136 / 0.55),
-    transparent
-  );
-  content: '';
-  opacity: 0;
-  transform: scaleX(0.35);
-  transition:
-    opacity var(--app-motion) ease,
-    transform var(--app-motion-slow) var(--app-ease);
-  pointer-events: none;
-}
-
 .vehicle-panel:hover {
   border-color: var(--theme-border-strong);
   box-shadow: var(--theme-shadow-hover);
-}
-
-.vehicle-panel:hover::before {
-  opacity: 1;
-  transform: scaleX(1);
 }
 
 .vehicle-table {
@@ -304,11 +276,11 @@
   padding-bottom: 12px;
   background: var(--app-bg-soft);
   color: var(--theme-text-secondary);
-  font-size: 10px;
-  font-weight: 900;
-  letter-spacing: 0.055em;
+  font-size: var(--ui-text-xs);
+  font-weight: var(--ui-weight-medium);
+  letter-spacing: 0;
   text-align: center;
-  text-transform: uppercase;
+  text-transform: none;
 }
 
 .vehicle-table td {
@@ -353,7 +325,7 @@
 }
 
 .vehicle-expiry span {
-  font-size: 10px;
+  font-size: var(--ui-text-xs);
 }
 
 .vehicle-expiry .expiry-ok {
@@ -366,7 +338,7 @@
 
 .vehicle-expiry .expiry-danger {
   color: var(--theme-danger);
-  font-weight: 800;
+  font-weight: var(--ui-weight-strong);
 }
 
 .vehicle-expiry .expiry-neutral {
@@ -382,7 +354,7 @@
   border-radius: 10px;
   background: var(--theme-warning-soft);
   color: var(--theme-warning-hover);
-  font-size: 10px;
+  font-size: var(--ui-text-xs);
   box-shadow: 0 8px 22px rgb(245 158 11 / 0.055);
   transition:
     transform var(--app-motion-fast) var(--app-ease),
@@ -390,7 +362,6 @@
 }
 
 .vehicle-reminder:hover {
-  transform: translateY(-1px);
   box-shadow: 0 12px 28px rgb(245 158 11 / 0.09);
 }
 
@@ -437,11 +408,11 @@
   border-bottom: 1px solid var(--theme-border);
   background: var(--theme-surface-soft);
   color: var(--theme-text-secondary);
-  font-size: 10px;
-  font-weight: 900;
-  letter-spacing: 0.055em;
+  font-size: var(--ui-text-xs);
+  font-weight: var(--ui-weight-medium);
+  letter-spacing: 0;
   text-align: center;
-  text-transform: uppercase;
+  text-transform: none;
 }
 
 .vehicle-loading-rows {
@@ -586,19 +557,19 @@
   background: var(--theme-surface-raised);
   color: var(--theme-text-primary);
   font-size: 11px;
-  font-weight: 700;
+  font-weight: var(--ui-weight-strong);
 }
 
 .vehicle-date-field .single-date-picker__label {
   top: 5px;
   left: 11px;
   max-width: calc(100% - 42px);
-  font-size: 8px;
+  font-size: var(--ui-text-xs);
 }
 
 .vehicle-date-field .single-date-picker__value {
   font-size: 11px;
-  font-weight: 700;
+  font-weight: var(--ui-weight-strong);
 }
 
 .vehicle-date-field .single-date-picker__icon {
@@ -626,7 +597,7 @@
 .vehicle-field label {
   color: var(--theme-text-secondary);
   font-size: 11px;
-  font-weight: 800;
+  font-weight: var(--ui-weight-strong);
 }
 
 .vehicle-field input {
@@ -725,10 +696,6 @@
     transition: none;
   }
 
-  .vehicle-panel::before {
-    transition: none;
-  }
-
   .vehicle-toolbar > .animated-select .animated-select__trigger,
   .vehicle-field > .animated-select .animated-select__trigger,
   .vehicle-toolbar > .animated-select .animated-select__chevron,
@@ -777,7 +744,7 @@
   box-shadow: none;
   font-family: inherit;
   font-size: 14px;
-  font-weight: 650;
+  font-weight: var(--ui-weight-strong);
   line-height: 1.2;
   transition:
     border-color var(--theme-motion-fast) ease,
@@ -851,7 +818,7 @@
   color: var(--theme-text-secondary);
   box-shadow: none;
   font-size: 11px;
-  font-weight: 800;
+  font-weight: var(--ui-weight-strong);
   line-height: 1;
   white-space: nowrap;
 }
@@ -886,7 +853,7 @@
   color: var(--theme-text-secondary);
   box-shadow: none;
   font-size: 11px;
-  font-weight: 800;
+  font-weight: var(--ui-weight-strong);
   line-height: 1;
   white-space: nowrap;
 }
@@ -929,7 +896,7 @@
   background: var(--theme-surface-raised);
   color: var(--theme-text-primary);
   font-size: 11px;
-  font-weight: 700;
+  font-weight: var(--ui-weight-strong);
   box-shadow: none;
 }
 
@@ -937,12 +904,12 @@
   top: 5px;
   left: 11px;
   max-width: calc(100% - 42px);
-  font-size: 8px;
+  font-size: var(--ui-text-xs);
 }
 
 .vehicle-field > .animated-select .animated-select__value {
   font-size: 11px;
-  font-weight: 700;
+  font-weight: var(--ui-weight-strong);
 }
 
 .vehicle-field > .animated-select .animated-select__chevron {

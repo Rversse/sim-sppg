@@ -33,7 +33,7 @@
   cursor: pointer;
   font: inherit;
   font-size: 11px;
-  font-weight: 700;
+  font-weight: var(--ui-weight-strong);
   transition:
     border-color var(--theme-motion-fast) ease,
     background-color var(--theme-motion-fast) ease,
@@ -44,7 +44,6 @@
 .single-date-picker__trigger:hover:not(:disabled) {
   border-color: var(--theme-border-strong);
   background: var(--theme-surface-raised);
-  transform: translateY(-1px);
 }
 
 .single-date-picker__trigger:focus-visible {
@@ -69,12 +68,12 @@
   max-width: calc(100% - 42px);
   overflow: hidden;
   color: var(--theme-text-muted);
-  font-size: 8px;
-  font-weight: 900;
-  letter-spacing: 0.08em;
+  font-size: var(--ui-text-xs);
+  font-weight: var(--ui-weight-strong);
+  letter-spacing: 0;
   line-height: 1;
   text-overflow: ellipsis;
-  text-transform: uppercase;
+  text-transform: none;
   white-space: nowrap;
   pointer-events: none;
   transition: color var(--theme-motion-fast) ease;
@@ -100,7 +99,7 @@
   overflow: hidden;
   color: var(--theme-text-primary);
   font-size: 11px;
-  font-weight: 700;
+  font-weight: var(--ui-weight-strong);
   line-height: 1.2;
   text-align: center;
   text-overflow: ellipsis;
@@ -162,7 +161,6 @@
 .single-date-picker__nav:hover:not(:disabled) {
   border-color: var(--theme-border-strong);
   background: var(--theme-surface-raised);
-  transform: translateY(-1px);
 }
 
 .single-date-picker__nav:disabled {
@@ -194,7 +192,7 @@
   cursor: pointer;
   font: inherit;
   font-size: 11px;
-  font-weight: 900;
+  font-weight: var(--ui-weight-strong);
   text-transform: capitalize;
   transition:
     border-color var(--theme-motion-fast) ease,
@@ -233,10 +231,10 @@
 
 .single-date-picker__month-year label > span {
   color: var(--theme-text-muted);
-  font-size: 8px;
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
+  font-size: var(--ui-text-xs);
+  font-weight: var(--ui-weight-strong);
+  text-transform: none;
+  letter-spacing: 0;
 }
 
 .single-date-picker__month-year select {
@@ -251,8 +249,8 @@
   color: var(--theme-text-primary);
   cursor: pointer;
   font: inherit;
-  font-size: 10px;
-  font-weight: 700;
+  font-size: var(--ui-text-xs);
+  font-weight: var(--ui-weight-strong);
   transition:
     border-color var(--theme-motion-fast) ease,
     box-shadow var(--theme-motion-fast) ease,
@@ -286,10 +284,10 @@
 
 .single-date-picker__weekdays span {
   color: var(--theme-text-muted);
-  font-size: 8px;
-  font-weight: 900;
+  font-size: var(--ui-text-xs);
+  font-weight: var(--ui-weight-strong);
   text-align: center;
-  text-transform: uppercase;
+  text-transform: none;
 }
 
 .single-date-picker__day {
@@ -304,8 +302,8 @@
   background: transparent;
   color: var(--theme-text-primary);
   cursor: pointer;
-  font-size: 10px;
-  font-weight: 700;
+  font-size: var(--ui-text-xs);
+  font-weight: var(--ui-weight-strong);
   transition:
     border-color var(--theme-motion-fast) ease,
     background-color var(--theme-motion-fast) ease,

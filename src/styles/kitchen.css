@@ -18,7 +18,7 @@
   margin: 0;
   color: var(--theme-text-primary);
   font-size: 28px;
-  font-weight: 800;
+  font-weight: var(--ui-weight-strong);
 }
 
 .kitchen-header p {
@@ -52,7 +52,7 @@
   box-shadow: 0 3px 10px
     color-mix(in srgb, var(--theme-text-primary) 3%, transparent);
   color: var(--theme-text-muted);
-  font-size: 10px;
+  font-size: var(--ui-text-xs);
   white-space: nowrap;
 }
 
@@ -84,7 +84,7 @@
   outline: none;
   font-family: inherit;
   font-size: 14px;
-  font-weight: 650;
+  font-weight: var(--ui-weight-strong);
   line-height: 1;
   transition:
     border-color var(--theme-motion-fast) ease,
@@ -117,7 +117,7 @@
   color: var(--theme-text-secondary);
   box-shadow: none;
   font-size: 11px;
-  font-weight: 800;
+  font-weight: var(--ui-weight-strong);
   white-space: nowrap;
 }
 
@@ -179,35 +179,9 @@
     background-color 220ms ease;
 }
 
-.kitchen-panel::before {
-  position: absolute;
-  inset: 0 0 auto;
-  height: 2px;
-  border-radius: 16px 16px 0 0;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    color-mix(in srgb, var(--theme-primary) 55%, transparent),
-    transparent
-  );
-  content: '';
-  opacity: 0;
-  transform: scaleX(0.35);
-  transform-origin: center;
-  transition:
-    opacity var(--theme-motion) ease,
-    transform var(--theme-motion-slow) var(--theme-ease);
-  pointer-events: none;
-}
-
 .kitchen-panel:hover {
   border-color: var(--theme-border-strong);
   box-shadow: var(--theme-shadow-hover);
-}
-
-.kitchen-panel:hover::before {
-  opacity: 1;
-  transform: scaleX(1);
 }
 
 .kitchen-table {
@@ -231,11 +205,11 @@
   padding-bottom: 12px;
   background: var(--theme-surface-soft);
   color: var(--theme-text-secondary);
-  font-size: 10px;
-  font-weight: 900;
-  letter-spacing: 0.055em;
+  font-size: var(--ui-text-xs);
+  font-weight: var(--ui-weight-medium);
+  letter-spacing: 0;
   text-align: center;
-  text-transform: uppercase;
+  text-transform: none;
 }
 
 .kitchen-table td {
@@ -290,8 +264,8 @@
   display: inline-flex;
   padding: 4px 7px;
   border-radius: 999px;
-  font-size: 8px;
-  font-weight: 800;
+  font-size: var(--ui-text-xs);
+  font-weight: var(--ui-weight-medium);
 }
 
 .kitchen-badge-active {
@@ -338,11 +312,11 @@
   border-bottom: 1px solid var(--theme-border);
   background: var(--theme-surface-soft);
   color: var(--theme-text-secondary);
-  font-size: 10px;
-  font-weight: 900;
-  letter-spacing: 0.055em;
+  font-size: var(--ui-text-xs);
+  font-weight: var(--ui-weight-medium);
+  letter-spacing: 0;
   text-align: center;
-  text-transform: uppercase;
+  text-transform: none;
 }
 
 .kitchen-loading-rows {
@@ -470,8 +444,8 @@
 
 .kitchen-field label {
   color: var(--theme-text-secondary);
-  font-size: 9px;
-  font-weight: 800;
+  font-size: var(--ui-text-xs);
+  font-weight: var(--ui-weight-medium);
 }
 
 .kitchen-field input,
@@ -483,7 +457,7 @@
   background: var(--theme-surface-raised);
   color: var(--theme-text-primary);
   outline: none;
-  font-size: 10px;
+  font-size: var(--ui-text-xs);
   transition:
     border-color var(--theme-motion-fast) ease,
     box-shadow var(--theme-motion-fast) ease,
@@ -581,7 +555,7 @@
   }
 
   .kitchen-table th {
-    font-size: 9px;
+    font-size: var(--ui-text-xs);
   }
 
   .kitchen-table td {
@@ -604,8 +578,7 @@
 
 @media (prefers-reduced-motion: reduce) {
   .kitchen-panel,
-  .kitchen-input,
-  .kitchen-panel::before {
+  .kitchen-input {
     transition: none;
   }
 }
@@ -680,7 +653,7 @@
   height: 34px;
   padding: 0 11px;
   border-radius: var(--app-control-radius);
-  font-size: 9px;
+  font-size: var(--ui-text-xs);
 }
 
 .kitchen-modal-head .app-action-button--icon {
@@ -716,7 +689,7 @@
   box-shadow: none;
   font-family: inherit;
   font-size: 14px;
-  font-weight: 650;
+  font-weight: var(--ui-weight-strong);
   line-height: 1.2;
   transition:
     border-color var(--theme-motion-fast) ease,
@@ -790,7 +763,7 @@
   color: var(--theme-text-secondary);
   box-shadow: none;
   font-size: 11px;
-  font-weight: 800;
+  font-weight: var(--ui-weight-strong);
   line-height: 1;
   white-space: nowrap;
 }
@@ -825,7 +798,7 @@
   color: var(--theme-text-secondary);
   box-shadow: none;
   font-size: 11px;
-  font-weight: 800;
+  font-weight: var(--ui-weight-strong);
   line-height: 1;
   white-space: nowrap;
 }
