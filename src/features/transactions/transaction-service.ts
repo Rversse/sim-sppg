@@ -335,6 +335,7 @@ export async function hasDuplicateTransaction(
     query = query
       .is('account_id', null)
       .eq('destination_label', payload.destination_label)
+  }
 
   const { count, error } = await query
 
