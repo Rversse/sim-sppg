@@ -1265,3 +1265,29 @@
     flex-basis: auto !important;
   }
 }
+
+
+/* Fix verification overlap: the fields wrapper must size itself to its labels and inputs.
+   The previous rule accidentally constrained this parent to only two fixed-height rows. */
+.maker-import-row .maker-import-fields {
+  grid-template-rows: auto !important;
+  align-items: start !important;
+  min-height: 60px;
+}
+
+.maker-import-row .maker-import-readonly-kind {
+  min-height: 24px;
+  line-height: 1.35;
+}
+
+.maker-import-row .maker-import-fields > label {
+  grid-template-rows: minmax(22px, auto) 34px !important;
+  align-content: start;
+}
+
+@media (max-width: 900px) {
+  .maker-import-row .maker-import-fields {
+    min-height: 0;
+    grid-template-rows: auto !important;
+  }
+}
