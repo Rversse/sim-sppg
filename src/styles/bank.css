@@ -256,7 +256,8 @@
 
 .bank-account-table-wrap {
   width: 100%;
-  overflow: visible;
+  overflow-x: auto;
+  overflow-y: visible;
   border: 1px solid var(--theme-border);
   border-radius: 13px;
   background: var(--theme-surface);
@@ -283,9 +284,8 @@
 }
 
 .bank-account-table thead th {
-  position: sticky;
-  top: var(--app-header-height, 60px);
-  z-index: 20;
+  position: static;
+  z-index: auto;
   height: 40px;
   padding: 0 12px;
   border-bottom: 1px solid var(--theme-border);
