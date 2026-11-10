@@ -1182,3 +1182,25 @@ button:focus-visible, [role='button']:focus-visible, a:focus-visible { outline: 
 @media (prefers-reduced-motion: reduce) {
   .vehicle-notification-badge, .login-card, .login-brand-mark { animation: none !important; transition: none !important; }
 }
+
+
+/* Final audit corrections: keep legacy token consumers and import context intact. */
+:root {
+  --theme-text: var(--theme-text-primary);
+}
+
+:root[data-theme='dark'] {
+  --theme-text: var(--theme-text-primary);
+}
+
+/* The compact importer may shorten source context, but must not hide it. */
+.real-import-row-head p {
+  display: -webkit-box;
+  max-height: none;
+  overflow: hidden;
+  color: var(--theme-text-muted);
+  font-size: 11px;
+  line-height: 1.4;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
