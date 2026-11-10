@@ -1,0 +1,1086 @@
+/*
+ * SIM-SPPG responsive device layer
+ * Scope: tablet, standard phone, foldable cover and unfolded displays.
+ * Loaded after component styles so each device breakpoint has one final owner.
+ */
+
+html,
+body,
+#root {
+  width: 100%;
+  max-width: 100%;
+  min-width: 280px;
+}
+
+body {
+  overflow-x: clip;
+}
+
+.app-shell,
+.app-content,
+.app-main {
+  min-width: 0;
+  max-width: 100%;
+}
+
+img,
+svg,
+video,
+canvas {
+  max-width: 100%;
+}
+
+/* Compact desktop/tablet landscape: retain the sidebar but protect content width. */
+@media (min-width: 961px) and (max-width: 1180px) {
+  .app-shell {
+    --sidebar-width: 216px;
+  }
+
+  .app-header {
+    padding-inline: 18px;
+  }
+
+  .app-main {
+    width: 100%;
+    padding: 20px 16px 28px;
+  }
+
+  .maker-import-page {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+
+  .maker-import-row-list {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .maker-import-row .maker-import-readonly-kind {
+    flex-wrap: wrap;
+    white-space: normal;
+  }
+
+  .maker-import-row .maker-import-account-select {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr);
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100%;
+    flex: 1 1 100% !important;
+  }
+
+  .maker-import-row .maker-import-fields,
+  .maker-import-row .maker-import-fields--real-ops {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    min-width: 0;
+  }
+
+  .maker-import-row .maker-import-detail-field {
+    grid-column: 1 / -1;
+  }
+
+  .reports-filter-panel {
+    width: 100%;
+    max-width: 100%;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .reports-period-filter-group {
+    grid-column: 1 / -1;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* Tablet portrait and foldable inner displays use the touch navigation shell. */
+@media (max-width: 960px) {
+  :root {
+    --app-header-height: 60px;
+  }
+
+  .app-shell {
+    --sidebar-width: 0px;
+    display: block;
+    width: 100%;
+    min-height: 100dvh;
+  }
+
+  .app-sidebar {
+    display: none !important;
+  }
+
+  .app-content {
+    width: 100%;
+    min-width: 0;
+    overflow-x: clip;
+  }
+
+  .app-header {
+    height: var(--app-header-height);
+    min-height: var(--app-header-height);
+    gap: 10px;
+    padding-inline: 16px;
+  }
+
+  .app-header-left {
+    min-width: 0;
+    flex: 1 1 auto;
+  }
+
+  .app-page-heading {
+    min-width: 0;
+  }
+
+  .app-page-title {
+    max-width: min(46vw, 360px);
+    overflow: hidden;
+    font-size: 16px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .app-user {
+    min-width: 0;
+    flex: 0 0 auto;
+    gap: 5px;
+  }
+
+  .app-user-role {
+    display: none !important;
+  }
+
+  .app-theme-switch {
+    flex: 0 0 60px;
+  }
+
+  .app-mobile-nav {
+    position: fixed;
+    z-index: 50;
+    inset: auto 10px max(8px, env(safe-area-inset-bottom, 0px)) 10px;
+    display: flex !important;
+    width: auto;
+    max-width: calc(100vw - 20px);
+    align-items: stretch;
+    justify-content: flex-start;
+    gap: 4px;
+    padding: 6px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    border: 1px solid var(--theme-border-strong);
+    border-radius: 15px;
+    background: color-mix(in srgb, var(--theme-sidebar-bg) 97%, transparent);
+    box-shadow: var(--theme-shadow-hover);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    overscroll-behavior-x: contain;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    scroll-snap-type: x proximity;
+  }
+
+  .app-mobile-nav::-webkit-scrollbar {
+    display: none;
+    width: 0;
+    height: 0;
+  }
+
+  .app-mobile-link {
+    display: flex;
+    min-width: 64px;
+    min-height: 52px;
+    flex: 0 0 64px;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    padding: 5px 3px;
+    border-radius: 10px;
+    scroll-snap-align: start;
+    touch-action: pan-x;
+  }
+
+  .app-mobile-link svg {
+    display: block;
+    width: 18px;
+    height: 18px;
+    flex: 0 0 18px;
+  }
+
+  .app-mobile-link small {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    overflow: hidden;
+    font-size: 9px;
+    font-weight: 600;
+    line-height: 1.1;
+    text-align: center;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .app-main {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    margin: 0;
+    padding: 20px 18px calc(96px + env(safe-area-inset-bottom, 0px));
+  }
+
+  .dashboard-page,
+  .bank-page,
+  .reports-page,
+  .kitchen-page,
+  .supplier-page,
+  .vehicle-page,
+  .disbursement-accounts-page,
+  .maker-import-page,
+  .real-import-page {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+  }
+
+  .dashboard-main-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .dashboard-status-panel,
+  .dashboard-history-panel {
+    width: 100%;
+    min-width: 0;
+    height: auto;
+    min-height: 0;
+  }
+
+  .dashboard-status-list {
+    max-height: none;
+    overflow: visible;
+  }
+
+  .dashboard-history {
+    max-height: none;
+    overflow: visible;
+  }
+
+  .dashboard-transaction-form-grid {
+    min-height: 0;
+    max-height: calc(100dvh - 176px);
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .bank-summary-grid {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .bank-accounts-panel,
+  .bank-panel-header,
+  .bank-account-table-wrap,
+  .bank-account-tools {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .bank-panel-header {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .bank-account-tools {
+    flex-wrap: wrap;
+  }
+
+  .bank-account-search {
+    min-width: 0;
+    flex: 1 1 220px;
+  }
+
+  .reports-page,
+  .reports-section {
+    min-width: 0;
+  }
+
+  .reports-tabs {
+    width: 100%;
+    max-width: 100%;
+    justify-content: flex-start;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .reports-filter-panel {
+    display: grid;
+    width: 100%;
+    max-width: 100%;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    margin-inline: 0;
+  }
+
+  .reports-period-filter-group {
+    grid-column: 1 / -1;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    width: 100%;
+    min-width: 0;
+  }
+
+  .reports-summary-grid,
+  .reports-summary-grid.reports-summary-overall {
+    width: 100%;
+    max-width: 100%;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .reports-table-wrapper {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    overflow-x: auto;
+    overflow-y: hidden;
+    overscroll-behavior-x: contain;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .reports-table {
+    width: 100%;
+  }
+
+  .kitchen-panel,
+  .supplier-panel,
+  .vehicle-panel {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    overflow-x: auto;
+    overflow-y: hidden;
+    overscroll-behavior-x: contain;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .kitchen-table,
+  .supplier-table,
+  .vehicle-table {
+    width: 100%;
+  }
+
+  .disbursement-accounts-page {
+    padding-inline: 12px;
+  }
+
+  .disbursement-mapping-groups {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .disbursement-mapping-fields {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .maker-import-page {
+    width: 100% !important;
+    max-width: 1120px !important;
+    min-width: 0;
+    box-sizing: border-box;
+  }
+
+  .maker-import-source-panel {
+    position: static;
+    top: auto;
+    min-width: 0;
+  }
+
+  .maker-import-source,
+  .real-import-page .maker-import-source {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+  }
+
+  .maker-import-row-list {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .maker-import-row {
+    width: 100%;
+    min-width: 0;
+    grid-template-columns: minmax(0, 1fr) !important;
+    box-sizing: border-box;
+  }
+
+  .maker-import-row .maker-import-row-head {
+    min-width: 0;
+    flex-wrap: wrap;
+  }
+
+  .maker-import-row .maker-import-readonly-kind {
+    display: flex !important;
+    min-width: 0;
+    flex-wrap: wrap !important;
+    white-space: normal !important;
+    overflow-wrap: anywhere;
+  }
+
+  .maker-import-row .maker-import-account-select {
+    display: grid !important;
+    width: 100% !important;
+    max-width: 100%;
+    min-width: 0 !important;
+    flex: 1 1 100% !important;
+    grid-template-columns: minmax(0, 1fr);
+    box-sizing: border-box;
+  }
+
+  .maker-import-row .maker-import-fields,
+  .maker-import-row .maker-import-fields--real-ops {
+    display: grid !important;
+    width: 100%;
+    min-width: 0;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 8px;
+  }
+
+  .maker-import-row .maker-import-fields > label {
+    min-width: 0;
+  }
+
+  .maker-import-row .maker-import-fields > label > span {
+    min-width: 0;
+    white-space: normal !important;
+    overflow-wrap: anywhere;
+    font-size: 10px !important;
+    text-align: left !important;
+    justify-content: flex-start !important;
+  }
+
+  .maker-import-row .maker-import-fields input,
+  .maker-import-row .maker-import-fields select,
+  .maker-import-row .maker-import-account-select select {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+
+  .maker-import-row .maker-import-detail-field {
+    grid-column: 1 / -1;
+  }
+
+  .real-import-page {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    padding-inline: 8px;
+    box-sizing: border-box;
+  }
+
+  .real-import-row {
+    width: 100%;
+    min-width: 0;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+    box-sizing: border-box;
+  }
+
+  .real-import-row-head {
+    min-width: 0;
+    grid-column: 1 / -1;
+    flex-wrap: wrap;
+  }
+
+  .real-import-row-fields {
+    display: grid !important;
+    min-width: 0;
+    grid-column: 1 / -1;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .real-import-row-fields label {
+    min-width: 0;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .real-import-row-fields label > span {
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+
+  .real-import-row-fields input,
+  .real-import-row-fields select {
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+
+  .real-import-row-fields .real-import-note {
+    grid-column: 1 / -1;
+  }
+
+  .vehicle-notification-popover {
+    position: fixed;
+    top: calc(var(--app-header-height) + 8px);
+    right: 10px;
+    left: auto;
+    width: min(360px, calc(100vw - 20px));
+    max-width: calc(100vw - 20px);
+  }
+
+  :where(
+    .bank-modal-backdrop,
+    .bank-history-modal-backdrop,
+    .dashboard-transaction-modal-backdrop,
+    .kitchen-modal-backdrop,
+    .supplier-modal-backdrop,
+    .vehicle-modal-backdrop,
+    .disbursement-modal-backdrop,
+    .modal-backdrop,
+    .import-confirmation-backdrop
+  ) {
+    padding: max(10px, env(safe-area-inset-top, 0px))
+      max(10px, env(safe-area-inset-right, 0px))
+      max(10px, env(safe-area-inset-bottom, 0px))
+      max(10px, env(safe-area-inset-left, 0px));
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+
+  :where(
+    .bank-modal,
+    .bank-form-modal,
+    .bank-export-modal,
+    .bank-history-modal,
+    .dashboard-transaction-modal,
+    .kitchen-modal,
+    .supplier-modal,
+    .supplier-mapping-modal,
+    .supplier-account-modal,
+    .vehicle-modal,
+    .disbursement-modal,
+    .modal,
+    .import-confirmation-dialog
+  ) {
+    width: min(100%, calc(100vw - 24px));
+    max-width: calc(100vw - 24px);
+    max-height: calc(100dvh - 24px);
+    min-width: 0;
+    margin: auto;
+  }
+
+  .kitchen-modal {
+    width: min(100%, calc(100vw - 24px)) !important;
+    max-width: calc(100vw - 24px) !important;
+  }
+
+  .supplier-mapping-modal,
+  .supplier-account-modal.is-readonly {
+    width: min(100%, calc(100vw - 24px));
+    max-width: calc(100vw - 24px);
+  }
+
+  section.bank-history-modal {
+    width: min(100%, calc(100vw - 20px));
+    height: auto;
+    max-height: calc(100dvh - 20px);
+  }
+
+  .vehicle-modal-body {
+    min-height: 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .supplier-modal-body,
+  .kitchen-modal-body,
+  .bank-form-content,
+  .bank-export-modal-content,
+  .bank-history-content,
+  .dashboard-transaction-form-grid,
+  .disbursement-modal-body {
+    min-width: 0;
+    max-height: 100%;
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .single-date-picker__popover {
+    width: min(280px, calc(100vw - 20px));
+    max-width: calc(100vw - 20px);
+    max-height: calc(100dvh - 20px);
+  }
+
+  .date-range-popover {
+    width: min(280px, calc(100vw - 20px));
+    max-width: calc(100vw - 20px);
+    max-height: calc(100dvh - 20px);
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+
+  .animated-select__menu {
+    width: min(100%, 360px);
+    max-width: calc(100vw - 24px);
+    max-height: min(280px, calc(100dvh - 140px));
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+
+  .app-toast-region {
+    width: min(420px, calc(100vw - 24px));
+    max-width: calc(100vw - 24px);
+  }
+}
+
+/* Phone slab and foldable cover screens. */
+@media (max-width: 600px) {
+  .app-header {
+    height: 56px;
+    min-height: 56px;
+    padding-inline: 12px;
+  }
+
+  .app-page-title {
+    max-width: calc(100vw - 168px);
+    font-size: 15px;
+  }
+
+  .app-main {
+    padding: 16px 12px calc(94px + env(safe-area-inset-bottom, 0px));
+  }
+
+  .app-mobile-nav {
+    right: 8px;
+    left: 8px;
+    gap: 3px;
+    padding: 5px;
+  }
+
+  .app-mobile-link {
+    min-width: 62px;
+    min-height: 50px;
+    flex-basis: 62px;
+  }
+
+  .app-mobile-link small {
+    font-size: 8.5px;
+  }
+
+  .dashboard-page,
+  .bank-page,
+  .reports-page,
+  .kitchen-page,
+  .supplier-page,
+  .vehicle-page,
+  .real-import-page {
+    gap: 12px;
+  }
+
+  .dashboard-status-row {
+    display: grid;
+    min-width: 0;
+    grid-template-columns: minmax(0, 1fr);
+    align-items: start;
+    gap: 9px;
+  }
+
+  .dashboard-status-row > .dashboard-status-identity {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .dashboard-status-row-actions {
+    width: 100%;
+    min-width: 0;
+    justify-content: flex-start;
+  }
+
+  .dashboard-status-flags {
+    max-width: 100%;
+    flex-wrap: wrap;
+    gap: 5px;
+  }
+
+  .dashboard-status-list {
+    max-height: none;
+    overflow: visible;
+  }
+
+  .dashboard-history {
+    max-height: none;
+    overflow: visible;
+  }
+
+  .dashboard-transaction-modal-header {
+    padding: 14px;
+  }
+
+  .dashboard-transaction-form-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 10px;
+    max-height: calc(100dvh - 160px);
+    padding: 12px;
+  }
+
+  .dashboard-transaction-form-note {
+    grid-column: 1;
+    grid-row: auto;
+  }
+
+  .dashboard-transaction-modal-actions {
+    flex-wrap: wrap;
+    padding: 10px 12px;
+  }
+
+  .reports-filter-panel {
+    width: 100%;
+    max-width: 100%;
+    grid-template-columns: minmax(0, 1fr);
+    padding: 10px;
+  }
+
+  .reports-period-filter-group {
+    grid-column: 1;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .reports-filter-panel > button {
+    width: 100%;
+  }
+
+  .reports-tabs {
+    width: 100%;
+    max-width: 100%;
+    margin-inline: 0;
+  }
+
+  .reports-summary-grid,
+  .reports-summary-grid.reports-summary-overall {
+    grid-template-columns: minmax(0, 1fr);
+    width: 100%;
+  }
+
+  .reports-table-wrapper,
+  .bank-account-table-wrap,
+  .kitchen-panel,
+  .supplier-panel,
+  .vehicle-panel {
+    max-width: 100%;
+    border-radius: 10px;
+  }
+
+  .bank-summary-grid {
+    width: 100%;
+    gap: 8px;
+  }
+
+  .bank-summary-card {
+    min-width: 0;
+  }
+
+  .bank-account-tools {
+    width: 100%;
+    align-items: stretch;
+    flex-wrap: wrap;
+  }
+
+  .bank-account-search {
+    width: 100%;
+    min-width: 0;
+    flex: 1 1 100%;
+  }
+
+  .kitchen-toolbar,
+  .supplier-toolbar,
+  .vehicle-toolbar {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .kitchen-input,
+  .supplier-input,
+  .vehicle-input,
+  .vehicle-toolbar > .animated-select {
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .disbursement-accounts-page {
+    padding-inline: 0;
+  }
+
+  .disbursement-toolbar-grid,
+  .disbursement-add-form-fields,
+  .disbursement-mapping-fields {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .disbursement-accounts-header,
+  .disbursement-mapping-group > header {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .disbursement-header-actions {
+    width: 100%;
+    justify-content: stretch;
+  }
+
+  .disbursement-header-actions > .app-action-button {
+    flex: 1 1 auto;
+  }
+
+  .maker-import-page {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  .maker-import-row {
+    padding: 10px !important;
+  }
+
+  .maker-import-row .maker-import-fields,
+  .maker-import-row .maker-import-fields--real-ops {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  .maker-import-row .maker-import-detail-field {
+    grid-column: 1;
+  }
+
+  .maker-import-row .maker-import-fields > label {
+    grid-template-rows: auto 40px;
+  }
+
+  .maker-import-row .maker-import-fields > label > span {
+    min-height: 0 !important;
+    padding-bottom: 2px;
+    font-size: 11px !important;
+  }
+
+  .maker-import-row .maker-import-readonly-kind {
+    align-items: flex-start !important;
+    flex-direction: column !important;
+    gap: 7px !important;
+  }
+
+  .maker-import-row .maker-import-account-select {
+    width: 100% !important;
+    min-width: 0 !important;
+    flex-basis: auto !important;
+  }
+
+  .real-import-source-tools,
+  .real-import-summary,
+  .real-import-row,
+  .real-import-row-fields {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .real-import-row {
+    gap: 8px;
+    padding: 10px;
+  }
+
+  .real-import-row-head {
+    grid-column: 1;
+    flex-wrap: wrap;
+  }
+
+  .real-import-row-fields {
+    display: grid !important;
+    grid-column: 1;
+    min-width: 0;
+  }
+
+  .real-import-row-fields label {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 4px;
+  }
+
+  .real-import-row-fields .real-import-note {
+    grid-column: 1;
+  }
+
+  .real-import-duplicate-warning {
+    flex-wrap: wrap;
+  }
+
+  .real-import-duplicate-warning button {
+    width: 100%;
+  }
+
+  .vehicle-notification-popover {
+    right: 8px;
+    width: calc(100vw - 16px);
+    max-width: calc(100vw - 16px);
+  }
+
+  .bank-history-pagination,
+  .dashboard-pagination {
+    max-width: 100%;
+    flex-wrap: wrap;
+  }
+
+  .bank-history-pagination-buttons,
+  .dashboard-pagination-controls {
+    max-width: 100%;
+    flex-wrap: wrap;
+  }
+}
+
+/* Very narrow foldable cover displays. */
+@media (max-width: 380px) {
+  .app-header {
+    gap: 6px;
+    padding-inline: 9px;
+  }
+
+  .app-page-title {
+    max-width: calc(100vw - 154px);
+    font-size: 14px;
+  }
+
+  .app-user {
+    gap: 3px;
+  }
+
+  .app-theme-switch {
+    width: 42px;
+    min-width: 42px;
+    height: 34px;
+    flex: 0 0 42px;
+    padding: 3px;
+  }
+
+  .app-theme-switch__track {
+    width: 34px;
+    height: 26px;
+  }
+
+  .app-theme-switch__thumb {
+    width: 26px;
+    height: 26px;
+  }
+
+  .app-theme-switch[data-theme='dark'] .app-theme-switch__thumb {
+    transform: translateX(6px);
+  }
+
+  .app-logout-button,
+  .vehicle-notification-button {
+    width: 32px;
+    min-width: 32px;
+    height: 34px;
+  }
+
+  .app-main {
+    padding-inline: 10px;
+  }
+
+  .dashboard-kpi-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .reports-filter-panel,
+  .dashboard-filter-card,
+  .dashboard-panel {
+    padding-inline: 10px;
+  }
+
+  .dashboard-status-flags {
+    gap: 3px;
+  }
+}
+
+/* Short landscape phone / foldable viewport: preserve access to the bottom nav and modal actions. */
+@media (max-width: 960px) and (max-height: 520px) {
+  .app-header {
+    height: 50px;
+    min-height: 50px;
+  }
+
+  .app-mobile-nav {
+    bottom: max(4px, env(safe-area-inset-bottom, 0px));
+    padding: 3px 5px;
+    border-radius: 12px;
+  }
+
+  .app-mobile-link {
+    min-height: 42px;
+    padding-block: 3px;
+    gap: 2px;
+  }
+
+  .app-mobile-link svg {
+    width: 16px;
+    height: 16px;
+    flex-basis: 16px;
+  }
+
+  .app-mobile-link small {
+    font-size: 8px;
+  }
+
+  .app-main {
+    padding-top: 14px;
+    padding-bottom: calc(66px + env(safe-area-inset-bottom, 0px));
+  }
+
+  :where(
+    .bank-modal,
+    .bank-form-modal,
+    .bank-export-modal,
+    .bank-history-modal,
+    .dashboard-transaction-modal,
+    .kitchen-modal,
+    .supplier-modal,
+    .supplier-mapping-modal,
+    .supplier-account-modal,
+    .vehicle-modal,
+    .disbursement-modal,
+    .modal,
+    .import-confirmation-dialog
+  ) {
+    max-height: calc(100dvh - 12px);
+  }
+
+  .vehicle-notification-list {
+    max-height: calc(100dvh - 105px);
+  }
+}
+
+/* Safe-area and keyboard-friendly scrolling for devices with dynamic viewport units. */
+@supports (height: 100dvh) {
+  .app-shell {
+    min-height: 100dvh;
+  }
+
+  .app-sidebar {
+    height: 100dvh;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .app-mobile-nav,
+  .app-mobile-link,
+  .reports-tabs,
+  .bank-account-table-wrap,
+  .reports-table-wrapper,
+  .kitchen-panel,
+  .supplier-panel,
+  .vehicle-panel {
+    scroll-behavior: auto;
+    transition: none;
+  }
+}
