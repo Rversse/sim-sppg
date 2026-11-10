@@ -690,9 +690,6 @@
   color: var(--theme-data-purple);
 }
 
-.reports-table-overall thead th.reports-col-real-ops {
-  color: var(--theme-data-cyan);
-}
 
 .reports-overall-belanja-block .reports-table-overall thead th {
   color: var(--theme-text-primary);
