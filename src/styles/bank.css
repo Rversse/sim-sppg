@@ -2037,3 +2037,56 @@ section.bank-history-modal {
   align-items: center;
   justify-content: center;
 }
+
+/* Align the bank transfer date picker with the form's external field labels. */
+.bank-form-grid > .bank-date-field {
+  display: grid;
+  min-width: 0;
+  width: 100%;
+  gap: 5px;
+  align-self: start;
+}
+
+.bank-date-field > span {
+  display: block;
+  min-width: 0;
+  margin: 0;
+  color: var(--theme-text-secondary);
+  font-size: var(--ui-text-xs);
+  font-weight: var(--ui-weight-medium);
+  line-height: 1.2;
+}
+
+.bank-date-field .single-date-picker {
+  min-width: 0;
+  width: 100%;
+}
+
+.bank-date-field .single-date-picker__trigger {
+  height: 42px;
+  min-height: 42px;
+  max-height: 42px;
+  align-items: center;
+  padding: 0 34px;
+}
+
+.bank-date-field .single-date-picker__label {
+  display: none;
+}
+
+.bank-date-field .single-date-picker__icon {
+  align-self: center;
+  margin: 0;
+}
+
+.bank-date-field .single-date-picker__caret {
+  top: 50%;
+  bottom: auto;
+  transform: translateY(-50%);
+}
+
+@media (max-width: 760px) {
+  .bank-date-field {
+    grid-column: 1 / -1;
+  }
+}
