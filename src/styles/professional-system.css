@@ -196,7 +196,7 @@ body { font-size: 13px; line-height: 1.5; font-variant-numeric: tabular-nums; }
 .dashboard-kpi > small { color: var(--theme-text-muted); font-size: 11px; }
 .dashboard-kpi > .dashboard-kpi-icon { box-shadow: none; }
 .dashboard-status-panel, .dashboard-panel { background: var(--theme-surface); }
-.dashboard-panel-badge, .dashboard-date-chip, .dashboard-status-transaction-count { border: 1px solid var(--theme-border); border-radius: 6px; background: var(--theme-surface-soft); color: var(--theme-text-secondary); }
+.dashboard-panel-badge, .dashboard-date-chip { border: 1px solid var(--theme-border); border-radius: 6px; background: var(--theme-surface-soft); color: var(--theme-text-secondary); }
 .dashboard-status-row, .dashboard-history-row { border-color: var(--theme-border); }
 .dashboard-status-row:hover, .dashboard-history-row:hover { background: var(--theme-surface-soft); }
 .dashboard-status-row strong, .dashboard-history-heading > strong { color: var(--theme-text-primary); font-weight: 600; }
@@ -1352,43 +1352,6 @@ button:focus-visible, [role='button']:focus-visible, a:focus-visible { outline: 
   border: 0;
   padding: 0;
   background: transparent;
-}
-
-/* Transaction indicators: dots stay in one horizontal row; no vertical rail. */
-.dashboard-status-row .dashboard-status-meta,
-.dashboard-status-row .dashboard-status-transaction-count,
-.dashboard-status-row .dashboard-status-transaction-dots {
-  flex-direction: row !important;
-  writing-mode: horizontal-tb !important;
-  direction: ltr;
-}
-
-.dashboard-status-row .dashboard-status-transaction-dots {
-  display: flex !important;
-  flex-flow: row nowrap !important;
-  align-items: center;
-  justify-content: flex-start;
-  gap: 3px;
-  width: max-content;
-  max-width: 100%;
-  min-height: 5px;
-  padding: 2px 0;
-  overflow: visible;
-  white-space: nowrap;
-  border: 0;
-  background: none;
-  box-shadow: none;
-}
-
-.dashboard-status-row .dashboard-status-transaction-dots i {
-  display: block;
-  flex: 0 0 5px;
-  width: 5px;
-  height: 5px;
-  margin: 0;
-  border: 0;
-  border-radius: 50%;
-  box-shadow: none;
 }
 
 /* At high zoom, keep the sidebar independently scrollable and content fluid. */
