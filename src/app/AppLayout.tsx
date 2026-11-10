@@ -141,7 +141,7 @@ export function AppLayout() {
   const { user } = useAuth()
   const { success, error } = useToast()
   const { pathname } = useLocation()
-  const [expandedSections, setExpandedSections] = useState<string[]>([])
+  const [collapsedSections, setCollapsedSections] = useState<string[]>([])
   const [theme, setTheme] = useState<'dark' | 'light'>(() => {
     if (typeof window === 'undefined') return 'dark'
     try {
@@ -176,14 +176,6 @@ export function AppLayout() {
   const activeSectionLabel = visibleSections.find((section) =>
     section.items.some((item) => item.to === pathname)
   )?.label
-  useEffect(() => {
-    if (!activeSectionLabel) return
-    setExpandedSections((current) =>
-      current.includes(activeSectionLabel)
-        ? current
-        : [...current, activeSectionLabel]
-    )
-  }, [activeSectionLabel])
   async function handleLogout() {
     const { error: signOutError } = await supabase.auth.signOut()
     if (signOutError) {
@@ -248,9 +240,9 @@ export function AppLayout() {
                 <button
                   type="button"
                   className="app-nav-section-toggle"
-                  aria-expanded={expandedSections.includes(section.label)}
+                  aria-expanded={!collapsedSections.includes(section.label)}
                   aria-controls={`nav-section-${section.label.toLowerCase().replace(/\s+/g, '-')}`}
-                  onClick={() => setExpandedSections((current) =>
+                  onClick={() => setCollapsedSections((current) =>
                     current.includes(section.label)
                       ? current.filter((label) => label !== section.label)
                       : [...current, section.label]
@@ -263,7 +255,7 @@ export function AppLayout() {
                   />
                 </button>
               ) : null}
-              {(!section.label || expandedSections.includes(section.label)) ? (
+              {(!section.label || !collapsedSections.includes(section.label)) ? (
                 <div
                   className="app-nav-section-items"
                   id={section.label ? `nav-section-${section.label.toLowerCase().replace(/\s+/g, '-')}` : undefined}
