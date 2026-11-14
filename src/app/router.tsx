@@ -20,6 +20,7 @@ const {
   SupplierPage,
   BankPage,
   ReportsPage,
+  SalaryCalculationPage,
   MakerImportPage,
   RealImportPage,
   DefaultRoute
@@ -95,6 +96,10 @@ export const router = createBrowserRouter(
             {
               element: <RoleRoute permission="reports.view" />,
               children: [{ path: 'reports', element: pageElement(ReportsPage) }]
+            },
+            {
+              element: <RoleRoute permission="salary-calculation.view" />,
+              children: [{ path: 'salary-calculation', element: pageElement(SalaryCalculationPage) }]
             },
             {
               element: <RoleRoute permission="maker-import.view" />,
