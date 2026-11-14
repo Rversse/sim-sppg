@@ -82,7 +82,7 @@ export function validateSalaryAllocation(
     return 'Setiap persentase harus berada di antara 0 dan 100.'
   }
 
-  if (values.some((value) => Math.round(value * 100) !== value * 100)) {
+  if (values.some((value) => Math.abs(value * 100 - Math.round(value * 100)) > 1e-7)) {
     return 'Persentase maksimal menggunakan dua angka desimal.'
   }
 
