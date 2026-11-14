@@ -6,11 +6,16 @@
 .salary-panel{min-width:0;padding:17px;border:1px solid var(--border-subtle);border-radius:13px;background:var(--surface-card)}
 .salary-panel-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:15px}
 .salary-panel-heading h3{margin:0;font-size:15px;font-weight:700}
-.salary-filter-grid{display:grid;grid-template-columns:minmax(190px,1.5fr) repeat(2,minmax(145px,1fr)) auto;align-items:end;gap:12px}
+.salary-filter-grid{display:grid;grid-template-columns:minmax(190px,1.35fr) minmax(260px,1fr) auto;align-items:end;gap:12px}
 .salary-field{display:grid;gap:7px;min-width:0;color:var(--text-secondary);font-size:12px;font-weight:600}
 .salary-field input,.salary-field select{box-sizing:border-box;width:100%;min-width:0;height:40px;padding:0 11px;border:1px solid var(--border-subtle);border-radius:8px;background:var(--surface-input,var(--surface-card));color:var(--text-primary);font:inherit;font-size:13px}
 .salary-primary-button,.salary-secondary-button{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:40px;padding:0 14px;border-radius:8px;font:inherit;font-size:13px;font-weight:700;cursor:pointer}
-.salary-primary-button{border:1px solid var(--accent);background:var(--accent);color:white}
+.salary-primary-button{border:1px solid var(--theme-primary);background:var(--theme-primary);color:var(--theme-primary-foreground);box-shadow:var(--theme-shadow-card)}
+.salary-primary-button:hover:not(:disabled){background:var(--theme-primary-hover);border-color:var(--theme-primary-hover)}
+.salary-field--date-range .date-range-picker,.salary-field--date-range .date-range-trigger{width:100%;min-width:0;min-height:40px;height:40px}
+.salary-field--date-range .date-range-trigger{box-sizing:border-box;justify-content:flex-start;padding:0 11px;border-color:var(--border-subtle);border-radius:8px;background:var(--surface-input,var(--surface-card));color:var(--text-primary);font:inherit;font-size:13px}
+.salary-field--date-range .date-range-trigger svg{width:15px;height:15px;color:var(--text-muted)}
+.salary-field--date-range .date-range-trigger-text{flex:1;text-align:left}
 .salary-secondary-button{border:1px solid var(--border-subtle);background:var(--surface-raised,var(--surface-card));color:var(--text-primary)}
 .salary-primary-button:disabled,.salary-secondary-button:disabled{opacity:.55;cursor:not-allowed}
 .salary-primary-button svg,.salary-secondary-button svg{width:16px;height:16px}
