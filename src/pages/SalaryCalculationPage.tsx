@@ -69,15 +69,12 @@ export function SalaryCalculationPage() {
   }, [])
 
   useEffect(() => {
-    void loadKitchens()
+    const timer = window.setTimeout(() => void loadKitchens(), 0)
+    return () => window.clearTimeout(timer)
   }, [loadKitchens])
 
   useEffect(() => {
-    if (!kitchenId) {
-      setAllocation({ ...DEFAULT_SALARY_ALLOCATION })
-      setCalculation(null)
-      return
-    }
+    if (!kitchenId) return
 
     let cancelled = false
     void getKitchenSalaryAllocation(kitchenId)
@@ -89,7 +86,6 @@ export function SalaryCalculationPage() {
         if (!cancelled) toastError('Gagal memuat pembagian', 'Konfigurasi persentase dapur tidak dapat dimuat.')
       })
 
-    setCalculation(null)
     return () => {
       cancelled = true
     }
@@ -164,7 +160,10 @@ export function SalaryCalculationPage() {
         <div className="salary-filter-grid">
           <div className="salary-field salary-field--kitchen">
             <label htmlFor="salary-kitchen">Dapur</label>
-            <select id="salary-kitchen" value={kitchenId} onChange={(event) => setKitchenId(event.target.value)} disabled={loading}>
+            <select id="salary-kitchen" value={kitchenId} onChange={(event) => {
+              setKitchenId(event.target.value)
+              setCalculation(null)
+            }} disabled={loading}>
               <option value="">{loading ? 'Memuat dapur...' : 'Pilih dapur'}</option>
               {kitchens.map((kitchen) => <option key={kitchen.id} value={kitchen.id}>{kitchen.name}</option>)}
             </select>
