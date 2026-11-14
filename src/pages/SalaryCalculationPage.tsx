@@ -12,6 +12,7 @@ import {
 } from '@/features/salary-calculation/salary-calculation-service'
 import type { KitchenSalaryCalculation } from '@/features/salary-calculation/salary-calculation-service'
 import { useToast } from '@/features/ui/toast-context'
+import { DateRangePicker } from '@/components/ui/date-range-picker'
 
 type KitchenOption = { id: string; name: string }
 
@@ -168,13 +169,17 @@ export function SalaryCalculationPage() {
               {kitchens.map((kitchen) => <option key={kitchen.id} value={kitchen.id}>{kitchen.name}</option>)}
             </select>
           </div>
-          <div className="salary-field">
-            <label htmlFor="salary-start">Tanggal awal</label>
-            <input id="salary-start" type="date" value={startDate} max={endDate} onChange={(event) => setStartDate(event.target.value)} />
-          </div>
-          <div className="salary-field">
-            <label htmlFor="salary-end">Tanggal akhir</label>
-            <input id="salary-end" type="date" value={endDate} min={startDate} onChange={(event) => setEndDate(event.target.value)} />
+          <div className="salary-field salary-field--date-range">
+            <label>Rentang tanggal</label>
+            <DateRangePicker
+              value={{ startDate, endDate }}
+              onChange={(range) => {
+                setStartDate(range.startDate)
+                setEndDate(range.endDate)
+                setCalculation(null)
+              }}
+              placeholder="Pilih rentang tanggal"
+            />
           </div>
           <button type="button" className="salary-primary-button" onClick={() => void calculate()} disabled={loading || calculating || !kitchenId}>
             {calculating ? <RefreshCw className="salary-spin" aria-hidden="true" /> : <Calculator aria-hidden="true" />}
