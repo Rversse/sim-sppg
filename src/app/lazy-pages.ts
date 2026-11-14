@@ -22,6 +22,7 @@ const pageLoaders = {
   '/master/supplier': () => import('@/pages/SupplierPage'),
   '/bank': () => import('@/pages/BankPage'),
   '/reports': () => import('@/pages/ReportsPage'),
+  '/salary-calculation': () => import('@/pages/SalaryCalculationPage'),
   '/maker-import': () => import('@/pages/MakerImportPage'),
   '/real-import': () => import('@/pages/RealImportPage')
 } as const
@@ -59,6 +60,7 @@ export const lazyPages = {
   SupplierPage: lazyNamed(() => import('@/pages/SupplierPage'), 'SupplierPage'),
   BankPage: lazyNamed(() => import('@/pages/BankPage'), 'BankPage'),
   ReportsPage: lazyNamed(() => import('@/pages/ReportsPage'), 'ReportsPage'),
+  SalaryCalculationPage: lazyNamed(() => import('@/pages/SalaryCalculationPage'), 'SalaryCalculationPage'),
   MakerImportPage: lazyNamed(() => import('@/pages/MakerImportPage'), 'MakerImportPage'),
   RealImportPage: lazyNamed(() => import('@/pages/RealImportPage'), 'RealImportPage'),
   DefaultRoute: lazyNamed(() => import('@/pages/DefaultRoute'), 'DefaultRoute')
