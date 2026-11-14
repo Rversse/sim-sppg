@@ -8,6 +8,7 @@ import {
   ChefHat,
   ChevronDown,
   FileText,
+  WalletCards,
   ClipboardPaste,
   FileSpreadsheet,
   LayoutDashboard,
@@ -113,6 +114,13 @@ const navigationSections: NavigationSection[] = [
         permission: 'reports.view',
         icon: FileText,
         pageTitle: 'Laporan'
+      },
+      {
+        label: 'Perhitungan Gaji',
+        to: '/salary-calculation',
+        permission: 'salary-calculation.view',
+        icon: WalletCards,
+        pageTitle: 'Perhitungan Gaji'
       }
     ]
   }
