@@ -358,11 +358,6 @@ function getRowDisposition(
     }
   }
 
-  if (/(?:^|[ ·])VA(?:$|[ ·])/i.test(row.rawLine)) {
-    return {
-      status: 'excluded',
-      reason: 'Transfer Virtual Account dikecualikan dari transaksi program. Baris tetap disimpan untuk audit sumber.'
-    }
   }
 
   if (
