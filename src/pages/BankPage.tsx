@@ -2047,7 +2047,7 @@ export function BankPage() {
                               incoming ? 'incoming' : 'outgoing'
                             }`}
                           >
-                            {incoming ? 'TRANSFER MASUK' : 'TRANSFER KELUAR'}
+                            {incoming ? 'Transfer masuk' : 'Transfer keluar'}
                           </span>
                         </div>
 

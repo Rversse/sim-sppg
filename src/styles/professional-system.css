@@ -1,50 +1,50 @@
 /*
  * SIM-SPPG professional visual system
  * Product: operational and financial management for SPPG teams.
- * Character: dependable, precise, practical.
- * World: a well-run operations desk; records, food service and clear signals.
+ * Character: exact, calm, a little warm.
+ * World: a kitchen ledger; cash book, steel counter, warm light.
  * Moments: operational status and financial summaries.
- * Signature: consistent status markers and tabular figures.
+ * Signature: the disbursement status dot, tabular figures.
  *
  * Adapted with reference to Unslop by Damir Sokolovsky, CC BY 4.0.
  * https://github.com/heydamir/unslop
  */
 
 :root {
-  --theme-page-bg: #f6f7f9;
-  --theme-surface: #fff;
-  --theme-surface-soft: #f1f3f6;
-  --theme-surface-raised: #fff;
-  --theme-text-primary: #1c2430;
-  --theme-text-secondary: #515e6e;
-  --theme-text-muted: #737f8d;
-  --theme-border: #e1e5eb;
-  --theme-border-strong: #cbd2dc;
-  --theme-primary: #326eb5;
-  --theme-primary-hover: #285c9a;
-  --theme-primary-soft: #eaf1f9;
-  --theme-primary-foreground: #fff;
+  --theme-page-bg: #fafafa;
+  --theme-surface: #ffffff;
+  --theme-surface-soft: #f4f4f5;
+  --theme-surface-raised: #ffffff;
+  --theme-text-primary: #171717;
+  --theme-text-secondary: #525252;
+  --theme-text-muted: #6e6e6e;
+  --theme-border: #e4e4e7;
+  --theme-border-strong: #d4d4d8;
+  --theme-primary: #8f520a;
+  --theme-primary-hover: #7a4508;
+  --theme-primary-soft: #fbf0e1;
+  --theme-primary-foreground: #ffffff;
   --theme-success: #247a50;
   --theme-success-hover: #1b6541;
   --theme-success-soft: #eaf4ee;
-  --theme-warning: #996016;
-  --theme-warning-hover: #7d4e10;
-  --theme-warning-soft: #f8f1e5;
+  --theme-warning: #7d5f00;
+  --theme-warning-hover: #654d00;
+  --theme-warning-soft: #f6f0d6;
   --theme-danger: #b94747;
   --theme-danger-soft: #f9eded;
-  --theme-focus-ring: 0 0 0 3px rgb(50 110 181 / 16%);
-  --theme-shadow-card: 0 1px 2px rgb(25 39 58 / 4%), 0 4px 12px rgb(25 39 58 / 3%);
-  --theme-shadow-hover: 0 6px 18px rgb(25 39 58 / 7%);
-  --theme-shadow-modal: 0 20px 56px rgb(15 23 42 / 18%);
-  --theme-sidebar-bg: #fbfcfd;
-  --theme-sidebar-text: #515e6e;
-  --theme-sidebar-text-muted: #737f8d;
-  --theme-sidebar-text-active: #285c9a;
-  --theme-sidebar-hover: #f1f4f7;
-  --theme-sidebar-active: #eaf1f9;
-  --theme-header-bg: rgb(255 255 255 / 96%);
+  --theme-focus-ring: 0 0 0 3px rgb(143 82 10 / 22%);
+  --theme-shadow-card: 0 1px 2px rgb(0 0 0 / 5%);
+  --theme-shadow-hover: 0 8px 24px rgb(0 0 0 / 6%);
+  --theme-shadow-modal: 0 20px 50px rgb(0 0 0 / 14%);
+  --theme-sidebar-bg: #f4f4f5;
+  --theme-sidebar-text: #525252;
+  --theme-sidebar-text-muted: #6e6e6e;
+  --theme-sidebar-text-active: #8f520a;
+  --theme-sidebar-hover: #ececee;
+  --theme-sidebar-active: #fbf0e1;
+  --theme-header-bg: rgb(250 250 250 / 96%);
   --theme-header-shadow: none;
-  --theme-overlay: rgb(15 23 42 / 42%);
+  --theme-overlay: rgb(0 0 0 / 36%);
   --theme-motion-fast: 130ms;
   --theme-motion: 180ms;
   --theme-motion-slow: 260ms;
@@ -78,40 +78,40 @@
 
 :root[data-theme='dark'] {
   color-scheme: dark;
-  --theme-page-bg: #12161c;
-  --theme-surface: #191f27;
-  --theme-surface-soft: #202832;
-  --theme-surface-raised: #1c242e;
-  --theme-text-primary: #e8edf3;
-  --theme-text-secondary: #b2bdc9;
-  --theme-text-muted: #8d99a7;
-  --theme-border: #303a46;
-  --theme-border-strong: #43505f;
-  --theme-primary: #8bb6e8;
-  --theme-primary-hover: #a6c8ef;
-  --theme-primary-soft: #24364b;
-  --theme-primary-foreground: #15202d;
+  --theme-page-bg: #141415;
+  --theme-surface: #19191b;
+  --theme-surface-soft: #232325;
+  --theme-surface-raised: #1f1f21;
+  --theme-text-primary: #ededed;
+  --theme-text-secondary: #a1a1a6;
+  --theme-text-muted: #8e8e94;
+  --theme-border: #2a2a2d;
+  --theme-border-strong: #3a3a3e;
+  --theme-primary: #f8b26a;
+  --theme-primary-hover: #f2a255;
+  --theme-primary-soft: #2b2218;
+  --theme-primary-foreground: #1f1b16;
   --theme-success: #78c49a;
   --theme-success-hover: #91d4ad;
   --theme-success-soft: #20372d;
-  --theme-warning: #dfb66f;
-  --theme-warning-hover: #edc987;
-  --theme-warning-soft: #3a3021;
+  --theme-warning: #e3c85a;
+  --theme-warning-hover: #efd774;
+  --theme-warning-soft: #38321a;
   --theme-danger: #e28b8b;
   --theme-danger-soft: #3b2729;
-  --theme-focus-ring: 0 0 0 3px rgb(139 182 232 / 22%);
-  --theme-shadow-card: 0 1px 2px rgb(0 0 0 / 20%);
-  --theme-shadow-hover: 0 7px 18px rgb(0 0 0 / 24%);
-  --theme-shadow-modal: 0 24px 64px rgb(0 0 0 / 48%);
-  --theme-sidebar-bg: #151b22;
-  --theme-sidebar-text: #b2bdc9;
-  --theme-sidebar-text-muted: #8d99a7;
-  --theme-sidebar-text-active: #b8d3f2;
-  --theme-sidebar-hover: #202832;
-  --theme-sidebar-active: #24364b;
-  --theme-header-bg: rgb(18 22 28 / 96%);
+  --theme-focus-ring: 0 0 0 3px rgb(248 178 106 / 28%);
+  --theme-shadow-card: none;
+  --theme-shadow-hover: 0 0 0 1px var(--theme-border-strong);
+  --theme-shadow-modal: 0 24px 60px rgb(0 0 0 / 50%);
+  --theme-sidebar-bg: #0f0f10;
+  --theme-sidebar-text: #a1a1a6;
+  --theme-sidebar-text-muted: #8e8e94;
+  --theme-sidebar-text-active: #f8b26a;
+  --theme-sidebar-hover: #1b1b1d;
+  --theme-sidebar-active: #2b2218;
+  --theme-header-bg: rgb(20 20 21 / 96%);
   --theme-header-shadow: none;
-  --theme-overlay: rgb(0 0 0 / 64%);
+  --theme-overlay: rgb(0 0 0 / 60%);
   --ui-hairline: color-mix(in srgb, var(--theme-text-primary) 10%, transparent);
   --color-background: var(--theme-page-bg);
   --color-foreground: var(--theme-text-primary);
@@ -156,25 +156,25 @@ body { font-size: 13px; line-height: 1.5; font-variant-numeric: tabular-nums; }
 .app-sidebar { background: var(--theme-sidebar-bg) !important; border-right: 1px solid var(--theme-border); }
 .app-brand { gap: 12px; padding: 18px 12px 8px; }
 .app-brand-mark { border: 1px solid var(--theme-border); border-radius: 10px; background: var(--theme-surface); box-shadow: none; }
-.app-nav { gap: 20px; padding: 16px 12px; }
-.app-nav-section { gap: 6px; }
-.app-nav-section-label { padding-inline: 10px; color: var(--theme-text-muted); font-size: 10px; font-weight: 600; letter-spacing: .045em; text-transform: uppercase; }
+.app-nav { gap: 24px; padding: 16px 12px; }
+.app-nav-section { gap: 8px; }
+.app-nav-section-label { padding-inline: 10px; color: var(--theme-text-muted); font-size: 11px; font-weight: 500; letter-spacing: 0; text-transform: none; }
 .app-nav-section-items { gap: 2px; }
-.app-nav-link { min-height: 36px; gap: 9px; border-radius: 8px; color: var(--theme-sidebar-text); font-size: 12px; font-weight: 500; }
+.app-nav-link { min-height: 36px; gap: 8px; border-radius: 8px; color: var(--theme-sidebar-text); font-size: 13px; font-weight: 500; }
 .app-nav-link::before { width: 2px; background: var(--theme-primary); }
 .app-nav-link:hover { background: var(--theme-sidebar-hover); color: var(--theme-text-primary); }
 .app-nav-link.is-active { background: var(--theme-sidebar-active); color: var(--theme-sidebar-text-active); box-shadow: none; font-weight: 600; }
 .app-nav-icon { width: 26px; height: 26px; flex-basis: 26px; border-radius: 7px; background: transparent; color: inherit; }
 .app-nav-link.is-active .app-nav-icon { background: color-mix(in srgb, var(--theme-primary) 12%, transparent); color: var(--theme-primary); }
-.app-nav-icon svg { width: 16px; height: 16px; stroke-width: 1.8; }
-.app-header { height: var(--app-header-height); padding-inline: clamp(16px, 2.2vw, 32px); border-bottom: 1px solid var(--theme-border); background: var(--theme-header-bg); box-shadow: none; backdrop-filter: blur(10px); }
-.app-page-title { color: var(--theme-text-primary); font-size: 18px; font-weight: 600; letter-spacing: -.02em; }
+.app-nav-icon svg { width: 16px; height: 16px; stroke-width: 1.5; }
+.app-header { height: var(--app-header-height); padding-inline: clamp(16px, 2.2vw, 32px); border-bottom: 1px solid var(--theme-border); background: var(--theme-header-bg); box-shadow: none; }
+.app-page-title { color: var(--theme-text-primary); font-size: 18px; font-weight: 600; letter-spacing: 0; }
 .app-user-role { border: 1px solid var(--theme-border); border-radius: 7px; background: var(--theme-surface); color: var(--theme-text-secondary); font-size: 11px; font-weight: 500; }
 .app-logout-button { border: 1px solid var(--theme-border); border-radius: 8px; background: var(--theme-surface); color: var(--theme-text-secondary); }
 .app-main { width: min(var(--app-page-max-width), 100%); margin-inline: auto; padding: 24px clamp(16px, 2.2vw, 32px) 36px; }
 
 .dashboard-hero h1, .maker-import-hero h2, .supplier-header h1, .kitchen-header h1, .vehicle-header h1, .disbursement-accounts-heading h1 {
-  color: var(--theme-text-primary); font-size: 20px; font-weight: 600; letter-spacing: -.025em; line-height: 1.3;
+  color: var(--theme-text-primary); font-size: 20px; font-weight: 600; letter-spacing: 0; line-height: 1.3;
 }
 .maker-import-hero p, .supplier-header p, .kitchen-header p, .vehicle-header p, .disbursement-accounts-heading p {
   color: var(--theme-text-secondary); font-size: 12px; line-height: 1.6;
@@ -187,12 +187,12 @@ body { font-size: 13px; line-height: 1.5; font-variant-numeric: tabular-nums; }
   transform: none; box-shadow: var(--theme-shadow-card);
 }
 .dashboard-panel-header, .bank-panel-header, .maker-import-panel-head { border-bottom: 1px solid var(--theme-border); }
-.dashboard-panel-header h2, .dashboard-panel-header h3, .bank-panel-header h2, .maker-import-panel-head h3 { color: var(--theme-text-primary); font-size: 14px; font-weight: 600; letter-spacing: -.01em; }
+.dashboard-panel-header h2, .dashboard-panel-header h3, .bank-panel-header h2, .maker-import-panel-head h3 { color: var(--theme-text-primary); font-size: 14px; font-weight: 600; letter-spacing: 0; }
 .dashboard-panel-header p, .bank-panel-header p, .maker-import-panel-head p { color: var(--theme-text-secondary); font-size: 11px; }
 
 .dashboard-kpi { min-height: 104px; padding: 16px; border-radius: 11px; box-shadow: var(--theme-shadow-card); }
 .dashboard-kpi > span { color: var(--theme-text-secondary); font-size: 11px; font-weight: 500; letter-spacing: 0; }
-.dashboard-kpi > strong { color: var(--theme-text-primary); font-size: 22px; font-weight: 600; letter-spacing: -.025em; line-height: 1.25; }
+.dashboard-kpi > strong { color: var(--theme-text-primary); font-size: 20px; font-weight: 500; letter-spacing: 0; line-height: 1.2; }
 .dashboard-kpi > small { color: var(--theme-text-muted); font-size: 11px; }
 .dashboard-kpi > .dashboard-kpi-icon { box-shadow: none; }
 .dashboard-status-panel, .dashboard-panel { background: var(--theme-surface); }
@@ -226,7 +226,7 @@ button:focus-visible, [role='button']:focus-visible, a:focus-visible { outline: 
   border-collapse: separate; border-spacing: 0; color: var(--theme-text-primary); font-size: 12px; font-variant-numeric: tabular-nums;
 }
 .reports-table thead th, .bank-account-table thead th, .supplier-table th, .kitchen-table th, .vehicle-table th {
-  background: var(--theme-surface-soft); color: var(--theme-text-secondary); font-size: 10px; font-weight: 600; letter-spacing: .025em; border-bottom: 1px solid var(--theme-border-strong);
+  background: var(--theme-surface-soft); color: var(--theme-text-secondary); font-size: 11px; font-weight: 600; letter-spacing: 0; border-bottom: 1px solid var(--theme-border-strong);
 }
 .reports-table tbody td, .bank-account-table tbody td, .supplier-table tbody td, .kitchen-table tbody td, .vehicle-table tbody td {
   border-bottom: 1px solid var(--theme-border); color: var(--theme-text-primary); font-size: 12px;
@@ -246,7 +246,7 @@ button:focus-visible, [role='button']:focus-visible, a:focus-visible { outline: 
   background: var(--theme-surface); border-bottom: 1px solid var(--theme-border);
 }
 .supplier-modal-head h2, .kitchen-modal-head h2, .vehicle-modal-head h2, .bank-history-modal-header h2, .bank-export-modal-header h2, .dashboard-transaction-modal-header h2 {
-  color: var(--theme-text-primary); font-size: 16px; font-weight: 600; letter-spacing: -.015em;
+  color: var(--theme-text-primary); font-size: 16px; font-weight: 600; letter-spacing: 0;
 }
 
 @media (max-width: 1100px) { .app-main { padding-inline: 20px; } }
@@ -257,7 +257,7 @@ button:focus-visible, [role='button']:focus-visible, a:focus-visible { outline: 
   .dashboard-kpi { min-height: 92px; padding: 13px 14px; }
   .dashboard-kpi > strong { font-size: 20px; }
   .reports-table, .bank-account-table, .supplier-table, .kitchen-table, .vehicle-table { font-size: 11px; }
-  .app-mobile-nav { border-top: 1px solid var(--theme-border); background: var(--theme-header-bg); box-shadow: 0 -6px 18px rgb(15 23 42 / 5%); backdrop-filter: blur(12px); }
+  .app-mobile-nav { border-top: 1px solid var(--theme-border); background: var(--theme-header-bg); box-shadow: 0 -6px 18px rgb(0 0 0 / 5%); backdrop-filter: blur(12px); }
   .app-mobile-link { color: var(--theme-text-muted); }
   .app-mobile-link.is-active { color: var(--theme-primary); }
 }
@@ -303,12 +303,12 @@ button:focus-visible, [role='button']:focus-visible, a:focus-visible { outline: 
 .maker-import-hero h2 {
   color: var(--theme-text-primary);
   font-weight: 600;
-  letter-spacing: -.02em;
+  letter-spacing: 0;
 }
 
 .maker-import-panel-head h3 {
   font-weight: 600;
-  letter-spacing: -.01em;
+  letter-spacing: 0;
 }
 
 .maker-import-panel-head p,
@@ -375,7 +375,7 @@ button:focus-visible, [role='button']:focus-visible, a:focus-visible { outline: 
   color: var(--theme-text-primary);
   font-size: 22px;
   font-weight: 600;
-  letter-spacing: -.02em;
+  letter-spacing: 0;
   line-height: 1.25;
 }
 
@@ -514,7 +514,7 @@ button:focus-visible, [role='button']:focus-visible, a:focus-visible { outline: 
 .disbursement-accounts-intro h2 {
   color: var(--theme-text-primary);
   font-weight: 600;
-  letter-spacing: -.02em;
+  letter-spacing: 0;
 }
 
 .disbursement-accounts-header p,
@@ -555,7 +555,7 @@ button:focus-visible, [role='button']:focus-visible, a:focus-visible { outline: 
   border-color: var(--theme-border);
   background: var(--theme-surface);
   color: var(--theme-primary);
-  box-shadow: 0 1px 2px rgb(15 23 42 / 5%);
+  box-shadow: 0 1px 2px rgb(0 0 0 / 5%);
   font-weight: 600;
 }
 
@@ -568,7 +568,7 @@ button:focus-visible, [role='button']:focus-visible, a:focus-visible { outline: 
 }
 
 .reports-period-filter-group {
-  gap: 10px;
+  gap: 8px;
 }
 
 .reports-filter-panel > button,
@@ -597,7 +597,7 @@ button:focus-visible, [role='button']:focus-visible, a:focus-visible { outline: 
   color: var(--theme-text-primary);
   font-size: 20px;
   font-weight: 600;
-  letter-spacing: -.02em;
+  letter-spacing: 0;
   font-variant-numeric: tabular-nums;
 }
 
@@ -605,7 +605,7 @@ button:focus-visible, [role='button']:focus-visible, a:focus-visible { outline: 
   color: var(--theme-text-primary);
   font-size: 14px;
   font-weight: 600;
-  letter-spacing: -.01em;
+  letter-spacing: 0;
 }
 
 .reports-table-wrapper {
@@ -624,17 +624,17 @@ button:focus-visible, [role='button']:focus-visible, a:focus-visible { outline: 
   position: sticky;
   top: 0;
   z-index: 1;
-  padding: 10px 12px;
+  padding: 8px 12px;
   background: var(--theme-surface-soft);
   color: var(--theme-text-secondary);
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 600;
   letter-spacing: .02em;
   text-transform: none;
 }
 
 .reports-table tbody td {
-  padding: 9px 12px;
+  padding: 8px 12px;
   border-bottom: 1px solid var(--theme-border);
   color: var(--theme-text-primary);
   font-size: 12px;
@@ -723,15 +723,15 @@ button:focus-visible, [role='button']:focus-visible, a:focus-visible { outline: 
 }
 
 .bank-account-table thead th {
-  padding: 10px 12px;
+  padding: 8px 12px;
   background: var(--theme-surface-soft);
   color: var(--theme-text-secondary);
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 600;
 }
 
 .bank-account-table tbody td {
-  padding: 10px 12px;
+  padding: 8px 12px;
   border-bottom: 1px solid var(--theme-border);
 }
 
@@ -780,7 +780,7 @@ button:focus-visible, [role='button']:focus-visible, a:focus-visible { outline: 
   color: var(--theme-text-primary);
   font-size: 20px;
   font-weight: 600;
-  letter-spacing: -.02em;
+  letter-spacing: 0;
 }
 
 .kitchen-header p,
@@ -793,7 +793,7 @@ button:focus-visible, [role='button']:focus-visible, a:focus-visible { outline: 
 .kitchen-toolbar,
 .supplier-toolbar,
 .vehicle-toolbar {
-  gap: 10px;
+  gap: 8px;
 }
 
 .kitchen-input,
@@ -833,17 +833,17 @@ button:focus-visible, [role='button']:focus-visible, a:focus-visible { outline: 
 .kitchen-table th,
 .supplier-table th,
 .vehicle-table th {
-  padding: 10px 12px;
+  padding: 8px 12px;
   background: var(--theme-surface-soft);
   color: var(--theme-text-secondary);
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 600;
 }
 
 .kitchen-table td,
 .supplier-table td,
 .vehicle-table td {
-  padding: 10px 12px;
+  padding: 8px 12px;
   border-bottom: 1px solid var(--theme-border);
   color: var(--theme-text-primary);
   font-size: 12px;
@@ -931,7 +931,7 @@ button:focus-visible, [role='button']:focus-visible, a:focus-visible { outline: 
 .maker-import-panel-head h3 {
   color: var(--theme-text-primary);
   font-weight: 600;
-  letter-spacing: -.015em;
+  letter-spacing: 0;
 }
 
 .maker-import-panel,
@@ -1033,7 +1033,7 @@ button:focus-visible, [role='button']:focus-visible, a:focus-visible { outline: 
   color: var(--theme-text-primary);
   font-size: 16px;
   font-weight: 600;
-  letter-spacing: -.015em;
+  letter-spacing: 0;
 }
 
 :where(
@@ -1145,8 +1145,8 @@ button:focus-visible, [role='button']:focus-visible, a:focus-visible { outline: 
 .maker-import-hero { background: var(--theme-surface); }
 .maker-import-source-panel { border-color: var(--theme-border); box-shadow: var(--theme-shadow-card); }
 .maker-import-eyebrow, .maker-import-panel-head > div > span, .maker-import-row-number, .maker-import-readonly-kind, .maker-import-account-select > span, .maker-import-fields label > span, .maker-import-batch-grid label > span, .maker-import-row-issues p, .maker-import-row-status { font-size: 11px; font-weight: 500; letter-spacing: 0; }
-.maker-import-hero h2 { font-size: 20px; font-weight: 600; letter-spacing: -.02em; }
-.maker-import-panel-head h3, .maker-import-row h4 { font-weight: 600; letter-spacing: -.01em; }
+.maker-import-hero h2 { font-size: 20px; font-weight: 600; letter-spacing: 0; }
+.maker-import-panel-head h3, .maker-import-row h4 { font-weight: 600; letter-spacing: 0; }
 .maker-import-panel-head p, .maker-import-source-footer > span { font-size: 12px; }
 .maker-import-account-select select, .maker-import-fields input, .maker-import-fields select, .maker-import-batch-grid input, .maker-import-batch-grid select { min-height: 36px; font-size: 12px; }
 .maker-import-primary, .maker-import-secondary { min-height: 36px; border-radius: 8px; font-size: 12px; font-weight: 600; }
@@ -1160,7 +1160,7 @@ button:focus-visible, [role='button']:focus-visible, a:focus-visible { outline: 
 .login-card { border: 1px solid var(--theme-border); border-radius: 14px; background: var(--theme-surface); box-shadow: var(--theme-shadow-card); backdrop-filter: none; animation: none; }
 .login-brand-mark { border: 1px solid var(--theme-border); border-radius: 10px; background: var(--theme-primary-soft); color: var(--theme-primary); box-shadow: none; transition: none; }
 .login-brand-mark:hover { transform: none; box-shadow: none; }
-.login-header h1 { color: var(--theme-text-primary); font-size: 22px; font-weight: 600; letter-spacing: -.02em; line-height: 1.25; }
+.login-header h1 { color: var(--theme-text-primary); font-size: 22px; font-weight: 600; letter-spacing: 0; line-height: 1.25; }
 .login-pin-field label { color: var(--theme-text-secondary); font-size: 12px; font-weight: 600; }
 .login-pin-input { border-radius: 8px; color: var(--theme-text-primary); font-weight: 500; letter-spacing: .18em; box-shadow: none; }
 .login-pin-input:focus { border-color: var(--theme-primary); box-shadow: var(--theme-focus-ring); }
@@ -1260,7 +1260,7 @@ button:focus-visible, [role='button']:focus-visible, a:focus-visible { outline: 
   align-items: center;
   justify-content: space-between;
   gap: 8px;
-  padding: 3px 10px;
+  padding: 3px 8px;
   border: 0;
   border-radius: 6px;
   background: transparent;
@@ -1282,10 +1282,10 @@ button:focus-visible, [role='button']:focus-visible, a:focus-visible { outline: 
 .app-nav-section-toggle .app-nav-section-label {
   padding: 0;
   color: inherit;
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: .045em;
-  text-transform: uppercase;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0;
+  text-transform: none;
 }
 
 .app-nav-section-chevron {
@@ -1324,13 +1324,13 @@ button:focus-visible, [role='button']:focus-visible, a:focus-visible { outline: 
 .dashboard-status-list {
   display: grid;
   align-content: start;
-  gap: 7px;
+  gap: 8px;
 }
 
 .dashboard-status-row {
   min-width: 0;
   margin: 0;
-  padding: 12px 10px;
+  padding: 12px 8px;
   border: 1px solid var(--theme-border);
   border-radius: 10px;
   background: var(--theme-surface);

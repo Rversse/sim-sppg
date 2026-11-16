@@ -355,7 +355,7 @@ function printReport(mode: ReportPrintMode = 'default') {
     }
 
     .reports-summary-overall .reports-summary-card:nth-child(3) {
-      border-left: 5px solid #7c3aed !important;
+      border-left: 5px solid #5b6b8c !important;
     }
 
     .reports-summary-overall .reports-summary-card:nth-child(4) {
@@ -363,7 +363,7 @@ function printReport(mode: ReportPrintMode = 'default') {
     }
 
     .reports-summary-overall .reports-summary-card:nth-child(5) {
-      border-left: 5px solid #2563eb !important;
+      border-left: 5px solid #8f520a !important;
     }
 
     .reports-summary-card > span {
@@ -395,7 +395,7 @@ function printReport(mode: ReportPrintMode = 'default') {
 
     .reports-summary-overall .reports-summary-card:nth-child(2) > span,
     .reports-summary-overall .reports-summary-card:nth-child(2) > strong {
-      color: #7C3AED !important;
+      color: #5B6B8C !important;
     }
 
     .reports-summary-overall .reports-summary-card:nth-child(3) > span,
@@ -405,7 +405,7 @@ function printReport(mode: ReportPrintMode = 'default') {
 
     .reports-summary-overall .reports-summary-card:nth-child(4) > span,
     .reports-summary-overall .reports-summary-card:nth-child(4) > strong {
-      color: #2563EB !important;
+      color: #8f520a !important;
     }
 
     .reports-summary-card > small {
@@ -549,11 +549,11 @@ function printReport(mode: ReportPrintMode = 'default') {
     }
 
     .reports-table-overall thead th.reports-col-gas {
-      color: #2563EB !important;
+      color: #8f520a !important;
     }
 
     .reports-table-overall thead th.reports-col-ops {
-      color: #7C3AED !important;
+      color: #5B6B8C !important;
     }
 
     .reports-table-overall thead th.reports-col-real-ops {

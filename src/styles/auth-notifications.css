@@ -49,7 +49,7 @@
   font-size: var(--ui-text-xs);
   font-weight: var(--ui-weight-strong);
   line-height: 1;
-  box-shadow: 0 3px 8px rgb(239 68 68 / 0.22);
+  box-shadow: none;
 }
 
 .vehicle-notification-popover {
@@ -69,7 +69,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  padding: 12px 14px;
+  padding: 12px 12px;
   border-bottom: 1px solid var(--theme-border);
   background: var(--theme-surface-soft);
 }
@@ -111,7 +111,7 @@
 }
 
 .vehicle-notification-item {
-  padding: 10px 14px;
+  padding: 8px 12px;
   border-bottom: 1px solid var(--theme-border);
   background: var(--theme-surface-raised);
 }
@@ -142,14 +142,14 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 10px;
+  gap: 8px;
 }
 
 .vehicle-notification-item-top strong {
   display: inline-flex;
   min-height: 19px;
   align-items: center;
-  padding: 0 7px;
+  padding: 0 8px;
   border-radius: 999px;
   font-size: var(--ui-text-xs);
   font-weight: var(--ui-weight-strong);
@@ -195,7 +195,7 @@
   display: flex;
   align-items: baseline;
   justify-content: space-between;
-  gap: 10px;
+  gap: 8px;
   margin-top: 3px;
   color: var(--theme-text-secondary);
   font-size: var(--ui-text-xs);
@@ -217,7 +217,7 @@
 }
 
 .vehicle-notification-empty {
-  padding: 26px 16px;
+  padding: 24px 16px;
   color: var(--theme-text-muted);
   font-size: var(--ui-text-xs);
   line-height: 1.5;
@@ -256,12 +256,9 @@
 }
 
 .vehicle-notification-button:hover {
-  box-shadow: 0 8px 20px rgb(15 23 42 / 0.06);
+  box-shadow: var(--theme-shadow-card);
 }
 
-.vehicle-notification-badge {
-  animation: vehicle-notification-pulse 2.6s ease-in-out infinite;
-}
 
 .vehicle-notification-popover {
   transform-origin: top right;
@@ -284,16 +281,6 @@
   to {
     opacity: 1;
     transform: translateY(0) scale(1);
-  }
-}
-
-@keyframes vehicle-notification-pulse {
-  0%,
-  100% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.06);
   }
 }
 

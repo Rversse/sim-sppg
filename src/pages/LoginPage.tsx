@@ -112,7 +112,7 @@ export function LoginPage() {
           <div className="login-brand-mark" aria-hidden="true">
             <img src={appBrandIcon} alt="" />
           </div>
-          <h1>SISTEM INFORMASI SPPG</h1>
+          <h1>Sistem Informasi SPPG</h1>
           <p>Pilih akun untuk masuk</p>
         </div>
 

@@ -28,30 +28,6 @@
   font-display: swap;
 }
 
-@font-face {
-  font-family: 'Inter';
-  src: url('../assets/fonts/inter-v20-latin-700.woff2') format('woff2');
-  font-weight: 700;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'Inter';
-  src: url('../assets/fonts/inter-v20-latin-800.woff2') format('woff2');
-  font-weight: 800;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'Inter';
-  src: url('../assets/fonts/inter-v20-latin-900.woff2') format('woff2');
-  font-weight: 900;
-  font-style: normal;
-  font-display: swap;
-}
-
 /* =========================================================
    SIM SPPG — CORE UI FOUNDATION
    Single owner for:
@@ -69,28 +45,28 @@
    ========================================================= */
 
 /* =========================================================
-   COOL BREEZE — LIGHT THEME TOKENS
+   LEDGER — LIGHT THEME TOKENS
    Single light theme.
    ========================================================= */
 
 :root {
   color-scheme: light;
 
-  --theme-page-bg: #f4f8fc;
+  --theme-page-bg: #fafafa;
   --theme-surface: #ffffff;
-  --theme-surface-soft: #eef4fa;
+  --theme-surface-soft: #f4f4f5;
   --theme-surface-raised: #ffffff;
 
-  --theme-text-primary: #172033;
-  --theme-text-secondary: #526176;
-  --theme-text-muted: #7d8a9d;
+  --theme-text-primary: #171717;
+  --theme-text-secondary: #525252;
+  --theme-text-muted: #737373;
 
-  --theme-border: #d7e0ea;
-  --theme-border-strong: #c3d0de;
+  --theme-border: #e4e4e7;
+  --theme-border-strong: #d4d4d8;
 
-  --theme-primary: #3b82f6;
-  --theme-primary-hover: #2563eb;
-  --theme-primary-soft: #e8f1ff;
+  --theme-primary: #8f520a;
+  --theme-primary-hover: #7a4508;
+  --theme-primary-soft: #fbf0e1;
   --theme-primary-foreground: #ffffff;
 
   --theme-success: #16a34a;
@@ -101,29 +77,27 @@
   --theme-warning-hover: #b45309;
   --theme-warning-soft: #fff5e6;
 
-  --theme-danger: #dc4545;
+  --theme-danger: #dc2626;
   --theme-danger-soft: #fff0f0;
 
-  --theme-focus-ring: 0 0 0 3px rgb(59 130 246 / 0.16);
+  --theme-focus-ring: 0 0 0 3px rgb(143 82 10 / 0.22);
 
-  --theme-shadow-card: 0 2px 8px rgb(31 56 85 / 0.05);
+  --theme-shadow-card: 0 1px 2px rgb(0 0 0 / 0.05);
 
-  --theme-shadow-hover:
-    0 8px 20px rgb(31 56 85 / 0.09), 0 2px 6px rgb(31 56 85 / 0.05);
+  --theme-shadow-hover: 0 8px 24px rgb(0 0 0 / 0.06);
 
-  --theme-shadow-modal:
-    0 20px 50px rgb(31 56 85 / 0.16), 0 6px 18px rgb(31 56 85 / 0.08);
+  --theme-shadow-modal: 0 20px 50px rgb(0 0 0 / 0.14);
 
-  --theme-sidebar-bg: #f7fafd;
-  --theme-sidebar-text: #526176;
-  --theme-sidebar-text-muted: #7d8a9d;
-  --theme-sidebar-text-active: #1d4ed8;
-  --theme-sidebar-hover: #edf3f9;
-  --theme-sidebar-active: #e8f1ff;
+  --theme-sidebar-bg: #f4f4f5;
+  --theme-sidebar-text: #525252;
+  --theme-sidebar-text-muted: #737373;
+  --theme-sidebar-text-active: #8f520a;
+  --theme-sidebar-hover: #ececee;
+  --theme-sidebar-active: #fbf0e1;
 
-  --theme-header-bg: rgb(255 255 255 / 0.92);
-  --theme-header-shadow: 0 4px 16px rgb(31 56 85 / 0.05);
-  --theme-overlay: rgb(15 23 42 / 0.28);
+  --theme-header-bg: rgb(250 250 250 / 0.92);
+  --theme-header-shadow: 0 1px 2px rgb(0 0 0 / 0.04);
+  --theme-overlay: rgb(0 0 0 / 0.32);
 
   --theme-motion-fast: 150ms;
   --theme-motion: 220ms;
@@ -202,16 +176,16 @@ html.theme-transitioning *::after {
 
 @theme {
   --color-background: var(--theme-page-bg);
-  --color-foreground: #172033;
-  --color-primary: #2563eb;
+  --color-foreground: #171717;
+  --color-primary: #8f520a;
   --color-primary-foreground: #ffffff;
-  --color-accent: #2563eb;
-  --color-muted: #eef4fa;
-  --color-muted-foreground: #526176;
+  --color-accent: #8f520a;
+  --color-muted: #f4f4f5;
+  --color-muted-foreground: #525252;
   --color-border: var(--theme-border);
   --color-success: #16a34a;
   --color-warning: #d97706;
-  --color-danger: #dc4545;
+  --color-danger: #dc2626;
 }
 
 :root {
@@ -369,14 +343,14 @@ textarea {
 .app-brand {
   display: grid;
   gap: 12px;
-  padding: 18px 12px 8px;
+  padding: 16px 12px 8px;
 }
 
 .app-brand-home {
   display: flex;
   min-width: 0;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   color: var(--theme-text-primary);
   text-decoration: none;
 }
@@ -462,7 +436,7 @@ textarea {
 
 .app-nav-section-label {
   display: block;
-  padding: 0 10px;
+  padding: 0 8px;
 
   color: var(--theme-sidebar-text-muted);
   font-size: var(--ui-text-xs);
@@ -486,9 +460,9 @@ textarea {
   display: flex;
   min-height: 36px;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
 
-  padding: 4px 10px;
+  padding: 4px 8px;
   overflow: hidden;
   border-radius: var(--ui-radius-control);
 
@@ -611,7 +585,7 @@ textarea {
   display: flex;
   min-width: 0;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
 }
 
 .app-page-heading {
@@ -629,7 +603,7 @@ textarea {
 .app-user {
   display: flex;
   align-items: center;
-  gap: 7px;
+  gap: 8px;
   flex: 0 0 auto;
 }
 
@@ -639,7 +613,7 @@ textarea {
   align-items: center;
   justify-content: center;
 
-  padding: 0 11px;
+  padding: 0 12px;
   border: 1px solid var(--app-border-strong);
   border-radius: var(--ui-radius-control);
   background: var(--theme-surface-raised);
@@ -976,10 +950,6 @@ button:not(:disabled):active {
     color var(--app-motion-fast) ease;
 }
 
-[data-slot='button']:hover:not(:disabled) {
-  transform: translateY(-1px);
-  box-shadow: var(--theme-shadow-hover);
-}
 
 [data-slot='button']:active:not(:disabled) {
   transform: translateY(0) scale(0.985);
@@ -1104,14 +1074,14 @@ textarea:disabled {
   }
 
   .app-mobile-link span {
-    font-size: 8px;
-    font-weight: 900;
+    font-size: 11px;
+    font-weight: 600;
   }
 
   .app-mobile-link small {
     overflow: hidden;
     max-width: 100%;
-    font-size: 7px;
+    font-size: 11px;
     text-overflow: ellipsis;
     white-space: nowrap;
   }
@@ -1218,34 +1188,6 @@ textarea:disabled {
   animation: app-modal-enter 220ms var(--app-ease) both;
 }
 
-:where(
-  .bank-modal,
-  .bank-form-modal,
-  .bank-history-modal,
-  .dashboard-transaction-modal,
-  .kitchen-modal,
-  .supplier-modal,
-  .vehicle-modal,
-  .disbursement-modal,
-  .modal
-)::before {
-  position: absolute;
-  top: 0;
-  right: 18%;
-  left: 18%;
-  z-index: 3;
-  height: 2px;
-  border-radius: 0 0 999px 999px;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    var(--app-accent),
-    transparent
-  );
-  content: '';
-  pointer-events: none;
-}
-
 @keyframes app-modal-enter {
   from {
     opacity: 0;
@@ -1334,15 +1276,15 @@ textarea:disabled {
   min-height: 38px;
   align-items: center;
   justify-content: center;
-  gap: 7px;
-  padding: 0 13px;
+  gap: 8px;
+  padding: 0 12px;
   border: 1px solid var(--app-primary);
   border-radius: 9px;
   background: var(--app-primary);
   color: var(--theme-primary-foreground);
   cursor: pointer;
-  font-size: 10px;
-  font-weight: 800;
+  font-size: 11px;
+  font-weight: 600;
   line-height: 1;
   text-decoration: none;
   transition:
@@ -1361,10 +1303,6 @@ textarea:disabled {
   stroke-width: 2;
 }
 
-.app-action-button:hover:not(:disabled) {
-  transform: translateY(-1px);
-  box-shadow: var(--theme-shadow-hover);
-}
 
 .app-action-button--secondary {
   border-color: var(--app-border-strong);
@@ -1412,7 +1350,7 @@ textarea:disabled {
   display: flex;
   align-items: center;
   justify-content: flex-start;
-  gap: 5px;
+  gap: 4px;
   flex-wrap: nowrap;
 }
 
@@ -1441,8 +1379,7 @@ textarea:disabled {
   border-color: var(--app-action-primary-border);
   background: var(--app-action-primary-bg);
   color: var(--app-action-primary-text);
-  box-shadow: 0 7px 20px
-    color-mix(in srgb, var(--theme-primary) 14%, transparent);
+  box-shadow: var(--theme-shadow-card);
 }
 
 :where(
@@ -1502,7 +1439,7 @@ textarea:disabled {
   .bank-history-modal-header h2,
   .dashboard-transaction-modal-header h2
 ) {
-  letter-spacing: -0.025em;
+  letter-spacing: 0;
 }
 
 @media (prefers-reduced-motion: reduce) {

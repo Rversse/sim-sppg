@@ -399,7 +399,7 @@ export function DisbursementAccountsPage() {
     <main className="disbursement-accounts-page">
       <section className="disbursement-toolbar-grid" aria-label="Pengaturan dapur">
         <label className="disbursement-kitchen-picker">
-          <span>DAPUR</span>
+          <span>Dapur</span>
           <select
             value={selectedKitchenId}
             onChange={(event) => setSelectedKitchenId(event.target.value)}
@@ -413,7 +413,7 @@ export function DisbursementAccountsPage() {
           </select>
         </label>
         <div className="disbursement-status-field">
-          <span>STATUS DAPUR</span>
+          <span>Status dapur</span>
           {selectedKitchen ? (
             <div className="disbursement-status-control">
               <span
@@ -453,7 +453,7 @@ export function DisbursementAccountsPage() {
           </header>
           <div className="disbursement-add-form-fields">
             <label>
-              <span>DAPUR</span>
+              <span>Dapur</span>
               <select
                 value={addingKitchenId}
                 onChange={(event) => {
@@ -467,7 +467,7 @@ export function DisbursementAccountsPage() {
               </select>
             </label>
             <label>
-              <span>JENIS MAPPING</span>
+              <span>Jenis mapping</span>
               <select
                 value={addingRuleType}
                 onChange={(event) => setAddingRuleType(event.target.value as Exclude<RuleType, 'vehicle_rent'> | '')}

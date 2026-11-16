@@ -23,8 +23,8 @@
   min-height: 40px;
   height: 40px;
   align-items: flex-end;
-  gap: 7px;
-  padding: 15px 34px 7px;
+  gap: 8px;
+  padding: 16px 32px 8px;
   border: 1px solid var(--theme-border-strong);
   border-radius: var(--app-control-radius);
   outline: 0;
@@ -137,7 +137,7 @@
   grid-template-columns: 26px minmax(0, 1fr) 26px;
   align-items: center;
   gap: 6px;
-  padding: 8px 9px;
+  padding: 8px 8px;
   border-bottom: 1px solid var(--theme-border);
 }
 
@@ -182,9 +182,9 @@
   min-width: 0;
   align-items: center;
   justify-content: center;
-  gap: 5px;
+  gap: 4px;
   width: 100%;
-  padding: 5px 8px;
+  padding: 4px 8px;
   border: 1px solid transparent;
   border-radius: 8px;
   background: transparent;
@@ -217,8 +217,8 @@
 .single-date-picker__month-year {
   display: grid;
   grid-template-columns: minmax(0, 1.2fr) minmax(90px, 0.8fr);
-  gap: 7px;
-  padding: 10px 12px;
+  gap: 8px;
+  padding: 8px 12px;
   border-bottom: 1px solid var(--theme-border);
   background: var(--theme-surface-soft);
 }
@@ -330,7 +330,7 @@
   border-color: var(--theme-primary);
   background: var(--theme-primary);
   color: var(--theme-primary-foreground);
-  box-shadow: 0 4px 12px rgb(37 99 235 / 0.16);
+  box-shadow: var(--theme-shadow-card);
 }
 
 .single-date-picker__day.is-today:not(.is-selected) {

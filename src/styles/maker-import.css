@@ -10,13 +10,11 @@
 .maker-import-hero {
   display: flex;
   align-items: center;
-  gap: 15px;
-  padding: 21px;
+  gap: 16px;
+  padding: 20px;
   border: 1px solid var(--theme-border-strong);
   border-radius: 16px;
-  background:
-    radial-gradient(circle at 0% 0%, color-mix(in srgb, var(--theme-primary) 13%, transparent), transparent 40%),
-    var(--theme-surface);
+  background: var(--theme-surface);
 }
 .maker-import-hero-icon {
   display: grid;
@@ -32,16 +30,16 @@
 .maker-import-hero-icon svg { width: 23px; height: 23px; }
 .maker-import-eyebrow {
   color: var(--theme-primary);
-  font-size: 9px;
-  font-weight: 900;
-  letter-spacing: .12em;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0;
 }
 .maker-import-hero h2 {
-  margin: 3px 0 5px;
+  margin: 3px 0 4px;
   color: var(--theme-text);
   font-size: clamp(19px, 2vw, 25px);
-  font-weight: 850;
-  letter-spacing: -.035em;
+  font-weight: 600;
+  letter-spacing: 0;
 }
 .maker-import-hero p {
   max-width: 780px;
@@ -52,7 +50,7 @@
 }
 .maker-import-panel {
   min-width: 0;
-  padding: 18px;
+  padding: 16px;
   border: 1px solid var(--theme-border);
   border-radius: 15px;
   background: var(--theme-surface);
@@ -67,35 +65,33 @@
   align-self: start;
   border-color: color-mix(in srgb, var(--theme-primary) 23%, var(--theme-border));
   background: var(--theme-surface);
-  box-shadow:
-    0 16px 38px color-mix(in srgb, var(--theme-text) 10%, transparent),
-    var(--theme-shadow-card);
+  box-shadow: var(--theme-shadow-card);
 }
 .maker-import-panel-head {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  gap: 14px;
-  margin-bottom: 15px;
+  gap: 12px;
+  margin-bottom: 16px;
 }
 .maker-import-panel-head > div > span {
   color: var(--theme-primary);
-  font-size: 8px;
-  font-weight: 900;
-  letter-spacing: .1em;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0;
 }
 .maker-import-panel-head h3 {
   margin: 3px 0 0;
   color: var(--theme-text);
   font-size: 16px;
-  font-weight: 800;
-  letter-spacing: -.025em;
+  font-weight: 600;
+  letter-spacing: 0;
 }
 .maker-import-panel-head p {
   max-width: 530px;
   margin: 2px 0 0;
   color: var(--theme-text-secondary);
-  font-size: 10px;
+  font-size: 11px;
   line-height: 1.5;
 }
 .maker-import-source {
@@ -103,7 +99,7 @@
   width: 100%;
   min-height: 205px;
   resize: vertical;
-  padding: 13px;
+  padding: 12px;
   border: 1px solid var(--theme-border-strong);
   border-radius: 11px;
   outline: none;
@@ -123,12 +119,12 @@
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  gap: 13px;
+  gap: 12px;
   margin-top: 12px;
 }
 .maker-import-source-footer > span {
   color: var(--theme-text-secondary);
-  font-size: 10px;
+  font-size: 11px;
   line-height: 1.5;
 }
 .maker-import-source-footer strong { color: var(--theme-text); }
@@ -139,13 +135,13 @@
   flex: 0 0 auto;
   align-items: center;
   justify-content: center;
-  gap: 7px;
-  padding: 0 13px;
+  gap: 8px;
+  padding: 0 12px;
   border: 1px solid transparent;
   border-radius: 9px;
   cursor: pointer;
-  font-size: 10px;
-  font-weight: 850;
+  font-size: 11px;
+  font-weight: 600;
   transition: background-color 140ms ease, border-color 140ms ease, transform 140ms ease, opacity 140ms ease;
 }
 .maker-import-primary {
@@ -154,7 +150,6 @@
   color: var(--theme-primary-foreground);
 }
 .maker-import-primary:hover:not(:disabled) {
-  transform: translateY(-1px);
   border-color: var(--theme-primary-hover);
   background: var(--theme-primary-hover);
 }
@@ -177,7 +172,7 @@
   display: flex;
   align-items: flex-start;
   gap: 8px;
-  padding: 11px 13px;
+  padding: 12px 12px;
   border: 1px solid var(--theme-border);
   border-radius: 10px;
   font-size: 11px;
@@ -213,7 +208,7 @@
 .maker-import-fields--manual label,
 .maker-import-account-select {
   display: grid;
-  gap: 5px;
+  gap: 4px;
   min-width: 0;
 }
 .maker-import-batch-grid label > span,
@@ -221,11 +216,11 @@
 .maker-import-fields--manual label > span,
 .maker-import-account-select > span {
   color: var(--theme-text-secondary);
-  font-size: 10px;
-  font-weight: 750;
+  font-size: 11px;
+  font-weight: 500;
   text-align: center;
-  text-transform: uppercase;
-  letter-spacing: .025em;
+  text-transform: none;
+  letter-spacing: 0;
 }
 .maker-import-batch-grid input,
 .maker-import-batch-grid select,
@@ -238,7 +233,7 @@
   width: 100%;
   min-width: 0;
   height: 37px;
-  padding: 0 10px;
+  padding: 0 8px;
   border: 1px solid var(--theme-border-strong);
   border-radius: 8px;
   outline: none;
@@ -263,34 +258,34 @@
   align-items: center;
   gap: 6px;
   color: var(--theme-text-secondary);
-  font-size: 9px;
-  font-weight: 750;
+  font-size: 11px;
+  font-weight: 600;
 }
 .maker-import-chip svg { width: 13px; height: 13px; }
 .maker-import-summary {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
-  gap: 9px;
-  margin-top: 13px;
+  gap: 8px;
+  margin-top: 12px;
 }
 .maker-import-summary > div {
   display: grid;
   gap: 4px;
   min-width: 0;
-  padding: 11px;
+  padding: 12px;
   border: 1px solid var(--theme-border);
   border-radius: 10px;
   background: var(--theme-surface-soft);
 }
 .maker-import-summary small {
   color: var(--theme-text-secondary);
-  font-size: 9px;
-  font-weight: 700;
+  font-size: 11px;
+  font-weight: 600;
 }
 .maker-import-summary strong {
   color: var(--theme-text);
   font-size: 15px;
-  font-weight: 850;
+  font-weight: 600;
   overflow-wrap: anywhere;
 }
 .maker-import-summary .is-attention strong { color: var(--theme-warning); font-size: 12px; }
@@ -298,7 +293,7 @@
 .maker-import-row-list { display: grid; gap: 12px; }
 .maker-import-row {
   min-width: 0;
-  padding: 14px;
+  padding: 12px;
   border: 1px solid var(--theme-border);
   border-left: 3px solid var(--theme-border-strong);
   border-radius: 12px;
@@ -311,29 +306,29 @@
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  gap: 10px;
+  gap: 8px;
 }
 .maker-import-row-number {
   color: var(--theme-text-secondary);
-  font-size: 8px;
-  font-weight: 900;
-  letter-spacing: .09em;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0;
 }
 .maker-import-row h4 {
   margin: 3px 0 0;
   color: var(--theme-text);
   font-size: 13px;
-  font-weight: 850;
+  font-weight: 600;
 }
 .maker-import-row-status {
   display: inline-flex;
   flex: 0 0 auto;
   align-items: center;
-  gap: 5px;
-  padding: 4px 7px;
+  gap: 4px;
+  padding: 4px 8px;
   border-radius: 6px;
-  font-size: 9px;
-  font-weight: 850;
+  font-size: 11px;
+  font-weight: 600;
 }
 .maker-import-row-status svg { width: 12px; height: 12px; }
 .maker-import-row-status.is-invalid {
@@ -350,13 +345,13 @@
 }
 .maker-import-original {
   overflow-wrap: anywhere;
-  margin: 9px 0 12px;
-  padding: 8px 9px;
+  margin: 8px 0 12px;
+  padding: 8px 8px;
   border: 1px dashed var(--theme-border-strong);
   border-radius: 7px;
   color: var(--theme-text-secondary);
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  font-size: 10px;
+  font-size: 11px;
   line-height: 1.5;
 }
 .maker-import-original strong { color: var(--theme-text); font-family: inherit; }
@@ -364,29 +359,29 @@
   display: flex;
   align-items: flex-start;
   gap: 8px;
-  margin: 0 0 11px;
-  padding: 10px;
+  margin: 0 0 12px;
+  padding: 8px;
   border: 1px solid color-mix(in srgb, var(--theme-danger) 38%, var(--theme-border));
   border-radius: 8px;
   background: color-mix(in srgb, var(--theme-danger) 7%, var(--theme-surface));
   color: var(--theme-danger);
-  font-size: 10px;
+  font-size: 11px;
   line-height: 1.5;
 }
 .maker-import-excluded-reason svg { flex: 0 0 14px; width: 14px; height: 14px; margin-top: 1px; }
 .maker-import-readonly-kind {
-  margin: 0 0 10px;
+  margin: 0 0 8px;
   color: var(--theme-text-secondary);
   font-size: 13px;
   line-height: 1.45;
 }
 .maker-import-readonly-kind strong {
   color: var(--theme-text);
-  font-weight: 750;
+  font-weight: 600;
 }
 .maker-import-account-select {
-  margin: 10px 0;
-  padding: 10px;
+  margin: 8px 0;
+  padding: 8px;
   border: 1px solid color-mix(in srgb, var(--theme-primary) 42%, var(--theme-border));
   border-radius: 10px;
   background: color-mix(in srgb, var(--theme-primary) 7%, var(--theme-surface));
@@ -401,20 +396,20 @@
   /* Recipient names need room; bank labels are short, while account numbers
      keep a stable width and nominal values rarely exceed a few million. */
   grid-template-columns: minmax(0, 1.7fr) minmax(54px, .55fr) minmax(0, 1.25fr) minmax(0, .85fr);
-  gap: 10px;
+  gap: 8px;
 }
 .maker-import-fields--manual {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 10px;
-  margin: 0 0 11px;
+  gap: 8px;
+  margin: 0 0 12px;
 }
 .maker-import-detail-field { grid-column: 1 / -1; }
 .maker-import-fields input { font-variant-numeric: tabular-nums; }
 .maker-import-row-issues {
   display: grid;
-  gap: 5px;
-  margin-top: 10px;
+  gap: 4px;
+  margin-top: 8px;
 }
 .maker-import-row-issues p {
   display: flex;
@@ -422,7 +417,7 @@
   align-items: flex-start;
   margin: 0;
   color: var(--theme-warning);
-  font-size: 10px;
+  font-size: 11px;
   line-height: 1.45;
 }
 .maker-import-row-issues p.is-confirm { color: var(--theme-text-secondary); }
@@ -431,13 +426,13 @@
   display: flex;
   align-items: flex-start;
   gap: 8px;
-  margin-top: 10px;
-  padding: 9px 10px;
+  margin-top: 8px;
+  padding: 8px 8px;
   border: 1px solid var(--theme-border);
   border-radius: 8px;
   color: var(--theme-text-secondary);
   cursor: pointer;
-  font-size: 10px;
+  font-size: 11px;
   line-height: 1.45;
 }
 .maker-import-verify input { flex: 0 0 auto; margin-top: 2px; accent-color: var(--theme-primary); }
@@ -447,9 +442,9 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 14px;
+  gap: 12px;
   margin: 16px -18px -18px;
-  padding: 13px 18px;
+  padding: 12px 16px;
   border-top: 1px solid var(--theme-border);
   border-bottom-left-radius: 15px;
   border-bottom-right-radius: 15px;
@@ -460,7 +455,7 @@
   display: grid;
   gap: 3px;
   color: var(--theme-text-secondary);
-  font-size: 10px;
+  font-size: 11px;
 }
 .maker-import-save-footer > div strong { color: var(--theme-text); font-size: 12px; }
 @media (max-width: 980px) {
@@ -482,7 +477,7 @@
   .maker-import-panel-head { align-items: flex-start; }
   .maker-import-panel-head h3 { font-size: 14px; }
   .maker-import-chip { max-width: 140px; line-height: 1.35; }
-  .maker-import-source { min-height: 180px; font-size: 10px; }
+  .maker-import-source { min-height: 180px; font-size: 11px; }
   .maker-import-source-footer { align-items: stretch; flex-direction: column; }
   .maker-import-source-footer .maker-import-primary { width: 100%; }
   .maker-import-batch-grid,
@@ -516,7 +511,7 @@
 .maker-import-row-list {
   grid-template-columns: repeat(2, minmax(0, 1fr));
   align-items: start;
-  gap: 10px;
+  gap: 8px;
 }
 .maker-import-row { padding: 12px; }
 @media (max-width: 1180px) {
@@ -536,7 +531,7 @@
 .maker-import-manual-decision {
   display: flex;
   margin: 8px 0 12px;
-  padding: 9px;
+  padding: 8px;
   border: 1px solid color-mix(in srgb, var(--theme-warning) 42%, var(--theme-border));
   border-radius: 9px;
   background: color-mix(in srgb, var(--theme-warning) 7%, var(--theme-surface));
@@ -556,14 +551,14 @@
   justify-content: center;
   gap: 6px;
   min-height: 34px;
-  padding: 7px 10px;
+  padding: 8px 8px;
   border: 1px solid var(--theme-border-strong);
   border-radius: 8px;
   background: var(--theme-surface);
   color: var(--theme-text-secondary);
   font: inherit;
-  font-size: 10px;
-  font-weight: 850;
+  font-size: 11px;
+  font-weight: 600;
   cursor: pointer;
 }
 .maker-import-decision-button svg { width: 14px; height: 14px; }
@@ -589,14 +584,14 @@
 .maker-import-row.is-invalid,.maker-import-row.is-valid,.maker-import-row.is-blocked{border-left:0;background:transparent}
 .maker-import-row-head{align-items:center;gap:12px}
 .maker-import-row h4{display:inline;margin:0;font-size:12px}
-.maker-import-row-number{display:block;margin-bottom:2px;font-size:8px}
+.maker-import-row-number{display:block;margin-bottom:2px;font-size: 11px}
 .maker-import-readonly-kind{margin:0;font-size:11px}
 .maker-import-account-select{display:grid;grid-template-columns:minmax(150px,220px) minmax(0,1fr);align-items:center;gap:8px 12px;margin:2px 0;padding:7px 9px;border-radius:8px}
-.maker-import-account-select>span{text-align:left;font-size:9px}
-.maker-import-account-select select{height:34px;font-size:10px}
+.maker-import-account-select>span{text-align:left;font-size: 11px}
+.maker-import-account-select select{height:34px;font-size: 11px}
 .maker-import-fields{grid-template-columns:minmax(0,1.45fr) minmax(76px,.55fr) minmax(0,1.05fr) minmax(0,.75fr);gap:7px 9px}
-.maker-import-fields label>span{font-size:9px}
-.maker-import-fields input{height:34px;padding-inline:9px;font-size:10px}
+.maker-import-fields label>span{font-size: 11px}
+.maker-import-fields input{height:34px;padding-inline:9px;font-size: 11px}
 .maker-import-detail-field{grid-column:1/-1}
 .maker-import-row-issues{margin-top:2px}
 .maker-import-verify{margin-top:2px;padding:7px 9px}
@@ -612,16 +607,16 @@
 .maker-import-row.is-invalid{border-color:color-mix(in srgb,var(--theme-warning) 42%,var(--theme-border));border-left-color:var(--theme-warning);background:var(--theme-surface-soft)}
 .maker-import-row.is-blocked{border-color:color-mix(in srgb,var(--theme-danger) 40%,var(--theme-border));border-left-color:var(--theme-danger);background:color-mix(in srgb,var(--theme-danger) 4%,var(--theme-surface-soft))}
 .maker-import-row-head{align-items:center;min-height:22px}
-.maker-import-row-number{display:inline-grid;place-items:center;min-width:23px;height:21px;margin:0;padding:0 5px;border:1px solid var(--theme-border-strong);border-radius:6px;background:var(--theme-surface);color:var(--theme-text-secondary);font-size:10px;font-weight:850;letter-spacing:0}
+.maker-import-row-number{display:inline-grid;place-items:center;min-width:23px;height:21px;margin:0;padding:0 5px;border:1px solid var(--theme-border-strong);border-radius:6px;background:var(--theme-surface);color:var(--theme-text-secondary);font-size: 11px;font-weight: 600;letter-spacing:0}
 .maker-import-row h4{display:inline;margin:0 0 0 7px;font-size:12px}
-.maker-import-readonly-kind{font-size:10px;margin:0 0 2px}
+.maker-import-readonly-kind{font-size: 11px;margin:0 0 2px}
 .maker-import-account-select{grid-template-columns:minmax(0,190px) minmax(0,1fr);gap:8px 10px;margin:2px 0;padding:6px 8px}
-.maker-import-account-select>span{text-align:left;font-size:9px}
+.maker-import-account-select>span{text-align:left;font-size: 11px}
 .maker-import-account-select select{height:32px}
 .maker-import-fields{grid-template-columns:minmax(0,1.35fr) minmax(70px,.55fr) minmax(0,1.05fr) minmax(0,.72fr) minmax(0,1.25fr);gap:7px 8px}
 .maker-import-fields label{min-width:0}
-.maker-import-fields label>span{font-size:9px;white-space:nowrap}
-.maker-import-fields input{height:32px;padding-inline:8px;font-size:10px}
+.maker-import-fields label>span{font-size: 11px;white-space:nowrap}
+.maker-import-fields input{height:32px;padding-inline:8px;font-size: 11px}
 .maker-import-detail-field{grid-column:auto}
 .maker-import-row-issues{margin-top:2px}
 .maker-import-verify{margin-top:2px;padding:6px 8px}
@@ -635,7 +630,7 @@
   width:min(100%,1160px);
   max-width:1160px;
   margin-inline:auto;
-  padding-inline:14px;
+  padding-inline:12px;
   box-sizing:border-box;
 }
 .maker-import-panel{
@@ -646,7 +641,7 @@
 }
 .maker-import-fields{
   grid-template-columns:minmax(0,1.3fr) minmax(68px,.52fr) minmax(0,1.02fr) minmax(0,.72fr) minmax(0,1.15fr);
-  gap:7px 8px;
+  gap:8px 8px;
 }
 .maker-import-detail-field{grid-column:auto}
 @media(max-width:900px){
@@ -738,8 +733,8 @@
 
   .maker-import-account-select > span::before {
     content: "Mapping ke";
-    font-size: 10px;
-    font-weight: 700;
+    font-size: 11px;
+    font-weight: 600;
     line-height: 1.25;
   }
 
@@ -808,7 +803,7 @@
     minmax(112px, .88fr)   /* account number: compact */
     minmax(108px, .86fr)   /* nominal: a little wider */
     minmax(190px, 1.5fr);  /* detail: widest */
-  gap: 7px 9px;
+  gap: 8px 8px;
   align-items: end;
 }
 .maker-import-fields > label {
@@ -824,7 +819,7 @@
   white-space: normal;
   overflow-wrap: anywhere;
   line-height: 1.2;
-  font-size: 9px;
+  font-size: 11px;
 }
 .maker-import-fields > label > input,
 .maker-import-fields > label > select {
@@ -879,7 +874,7 @@
     white-space: normal;
     overflow-wrap: anywhere;
     line-height: 1.2;
-    font-size: 9px;
+    font-size: 11px;
     transform: none;
   }
 
@@ -914,7 +909,7 @@
     white-space: nowrap;
     overflow: visible;
     overflow-wrap: normal;
-    font-size: 10px;
+    font-size: 11px;
     line-height: 1.2;
     transform: none;
   }
@@ -927,7 +922,7 @@
   .maker-import-row .maker-import-account-select {
     display: grid;
     grid-template-columns: minmax(0, 1fr);
-    gap: 5px;
+    gap: 4px;
     margin: 4px 0;
   }
   .maker-import-row .maker-import-account-select > span {
@@ -935,7 +930,7 @@
     min-height: 0;
     white-space: nowrap;
     overflow: visible;
-    font-size: 10px;
+    font-size: 11px;
     line-height: 1.3;
     transform: none;
   }
@@ -946,7 +941,7 @@
   .maker-import-row .maker-import-fields {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 7px 8px;
+    gap: 8px 8px;
   }
   .maker-import-row .maker-import-detail-field {
     grid-column: 1 / -1;
@@ -995,7 +990,7 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    font-size: 10px;
+    font-size: 11px;
     line-height: 1.2;
     transform: none;
     pointer-events: none;
@@ -1003,8 +998,8 @@
 
   .maker-import-row .maker-import-account-select > span::before {
     content: "Mapping";
-    font-size: 10px;
-    font-weight: 700;
+    font-size: 11px;
+    font-weight: 600;
   }
 
   .maker-import-row .maker-import-fields > label {
@@ -1024,7 +1019,7 @@
     text-overflow: ellipsis;
     overflow-wrap: normal;
     line-height: 1.2;
-    font-size: 9px;
+    font-size: 11px;
   }
 
   .maker-import-row .maker-import-account-select select,
@@ -1057,7 +1052,7 @@
   display: grid !important;
   grid-template-columns: minmax(0, 1fr) !important;
   gap: 8px !important;
-  padding: 11px 12px !important;
+  padding: 12px 12px !important;
   align-items: stretch !important;
 }
 .maker-import-row .maker-import-readonly-kind {
@@ -1066,7 +1061,7 @@
   flex-wrap: nowrap !important;
   align-items: center !important;
   justify-content: flex-start !important;
-  gap: 10px !important;
+  gap: 8px !important;
   min-width: 0;
   margin: 0 !important;
   white-space: nowrap;
@@ -1098,7 +1093,7 @@
     minmax(125px, .98fr)
     minmax(118px, .88fr)
     minmax(205px, 1.6fr) !important;
-  gap: 7px 9px !important;
+  gap: 8px 8px !important;
   align-items: end !important;
   min-width: 0;
 }
@@ -1119,7 +1114,7 @@
   overflow: hidden !important;
   text-overflow: ellipsis;
   line-height: 1.15 !important;
-  font-size: 9px !important;
+  font-size: 11px !important;
 }
 .maker-import-row .maker-import-fields > label > input,
 .maker-import-row .maker-import-fields > label > select {
@@ -1167,7 +1162,7 @@
   grid-template-columns: minmax(0, 1fr) !important;
   gap: 8px !important;
   align-items: stretch !important;
-  padding: 11px 12px !important;
+  padding: 12px 12px !important;
 }
 .maker-import-row .maker-import-row-head,
 .maker-import-row .maker-import-row-issues,
@@ -1225,7 +1220,7 @@
   overflow: hidden !important;
   text-overflow: ellipsis;
   line-height: 1.15 !important;
-  font-size: 9px !important;
+  font-size: 11px !important;
 }
 .maker-import-row .maker-import-fields > label > input,
 .maker-import-row .maker-import-fields > label > select {

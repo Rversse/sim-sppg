@@ -20,7 +20,7 @@
 }
 
 .vehicle-header p {
-  margin: 5px 0 0;
+  margin: 4px 0 0;
   color: var(--theme-text-secondary);
   font-size: 11px;
   line-height: 1.45;
@@ -41,7 +41,7 @@
   position: relative;
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
 }
 
 .vehicle-input {
@@ -60,7 +60,7 @@
   min-height: 56px;
   height: 56px;
   align-items: flex-end;
-  padding: 20px 40px 10px 13px;
+  padding: 20px 40px 8px 12px;
   border-radius: 10px;
   background: var(--theme-surface-soft);
   color: var(--theme-text-primary);
@@ -122,7 +122,7 @@
   border: 1px solid var(--app-border);
   border-radius: 999px;
   background: color-mix(in srgb, var(--theme-surface-raised) 78%, transparent);
-  box-shadow: 0 3px 10px rgb(15 23 42 / 0.025);
+  box-shadow: 0 3px 10px rgb(0 0 0 / 0.025);
   color: var(--app-text-muted);
   font-size: var(--ui-text-xs);
   white-space: nowrap;
@@ -137,7 +137,7 @@
   display: flex;
   min-width: 0;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   padding: 0;
 }
 
@@ -148,7 +148,7 @@
   min-height: 56px;
   height: 56px;
   box-sizing: border-box;
-  padding: 0 14px;
+  padding: 0 12px;
   border: 1px solid var(--theme-border-strong);
   border-radius: 10px;
   background: var(--theme-surface-soft);
@@ -183,7 +183,7 @@
 .vehicle-count {
   min-height: 36px;
   height: 36px;
-  padding-inline: 11px;
+  padding-inline: 12px;
   border-color: var(--theme-border);
   background: var(--theme-surface-raised);
   color: var(--theme-text-secondary);
@@ -265,7 +265,7 @@
 
 .vehicle-table th,
 .vehicle-table td {
-  padding: 13px 12px;
+  padding: 12px 12px;
   border-bottom: 1px solid var(--theme-border);
   text-align: center;
   vertical-align: middle;
@@ -348,21 +348,21 @@
 .vehicle-reminder {
   display: flex;
   align-items: center;
-  gap: 7px;
-  padding: 10px 12px;
+  gap: 8px;
+  padding: 8px 12px;
   border: 1px solid color-mix(in srgb, var(--theme-warning) 45%, var(--theme-border));
   border-radius: 10px;
   background: var(--theme-warning-soft);
   color: var(--theme-warning-hover);
   font-size: var(--ui-text-xs);
-  box-shadow: 0 8px 22px rgb(245 158 11 / 0.055);
+  box-shadow: 0 8px 22px rgb(0 0 0 / 0.05);
   transition:
     transform var(--app-motion-fast) var(--app-ease),
     box-shadow var(--app-motion-fast) ease;
 }
 
 .vehicle-reminder:hover {
-  box-shadow: 0 12px 28px rgb(245 158 11 / 0.09);
+  box-shadow: 0 12px 28px rgb(0 0 0 / 0.05);
 }
 
 .vehicle-reminder svg {
@@ -372,7 +372,7 @@
 }
 
 .vehicle-state {
-  padding: 26px;
+  padding: 24px;
   color: var(--theme-text-muted);
   text-align: center;
   font-size: 11px;
@@ -421,7 +421,7 @@
 
 .vehicle-loading-row {
   min-height: 62px;
-  padding: 10px 12px;
+  padding: 8px 12px;
   border-bottom: 1px solid var(--theme-border);
 }
 
@@ -454,7 +454,7 @@
 
 .vehicle-skeleton-expiry {
   display: grid;
-  gap: 5px;
+  gap: 4px;
 }
 
 .vehicle-skeleton-expiry > .ui-skeleton {
@@ -508,7 +508,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  padding: 13px 16px;
+  padding: 12px 16px;
   border-bottom: 1px solid var(--theme-border);
 }
 
@@ -523,8 +523,8 @@
   grid-template-rows: auto auto;
   align-content: start;
   min-height: 0;
-  gap: 14px;
-  padding: 18px;
+  gap: 12px;
+  padding: 16px;
   overflow: visible;
 }
 
@@ -552,7 +552,7 @@
   min-height: 40px;
   height: 40px;
   box-sizing: border-box;
-  padding: 15px 34px 7px 11px;
+  padding: 16px 32px 8px 12px;
   border-radius: 10px;
   background: var(--theme-surface-raised);
   color: var(--theme-text-primary);
@@ -602,7 +602,7 @@
 
 .vehicle-field input {
   min-height: 40px;
-  padding: 0 11px;
+  padding: 0 12px;
   border: 1px solid var(--app-border-strong);
   border-radius: var(--app-control-radius);
   background: var(--app-white);
@@ -867,7 +867,7 @@
   flex: 0 0 auto;
   gap: 6px;
   margin-left: 0;
-  padding-inline: 14px;
+  padding-inline: 12px;
   white-space: nowrap;
 }
 
@@ -890,7 +890,7 @@
   height: 40px;
   align-items: flex-end;
   gap: 8px;
-  padding: 15px 34px 7px 11px;
+  padding: 16px 32px 8px 12px;
   border: 1px solid var(--theme-border-strong);
   border-radius: 10px;
   background: var(--theme-surface-raised);

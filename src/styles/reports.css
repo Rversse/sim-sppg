@@ -16,19 +16,19 @@
   justify-content: center;
   gap: 6px;
   margin-inline: auto;
-  padding: 5px;
+  padding: 4px;
   box-sizing: border-box;
   overflow-x: auto;
   border: 1px solid var(--app-border);
   border-radius: 12px;
   background: var(--app-surface);
-  box-shadow: 0 5px 20px rgb(15 23 42 / 0.035);
+  box-shadow: var(--theme-shadow-card);
 }
 
 .reports-tabs button {
   min-width: 132px;
   min-height: 38px;
-  padding: 0 14px;
+  padding: 0 12px;
   border: 1px solid transparent;
   border-radius: 8px;
   background: transparent;
@@ -62,7 +62,7 @@
 
 .reports-section {
   display: grid;
-  gap: 14px;
+  gap: 12px;
   min-width: 0;
 }
 
@@ -72,7 +72,7 @@
   max-width: 100%;
   grid-template-columns: auto auto auto;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   margin-inline: auto;
   padding: 12px;
   box-sizing: border-box;
@@ -86,7 +86,7 @@
   display: grid;
   grid-template-columns: minmax(210px, 260px) 240px;
   align-items: end;
-  gap: 10px;
+  gap: 8px;
 }
 
 .reports-operational-month-field {
@@ -99,7 +99,7 @@
   width: 100%;
   min-width: 0;
   height: 40px;
-  padding: 0 30px 0 10px;
+  padding: 0 28px 0 8px;
   border: 1px solid var(--app-border-strong);
   border-radius: 10px;
   background: var(--app-white);
@@ -129,7 +129,7 @@
   align-items: center;
   justify-content: flex-start;
   gap: 8px;
-  padding: 0 11px;
+  padding: 0 12px;
   border: 1px solid var(--app-border-strong);
   border-radius: 10px;
   background: var(--app-white);
@@ -312,7 +312,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  padding: 7px 10px;
+  padding: 8px 8px;
   border: 1px solid var(--app-border);
   border-radius: 8px;
   background: var(--app-bg-soft);
@@ -429,15 +429,15 @@
   grid-template-columns: repeat(3, minmax(0, 1fr));
   max-width: 860px;
   margin: 0 auto 12px;
-  gap: 10px;
+  gap: 8px;
 }
 
 .reports-summary-grid.reports-summary-belanja .reports-summary-card {
   min-height: 100px;
   align-content: center;
   justify-items: center;
-  gap: 5px;
-  padding: 12px 14px;
+  gap: 4px;
+  padding: 12px 12px;
   border-radius: 12px;
 }
 
@@ -499,8 +499,8 @@
   min-height: 122px;
   align-content: start;
   justify-items: center;
-  gap: 7px;
-  padding: 18px 16px 15px;
+  gap: 8px;
+  padding: 16px 16px 16px;
   border: 1px solid var(--app-border);
   border-radius: 16px;
   background: var(--app-surface);
@@ -629,7 +629,7 @@
 
 .reports-table th,
 .reports-table td {
-  padding: 12px 14px;
+  padding: 12px 12px;
   border: 1px solid var(--app-border-soft);
   text-align: center;
   vertical-align: middle;
@@ -747,8 +747,8 @@
 
 .reports-detail-body .reports-table th,
 .reports-detail-body .reports-table td {
-  padding-top: 9px;
-  padding-bottom: 9px;
+  padding-top: 8px;
+  padding-bottom: 8px;
 }
 
 /* =========================================================
@@ -757,7 +757,7 @@
 
 .reports-detail-list {
   display: grid;
-  gap: 10px;
+  gap: 8px;
 }
 
 .reports-detail {
@@ -765,16 +765,16 @@
   border: 1px solid var(--app-border);
   border-radius: 14px;
   background: var(--app-surface);
-  box-shadow: 0 5px 20px rgb(15 23 42 / 0.025);
+  box-shadow: var(--theme-shadow-card);
 }
 
 .reports-detail > summary {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 14px;
+  gap: 12px;
   min-height: 48px;
-  padding: 11px 14px;
+  padding: 12px 12px;
   color: var(--app-primary);
   font-size: var(--ui-text-xs);
   font-weight: var(--ui-weight-medium);
@@ -838,7 +838,7 @@
   width: 100%;
   max-width: none;
   margin-inline: 0;
-  padding: 11px 14px;
+  padding: 12px 12px;
   box-sizing: border-box;
   border: 1px solid color-mix(in srgb, var(--theme-danger) 38%, var(--theme-border));
   border-radius: 12px;

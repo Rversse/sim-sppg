@@ -17,8 +17,8 @@
   min-width: 0;
   height: 36px;
   align-items: center;
-  gap: 7px;
-  padding: 0 10px;
+  gap: 8px;
+  padding: 0 8px;
   border: 1px solid var(--theme-border);
   border-radius: 9px;
   background: var(--theme-surface-soft);
@@ -94,7 +94,7 @@
   grid-template-columns: 26px minmax(0, 1fr) 26px;
   align-items: center;
   gap: 6px;
-  padding: 8px 9px;
+  padding: 8px 8px;
   border-bottom: 1px solid var(--theme-border);
 }
 
@@ -198,7 +198,7 @@
   border-color: var(--theme-primary);
   background: var(--theme-primary);
   color: var(--theme-primary-foreground);
-  box-shadow: 0 4px 12px rgb(37 99 235 / 0.16);
+  box-shadow: var(--theme-shadow-card);
 }
 
 .date-range-day.is-disabled {
@@ -217,7 +217,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 8px;
-  padding: 6px 9px;
+  padding: 6px 8px;
   border-top: 1px solid var(--theme-border);
   background: var(--theme-surface-soft);
   color: var(--theme-text-muted);
@@ -226,7 +226,7 @@
 
 .date-range-reset-pending {
   flex: 0 0 auto;
-  padding: 4px 7px;
+  padding: 4px 8px;
   border: 1px solid var(--theme-border);
   border-radius: 7px;
   background: var(--theme-surface-raised);
@@ -252,9 +252,9 @@
   min-width: 0;
   align-items: center;
   justify-content: center;
-  gap: 5px;
+  gap: 4px;
   width: 100%;
-  padding: 5px 8px;
+  padding: 4px 8px;
   border: 1px solid transparent;
   border-radius: 8px;
   background: transparent;
@@ -292,7 +292,7 @@
 }
 
 .date-range-month-year-picker {
-  padding: 10px 12px;
+  padding: 8px 12px;
   border-bottom: 1px solid var(--theme-border);
   background: var(--theme-surface-soft);
   animation: date-range-selector-in 140ms var(--theme-ease) both;
@@ -301,7 +301,7 @@
 .date-range-month-year-fields {
   display: grid;
   grid-template-columns: minmax(0, 1.2fr) minmax(90px, 0.8fr);
-  gap: 7px;
+  gap: 8px;
 }
 
 .date-range-month-year-fields label {

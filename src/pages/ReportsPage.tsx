@@ -468,12 +468,12 @@ function OverallReportView() {
               <table className="reports-table reports-table-overall">
               <thead>
                 <tr>
-                  <th className="reports-col-kitchen">DAPUR</th>
+                  <th className="reports-col-kitchen">Dapur</th>
                   <th className="reports-col-rab">RAB / PENCAIRAN</th>
                   <th className="reports-col-real-rab">RAB / REAL</th>
-                  <th className="reports-col-total">TOTAL RAB</th>
+                  <th className="reports-col-total">Total RAB</th>
                   <th className="reports-col-ops">OPS / PENCAIRAN</th>
-                  <th className="reports-col-total">TOTAL OPS</th>
+                  <th className="reports-col-total">Total OPS</th>
                   <th className="reports-col-gas">OPS / ARUTALA</th>
                 </tr>
               </thead>
@@ -504,7 +504,7 @@ function OverallReportView() {
                   </tr>
                 ))}
                 <tr className="reports-total-row">
-                  <td>GRAND TOTAL</td>
+                  <td>Grand total</td>
                   <td>{formatCurrencyOrDash(report.totals.income)}</td>
                   <td>{formatCurrencyOrDash(report.totals.expense)}</td>
                   <td
@@ -555,10 +555,10 @@ function OverallReportView() {
                 <table className="reports-table reports-table-other-income">
                   <thead>
                     <tr>
-                      <th>TANGGAL</th>
-                      <th>REKENING</th>
-                      <th>NOMINAL</th>
-                      <th>CATATAN</th>
+                      <th>Tanggal</th>
+                      <th>Rekening</th>
+                      <th>Nominal</th>
+                      <th>Catatan</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -587,12 +587,12 @@ function OverallReportView() {
               <table className="reports-table reports-table-overall-operational">
                 <thead>
                   <tr>
-                    <th>DAPUR</th>
-                    <th>INSENTIF FASILITAS SPPG</th>
-                    <th>SEWA KENDARAAN</th>
-                    <th>GAJI RELAWAN</th>
-                    <th>INSENTIF PIC</th>
-                    <th>TOTAL GAJI DAN INSENTIF</th>
+                    <th>Dapur</th>
+                    <th>Insentif fasilitas SPPG</th>
+                    <th>Sewa kendaraan</th>
+                    <th>Gaji relawan</th>
+                    <th>Insentif PIC</th>
+                    <th>Total gaji dan insentif</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -635,7 +635,7 @@ function OverallReportView() {
                       </tr>
                     ))}
                   <tr className="reports-total-row">
-                    <td>GRAND TOTAL</td>
+                    <td>Grand total</td>
                     <td>{formatCurrencyOrDash(report.totals.sppgRent)}</td>
                     <td>{formatCurrencyOrDash(report.totals.vehicleRent)}</td>
                     <td>{formatCurrencyOrDash(report.totals.relawanSalary)}</td>
@@ -708,12 +708,12 @@ function SupplierReportView() {
               <table className="reports-table">
                 <thead>
                   <tr>
-                    <th>DAPUR</th>
-                    <th>ARUTALA</th>
-                    <th>SUKALARANG</th>
+                    <th>Dapur</th>
+                    <th>Arutala</th>
+                    <th>Sukalarang</th>
                     <th>ARIS</th>
-                    <th>BABINSA</th>
-                    <th>TOTAL</th>
+                    <th>Babinsa</th>
+                    <th>Total</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -728,7 +728,7 @@ function SupplierReportView() {
                     </tr>
                   ))}
                   <tr className="reports-total-row">
-                    <td>GRAND TOTAL</td>
+                    <td>Grand total</td>
                     <td>{formatCurrency(report.totals.Arutala)}</td>
                     <td>{formatCurrency(report.totals.Sukalarang)}</td>
                     <td>{formatCurrency(report.totals.Aris)}</td>
@@ -805,10 +805,10 @@ function PencairanReportView() {
               <table className="reports-table">
                 <thead>
                   <tr>
-                    <th>NAMA SUPPLIER</th>
-                    <th>NAMA PEMILIK</th>
-                    <th>REKENING BANK</th>
-                    <th>TOTAL</th>
+                    <th>Nama supplier</th>
+                    <th>Nama pemilik</th>
+                    <th>Rekening bank</th>
+                    <th>Total</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -823,7 +823,7 @@ function PencairanReportView() {
                     </tr>
                   ))}
                   <tr className="reports-total-row">
-                    <td colSpan={3}>GRAND TOTAL</td>
+                    <td colSpan={3}>Grand total</td>
                     <td>{formatCurrency(report.grandTotal)}</td>
                   </tr>
                 </tbody>

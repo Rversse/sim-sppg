@@ -1,4 +1,5 @@
 import { useCallback, useMemo, useState, type ReactNode } from 'react'
+import { Check, Info, TriangleAlert } from 'lucide-react'
 
 import {
   ToastContext,
@@ -87,13 +88,13 @@ export function ToastProvider({ children }: { children: ReactNode }) {
             role={toast.variant === 'error' ? 'alert' : 'status'}
           >
             <div className="app-toast-indicator" aria-hidden="true">
-              {toast.variant === 'success'
-                ? '✓'
-                : toast.variant === 'error'
-                  ? '!'
-                  : toast.variant === 'warning'
-                    ? '!'
-                    : 'i'}
+              {toast.variant === 'success' ? (
+                <Check size={16} strokeWidth={1.5} />
+              ) : toast.variant === 'error' || toast.variant === 'warning' ? (
+                <TriangleAlert size={16} strokeWidth={1.5} />
+              ) : (
+                <Info size={16} strokeWidth={1.5} />
+              )}
             </div>
 
             <div className="app-toast-content">
