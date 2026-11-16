@@ -274,6 +274,7 @@ function makeRow(
 ): MakerImportDraftRow {
   const amount = parseMakerAmount(amountText)
   const id = 'line-' + lineNumber
+  const isVirtualAccount = /(?:^|[ ·])VA(?:$|[ ·])/i.test(line)
   const unrecognized = {
     id,
     lineNumber,
@@ -291,6 +292,15 @@ function makeRow(
     operationalRuleId: '',
     manualDecision: 'pending' as const,
     verified: false
+  }
+
+  if (isVirtualAccount) {
+    return {
+      ...unrecognized,
+      sourceCategory: 'Virtual Account',
+      details: body.trim() || 'Transfer Virtual Account',
+      manualDecision: 'block'
+    }
   }
 
   if (normalizeMakerText(label) === 'lain-lain' || !label) {

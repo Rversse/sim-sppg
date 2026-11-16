@@ -351,6 +351,13 @@ function getRowDisposition(
   kitchenId: string,
   refs: ImportReferences
 ): RowDisposition {
+  if (/(?:^|[ ·])VA(?:$|[ ·])/i.test(row.rawLine)) {
+    return {
+      status: 'excluded',
+      reason: 'Transfer Virtual Account dikecualikan dari transaksi program. Baris tetap disimpan untuk audit sumber.'
+    }
+  }
+
   if (
     row.kind === 'ops_harian' &&
     normalizeMakerText(row.details) !== 'ops harian' &&
