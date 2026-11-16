@@ -624,7 +624,10 @@ function effectiveDatabaseFlow(row: MakerImportDraftRow): {
     return { flow_type: 'neutral', category: 'GAS', operational_type: null }
   }
   if (flow === 'neutral_lain_lain') {
-    return { flow_type: 'neutral', category: 'LAIN_LAIN', operational_type: null }
+    const isArutala = normalizeMakerText(row.recipientName) === 'koperasi arutala' &&
+      normalizeMakerBank(row.bank) === 'BNI' &&
+      normalizeMakerAccountNumber(row.accountNumber) === '1985322260'
+    return { flow_type: 'neutral', category: isArutala ? 'OPS' : 'LAIN_LAIN', operational_type: null }
   }
   if (flow === 'neutral_ops_harian') {
     return { flow_type: 'neutral', category: 'OPS', operational_type: null }
@@ -1287,7 +1290,7 @@ export function MakerImportPage() {
                     ) : null}
 
                     <div className="maker-import-readonly-kind">
-                      <span>Jenis transaksi: <strong>{flow === 'neutral_ops_harian' ? 'OPS HARIAN / Netral' : row.kind === 'lain_lain' ? (flow === 'neutral_lain_lain' ? 'Lain-lain / Netral' : 'OPS / Pencairan') : row.kind === 'combined_payroll' ? 'Payroll gabungan' : flow === 'income' ? 'RAB / Pencairan' : flow === 'gas' ? 'GAS' : flow === 'ops_disbursement' ? 'OPS / Pencairan' : 'Pencairan Operasional — ' + operationalTypeLabel(row.operationalType || defaultOperationalType(row.kind))}</strong></span>
+                      <span>Jenis transaksi: <strong>{flow === 'neutral_ops_harian' || (flow === 'neutral_lain_lain' && normalizeMakerText(row.recipientName) === 'koperasi arutala' && normalizeMakerBank(row.bank) === 'BNI' && normalizeMakerAccountNumber(row.accountNumber) === '1985322260') ? 'OPS HARIAN / Netral' : row.kind === 'lain_lain' ? (flow === 'neutral_lain_lain' ? 'Lain-lain / Netral' : 'OPS / Pencairan') : row.kind === 'combined_payroll' ? 'Payroll gabungan' : flow === 'income' ? 'RAB / Pencairan' : flow === 'gas' ? 'GAS' : flow === 'ops_disbursement' ? 'OPS / Pencairan' : 'Pencairan Operasional — ' + operationalTypeLabel(row.operationalType || defaultOperationalType(row.kind))}</strong></span>
                       {flow === 'income' || flow === 'neutral_lain_lain' || flow === 'neutral_ops_harian' ? (
                         <label className="maker-import-account-select">
                           <select value={row.accountId} onChange={(event) => chooseAccount(row, event.target.value)} disabled={saving || rowLocked || !kitchenId}>
