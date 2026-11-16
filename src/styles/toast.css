@@ -16,7 +16,7 @@
   align-items: start;
   padding: 12px 12px;
   border: 1px solid var(--theme-border);
-  border-radius: 13px;
+  border-radius: 12px;
   background: var(--theme-surface-raised);
   box-shadow: var(--theme-shadow-modal);
   pointer-events: auto;
@@ -28,7 +28,7 @@
   width: 30px;
   height: 30px;
   place-items: center;
-  border-radius: 9px;
+  border-radius: 10px;
   font-size: 13px;
   font-weight: var(--ui-weight-strong);
 }

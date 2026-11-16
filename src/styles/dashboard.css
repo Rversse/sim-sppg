@@ -474,7 +474,7 @@
   white-space: nowrap;
   padding: 4px 8px;
   border: 1px solid var(--app-border);
-  border-radius: 7px;
+  border-radius: 8px;
   background: var(--app-bg-soft);
   color: var(--theme-text-secondary);
   font-size: var(--ui-text-xs);
@@ -540,7 +540,7 @@
 .dashboard-status-summary span {
   padding: 8px 8px;
   border: 1px solid transparent;
-  border-radius: 9px;
+  border-radius: 10px;
   text-align: center;
   font-size: var(--ui-text-xs);
   font-weight: var(--ui-weight-medium);
@@ -647,7 +647,7 @@
 .dashboard-status-flags span svg {
   width: 20px;
   height: 20px;
-  stroke-width: 2.25;
+  stroke-width: 1.5;
 }
 
 .dashboard-status-flags span.is-done {
@@ -701,7 +701,7 @@
   z-index: 10;
   padding: 4px 8px;
   border: 1px solid var(--theme-border);
-  border-radius: 7px;
+  border-radius: 8px;
   background: var(--theme-surface-raised);
   box-shadow: var(--theme-shadow-hover);
   color: var(--theme-text-primary);
@@ -970,7 +970,7 @@
 .dashboard-flow svg {
   width: 16px;
   height: 16px;
-  stroke-width: 2.25;
+  stroke-width: 1.5;
   color: #fff;
 }
 
@@ -981,7 +981,7 @@
   z-index: 10;
   padding: 4px 8px;
   border: 1px solid var(--theme-border);
-  border-radius: 7px;
+  border-radius: 8px;
   background: var(--theme-surface-raised);
   box-shadow: var(--theme-shadow-hover);
   color: var(--theme-text-primary);

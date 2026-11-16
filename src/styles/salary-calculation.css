@@ -2,8 +2,8 @@
 .salary-intro{display:flex;align-items:flex-start;justify-content:space-between;gap:16px}
 .salary-intro h2{margin:0;font-size:18px;font-weight: 600}
 .salary-intro p,.salary-panel-heading p{margin:5px 0 0;color:var(--text-muted);font-size:13px}
-.salary-fixed-rate{flex:none;padding:7px 11px;border:1px solid var(--border-subtle);border-radius:9px;color:var(--text-secondary);font-size:12px;font-weight: 600}
-.salary-panel{min-width:0;padding:17px;border:1px solid var(--border-subtle);border-radius:13px;background:var(--surface-card)}
+.salary-fixed-rate{flex:none;padding:7px 11px;border:1px solid var(--border-subtle);border-radius:10px;color:var(--text-secondary);font-size:12px;font-weight: 600}
+.salary-panel{min-width:0;padding:17px;border:1px solid var(--border-subtle);border-radius:12px;background:var(--surface-card)}
 .salary-panel-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:15px}
 .salary-panel-heading h3{margin:0;font-size:15px;font-weight: 600}
 .salary-filter-grid{display:grid;grid-template-columns:minmax(190px,1.35fr) minmax(260px,1fr) auto;align-items:end;gap:12px}

@@ -185,7 +185,7 @@ body {
 .app-theme-switch__thumb svg {
   width: 15px;
   height: 15px;
-  stroke-width: 2.2;
+  stroke-width: 1.5;
 }
 
 .app-theme-switch[data-theme='dark'] .app-theme-switch__thumb {

@@ -75,7 +75,7 @@
   gap: 4px;
   padding: 12px;
   border: 1px solid var(--theme-border);
-  border-radius: 11px;
+  border-radius: 12px;
   background: var(--theme-surface-soft);
 }
 .real-import-summary span {
@@ -183,7 +183,7 @@
   height: 39px;
   padding: 0 8px;
   border: 1px solid var(--theme-border-strong);
-  border-radius: 9px;
+  border-radius: 10px;
   background: var(--theme-surface);
   color: var(--theme-text-primary);
   font: inherit;
@@ -198,7 +198,7 @@
   margin-top: 12px;
   padding: 8px;
   border: 1px solid color-mix(in srgb, var(--theme-danger) 28%, var(--theme-border));
-  border-radius: 9px;
+  border-radius: 10px;
   background: var(--theme-danger-soft);
   color: var(--theme-text-secondary);
 }
@@ -329,7 +329,7 @@
 .real-import-row-fields select {
   height: 32px;
   padding-inline: 8px;
-  border-radius: 7px;
+  border-radius: 8px;
   font-size: 11px;
 }
 .real-import-row-fields .real-import-note {

@@ -41,7 +41,7 @@
   margin-bottom: 16px;
   place-items: center;
   border: 1px solid var(--theme-border);
-  border-radius: 17px;
+  border-radius: 16px;
   background: var(--theme-primary-soft);
   color: var(--theme-primary);
 }
@@ -104,7 +104,7 @@
   height: clamp(48px, 8vw, 54px);
   padding: 0 16px;
   border: 1px solid var(--app-border-mid);
-  border-radius: 13px;
+  border-radius: 12px;
   outline: none;
   background: var(--theme-surface-raised);
   color: var(--app-primary);

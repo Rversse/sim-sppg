@@ -551,7 +551,7 @@ textarea {
 .app-nav-icon svg {
   width: 16px;
   height: 16px;
-  stroke-width: 2;
+  stroke-width: 1.5;
 }
 
 /* =========================================================
@@ -652,7 +652,7 @@ textarea {
 .app-logout-button svg {
   width: 16px;
   height: 16px;
-  stroke-width: 2;
+  stroke-width: 1.5;
 }
 
 .app-logout-button:hover {
@@ -1063,7 +1063,7 @@ textarea:disabled {
     place-items: center;
     gap: 2px;
     padding: 7px 2px;
-    border-radius: 11px;
+    border-radius: 12px;
     color: var(--theme-sidebar-text);
     text-decoration: none;
   }
@@ -1279,7 +1279,7 @@ textarea:disabled {
   gap: 8px;
   padding: 0 12px;
   border: 1px solid var(--app-primary);
-  border-radius: 9px;
+  border-radius: 10px;
   background: var(--app-primary);
   color: var(--theme-primary-foreground);
   cursor: pointer;
@@ -1300,7 +1300,7 @@ textarea:disabled {
   width: 15px;
   height: 15px;
   flex: 0 0 15px;
-  stroke-width: 2;
+  stroke-width: 1.5;
 }
 
 

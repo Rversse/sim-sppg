@@ -28,7 +28,7 @@
   justify-content: center;
   gap: 6px;
   padding-inline: 12px;
-  border-radius: 9px;
+  border-radius: 10px;
   font-size: 12px;
   font-weight: var(--ui-weight-strong);
   line-height: 1;
@@ -95,7 +95,7 @@
   padding: 16px 16px;
   overflow: hidden;
   border: 1px solid var(--theme-border-strong);
-  border-radius: 15px;
+  border-radius: 16px;
   box-shadow: var(--theme-shadow-card);
   background: var(--theme-surface-raised);
   transition:
@@ -180,7 +180,7 @@
 .bank-accounts-panel {
   width: 100%;
   border: 1px solid var(--app-border-strong);
-  border-radius: 17px;
+  border-radius: 16px;
   background: var(--app-white);
   box-shadow: var(--app-shadow-card);
 }
@@ -218,7 +218,7 @@
   flex: 0 0 auto;
   padding: 0 12px;
   border: 1px solid var(--theme-border);
-  border-radius: 9px;
+  border-radius: 10px;
   background: var(--theme-surface-soft);
   color: var(--theme-text-secondary);
   font-size: 11px;
@@ -232,7 +232,7 @@
   overflow-x: auto;
   overflow-y: visible;
   border: 1px solid var(--theme-border);
-  border-radius: 13px;
+  border-radius: 12px;
   background: var(--theme-surface);
 }
 
@@ -564,7 +564,7 @@
   flex: 0 0 auto;
   padding: 0 12px;
   border: 1px solid var(--theme-border-strong);
-  border-radius: 9px;
+  border-radius: 10px;
   background: var(--theme-surface-raised);
   box-shadow: var(--theme-shadow-card);
   color: var(--theme-text-secondary);
@@ -584,7 +584,7 @@
   gap: 8px;
   padding: 0 12px;
   border: 1px solid var(--theme-border-strong);
-  border-radius: 9px;
+  border-radius: 10px;
   background: var(--theme-surface-soft);
   color: var(--theme-text-muted);
   box-sizing: border-box;
@@ -727,7 +727,7 @@ section.bank-form-modal {
   padding: 0 12px;
   min-height: 42px;
   border: 1px solid var(--theme-border-strong);
-  border-radius: 11px;
+  border-radius: 12px;
   background: var(--theme-surface-raised);
   color: var(--theme-text-muted);
 }
@@ -761,7 +761,7 @@ section.bank-form-modal {
   flex: 0 0 auto;
   place-items: center;
   border: 0;
-  border-radius: 7px;
+  border-radius: 8px;
   background: transparent;
   color: var(--theme-text-secondary);
   cursor: pointer;
@@ -1197,7 +1197,7 @@ section.bank-export-modal {
   min-height: 0;
   padding: 8px 8px;
   border: 0;
-  border-radius: 7px;
+  border-radius: 8px;
   background: transparent;
   color: var(--theme-text-secondary);
   cursor: pointer;
@@ -1500,7 +1500,7 @@ section.bank-history-modal {
   padding: 12px 12px;
   border: 1px solid var(--theme-border);
   border-left: 3px solid var(--theme-danger);
-  border-radius: 11px;
+  border-radius: 12px;
   background: var(--theme-surface);
   box-shadow: var(--theme-shadow-card);
   transition:
@@ -1654,7 +1654,7 @@ section.bank-history-modal {
   justify-content: center;
   padding: 0;
   border: 1px solid var(--theme-border);
-  border-radius: 7px;
+  border-radius: 8px;
   background: var(--theme-surface);
   color: var(--theme-primary);
   cursor: pointer;
@@ -1845,7 +1845,7 @@ section.bank-history-modal {
   .bank-account-table-wrap {
     overflow-x: auto;
     overflow-y: visible;
-    border-radius: 11px;
+    border-radius: 12px;
     -webkit-overflow-scrolling: touch;
   }
 

@@ -167,7 +167,7 @@ canvas {
     overflow-x: auto;
     overflow-y: hidden;
     border: 1px solid var(--theme-border-strong);
-    border-radius: 15px;
+    border-radius: 16px;
     background: color-mix(in srgb, var(--theme-sidebar-bg) 97%, transparent);
     box-shadow: var(--theme-shadow-hover);
     backdrop-filter: blur(14px);

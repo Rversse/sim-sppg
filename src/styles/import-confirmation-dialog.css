@@ -14,7 +14,7 @@
   width: min(100%, 520px);
   overflow: hidden;
   border: 1px solid var(--theme-border-strong);
-  border-radius: 19px;
+  border-radius: 20px;
   background: var(--theme-surface);
   box-shadow: 0 28px 80px rgb(0 0 0 / 28%);
   animation: import-confirmation-rise-in 170ms ease-out;
@@ -76,7 +76,7 @@
   height: 30px;
   place-items: center;
   border: 1px solid var(--theme-border-strong);
-  border-radius: 9px;
+  border-radius: 10px;
   background: var(--theme-surface);
   color: var(--theme-text-secondary);
   cursor: pointer;
@@ -97,7 +97,7 @@
   min-width: 0;
   padding: 12px;
   border: 1px solid var(--theme-border);
-  border-radius: 11px;
+  border-radius: 12px;
   background: var(--theme-surface-raised);
 }
 

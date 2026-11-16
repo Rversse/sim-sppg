@@ -164,12 +164,12 @@ body { font-size: 13px; line-height: 1.5; font-variant-numeric: tabular-nums; }
 .app-nav-link::before { width: 2px; background: var(--theme-primary); }
 .app-nav-link:hover { background: var(--theme-sidebar-hover); color: var(--theme-text-primary); }
 .app-nav-link.is-active { background: var(--theme-sidebar-active); color: var(--theme-sidebar-text-active); box-shadow: none; font-weight: 600; }
-.app-nav-icon { width: 26px; height: 26px; flex-basis: 26px; border-radius: 7px; background: transparent; color: inherit; }
+.app-nav-icon { width: 26px; height: 26px; flex-basis: 26px; border-radius: 8px; background: transparent; color: inherit; }
 .app-nav-link.is-active .app-nav-icon { background: color-mix(in srgb, var(--theme-primary) 12%, transparent); color: var(--theme-primary); }
 .app-nav-icon svg { width: 16px; height: 16px; stroke-width: 1.5; }
 .app-header { height: var(--app-header-height); padding-inline: clamp(16px, 2.2vw, 32px); border-bottom: 1px solid var(--theme-border); background: var(--theme-header-bg); box-shadow: none; }
 .app-page-title { color: var(--theme-text-primary); font-size: 18px; font-weight: 600; letter-spacing: 0; }
-.app-user-role { border: 1px solid var(--theme-border); border-radius: 7px; background: var(--theme-surface); color: var(--theme-text-secondary); font-size: 11px; font-weight: 500; }
+.app-user-role { border: 1px solid var(--theme-border); border-radius: 8px; background: var(--theme-surface); color: var(--theme-text-secondary); font-size: 11px; font-weight: 500; }
 .app-logout-button { border: 1px solid var(--theme-border); border-radius: 8px; background: var(--theme-surface); color: var(--theme-text-secondary); }
 .app-main { width: min(var(--app-page-max-width), 100%); margin-inline: auto; padding: 24px clamp(16px, 2.2vw, 32px) 36px; }
 
@@ -190,7 +190,7 @@ body { font-size: 13px; line-height: 1.5; font-variant-numeric: tabular-nums; }
 .dashboard-panel-header h2, .dashboard-panel-header h3, .bank-panel-header h2, .maker-import-panel-head h3 { color: var(--theme-text-primary); font-size: 14px; font-weight: 600; letter-spacing: 0; }
 .dashboard-panel-header p, .bank-panel-header p, .maker-import-panel-head p { color: var(--theme-text-secondary); font-size: 11px; }
 
-.dashboard-kpi { min-height: 104px; padding: 16px; border-radius: 11px; box-shadow: var(--theme-shadow-card); }
+.dashboard-kpi { min-height: 104px; padding: 16px; border-radius: 12px; box-shadow: var(--theme-shadow-card); }
 .dashboard-kpi > span { color: var(--theme-text-secondary); font-size: 11px; font-weight: 500; letter-spacing: 0; }
 .dashboard-kpi > strong { color: var(--theme-text-primary); font-size: 20px; font-weight: 500; letter-spacing: 0; line-height: 1.2; }
 .dashboard-kpi > small { color: var(--theme-text-muted); font-size: 11px; }
@@ -538,7 +538,7 @@ button:focus-visible, [role='button']:focus-visible, a:focus-visible { outline: 
   min-height: 34px;
   padding: 0 12px;
   border: 1px solid transparent;
-  border-radius: 7px;
+  border-radius: 8px;
   background: transparent;
   color: var(--theme-text-secondary);
   font-size: 12px;
@@ -581,7 +581,7 @@ button:focus-visible, [role='button']:focus-visible, a:focus-visible { outline: 
 
 .reports-summary-card {
   border: 1px solid var(--theme-border);
-  border-radius: 11px;
+  border-radius: 12px;
   background: var(--theme-surface);
   box-shadow: var(--theme-shadow-card);
 }
@@ -652,7 +652,7 @@ button:focus-visible, [role='button']:focus-visible, a:focus-visible { outline: 
 .reports-detail > summary {
   min-height: 42px;
   border: 1px solid var(--theme-border);
-  border-radius: 9px;
+  border-radius: 10px;
   background: var(--theme-surface);
   color: var(--theme-text-primary);
   font-weight: 600;
@@ -686,7 +686,7 @@ button:focus-visible, [role='button']:focus-visible, a:focus-visible { outline: 
 .bank-summary-card {
   min-height: 100px;
   border: 1px solid var(--theme-border);
-  border-radius: 11px;
+  border-radius: 12px;
   background: var(--theme-surface);
   box-shadow: var(--theme-shadow-card);
 }
@@ -913,7 +913,7 @@ button:focus-visible, [role='button']:focus-visible, a:focus-visible { outline: 
 
 .maker-import-hero-icon {
   border: 1px solid var(--theme-border);
-  border-radius: 9px;
+  border-radius: 10px;
   background: var(--theme-primary-soft);
   color: var(--theme-primary);
 }
@@ -946,7 +946,7 @@ button:focus-visible, [role='button']:focus-visible, a:focus-visible { outline: 
 .maker-import-summary > div,
 .real-import-summary > div {
   border: 1px solid var(--theme-border);
-  border-radius: 9px;
+  border-radius: 10px;
   background: var(--theme-surface-soft);
 }
 

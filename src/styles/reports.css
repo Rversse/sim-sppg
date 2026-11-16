@@ -189,7 +189,7 @@
   min-height: 26px;
   padding: 0 8px;
   border: 1px solid var(--app-border);
-  border-radius: 7px;
+  border-radius: 8px;
   background: var(--app-white);
   color: var(--app-text-muted);
   box-shadow: none;
@@ -904,7 +904,7 @@
     width: calc(100vw - 20px);
     max-width: none;
     padding: 12px;
-    border-radius: 13px;
+    border-radius: 12px;
   }
 
   .reports-period-filter-group {

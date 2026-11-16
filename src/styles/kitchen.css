@@ -540,7 +540,7 @@
 
 @media (max-width: 480px) {
   .kitchen-panel {
-    border-radius: 13px;
+    border-radius: 12px;
   }
 
   .kitchen-table {
@@ -757,7 +757,7 @@
   flex: 0 0 auto;
   padding: 0 12px;
   border: 1px solid var(--theme-border);
-  border-radius: 9px;
+  border-radius: 10px;
   background: var(--theme-surface-soft);
   color: var(--theme-text-secondary);
   box-shadow: none;
