@@ -358,8 +358,6 @@ function getRowDisposition(
     }
   }
 
-  }
-
   if (
     row.kind === 'ops_harian' &&
     normalizeMakerText(row.details) !== 'ops harian' &&
