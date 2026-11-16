@@ -257,7 +257,7 @@ export function KitchenPage() {
       <div className="kitchen-toolbar">
         <input
           className="kitchen-input kitchen-control-grow"
-          placeholder="Cari dapur..."
+          placeholder="Cari dapur"
           value={search}
           onChange={(event) => setSearch(event.target.value)}
         />
@@ -270,7 +270,7 @@ export function KitchenPage() {
             onClick={openAdd}
           >
             <Plus aria-hidden="true" />
-            <span>Tambah Dapur</span>
+            <span>Tambah dapur</span>
           </button>
         ) : null}
       </div>
@@ -333,7 +333,7 @@ export function KitchenPage() {
                 <th>Yayasan</th>
                 <th>Perwakilan</th>
                 <th>Alamat</th>
-                <th>Penerima Operasional</th>
+                <th>Penerima operasional</th>
                 <th>Status</th>
                 {canManage ? (
                   <th className="kitchen-action-column">Aksi</th>
@@ -408,7 +408,7 @@ export function KitchenPage() {
           >
             <div className="kitchen-modal-head">
               <h2 id="kitchen-modal-title">
-                {editingId ? 'Edit Dapur' : 'Tambah Dapur'}
+                {editingId ? 'Edit dapur' : 'Tambah dapur'}
               </h2>
 
               <button
@@ -446,7 +446,7 @@ export function KitchenPage() {
                 </div>
 
                 <div className="kitchen-field">
-                  <label htmlFor="kitchen-name">Nama Dapur</label>
+                  <label htmlFor="kitchen-name">Nama dapur</label>
                   <input
                     id="kitchen-name"
                     value={form.name}
@@ -474,7 +474,7 @@ export function KitchenPage() {
                 </div>
 
                 <div className="kitchen-field">
-                  <label htmlFor="kitchen-pic">Perwakilan Yayasan</label>
+                  <label htmlFor="kitchen-pic">Perwakilan yayasan</label>
                   <input
                     id="kitchen-pic"
                     value={form.pic}
@@ -488,7 +488,7 @@ export function KitchenPage() {
                 </div>
 
                 <div className="kitchen-field">
-                  <label htmlFor="kitchen-address">Alamat Dapur</label>
+                  <label htmlFor="kitchen-address">Alamat dapur</label>
                   <input
                     id="kitchen-address"
                     value={form.address}

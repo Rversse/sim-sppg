@@ -362,7 +362,7 @@ export function VehiclePage() {
       <div className="vehicle-toolbar">
         <input
           className="vehicle-input vehicle-control-grow"
-          placeholder="Cari dapur, kendaraan, atau nomor polisi..."
+          placeholder="Cari dapur, kendaraan, nomor polisi"
           value={search}
           onChange={(event) => setSearch(event.target.value)}
         />
@@ -371,7 +371,7 @@ export function VehiclePage() {
           label="Dapur"
           value={kitchenFilter}
           options={[
-            { value: '', label: 'Semua Dapur' },
+            { value: '', label: 'Semua dapur' },
             ...kitchens
               .slice()
               .sort((a, b) =>
@@ -394,7 +394,7 @@ export function VehiclePage() {
             onClick={openAdd}
           >
             <Plus aria-hidden="true" />
-            <span>Tambah Kendaraan</span>
+            <span>Tambah kendaraan</span>
           </button>
         ) : null}
       </div>
@@ -542,7 +542,7 @@ export function VehiclePage() {
           >
             <div className="vehicle-modal-head">
               <h2 id="vehicle-modal-title">
-                {editingId ? 'Edit Kendaraan' : 'Tambah Kendaraan'}
+                {editingId ? 'Edit kendaraan' : 'Tambah kendaraan'}
               </h2>
 
               <button
@@ -581,12 +581,12 @@ export function VehiclePage() {
 
                 <div className="vehicle-field">
                   <AnimatedSelect
-                    label="Jenis Kendaraan"
+                    label="Jenis kendaraan"
                     value={form.vehicle_type}
                     options={[
                       {
                         value: '',
-                        label: 'Pilih Kendaraan',
+                        label: 'Pilih kendaraan',
                         disabled: true
                       },
                       { value: 'car', label: 'Mobil' },
@@ -602,7 +602,7 @@ export function VehiclePage() {
                 </div>
 
                 <div className="vehicle-field">
-                  <label htmlFor="vehicle-name">Nama Kendaraan</label>
+                  <label htmlFor="vehicle-name">Nama kendaraan</label>
                   <input
                     id="vehicle-name"
                     value={form.vehicle_name}
@@ -616,7 +616,7 @@ export function VehiclePage() {
                 </div>
 
                 <div className="vehicle-field">
-                  <label htmlFor="vehicle-plate">Nomor Polisi</label>
+                  <label htmlFor="vehicle-plate">Nomor polisi</label>
                   <input
                     id="vehicle-plate"
                     value={form.plate_number}

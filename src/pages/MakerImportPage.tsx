@@ -1111,7 +1111,7 @@ export function MakerImportPage() {
         <div className="maker-import-panel-head">
           <div>
             <span>LANGKAH 1</span>
-            <h3>Input Data</h3>
+            <h3>Input data</h3>
           </div>
           <button
             type="button"
@@ -1146,7 +1146,7 @@ export function MakerImportPage() {
             setDuplicateBatch(false)
             setCheckingDuplicates(false)
           }}
-          placeholder="Paste data disini..."
+          placeholder="Tempel data"
           spellCheck={false}
           disabled={loadingRefs || saving}
         />

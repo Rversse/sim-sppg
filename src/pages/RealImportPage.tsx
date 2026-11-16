@@ -368,7 +368,7 @@ export function RealImportPage() {
         <div className="maker-import-panel-head">
           <div>
             <span>LANGKAH 1</span>
-            <h3>Input Data</h3>
+            <h3>Input data</h3>
             <p>Tempel satu laporan gabungan Cibeber dan Cidaun.</p>
           </div>
           <button className="maker-import-secondary" type="button" onClick={resetForm} disabled={saving}>

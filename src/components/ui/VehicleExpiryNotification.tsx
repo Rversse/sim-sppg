@@ -116,9 +116,9 @@ export function VehicleExpiryNotification() {
         type="button"
         className="vehicle-notification-button"
         onClick={() => setOpen((value) => !value)}
-        aria-label="Notifikasi Kendaraan"
+        aria-label="Notifikasi kendaraan"
         aria-expanded={open}
-        title="Notifikasi Kendaraan"
+        title="Notifikasi kendaraan"
       >
         <Bell aria-hidden="true" />
 
@@ -133,10 +133,10 @@ export function VehicleExpiryNotification() {
         <div
           className="vehicle-notification-popover"
           role="dialog"
-          aria-label="Notifikasi Kendaraan"
+          aria-label="Notifikasi kendaraan"
         >
           <div className="vehicle-notification-head">
-            <strong>Notifikasi Kendaraan</strong>
+            <strong>Notifikasi kendaraan</strong>
 
             <button
               type="button"

@@ -143,7 +143,7 @@ export function SalaryCalculationPage() {
     <section className="salary-page">
       <div className="salary-intro">
         <div>
-          <h2>Perhitungan Gaji</h2>
+          <h2>Perhitungan gaji</h2>
           <p>Alokasi 30% dari total RAB dapur, dibagi berdasarkan persentase jabatan.</p>
         </div>
         <span className="salary-fixed-rate">Alokasi tetap 30%</span>
@@ -154,7 +154,7 @@ export function SalaryCalculationPage() {
       <div className="salary-panel">
         <div className="salary-panel-heading">
           <div>
-            <h3>Parameter Perhitungan</h3>
+            <h3>Parameter perhitungan</h3>
             <p>Pilih dapur dan periode transaksi yang akan dihitung.</p>
           </div>
         </div>
@@ -191,7 +191,7 @@ export function SalaryCalculationPage() {
       <div className="salary-panel">
         <div className="salary-panel-heading salary-panel-heading--split">
           <div>
-            <h3>Pembagian Persentase</h3>
+            <h3>Pembagian persentase</h3>
             <p>Konfigurasi tersimpan secara terpisah untuk setiap dapur.</p>
           </div>
           <span className={Math.abs(percentageTotal - 100) < 0.000001 ? 'salary-total-valid' : 'salary-total-invalid'}>
@@ -224,7 +224,7 @@ export function SalaryCalculationPage() {
           <p>Jumlah persentase harus tepat 100% sebelum disimpan.</p>
           <button type="button" className="salary-secondary-button" onClick={() => void saveAllocation()} disabled={!kitchenId || saving}>
             <Save aria-hidden="true" />
-            {saving ? 'Menyimpan...' : 'Simpan Pembagian'}
+            {saving ? 'Menyimpan...' : 'Simpan pembagian'}
           </button>
         </div>
       </div>
@@ -246,7 +246,7 @@ export function SalaryCalculationPage() {
           <div className="salary-panel">
             <div className="salary-panel-heading">
               <div>
-                <h3>Rincian Alokasi</h3>
+                <h3>Rincian alokasi</h3>
                 <p>Nominal dihitung dari alokasi tetap 30% dikalikan persentase setiap jabatan.</p>
               </div>
             </div>

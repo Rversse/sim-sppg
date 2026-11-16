@@ -4,7 +4,7 @@ export function UnauthorizedPage() {
   return (
     <main className="unauthorized-page">
       <div className="unauthorized-card">
-        <h1>Akses Ditolak</h1>
+        <h1>Akses ditolak</h1>
         <p>Anda tidak memiliki akses ke halaman ini.</p>
       </div>
 

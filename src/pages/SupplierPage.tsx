@@ -453,7 +453,7 @@ export function SupplierPage() {
       <div className="supplier-toolbar">
         <input
           className="supplier-input supplier-control-grow"
-          placeholder="Cari supplier..."
+          placeholder="Cari supplier"
           value={search}
           onChange={(event) => setSearch(event.target.value)}
         />
@@ -466,7 +466,7 @@ export function SupplierPage() {
             onClick={openAddSupplier}
           >
             <Plus aria-hidden="true" />
-            <span>Tambah Supplier</span>
+            <span>Tambah supplier</span>
           </button>
         ) : null}
       </div>
@@ -583,7 +583,7 @@ export function SupplierPage() {
           >
             <div className="supplier-modal-head">
               <h2 id="supplier-modal-title">
-                {editingSupplierId ? 'Edit Supplier' : 'Tambah Supplier'}
+                {editingSupplierId ? 'Edit supplier' : 'Tambah supplier'}
               </h2>
 
               <button
@@ -601,7 +601,7 @@ export function SupplierPage() {
             <div className="supplier-modal-body modal-body">
               <div className="supplier-form-grid">
                 <div className="supplier-field">
-                  <label htmlFor="supplier-business">Nama Supplier</label>
+                  <label htmlFor="supplier-business">Nama supplier</label>
                   <input
                     id="supplier-business"
                     value={supplierForm.business_name}
@@ -615,7 +615,7 @@ export function SupplierPage() {
                 </div>
 
                 <div className="supplier-field">
-                  <label htmlFor="supplier-owner">Pemilik Usaha</label>
+                  <label htmlFor="supplier-owner">Pemilik usaha</label>
                   <input
                     id="supplier-owner"
                     value={supplierForm.owner_name}
@@ -629,7 +629,7 @@ export function SupplierPage() {
                 </div>
 
                 <div className="supplier-field">
-                  <label htmlFor="supplier-product">Jenis Produk</label>
+                  <label htmlFor="supplier-product">Jenis produk</label>
                   <input
                     id="supplier-product"
                     value={supplierForm.product_type}
@@ -912,8 +912,8 @@ export function SupplierPage() {
                         {busy
                           ? 'Menyimpan...'
                           : editingAccountId
-                            ? 'Perbarui Rekening'
-                            : 'Tambah Rekening'}
+                            ? 'Perbarui rekening'
+                            : 'Tambah rekening'}
                       </span>
                     </button>
                   </div>
@@ -941,7 +941,7 @@ export function SupplierPage() {
           >
             <div className="supplier-modal-head">
               <div>
-                <h2 id="supplier-mapping-title">Mapping Dapur</h2>
+                <h2 id="supplier-mapping-title">Mapping dapur</h2>
                 <span className="supplier-modal-subtitle">
                   {mappedAccount?.bank} • {mappedAccount?.account_number || '-'}
                 </span>
@@ -997,7 +997,7 @@ export function SupplierPage() {
                   disabled={busy}
                 >
                   <Save aria-hidden="true" />
-                  <span>{busy ? 'Menyimpan...' : 'Simpan Mapping'}</span>
+                  <span>{busy ? 'Menyimpan...' : 'Simpan mapping'}</span>
                 </button>
               </div>
             </div>

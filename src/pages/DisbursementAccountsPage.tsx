@@ -260,7 +260,7 @@ function MappingEditor({
           />
         </label>
         <label>
-          <span>Tujuan Rekening</span>
+          <span>Tujuan rekening</span>
           <select
             value={draft.targetRole}
             onChange={(event) => setDraft((current) => ({ ...current, targetRole: event.target.value as DestinationRole }))}
@@ -448,7 +448,7 @@ export function DisbursementAccountsPage() {
       {addMappingOpen && !loading ? (
         <section className="disbursement-add-panel">
           <header className="disbursement-add-panel-header">
-            <h2>Tambah Mapping</h2>
+            <h2>Tambah mapping</h2>
             <p>Pilih dapur dan jenis mapping yang belum diatur.</p>
           </header>
           <div className="disbursement-add-form-fields">
@@ -549,7 +549,7 @@ export function DisbursementAccountsPage() {
                     <label><span>Nama penerima / pemilik</span><input value={vehicleReference.owner_name} disabled readOnly /></label>
                     <label><span>Bank</span><input value={vehicleReference.bank} disabled readOnly /></label>
                     <label><span>Nomor rekening</span><input value={vehicleReference.account_number} disabled readOnly /></label>
-                    <label><span>Tujuan Rekening</span><input value="Berkah Mandiri Putra" disabled readOnly /></label>
+                    <label><span>Tujuan rekening</span><input value="Berkah Mandiri Putra" disabled readOnly /></label>
                     <label className="disbursement-mapping-status-field"><span>Input ke Database</span><input value={vehicleReference.mapping_status === 'active' ? 'Masuk' : 'Diblokir'} disabled readOnly /></label>
                     <div className="disbursement-mapping-actions" aria-hidden="true" />
                   </div>

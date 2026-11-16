@@ -1182,7 +1182,7 @@ export function BankPage() {
                       type="search"
                       value={accountSearch}
                       onChange={(event) => setAccountSearch(event.target.value)}
-                      placeholder="Cari rekening..."
+                      placeholder="Cari rekening"
                       aria-label="Cari rekening"
                       autoComplete="off"
                     />
@@ -1298,10 +1298,10 @@ export function BankPage() {
                         <thead>
                           <tr>
                             <th scope="col">Rekening</th>
-                            <th scope="col">Saldo Awal</th>
-                            <th scope="col">Pencairan Masuk</th>
-                            <th scope="col">Transfer Masuk</th>
-                            <th scope="col">Transfer Keluar</th>
+                            <th scope="col">Saldo awal</th>
+                            <th scope="col">Pencairan masuk</th>
+                            <th scope="col">Transfer masuk</th>
+                            <th scope="col">Transfer keluar</th>
                             <th scope="col">Saldo Akhir</th>
                             <th scope="col">Aksi</th>
                           </tr>
@@ -1449,7 +1449,7 @@ export function BankPage() {
                 onClick={() => void handleExportBankTransactions()}
               >
                 <Download aria-hidden="true" />
-                {exportLoading ? 'Membuat Excel...' : 'Download Excel'}
+                {exportLoading ? 'Membuat Excel...' : 'Download excel'}
               </button>
             </footer>
           </section>
@@ -1648,7 +1648,7 @@ export function BankPage() {
                     placeholder={
                       isRegisteredMode
                         ? 'Nama penerima otomatis'
-                        : 'Ketik nama penerima...'
+                        : 'Ketik nama penerima'
                     }
                     onChange={(event) => {
                       if (isRegisteredMode) return
@@ -1877,7 +1877,7 @@ export function BankPage() {
                     setHistoryPage(1)
                     setHistoryLoading(true)
                   }}
-                  placeholder="Cari keperluan, catatan, penerima, bank, atau nomor rekening..."
+                  placeholder="Cari keperluan, penerima, rekening"
                   aria-label="Cari transaksi berdasarkan keperluan, catatan, atau rekening tujuan"
                   autoFocus
                 />
@@ -1910,7 +1910,7 @@ export function BankPage() {
               <div className="bank-history-stats">
                 {Number(historySummary.account.opening_balance) !== 0 ? (
                   <div className="bank-history-stat">
-                    <span>Saldo Awal</span>
+                    <span>Saldo awal</span>
                     <BankHistoryAmount
                       text={formatCurrency(
                         Number(historySummary.account.opening_balance)
@@ -1922,7 +1922,7 @@ export function BankPage() {
 
                 {historySummary.disbursementIncome !== 0 ? (
                   <div className="bank-history-stat">
-                    <span>Pencairan Masuk</span>
+                    <span>Pencairan masuk</span>
                     <BankHistoryAmount
                       text={formatCurrency(historySummary.disbursementIncome)}
                       className="bank-income"
@@ -1933,7 +1933,7 @@ export function BankPage() {
 
                 {historySummary.transferIncome !== 0 ? (
                   <div className="bank-history-stat">
-                    <span>Transfer Masuk</span>
+                    <span>Transfer masuk</span>
                     <BankHistoryAmount
                       text={formatCurrency(historySummary.transferIncome)}
                       className="bank-income"
@@ -1944,7 +1944,7 @@ export function BankPage() {
 
                 {historySummary.transferExpense !== 0 ? (
                   <div className="bank-history-stat">
-                    <span>Transfer Keluar</span>
+                    <span>Transfer keluar</span>
                     <BankHistoryAmount
                       text={formatCurrency(historySummary.transferExpense)}
                       className="bank-expense"
