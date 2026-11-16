@@ -1354,3 +1354,12 @@ button:focus-visible, [role='button']:focus-visible, a:focus-visible { outline: 
   }
 }
 
+
+/* Figures align in columns everywhere */
+table,
+.dashboard-kpi > strong,
+.bank-balance,
+[class*='amount'],
+[class*='total'] {
+  font-variant-numeric: tabular-nums;
+}
