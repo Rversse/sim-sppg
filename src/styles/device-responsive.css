@@ -1084,3 +1084,20 @@ canvas {
     transition: none;
   }
 }
+
+/* Mobile nav: labels wrap to two lines instead of truncating */
+@media (max-width: 960px) {
+  .app-mobile-nav .app-mobile-link {
+    min-width: 76px;
+    flex: 0 0 76px;
+  }
+
+  .app-mobile-nav .app-mobile-link small {
+    overflow: visible;
+    text-align: center;
+    text-overflow: clip;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    line-height: 1.2;
+  }
+}
