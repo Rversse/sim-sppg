@@ -1309,12 +1309,12 @@ export function BankPage() {
 
                         <tbody>
                           {renderGroupRows(
-                            'Rekening Penampung',
+                            'Rekening penampung',
                             groups.holding,
                             'holding'
                           )}
                           {renderGroupRows(
-                            'Rekening Prioritas',
+                            'Rekening prioritas',
                             groups.priority,
                             'priority'
                           )}
@@ -1526,7 +1526,7 @@ export function BankPage() {
                     <option value="">Pilih pengirim</option>
 
                     {senderAccounts.holding.length ? (
-                      <optgroup label="Rekening Penampung">
+                      <optgroup label="Rekening penampung">
                         {senderAccounts.holding.map((account) => (
                           <option key={account.id} value={account.id}>
                             {getAccountLabel(account)}
@@ -1536,7 +1536,7 @@ export function BankPage() {
                     ) : null}
 
                     {senderAccounts.priority.length ? (
-                      <optgroup label="Rekening Prioritas">
+                      <optgroup label="Rekening prioritas">
                         {senderAccounts.priority.map((account) => (
                           <option key={account.id} value={account.id}>
                             {getAccountLabel(account)}
@@ -1601,8 +1601,8 @@ export function BankPage() {
                 <label className="bank-transfer-destination-field">
                   <span>
                     {transferForm.destinationMode === 'priority'
-                      ? 'Rekening Prioritas'
-                      : 'Rekening Penampung'}
+                      ? 'Rekening prioritas'
+                      : 'Rekening penampung'}
                   </span>
                   <select
                     value={transferForm.recipientAccountId}
