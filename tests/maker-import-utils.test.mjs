@@ -9,6 +9,22 @@ import {
   findMappedNeutralAccountForLainLain
 } from '../src/features/maker-import/maker-import-utils.ts'
 
+test('Koperasi Arutala OPS HARIAN output retains its fixed destination and note', () => {
+  const parsed = parseMakerDocument([
+    'Cisepat, 16-Okt-2026',
+    'OPS HARIAN : Koperasi Arutala - BNI / 1985322260 · Biaya Operasional Dapur · 25.000'
+  ].join('\n'))
+
+  assert.equal(parsed.error, null)
+  assert.equal(parsed.rows.length, 1)
+  assert.equal(parsed.rows[0].kind, 'ops_harian')
+  assert.equal(parsed.rows[0].recipientName, 'Koperasi Arutala')
+  assert.equal(parsed.rows[0].bank, 'BNI')
+  assert.equal(parsed.rows[0].accountNumber, '1985322260')
+  assert.equal(parsed.rows[0].details, 'Biaya Operasional Dapur')
+  assert.equal(parsed.rows[0].amount, 25000)
+})
+
 test('IDR amounts preserve scale and reject malformed separators', () => {
   assert.equal(parseMakerAmount('241'), 241)
   assert.equal(parseMakerAmount('241.000'), 241000)
