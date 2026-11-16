@@ -47,7 +47,7 @@ test('Maker parser classifies common output and retains the exact integer amount
   assert.equal(parsed.error, null)
   assert.equal(parsed.kitchenName, 'Campakamulya')
   assert.equal(parsed.transactionDate, '2026-10-05')
-  assert.equal(parsed.rows.length, 7)
+  assert.equal(parsed.rows.length, 6)
   assert.equal(parsed.rows[0].kind, 'rab')
   assert.equal(parsed.rows[0].amount, 241000)
   assert.equal(parsed.rows[0].details, 'Beras dan Minyak')
@@ -59,19 +59,17 @@ test('Maker parser classifies common output and retains the exact integer amount
   assert.equal(parsed.rows[2].recipientName, 'PIC Tes')
   assert.equal(parsed.rows[3].kind, 'combined_payroll')
   assert.equal(parsed.rows[3].amount, 1000000)
-  assert.equal(parsed.rows[4].kind, 'vehicle_rent')
-  assert.match(parsed.rows[4].details, /Jenis kendaraan: Mobil/)
-  assert.match(parsed.rows[4].details, /Periode sewa: 01-Oct-2026 - 31-Oct-2026/)
-  assert.equal(parsed.rows[5].kind, 'ops_harian')
+  assert.equal(parsed.rows[4].kind, 'ops_harian')
+  assert.equal(parsed.rows[4].lineNumber, 7)
+  assert.equal(parsed.rows[4].manualFlow, 'ops_disbursement')
+  assert.equal(parsed.rows[4].details, 'Ops Harian')
+  assert.equal(parsed.rows[4].recipientName, 'Petugas Test')
+  assert.equal(parsed.rows[5].kind, 'lain_lain')
+  assert.equal(parsed.rows[5].details, 'Biaya Ops Harian')
+  assert.equal(parsed.rows[5].recipientName, 'Penerima Test')
+  assert.equal(parsed.rows[5].accountNumber, '000123')
+  assert.equal(parsed.rows[5].manualDecision, 'pending')
   assert.equal(parsed.rows[5].manualFlow, 'ops_disbursement')
-  assert.equal(parsed.rows[5].details, 'Ops Harian')
-  assert.equal(parsed.rows[5].recipientName, 'Petugas Test')
-  assert.equal(parsed.rows[6].kind, 'lain_lain')
-  assert.equal(parsed.rows[6].details, 'Biaya Ops Harian')
-  assert.equal(parsed.rows[6].recipientName, 'Penerima Test')
-  assert.equal(parsed.rows[6].accountNumber, '000123')
-  assert.equal(parsed.rows[6].manualDecision, 'pending')
-  assert.equal(parsed.rows[6].manualFlow, 'ops_disbursement')
 })
 
 test('Maker RAB product lists use natural conjunctions for two or more products', () => {
@@ -302,7 +300,7 @@ test('Uppercase output categories and full bank account numbers remain importabl
   assert.equal(parsed.error, null)
   assert.deepEqual(
     parsed.rows.map((row) => row.kind),
-    ['rab', 'gas', 'gas', 'ops_harian', 'sppg_rent', 'sppg_rent', 'relawan_salary', 'vehicle_rent', 'lain_lain']
+    ['rab', 'gas', 'gas', 'ops_harian', 'sppg_rent', 'sppg_rent', 'relawan_salary', 'lain_lain']
   )
   assert.equal(parsed.rows[0].recipientName, 'CV Xyz Test')
   assert.equal(parsed.rows[0].accountNumber, '0012342522')
@@ -313,14 +311,13 @@ test('Uppercase output categories and full bank account numbers remain importabl
   assert.equal(parsed.rows[4].sourceCategory, 'Insentif Fasilitas SPPG')
   assert.equal(parsed.rows[5].sourceCategory, 'Insentif Fasilitas SPPG')
   assert.equal(parsed.rows[5].accountNumber, '12343333')
-  assert.equal(parsed.rows[7].accountNumber, '12344444')
-  assert.equal(parsed.rows[8].accountNumber, '000123')
+  assert.equal(parsed.rows[7].accountNumber, '000123')
 })
 
 
 
 
-test('Maker vehicle rent preserves unit count and compact rental period as transaction note', () => {
+test('Maker parser silently ignores retired Sewa Kendaraan lines', () => {
   const parsed = parseMakerDocument([
     'Cipetir, 03-Nov-2026',
     'SEWA KENDARAAN 2 UNIT MOBIL (16-Nov s.d. 21-Nov-2026) : Berkah Mandiri Putra - MANDIRI / 1820015963523 · 2.525',
@@ -329,14 +326,7 @@ test('Maker vehicle rent preserves unit count and compact rental period as trans
   ].join('\n'))
 
   assert.equal(parsed.error, null)
-  assert.equal(parsed.rows.length, 3)
-  assert.deepEqual(parsed.rows.map((row) => row.kind), ['vehicle_rent', 'vehicle_rent', 'vehicle_rent'])
-  assert.equal(parsed.rows[0].details, 'Pencairan Sewa 2 Unit Mobil · Periode 16-Nov s.d. 21-Nov-2026')
-  assert.equal(parsed.rows[1].details, 'Pencairan Sewa 1 Unit Mobil · Periode 09-13 Nov 2026')
-  assert.equal(parsed.rows[2].details, 'Pencairan Sewa 1 Unit Motor · Periode 28-12-2026 s.d. 05-01-2027')
-  assert.equal(parsed.rows[0].operationalType, 'vehicle_rent')
-  assert.equal(parsed.rows[1].operationalType, 'vehicle_rent')
-  assert.equal(parsed.rows[2].operationalType, 'vehicle_rent')
+  assert.deepEqual(parsed.rows, [])
 })
 
 test('Maker business names with owner in parentheses match database mapping without extra verification', () => {
