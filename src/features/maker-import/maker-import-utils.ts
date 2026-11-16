@@ -323,9 +323,6 @@ function makeRow(
     }
   }
 
-  const vehicleMatch = label.match(
-    /^Sewa Kendaraan\s+(?:(\d+)\s+Unit\s+)?(Mobil|Motor)\s*\((.*?)\)$/i
-  )
   const normalizedLabel = normalizeMakerText(label)
   const isSppgRentLabel = ['sewa sppg', 'insentif fasilitas sppg'].includes(normalizedLabel)
   const isCombinedPayroll =
@@ -353,9 +350,7 @@ function makeRow(
                   ? 'pic_school'
                   : normalizedLabel === 'insentif pic posyandu'
                     ? 'pic_posyandu'
-                    : vehicleMatch
-                      ? 'vehicle_rent'
-                      : 'lain_lain'
+                    : 'lain_lain'
 
   const parsed = parseAccountLine(body)
   if (!parsed) {
@@ -386,11 +381,7 @@ function makeRow(
     : 'Gas'
 
   const details =
-    kind === 'vehicle_rent'
-      ? vehicleMatch?.[1]
-        ? 'Pencairan Sewa ' + vehicleMatch[1] + ' Unit ' + vehicleMatch[2].toLocaleLowerCase('id-ID').replace(/^./, (letter) => letter.toLocaleUpperCase('id-ID')) + ' · Periode ' + vehicleMatch[3]
-        : 'Jenis kendaraan: ' + (vehicleMatch?.[2] ?? '—') + ' · Periode sewa: ' + (vehicleMatch?.[3] ?? '')
-      : kind === 'gas'
+    kind === 'gas'
         ? gasDetails
         : kind === 'ops_harian'
           ? parsed.details || 'Ops Harian'
@@ -526,7 +517,9 @@ export function parseMakerDocument(text: string): ParsedMakerDocument {
   const rows = allLines.slice(1).map((rawLine, index) => ({
     line: rawLine.trim(),
     lineNumber: index + 2
-  })).filter((entry) => entry.line.length > 0).map(({ line, lineNumber }) => {
+  })).filter((entry) =>
+    entry.line.length > 0 && !/^SEWA KENDARAAN\b/i.test(entry.line)
+  ).map(({ line, lineNumber }) => {
     const amountDivider = line.lastIndexOf('·')
     if (amountDivider < 0) {
       return makeRow(line, lineNumber, 'Lain-lain', line, '')
