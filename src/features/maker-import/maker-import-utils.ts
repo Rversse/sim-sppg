@@ -294,7 +294,7 @@ function makeRow(
     verified: false
   }
 
-  if (isVirtualAccount) {
+  if (isVirtualAccount && normalizeMakerText(label) !== 'ops harian') {
     return {
       ...unrecognized,
       sourceCategory: 'Virtual Account',
