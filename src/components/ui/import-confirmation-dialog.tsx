@@ -62,7 +62,7 @@ export function ImportConfirmationDialog({
             <X />
           </button>
           <div>
-            <span>LANGKAH TERAKHIR</span>
+            <span>Langkah terakhir</span>
             <h2 id="import-confirmation-title">{title}</h2>
             <p id="import-confirmation-description">{description}</p>
           </div>

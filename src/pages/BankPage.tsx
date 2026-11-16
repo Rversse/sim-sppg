@@ -1138,7 +1138,7 @@ export function BankPage() {
           <>
             <section className="bank-summary-grid">
               <article className="bank-summary-card income">
-                <span>Total Pencairan Masuk</span>
+                <span>Total pencairan masuk</span>
                 <strong>
                   {formatCurrency(totalSummary.disbursementIncome)}
                 </strong>
@@ -1146,19 +1146,19 @@ export function BankPage() {
               </article>
 
               <article className="bank-summary-card transfer-in">
-                <span>Total Transfer Masuk</span>
+                <span>Total transfer masuk</span>
                 <strong>{formatCurrency(totalSummary.transferIncome)}</strong>
                 <small>dari transfer antar rekening</small>
               </article>
 
               <article className="bank-summary-card expense">
-                <span>Total Transfer Keluar</span>
+                <span>Total transfer keluar</span>
                 <strong>{formatCurrency(totalSummary.transferExpense)}</strong>
                 <small>termasuk biaya admin</small>
               </article>
 
               <article className="bank-summary-card balance">
-                <span>Total Saldo Akhir</span>
+                <span>Total saldo akhir</span>
                 <strong>{formatCurrency(totalSummary.balance)}</strong>
                 <small>(saldo awal + masuk) - keluar</small>
               </article>
@@ -1302,7 +1302,7 @@ export function BankPage() {
                             <th scope="col">Pencairan masuk</th>
                             <th scope="col">Transfer masuk</th>
                             <th scope="col">Transfer keluar</th>
-                            <th scope="col">Saldo Akhir</th>
+                            <th scope="col">Saldo akhir</th>
                             <th scope="col">Aksi</th>
                           </tr>
                         </thead>
@@ -1354,8 +1354,8 @@ export function BankPage() {
           >
             <header className="bank-export-modal-header">
               <div>
-                <span>EXPORT</span>
-                <h2 id="bank-export-title">Transaksi Bank</h2>
+                <span>Export</span>
+                <h2 id="bank-export-title">Transaksi bank</h2>
               </div>
 
               <button
@@ -1412,9 +1412,9 @@ export function BankPage() {
               <div className="bank-export-info-grid">
                 <div>
                   <strong>Sheet yang dibuat</strong>
-                  <span>Semua Mutasi</span>
-                  <span>Transaksi Masuk</span>
-                  <span>Transaksi Keluar</span>
+                  <span>Semua mutasi</span>
+                  <span>Transaksi masuk</span>
+                  <span>Transaksi keluar</span>
                 </div>
 
                 <div>
@@ -1449,7 +1449,7 @@ export function BankPage() {
                 onClick={() => void handleExportBankTransactions()}
               >
                 <Download aria-hidden="true" />
-                {exportLoading ? 'Membuat Excel...' : 'Download excel'}
+                {exportLoading ? 'Membuat Excel...' : 'Download Excel'}
               </button>
             </footer>
           </section>
@@ -1515,7 +1515,7 @@ export function BankPage() {
                 </div>
 
                 <label>
-                  <span>Nama Pengirim</span>
+                  <span>Nama pengirim</span>
                   <select
                     value={transferForm.accountId}
                     disabled={
@@ -1523,7 +1523,7 @@ export function BankPage() {
                     }
                     onChange={(event) => handleSenderChange(event.target.value)}
                   >
-                    <option value="">Pilih Pengirim</option>
+                    <option value="">Pilih pengirim</option>
 
                     {senderAccounts.holding.length ? (
                       <optgroup label="Rekening Penampung">
@@ -1558,7 +1558,7 @@ export function BankPage() {
                 </label>
 
                 <label>
-                  <span>Tujuan Transfer</span>
+                  <span>Tujuan transfer</span>
                   <select
                     value={transferForm.destinationMode}
                     disabled={
@@ -1577,14 +1577,14 @@ export function BankPage() {
                         ? 'Pilih Tujuan Transfer'
                         : 'Pilih Pengirim terlebih dahulu'}
                     </option>
-                    <option value="holding">Rekening Penampung</option>
-                    <option value="priority">Rekening Prioritas</option>
-                    <option value="free">Transfer Biasa</option>
+                    <option value="holding">Rekening penampung</option>
+                    <option value="priority">Rekening prioritas</option>
+                    <option value="free">Transfer biasa</option>
                   </select>
                 </label>
 
                 <label>
-                  <span>Saldo Pengirim</span>
+                  <span>Saldo pengirim</span>
                   <input
                     type="text"
                     value={
@@ -1633,7 +1633,7 @@ export function BankPage() {
                 </label>
 
                 <label className="bank-autocomplete">
-                  <span>Nama Penerima</span>
+                  <span>Nama penerima</span>
                   <input
                     type="text"
                     value={transferForm.recipientName}
@@ -1733,7 +1733,7 @@ export function BankPage() {
                 </label>
 
                 <label>
-                  <span>Nominal Transfer</span>
+                  <span>Nominal transfer</span>
                   <input
                     type="text"
                     inputMode="numeric"
@@ -1750,7 +1750,7 @@ export function BankPage() {
                 </label>
 
                 <label className="bank-admin-row-field">
-                  <span>Biaya Admin</span>
+                  <span>Biaya admin</span>
                   <input
                     type="text"
                     inputMode="numeric"
@@ -1821,7 +1821,7 @@ export function BankPage() {
           >
             <header className="bank-history-modal-header">
               <div>
-                <h2 id="bank-history-title">Riwayat Rekening</h2>
+                <h2 id="bank-history-title">Riwayat rekening</h2>
                 <p>
                   {historySummary.account.name}
                   {' • '}
@@ -1899,7 +1899,7 @@ export function BankPage() {
 
             <div className="bank-history-summary">
               <div className="bank-history-current">
-                <span>Saldo Saat Ini</span>
+                <span>Saldo saat ini</span>
                 <BankHistoryAmount
                   text={formatCurrency(historySummary.balance)}
                   className="bank-history-current-balance"

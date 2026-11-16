@@ -536,7 +536,7 @@ export function DisbursementAccountsPage() {
                 <div className="disbursement-mapping-row">
                   <div className="disbursement-mapping-row-head">
                     <div>
-                      <strong>Sewa Kendaraan</strong>
+                      <strong>Sewa kendaraan</strong>
                       <span
                         className={'disbursement-status-dot ' + (vehicleReference.mapping_status === 'active' ? 'is-allowed' : 'is-blocked')}
                         title={vehicleReference.mapping_status === 'active' ? 'Masuk ke database diperbolehkan' : 'Diblokir dari database'}

@@ -289,7 +289,7 @@ function ReportActions({
             onClick={() => printReport('operational')}
             disabled={!reportAvailable || loading}
           >
-            Print Operasional
+            Print operasional
           </button>
         </div>
       ) : (
@@ -428,7 +428,7 @@ function OverallReportView() {
         <>
           <div className="reports-disbursement-block reports-overall-belanja-block">
             <h2 className="reports-subsection-title">
-              Pencairan Belanja Harian
+              Pencairan belanja harian
             </h2>
 
 
@@ -469,12 +469,12 @@ function OverallReportView() {
               <thead>
                 <tr>
                   <th className="reports-col-kitchen">Dapur</th>
-                  <th className="reports-col-rab">RAB / PENCAIRAN</th>
-                  <th className="reports-col-real-rab">RAB / REAL</th>
+                  <th className="reports-col-rab">RAB / pencairan</th>
+                  <th className="reports-col-real-rab">RAB / real</th>
                   <th className="reports-col-total">Total RAB</th>
-                  <th className="reports-col-ops">OPS / PENCAIRAN</th>
+                  <th className="reports-col-ops">OPS / pencairan</th>
                   <th className="reports-col-total">Total OPS</th>
-                  <th className="reports-col-gas">OPS / ARUTALA</th>
+                  <th className="reports-col-gas">OPS / Arutala</th>
                 </tr>
               </thead>
               <tbody>
@@ -534,7 +534,7 @@ function OverallReportView() {
           {report.otherIncome.length > 0 ? (
             <div className="reports-disbursement-block reports-other-income-block">
               <h2 className="reports-subsection-title">
-                Pemasukan Lainnya
+                Pemasukan lainnya
               </h2>
 
               <div className="reports-other-income-summary">
@@ -580,7 +580,7 @@ function OverallReportView() {
 
           <div className="reports-disbursement-block reports-overall-operational-block">
             <h2 className="reports-subsection-title">
-              Pencairan Operasional Harian
+              Pencairan operasional harian
             </h2>
 
             <div className="reports-table-wrapper">
@@ -796,7 +796,7 @@ function PencairanReportView() {
 
       {!loading && !error && report && (
         <div className="reports-disbursement-block">
-          <h2 className="reports-subsection-title">Pencairan Belanja</h2>
+          <h2 className="reports-subsection-title">Pencairan belanja</h2>
 
           {report.rows.length === 0 ? (
             <EmptyState />
@@ -863,7 +863,7 @@ export function ReportsPage() {
           className={tab === 'supplier' ? 'active' : ''}
           onClick={() => setTab('supplier')}
         >
-          Rekap Pengeluaran
+          Rekap pengeluaran
         </button>
       </nav>
 

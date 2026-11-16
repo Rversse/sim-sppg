@@ -145,32 +145,8 @@
   line-height: 1.35;
 }
 
-.bank-summary-card.income {
-  border-color: color-mix(
-    in srgb,
-    var(--theme-success) 32%,
-    var(--theme-border)
-  );
-  background: var(--theme-success-soft);
-}
 
-.bank-summary-card.transfer-in {
-  border-color: color-mix(
-    in srgb,
-    var(--theme-success) 32%,
-    var(--theme-border)
-  );
-  background: var(--theme-success-soft);
-}
 
-.bank-summary-card.expense {
-  border-color: color-mix(
-    in srgb,
-    var(--theme-danger) 32%,
-    var(--theme-border)
-  );
-  background: var(--theme-danger-soft);
-}
 
 .bank-summary-card.balance {
   border-color: var(--theme-border);
@@ -1020,6 +996,12 @@ section.bank-form-modal {
 
 .bank-export-button {
   gap: 8px;
+  white-space: nowrap;
+}
+
+.bank-primary-button,
+.bank-secondary-button {
+  white-space: nowrap;
 }
 
 .bank-export-button svg {

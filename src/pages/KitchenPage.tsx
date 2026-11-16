@@ -503,7 +503,7 @@ export function KitchenPage() {
 
                 <div className="kitchen-field">
                   <label htmlFor="kitchen-operational-recipient">
-                    Penerima Pencairan Operasional
+                    Penerima pencairan operasional
                   </label>
                   <input
                     id="kitchen-operational-recipient"

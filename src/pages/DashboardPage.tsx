@@ -1503,7 +1503,7 @@ export function DashboardPage() {
       <section className="dashboard-filter-card">
         <div className="dashboard-filter-heading">
           <div>
-            <strong>Filter Dashboard</strong>
+            <strong>Filter dashboard</strong>
             <span>
               Gunakan filter untuk mempersempit data yang ditampilkan.
             </span>
@@ -1649,7 +1649,7 @@ export function DashboardPage() {
         <article className="dashboard-panel dashboard-status-panel dashboard-main-panel">
           <div className="dashboard-panel-header">
             <div>
-              <h2>Status Pencairan</h2>
+              <h2>Status pencairan</h2>
             </div>
           </div>
 
@@ -1791,13 +1791,13 @@ export function DashboardPage() {
         <section className="dashboard-panel dashboard-history-panel dashboard-main-panel">
           <div className="dashboard-panel-header">
             <div>
-              <h2>Riwayat Transaksi</h2>
+              <h2>Riwayat transaksi</h2>
               <p>
                 Menampilkan {transactions.length} dari {totalTransactions}{' '}
                 transaksi sesuai filter.
               </p>
             </div>
-            <span className="dashboard-panel-badge">Live dari Database</span>
+            <span className="dashboard-panel-badge">Live dari database</span>
           </div>
 
           <div className="dashboard-history">
@@ -2110,7 +2110,7 @@ export function DashboardPage() {
                     </option>
                   ))}
                   <option value={TRANSFER_LAINNYA_KITCHEN_VALUE}>
-                    Transfer Lainnya
+                    Transfer lainnya
                   </option>
                 </select>
               </label>
@@ -2159,7 +2159,7 @@ export function DashboardPage() {
 
               {formFlowType === 'operational_disbursement' ? (
                 <label>
-                  <span>Jenis Operasional</span>
+                  <span>Jenis operasional</span>
                   <select
                     value={formOperationalType}
                     disabled={modalMode === 'edit'}
@@ -2213,7 +2213,7 @@ export function DashboardPage() {
                 </label>
               ) : formFlowType === 'ops_disbursement' ? (
                 <label>
-                  <span>Tujuan Operasional</span>
+                  <span>Tujuan operasional</span>
                   <input
                     type="text"
                     value={
@@ -2278,7 +2278,7 @@ export function DashboardPage() {
                       aria-live="polite"
                     >
                       <span>{getFormAccountLabel(formAccounts[0])}</span>
-                      <small>OTOMATIS</small>
+                      <small>Otomatis</small>
                     </div>
                   ) : formFlowType === 'income' && formAccounts.length === 0 ? (
                     <div

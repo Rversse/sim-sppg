@@ -854,7 +854,7 @@ export function SupplierPage() {
 
                     <div className="supplier-field">
                       <label htmlFor="supplier-account-number">
-                        Nomor Rekening
+                        Nomor rekening
                       </label>
                       <input
                         id="supplier-account-number"
@@ -870,7 +870,7 @@ export function SupplierPage() {
 
                     <div className="supplier-field">
                       <label htmlFor="supplier-opening-balance">
-                        Saldo Awal
+                        Saldo awal
                       </label>
                       <input
                         id="supplier-opening-balance"

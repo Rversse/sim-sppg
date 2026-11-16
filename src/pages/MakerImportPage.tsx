@@ -1091,7 +1091,7 @@ export function MakerImportPage() {
       <div className="maker-import-hero">
         <div className="maker-import-hero-icon"><ClipboardPaste aria-hidden="true" /></div>
         <div>
-          <span className="maker-import-eyebrow">ENCODER → DECODER</span>
+          <span className="maker-import-eyebrow">Encoder → decoder</span>
           <h2>Import dari Maker-Pencairan</h2>
         </div>
       </div>
@@ -1110,7 +1110,7 @@ export function MakerImportPage() {
       <section className="maker-import-panel maker-import-source-panel">
         <div className="maker-import-panel-head">
           <div>
-            <span>LANGKAH 1</span>
+            <span>Langkah 1</span>
             <h3>Input data</h3>
           </div>
           <button
@@ -1168,7 +1168,7 @@ export function MakerImportPage() {
           <section className="maker-import-panel">
             <div className="maker-import-panel-head">
               <div>
-                <span>LANGKAH 2</span>
+                <span>Langkah 2</span>
                 <h3>Identitas batch</h3>
               </div>
               <span className="maker-import-chip"><Database aria-hidden="true" /> Draft saja — belum tersimpan</span>
@@ -1201,7 +1201,7 @@ export function MakerImportPage() {
           <section className="maker-import-panel">
             <div className="maker-import-panel-head">
               <div>
-                <span>LANGKAH 3</span>
+                <span>Langkah 3</span>
                 <h3>Verifikasi tiap transaksi</h3>
               </div>
             </div>

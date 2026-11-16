@@ -367,7 +367,7 @@ export function RealImportPage() {
       <section className="maker-import-panel real-import-source-panel">
         <div className="maker-import-panel-head">
           <div>
-            <span>LANGKAH 1</span>
+            <span>Langkah 1</span>
             <h3>Input data</h3>
             <p>Tempel satu laporan gabungan Cibeber dan Cidaun.</p>
           </div>
@@ -404,7 +404,7 @@ export function RealImportPage() {
         <section className="maker-import-panel real-import-preview-panel">
           <div className="maker-import-panel-head">
             <div>
-              <span>LANGKAH 2</span>
+              <span>Langkah 2</span>
               <h3>Periksa setiap transaksi</h3>
               <p>Belanja Harian · {transactionDate} · {rows.length} transaksi hasil parsing</p>
             </div>
