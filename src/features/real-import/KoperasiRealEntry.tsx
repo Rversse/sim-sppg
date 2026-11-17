@@ -273,11 +273,11 @@ export function KoperasiRealEntry() {
                   {special ? (
                     <div className="koperasi-real-kitchen-fields koperasi-real-special">
                       <label>
-                        <span>Nominal Arutala Cianjur (Rp)</span>
+                        <span>Arutala Cianjur (Rp)</span>
                         <input inputMode="numeric" value={amounts[kitchen.id + ':cianjur'] ?? ''} onChange={(event) => updateAmount(kitchen.id + ':cianjur', event.target.value)} placeholder="0" />
                       </label>
                       <label>
-                        <span>Nominal Arutala Cidaun (Rp)</span>
+                        <span>Arutala Cidaun (Rp)</span>
                         <input inputMode="numeric" value={amounts[kitchen.id + ':cidaun'] ?? ''} onChange={(event) => updateAmount(kitchen.id + ':cidaun', event.target.value)} placeholder="0" />
                       </label>
                     </div>
