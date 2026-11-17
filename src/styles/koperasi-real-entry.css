@@ -58,10 +58,16 @@
 }
 .koperasi-real-panel-head {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
   gap: 16px;
   margin-bottom: 15px;
+}
+.koperasi-real-section-label {
+  color: var(--theme-text-muted);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .09em;
 }
 .koperasi-real-panel-head h3 {
   margin: 0;
@@ -84,6 +90,11 @@
   min-width: 0;
   gap: 6px;
 }
+.koperasi-real-date {
+  width: min(100%, 260px);
+  cursor: pointer;
+}
+.koperasi-real-date input { cursor: pointer; }
 .koperasi-real-date > span,
 .koperasi-real-kitchen-fields label > span,
 .koperasi-real-single-amount > span,
@@ -125,7 +136,7 @@
 }
 .koperasi-real-kitchen {
   display: grid;
-  grid-template-columns: minmax(130px, .7fr) minmax(0, 1.6fr);
+  grid-template-columns: minmax(180px, 0.72fr) minmax(0, 1.28fr);
   align-items: center;
   gap: 14px;
   padding: 11px 12px;
@@ -150,11 +161,11 @@
 }
 .koperasi-real-kitchen-fields {
   display: grid;
-  grid-template-columns: minmax(160px, .8fr) minmax(170px, 1fr);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 9px;
 }
 .koperasi-real-kitchen-fields.koperasi-real-special {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 .koperasi-real-kitchen-fields input,
 .koperasi-real-single-amount input,
@@ -162,8 +173,8 @@
   font-variant-numeric: tabular-nums;
 }
 .koperasi-real-single-amount {
-  width: min(100%, 310px);
-  justify-self: end;
+  width: 100%;
+  justify-self: stretch;
 }
 .koperasi-real-savebar {
   display: flex;
@@ -254,9 +265,11 @@
 @media (max-width: 760px) {
   .koperasi-real-panel-head { flex-direction: column; }
   .koperasi-real-date { width: 100%; }
+  .koperasi-real-input-head { align-items: stretch; }
+  .koperasi-real-input-head { flex-direction: column; }
   .koperasi-real-kitchen { grid-template-columns: minmax(0, 1fr); gap: 9px; }
   .koperasi-real-kitchen-fields,
-  .koperasi-real-kitchen-fields.koperasi-real-special { grid-template-columns: minmax(0, 1fr); }
+  .koperasi-real-kitchen-fields.koperasi-real-special { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .koperasi-real-single-amount { width: 100%; justify-self: stretch; }
   .koperasi-real-saved-row { grid-template-columns: minmax(0, 1fr); }
   .koperasi-real-saved-actions { justify-content: space-between; }
@@ -266,8 +279,6 @@
 @media (max-width: 480px) {
   .koperasi-real-page { padding-inline: 4px; }
   .koperasi-real-panel { padding: 13px; }
-  .koperasi-real-hero { align-items: flex-start; padding: 14px; }
-  .koperasi-real-hero-icon { width: 40px; height: 40px; flex-basis: 40px; }
   .koperasi-real-savebar { align-items: stretch; flex-direction: column; }
   .koperasi-real-savebar .maker-import-primary { width: 100%; justify-content: center; }
 }
