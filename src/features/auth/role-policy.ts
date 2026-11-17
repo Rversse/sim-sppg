@@ -34,7 +34,7 @@ const permissions: Record<Permission, readonly UserRole[]> = {
   'reports.view': ['admin'],
   'salary-calculation.view': ['admin'],
   'maker-import.view': ['admin'],
-  'real-import.view': ['admin']
+  'real-import.view': ['admin', 'koperasi']
 }
 
 export function canAccess(

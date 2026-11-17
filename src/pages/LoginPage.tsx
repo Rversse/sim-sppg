@@ -8,12 +8,13 @@ import { useAuth } from '@/features/auth/use-auth'
 import { useToast } from '@/features/ui/toast-context'
 import { loginWithUsername } from '@/features/auth/auth-service'
 
-type LoginUsername = 'admin' | 'operator' | 'guest'
+type LoginUsername = 'admin' | 'operator' | 'koperasi' | 'guest'
 const PIN_LENGTH = 8
 
 const accounts: Array<{ username: LoginUsername; label: string }> = [
   { username: 'admin', label: 'Admin' },
   { username: 'operator', label: 'Operator' },
+  { username: 'koperasi', label: 'Koperasi' },
   { username: 'guest', label: 'Guest' }
 ]
 
@@ -42,7 +43,7 @@ export function LoginPage() {
             <Skeleton className="login-skeleton-mark" />
             <Skeleton className="login-skeleton-title" />
             <Skeleton className="login-skeleton-subtitle" />
-            <div className="login-skeleton-buttons">{Array.from({ length: 3 }, (_, i) => <Skeleton key={i} />)}</div>
+            <div className="login-skeleton-buttons">{Array.from({ length: 4 }, (_, i) => <Skeleton key={i} />)}</div>
             <Skeleton className="login-skeleton-input" />
             <Skeleton className="login-skeleton-submit" />
           </div>
@@ -53,7 +54,7 @@ export function LoginPage() {
 
   if (user) {
     return (
-      <Navigate to={user.role === 'viewer' ? '/bank' : '/dashboard'} replace />
+      <Navigate to={user.role === 'viewer' ? '/bank' : user.role === 'koperasi' ? '/real-import' : '/dashboard'} replace />
     )
   }
 
@@ -69,7 +70,7 @@ export function LoginPage() {
         username,
         username === 'guest' ? undefined : value
       )
-      navigate(username === 'guest' ? '/bank' : '/dashboard', { replace: true })
+      navigate(username === 'guest' ? '/bank' : username === 'koperasi' ? '/real-import' : '/dashboard', { replace: true })
     } catch (error) {
       console.error('Login failed:', error)
       const message =

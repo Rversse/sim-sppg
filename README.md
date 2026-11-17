@@ -35,7 +35,7 @@ Repository ini bersifat **public** untuk transparansi dan pengelolaan kode. Data
 | | Data Supplier | Data supplier dan informasi rekening terkait. |
 | **Transaksi** | Transaksi Bank | Saldo rekening, transfer masuk/keluar, riwayat transaksi, dan ekspor Excel. |
 | | Import Maker | Parsing hasil Maker, pencocokan rekening dan tujuan operasional, validasi, pemeriksaan duplikat, serta review sebelum penyimpanan. |
-| | Import RAB / Real | Impor laporan realisasi belanja harian, normalisasi dapur/tanggal, validasi nilai, dan pemeriksaan duplikat. |
+| | Import RAB / Real | Input langsung Belanja Harian Real untuk role Koperasi; Admin tetap memiliki alur impor laporan, validasi, dan audit batch. |
 | **Laporan** | Laporan operasional | Rekap pencairan belanja, pemasukan lainnya, dan pencairan operasional dengan filter periode serta ekspor. |
 
 ### Aplikasi pendamping
@@ -70,6 +70,7 @@ Akses halaman dan aksi dikendalikan melalui role dan permission di `src/features
 | **Admin** | Seluruh modul: Dashboard, Master Data, Transaksi, Import, dan Laporan; termasuk pengelolaan data sesuai permission. |
 | **Operator** | Dashboard, melihat data dapur/supplier, mengelola data kendaraan, serta melihat, membuat, dan mengekspor transaksi bank. |
 | **Viewer** | Akses baca untuk Transaksi Bank. |
+| **Koperasi** | Hanya modul Belanja Harian Real: input nominal per dapur, pilihan asal Arutala untuk Cisepat/Kertajadi, dan koreksi transaksi milik akun sendiri. |
 
 Route juga dilindungi oleh komponen `ProtectedRoute` dan `RoleRoute`. Pembatasan di UI bukan pengganti kebijakan keamanan database: setiap perubahan backend harus tetap mempertahankan kontrol akses Supabase/RLS yang relevan.
 

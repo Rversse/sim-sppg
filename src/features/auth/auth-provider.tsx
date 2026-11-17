@@ -53,7 +53,7 @@ async function loadCurrentUser(session: Session): Promise<CurrentUser | null> {
     }
 
     const role = profile.role
-    if (role !== 'admin' && role !== 'operator' && role !== 'viewer') {
+    if (role !== 'admin' && role !== 'operator' && role !== 'viewer' && role !== 'koperasi') {
       console.error('Invalid user role returned by profiles:', role)
       void supabase.auth.signOut()
       return null
