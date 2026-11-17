@@ -205,7 +205,6 @@
   display: grid;
   gap: 3px;
 }
-.koperasi-real-savebar > div > span,
 .koperasi-real-saved-head-actions {
   display: flex;
   align-items: center;
@@ -261,7 +260,9 @@
   border: 1px solid var(--theme-border);
   border-radius: 10px;
   background: var(--theme-surface-raised);
-  max-height: 240px;\n  overflow: hidden;\n  transition: opacity 240ms ease, transform 240ms ease, max-height 260ms ease, padding 240ms ease, margin 240ms ease, border-color 240ms ease;
+  max-height: 240px;
+  overflow: hidden;
+  transition: opacity 240ms ease, transform 240ms ease, max-height 260ms ease, padding 240ms ease, margin 240ms ease, border-color 240ms ease;
 }
 .koperasi-real-saved-row.is-removing {
   opacity: 0;
@@ -334,7 +335,9 @@
   gap: 10px;
   padding-top: 10px;
   border-top: 1px solid var(--theme-border);
-  animation: koperasi-confirm-in 190ms cubic-bezier(.2,.75,.25,1) both;\n  transform-origin: top right;\n  transition: opacity 150ms ease, transform 150ms ease, max-height 150ms ease;
+  animation: koperasi-confirm-in 190ms cubic-bezier(.2,.75,.25,1) both;
+  transform-origin: top right;
+  transition: opacity 150ms ease, transform 150ms ease, max-height 150ms ease;
 }
 .koperasi-real-delete-confirm > span { margin-right: auto; color: var(--theme-text-secondary); font-size: 12px; }
 .koperasi-real-delete-confirm button {
@@ -351,7 +354,11 @@
 .koperasi-real-delete-confirm .koperasi-real-delete-accept { border-color: var(--theme-danger); background: var(--theme-danger); color: white; }
 .koperasi-real-delete-confirm button:disabled { opacity: .6; cursor: wait; }
 .koperasi-real-delete-confirm svg { width: 13px; height: 13px; vertical-align: middle; }
-@keyframes koperasi-confirm-in { from { opacity: 0; transform: translateY(-7px) scale(.985); } to { opacity: 1; transform: translateY(0) scale(1); } }\n@keyframes koperasi-edit-in { from { opacity: 0; transform: translateX(6px); } to { opacity: 1; transform: translateX(0); } }\n.koperasi-real-delete-confirm.is-closing { opacity: 0; transform: translateY(-4px) scale(.99); }\n.koperasi-real-icon-button { transition: border-color 150ms ease, color 150ms ease, background 150ms ease, transform 150ms ease; }\n.koperasi-real-icon-button:active:not(:disabled) { transform: scale(.94); }
+@keyframes koperasi-confirm-in { from { opacity: 0; transform: translateY(-7px) scale(.985); } to { opacity: 1; transform: translateY(0) scale(1); } }
+@keyframes koperasi-edit-in { from { opacity: 0; transform: translateX(6px); } to { opacity: 1; transform: translateX(0); } }
+.koperasi-real-delete-confirm.is-closing { opacity: 0; transform: translateY(-4px) scale(.99); }
+.koperasi-real-icon-button { transition: border-color 150ms ease, color 150ms ease, background 150ms ease, transform 150ms ease; }
+.koperasi-real-icon-button:active:not(:disabled) { transform: scale(.94); }
 .koperasi-real-icon-button svg { width: 15px; height: 15px; }
 .koperasi-real-empty,
 .koperasi-real-muted {
@@ -369,7 +376,8 @@
   font-size: 12px;
 }
 @media (max-width: 760px) {
-  .koperasi-real-panel-head { flex-direction: column; }\n  .koperasi-real-saved-head-actions { width: 100%; justify-content: space-between; }
+  .koperasi-real-panel-head { flex-direction: column; }
+  .koperasi-real-saved-head-actions { width: 100%; justify-content: space-between; }
   .koperasi-real-date { width: 100%; }
   .koperasi-real-input-head { align-items: stretch; }
   .koperasi-real-input-head { flex-direction: column; }
@@ -392,4 +400,7 @@
   .koperasi-real-savebar { align-items: stretch; flex-direction: column; }
   .koperasi-real-savebar .maker-import-primary { width: 100%; justify-content: center; }
 }
-\n@media (prefers-reduced-motion: reduce) {\n  .koperasi-real-saved-row, .koperasi-real-delete-confirm, .koperasi-real-edit-fields, .koperasi-real-icon-button, .koperasi-real-copy-button { animation: none !important; transition: none !important; }\n}\n
+
+@media (prefers-reduced-motion: reduce) {
+  .koperasi-real-saved-row, .koperasi-real-delete-confirm, .koperasi-real-edit-fields, .koperasi-real-icon-button, .koperasi-real-copy-button { animation: none !important; transition: none !important; }
+}
