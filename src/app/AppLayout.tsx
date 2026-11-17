@@ -140,6 +140,8 @@ function getRoleLabel(role: string | undefined) {
       return 'Operator'
     case 'viewer':
       return 'Viewer'
+    case 'guest':
+      return 'Guest'
     case 'koperasi':
       return 'Koperasi'
     default:
