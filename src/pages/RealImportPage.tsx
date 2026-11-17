@@ -3,6 +3,8 @@ import { AlertTriangle, CheckCircle2, ClipboardPaste, FileCheck2, LoaderCircle, 
 import { ImportConfirmationDialog } from '@/components/ui/import-confirmation-dialog'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useToast } from '@/features/ui/toast-context'
+import { useAuth } from '@/features/auth/use-auth'
+import { KoperasiRealEntry } from '@/features/real-import/KoperasiRealEntry'
 import {
   formatRealImportAmount,
   parseRealImportDocument,
