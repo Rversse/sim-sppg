@@ -18,6 +18,10 @@ export function DefaultRoute() {
     return <Navigate to="/login" replace />
   }
 
+  if (user.role === 'koperasi') {
+    return <Navigate to="/real-import" replace />
+  }
+
   if (user.role === 'viewer') {
     return <Navigate to="/bank" replace />
   }
