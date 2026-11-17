@@ -140,6 +140,8 @@ function getRoleLabel(role: string | undefined) {
       return 'Operator'
     case 'viewer':
       return 'Viewer'
+    case 'koperasi':
+      return 'Koperasi'
     default:
       return 'User'
   }
@@ -172,7 +174,10 @@ export function AppLayout() {
       // Keep the selected theme for the current session if storage is unavailable.
     }
   }, [theme])
-  const visibleSections = navigationSections
+  const realImportItem = navigationSections.flatMap((section) => section.items).find((item) => item.to === '/real-import')
+  const visibleSections = user?.role === 'koperasi' && realImportItem
+    ? [{ label: '', items: [{ ...realImportItem, label: 'Belanja Harian Real', pageTitle: 'Belanja Harian Real' }] }]
+    : navigationSections
     .map((section) => ({
       ...section,
       items: section.items.filter((item) =>
@@ -194,7 +199,7 @@ export function AppLayout() {
     <div className="app-shell">
       <aside className="app-sidebar">
         <div className="app-brand">
-          <NavLink to="/dashboard" className="app-brand-home" aria-label="Dashboard">
+          <NavLink to={user?.role === 'koperasi' ? '/real-import' : '/dashboard'} className="app-brand-home" aria-label={user?.role === 'koperasi' ? 'Belanja Harian Real' : 'Dashboard'}>
             <span className="app-brand-mark" aria-hidden="true">
               <img src={appBrandIcon} alt="" />
             </span>
@@ -296,7 +301,7 @@ export function AppLayout() {
         <header className="app-header">
           <div className="app-header-left">
             <div className="app-page-heading">
-              <h1 className="app-page-title">{getPageTitle(pathname)}</h1>
+              <h1 className="app-page-title">{user?.role === 'koperasi' ? 'Belanja Harian Real' : getPageTitle(pathname)}</h1>
             </div>
           </div>
           <div className="app-user">
@@ -318,7 +323,7 @@ export function AppLayout() {
                 </span>
               </span>
             </button>
-            <VehicleExpiryNotification />
+            {user?.role !== 'koperasi' ? <VehicleExpiryNotification /> : null}
             <span className="app-user-role">{getRoleLabel(user?.role)}</span>
             <button
               type="button"
