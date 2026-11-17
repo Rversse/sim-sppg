@@ -1,6 +1,6 @@
 .koperasi-real-page {
   display: grid;
-  width: min(100%, 880px);
+  width: min(100%, 720px);
   gap: 16px;
   margin: 0 auto;
   padding: 4px 12px 32px;
