@@ -44,6 +44,7 @@ export type MakerImportDraftRow = {
   operationalRuleId: string
   manualDecision: 'pending' | 'allow' | 'block'
   verified: boolean
+  isB3?: boolean
 }
 
 export type ParsedMakerDocument = {
@@ -291,7 +292,8 @@ function makeRow(
     accountId: '',
     operationalRuleId: '',
     manualDecision: 'pending' as const,
-    verified: false
+    verified: false,
+    isB3: normalizeMakerText(label) === 'rab b3'
   }
 
   if (isVirtualAccount && normalizeMakerText(label) !== 'ops harian') {
@@ -336,7 +338,7 @@ function makeRow(
       ? 'combined_payroll'
       : isCombinedPicIncentive
         ? 'combined_pic_incentive'
-        : normalizedLabel === 'rab'
+        : normalizedLabel === 'rab' || normalizedLabel === 'rab b3'
         ? 'rab'
         : normalizedLabel === 'gas'
           ? 'gas'
@@ -398,7 +400,8 @@ function makeRow(
     accountNumber: parsed.accountNumber,
     details,
     manualFlow: defaultManualFlow(kind),
-    operationalType: defaultOperationalType(kind)
+    operationalType: defaultOperationalType(kind),
+    isB3: normalizedLabel === 'rab b3'
   }
 }
 
