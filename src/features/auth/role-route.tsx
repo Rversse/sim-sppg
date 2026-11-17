@@ -27,6 +27,10 @@ export function RoleRoute({ permission }: RoleRouteProps) {
     return <Outlet />
   }
 
+  if (user.role === 'koperasi' && permission !== 'real-import.view') {
+    return <Navigate to="/real-import" replace />
+  }
+
   // Viewer/guest only has access to Transaksi Bank.
   // If they arrive at a protected route directly (for example /dashboard),
   // send them to Bank instead of showing a dead-end Unauthorized page.
