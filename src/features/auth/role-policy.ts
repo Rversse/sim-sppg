@@ -28,7 +28,7 @@ const permissions: Record<Permission, readonly UserRole[]> = {
   'vehicle.manage': ['admin', 'operator'],
   'supplier.view': ['admin', 'operator'],
   'supplier.manage': ['admin'],
-  'bank.view': ['admin', 'operator', 'viewer'],
+  'bank.view': ['admin', 'operator', 'viewer', 'guest'],
   'bank.transaction.create': ['admin', 'operator'],
   'bank.export': ['admin', 'operator'],
   'reports.view': ['admin'],
