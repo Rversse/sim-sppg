@@ -27,7 +27,7 @@ test('Koperasi Arutala OPS HARIAN output retains its fixed destination and note'
 
 test('Maker RAB B3 output stays an income/RAB row and retains its B3 marker', () => {
   const parsed = parseMakerDocument([
-    'Warungbitung, 17-Nov-2026 (37)',
+    'Warungbitung, 17-Nov-2026',
     'RAB B3 : Toko Arumikata Serba (Anita Agustina) - BNI / 2074968197 · Buah · 3.807.000'
   ].join('\\n'))
 
