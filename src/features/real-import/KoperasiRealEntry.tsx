@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Check, LoaderCircle, Pencil, Save, Trash2, X } from 'lucide-react'
+import { Check, CheckCheck, Copy, LoaderCircle, Pencil, Save, Trash2, X } from 'lucide-react'
 
 import { useAuth } from '@/features/auth/use-auth'
 import { useToast } from '@/features/ui/toast-context'
@@ -60,6 +60,10 @@ export function KoperasiRealEntry() {
   const [saved, setSaved] = useState<SavedTransaction[]>([])
   const [editing, setEditing] = useState<Record<string, { amount: string }>>({})
   const [deleting, setDeleting] = useState<string | null>(null)
+  const [savingEdit, setSavingEdit] = useState<string | null>(null)
+  const [copying, setCopying] = useState(false)
+  const [copied, setCopied] = useState(false)
+  const [confirmDeleteClosing, setConfirmDeleteClosing] = useState(false)
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null)
   const [removing, setRemoving] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
@@ -224,6 +228,67 @@ export function KoperasiRealEntry() {
     }
   }
 
+  function closeDeleteConfirm() {
+    if (!confirmDelete) return
+    setConfirmDeleteClosing(true)
+    window.setTimeout(() => {
+      setConfirmDelete(null)
+      setConfirmDeleteClosing(false)
+    }, 150)
+  }
+
+  function formatCopyDate(value: string) {
+    const dateValue = new Date(value + 'T00:00:00')
+    const weekday = new Intl.DateTimeFormat('id-ID', { weekday: 'long' }).format(dateValue)
+    const day = String(dateValue.getDate()).padStart(2, '0')
+    const month = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'][dateValue.getMonth()]
+    return weekday.charAt(0).toUpperCase() + weekday.slice(1) + ', ' + day + '-' + month + '-' + dateValue.getFullYear()
+  }
+
+  async function copyDailyReport() {
+    if (saved.length === 0 || copying) return
+    setCopying(true)
+    try {
+      const rows = [...saved].sort((a, b) => {
+        const kitchenOrder = (a.kitchens?.name ?? '').localeCompare(b.kitchens?.name ?? '', 'id', { sensitivity: 'base' })
+        if (kitchenOrder !== 0) return kitchenOrder
+        const sourceOrder = (a.note ?? '').localeCompare(b.note ?? '', 'id', { sensitivity: 'base' })
+        return sourceOrder
+      })
+      const lines = rows.map((row) => {
+        const kitchenName = row.kitchens?.name ?? 'Dapur'
+        const source = row.note?.replace(/^Koperasi Cianjur$/, 'Arutala Cianjur')
+          .replace(/^Koperasi Cidaun$/, 'Arutala Cidaun')
+          .replace(/^Koperasi Arutala$/, 'Arutala Cianjur') ?? 'Arutala Cianjur'
+        const special = SPECIAL_KITCHENS.has(kitchenKey(kitchenName))
+        const label = special ? kitchenName + ' - ' + source : kitchenName
+        return label + ' - Rp ' + formatAmount(Number(row.amount))
+      })
+      const text = 'Belanja Harian - ' + formatCopyDate(date) + '\n\n' + lines.join('\n')
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(text)
+      } else {
+        const textarea = document.createElement('textarea')
+        textarea.value = text
+        textarea.setAttribute('readonly', '')
+        textarea.style.position = 'fixed'
+        textarea.style.opacity = '0'
+        document.body.appendChild(textarea)
+        textarea.select()
+        const copiedText = document.execCommand('copy')
+        textarea.remove()
+        if (!copiedText) throw new Error('Browser tidak mengizinkan penyalinan otomatis.')
+      }
+      setCopied(true)
+      success('Data berhasil disalin', rows.length + ' transaksi tersalin dengan urutan A–Z.')
+      window.setTimeout(() => setCopied(false), 1800)
+    } catch (copyFailure) {
+      toastError('Gagal menyalin data', copyFailure instanceof Error ? copyFailure.message : 'Browser tidak mengizinkan akses clipboard.')
+    } finally {
+      setCopying(false)
+    }
+  }
+
   async function saveEdit(row: SavedTransaction) {
     const draft = editing[row.id]
     if (!draft || !user?.id) return
@@ -232,16 +297,20 @@ export function KoperasiRealEntry() {
       toastError('Nominal tidak valid', 'Nominal harus lebih besar dari nol.')
       return
     }
+    setSavingEdit(row.id)
     try {
       const { error } = await supabase.rpc('update_koperasi_real_transaction', {
         p_transaction_id: row.id,
         p_amount: amount,
       })
       if (error) throw error
+      setSaved((current) => current.map((item) => item.id === row.id ? { ...item, amount } : item))
+      setEditing((current) => { const next = { ...current }; delete next[row.id]; return next })
       success('Nominal diperbarui', 'Koreksi nominal berhasil disimpan.')
-      await loadSavedTransactions()
     } catch (saveFailure) {
       toastError('Gagal memperbarui transaksi', saveFailure instanceof Error ? saveFailure.message : 'Terjadi kesalahan.')
+    } finally {
+      setSavingEdit(null)
     }
   }
 
@@ -255,11 +324,13 @@ export function KoperasiRealEntry() {
       setSaved((current) => current.filter((item) => item.id !== row.id))
       setEditing((current) => { const next = { ...current }; delete next[row.id]; return next })
       setConfirmDelete(null)
+      setConfirmDeleteClosing(false)
       success('Transaksi dihapus', 'Transaksi dikeluarkan dari perhitungan.')
       void loadSavedTransactions()
     } catch (deleteFailure) {
       toastError('Gagal menghapus transaksi', deleteFailure instanceof Error ? deleteFailure.message : 'Terjadi kesalahan.')
       setConfirmDelete(null)
+      setConfirmDeleteClosing(false)
     } finally {
       setDeleting(null)
     }
@@ -334,7 +405,13 @@ export function KoperasiRealEntry() {
             <h3>Transaksi yang sudah dicatat</h3>
             <p>Hanya menampilkan transaksi yang dibuat oleh akun Koperasi ini pada tanggal terpilih. Anda dapat mengoreksi nominal atau menghapus transaksi yang salah input.</p>
           </div>
-          <div className="koperasi-real-saved-total"><span>Total tersimpan</span><strong>Rp {formatAmount(totalSaved)}</strong></div>
+          <div className="koperasi-real-saved-head-actions">
+            <div className="koperasi-real-saved-total"><span>Total tersimpan</span><strong>Rp {formatAmount(totalSaved)}</strong></div>
+            <button type="button" className="koperasi-real-copy-button" onClick={() => void copyDailyReport()} disabled={saved.length === 0 || loadingSaved || copying} title="Salin laporan belanja harian">
+              {copying ? <LoaderCircle className="is-spinning" aria-hidden="true" /> : copied ? <CheckCheck aria-hidden="true" /> : <Copy aria-hidden="true" />}
+              {copied ? 'Tersalin' : copying ? 'Menyalin…' : 'Copy data'}
+            </button>
+          </div>
         </div>
         {loadingSaved ? <p className="koperasi-real-muted">Memuat transaksi…</p> : saved.length === 0 ? (
           <p className="koperasi-real-empty">Belum ada transaksi Koperasi yang dicatat pada tanggal ini.</p>
@@ -351,8 +428,8 @@ export function KoperasiRealEntry() {
                   {draft ? (
                     <div className="koperasi-real-edit-fields">
                       <label><span>Nominal (Rp)</span><input inputMode="numeric" value={formatAmountInput(draft.amount)} onChange={(event) => setEditing((current) => ({ ...current, [row.id]: { amount: event.target.value.replace(/[^0-9]/g, '') } }))} /></label>
-                      <button type="button" className="koperasi-real-icon-button is-primary-action" onClick={() => void saveEdit(row)} aria-label="Simpan nominal" title="Simpan nominal"><Check aria-hidden="true" /></button>
-                      <button type="button" className="koperasi-real-icon-button" onClick={() => setEditing((current) => { const next = { ...current }; delete next[row.id]; return next })} aria-label="Batal edit" title="Batal edit"><X aria-hidden="true" /></button>
+                      <button type="button" className="koperasi-real-icon-button is-primary-action" onClick={() => void saveEdit(row)} disabled={savingEdit === row.id || Boolean(savingEdit)} aria-label="Simpan nominal" title="Simpan nominal">{savingEdit === row.id ? <LoaderCircle className="is-spinning" aria-hidden="true" /> : <Check aria-hidden="true" />}</button>
+                      <button type="button" className="koperasi-real-icon-button" onClick={() => setEditing((current) => { const next = { ...current }; delete next[row.id]; return next })} disabled={savingEdit === row.id} aria-label="Batal edit" title="Batal edit"><X aria-hidden="true" /></button>
                     </div>
                   ) : (
                     <>
@@ -362,9 +439,9 @@ export function KoperasiRealEntry() {
                         <button type="button" className="koperasi-real-icon-button is-danger-action" onClick={() => { setEditing((current) => { const next = { ...current }; delete next[row.id]; return next }); setConfirmDelete(row.id) }} disabled={Boolean(deleting) || confirmDelete === row.id} aria-label="Hapus transaksi" title="Hapus transaksi"><Trash2 aria-hidden="true" /></button>
                       </div>
                       {confirmDelete === row.id ? (
-                        <div className="koperasi-real-delete-confirm" role="group" aria-label="Konfirmasi hapus transaksi">
+                        <div className={'koperasi-real-delete-confirm' + (confirmDeleteClosing ? ' is-closing' : '')} role="group" aria-label="Konfirmasi hapus transaksi">
                           <span>Hapus transaksi ini?</span>
-                          <button type="button" className="koperasi-real-delete-cancel" onClick={() => setConfirmDelete(null)} disabled={Boolean(deleting)}>Batal</button>
+                          <button type="button" className="koperasi-real-delete-cancel" onClick={closeDeleteConfirm} disabled={Boolean(deleting)}>Batal</button>
                           <button type="button" className="koperasi-real-delete-accept" onClick={() => void deleteSavedTransaction(row)} disabled={Boolean(deleting)}>
                             {deleting === row.id ? <><LoaderCircle className="is-spinning" aria-hidden="true" /> Menghapus…</> : 'Ya, hapus'}
                           </button>
