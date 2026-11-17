@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Check, LoaderCircle, Pencil, Save, Wallet } from 'lucide-react'
+import { Check, LoaderCircle, Pencil, Save } from 'lucide-react'
 
 import { useAuth } from '@/features/auth/use-auth'
 import { useToast } from '@/features/ui/toast-context'
@@ -7,7 +7,6 @@ import { supabase } from '@/lib/supabase'
 import '@/styles/koperasi-real-entry.css'
 
 type Kitchen = { id: string; name: string }
-type Origin = '' | 'cianjur' | 'cidaun' | 'both'
 type SavedTransaction = {
   id: string
   transaction_date: string
@@ -54,7 +53,6 @@ export function KoperasiRealEntry() {
   const [kitchens, setKitchens] = useState<Kitchen[]>([])
   const [supplierId, setSupplierId] = useState('')
   const [amounts, setAmounts] = useState<Record<string, string>>({})
-  const [origins, setOrigins] = useState<Record<string, Origin>>({})
   const [saved, setSaved] = useState<SavedTransaction[]>([])
   const [editing, setEditing] = useState<Record<string, { amount: string; note: string }>>({})
   const [loading, setLoading] = useState(true)
@@ -81,13 +79,6 @@ export function KoperasiRealEntry() {
         if (cancelled) return
         setKitchens((kitchenResult.data ?? []) as Kitchen[])
         setSupplierId(supplier.id)
-        setOrigins(
-          Object.fromEntries(
-            (kitchenResult.data ?? [])
-              .filter((kitchen) => SPECIAL_KITCHENS.has(kitchenKey(kitchen.name)))
-              .map((kitchen) => [kitchen.id, ''] as const)
-          )
-        )
       } catch (loadFailure) {
         if (!cancelled) setLoadError(loadFailure instanceof Error ? loadFailure.message : 'Gagal memuat referensi dapur.')
       } finally {
@@ -132,6 +123,16 @@ export function KoperasiRealEntry() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [date, supplierId, user?.id])
 
+  const orderedKitchens = useMemo(
+    () => [...kitchens].sort((a, b) => {
+      const aSpecial = SPECIAL_KITCHENS.has(kitchenKey(a.name))
+      const bSpecial = SPECIAL_KITCHENS.has(kitchenKey(b.name))
+      if (aSpecial !== bSpecial) return aSpecial ? 1 : -1
+      return a.name.localeCompare(b.name, 'id', { sensitivity: 'base' })
+    }),
+    [kitchens]
+  )
+
   const totalInput = useMemo(
     () => Object.values(amounts).reduce((total, value) => total + parseAmount(value), 0),
     [amounts]
@@ -158,33 +159,17 @@ export function KoperasiRealEntry() {
       note: string
     }> = []
 
-    for (const kitchen of kitchens) {
+    for (const kitchen of orderedKitchens) {
       const special = SPECIAL_KITCHENS.has(kitchenKey(kitchen.name))
-      const origin = origins[kitchen.id] ?? ''
-      if (special && !origin && (parseAmount(amounts[kitchen.id + ':cianjur'] ?? '') > 0 || parseAmount(amounts[kitchen.id + ':cidaun'] ?? '') > 0)) {
-        toastError('Asal koperasi belum dipilih', 'Pilih asal Arutala untuk ' + kitchen.name + '.')
-        return
-      }
       const entries: Array<{ source: 'umum' | 'cianjur' | 'cidaun'; amount: number; note: string }> = []
       if (!special) {
         const amount = parseAmount(amounts[kitchen.id] ?? '')
         if (amount > 0) entries.push({ source: 'umum', amount, note: 'Belanja Harian Koperasi Arutala' })
       } else {
-        if (origin === 'both' && (
-          parseAmount(amounts[kitchen.id + ':cianjur'] ?? '') <= 0 ||
-          parseAmount(amounts[kitchen.id + ':cidaun'] ?? '') <= 0
-        )) {
-          toastError('Nominal belum lengkap', 'Isi kedua nominal Arutala untuk ' + kitchen.name + ' karena asal yang dipilih Keduanya.')
-          return
-        }
-        if (origin === 'cianjur' || origin === 'both') {
-          const amount = parseAmount(amounts[kitchen.id + ':cianjur'] ?? '')
-          if (amount > 0) entries.push({ source: 'cianjur', amount, note: 'Koperasi Cianjur' })
-        }
-        if (origin === 'cidaun' || origin === 'both') {
-          const amount = parseAmount(amounts[kitchen.id + ':cidaun'] ?? '')
-          if (amount > 0) entries.push({ source: 'cidaun', amount, note: 'Koperasi Cidaun' })
-        }
+        const cianjurAmount = parseAmount(amounts[kitchen.id + ':cianjur'] ?? '')
+        const cidaunAmount = parseAmount(amounts[kitchen.id + ':cidaun'] ?? '')
+        if (cianjurAmount > 0) entries.push({ source: 'cianjur', amount: cianjurAmount, note: 'Koperasi Cianjur' })
+        if (cidaunAmount > 0) entries.push({ source: 'cidaun', amount: cidaunAmount, note: 'Koperasi Cidaun' })
       }
       for (const entry of entries) {
         const line = rows.length + 1
@@ -256,75 +241,45 @@ export function KoperasiRealEntry() {
 
   return (
     <section className="koperasi-real-page">
-      <header className="koperasi-real-hero">
-        <span className="koperasi-real-hero-icon"><Wallet aria-hidden="true" /></span>
-        <div>
-          <p>TRANSAKSI KOPERASI</p>
-          <h2>Belanja Harian Real</h2>
-          <span>Input realisasi belanja per dapur. Data langsung masuk ke transaksi Real SIM-SPPG.</span>
-        </div>
-      </header>
-
       <section className="koperasi-real-panel">
-        <div className="koperasi-real-panel-head">
-          <div>
-            <span>INPUT HARIAN</span>
-            <h3>Nominal belanja per dapur</h3>
-            <p>Pilih tanggal, lalu isi nominal pada dapur yang memiliki transaksi.</p>
-          </div>
+        <div className="koperasi-real-panel-head koperasi-real-input-head">
+          <span className="koperasi-real-section-label">INPUT HARIAN</span>
           <label className="koperasi-real-date">
             <span>Tanggal transaksi</span>
-            <input type="date" value={date} onChange={(event) => {
-              setDate(event.target.value)
-              setAmounts({})
-            }} />
+            <input
+              type="date"
+              value={date}
+              onClick={(event) => {
+                try { event.currentTarget.showPicker() } catch { /* Native picker may already be open. */ }
+              }}
+              onChange={(event) => {
+                setDate(event.target.value)
+                setAmounts({})
+              }}
+            />
           </label>
         </div>
 
         {loadError ? <p className="koperasi-real-error" role="alert">{loadError}</p> : null}
         {loading ? <p className="koperasi-real-muted">Memuat daftar dapur…</p> : (
           <div className="koperasi-real-kitchen-list">
-            {kitchens.map((kitchen) => {
+            {orderedKitchens.map((kitchen) => {
               const special = SPECIAL_KITCHENS.has(kitchenKey(kitchen.name))
-              const origin = origins[kitchen.id] ?? ''
               return (
                 <article className="koperasi-real-kitchen" key={kitchen.id}>
                   <div className="koperasi-real-kitchen-name">
                     <strong>{kitchen.name}</strong>
-                    {special ? <span>Asal koperasi dipilih per transaksi</span> : <span>Belanja harian</span>}
                   </div>
                   {special ? (
                     <div className="koperasi-real-kitchen-fields koperasi-real-special">
                       <label>
-                        <span>Asal koperasi</span>
-                        <select value={origin} onChange={(event) => {
-                          const nextOrigin = event.target.value as Origin
-                          setOrigins((current) => ({ ...current, [kitchen.id]: nextOrigin }))
-                          setAmounts((current) => {
-                            const next = { ...current }
-                            if (nextOrigin !== 'both' && nextOrigin !== 'cianjur') delete next[kitchen.id + ':cianjur']
-                            if (nextOrigin !== 'both' && nextOrigin !== 'cidaun') delete next[kitchen.id + ':cidaun']
-                            return next
-                          })
-                        }}>
-                          <option value="">Pilih asal</option>
-                          <option value="cianjur">Arutala Cianjur</option>
-                          <option value="cidaun">Arutala Cidaun</option>
-                          <option value="both">Keduanya</option>
-                        </select>
+                        <span>Nominal Arutala Cianjur (Rp)</span>
+                        <input inputMode="numeric" value={amounts[kitchen.id + ':cianjur'] ?? ''} onChange={(event) => updateAmount(kitchen.id + ':cianjur', event.target.value)} placeholder="0" />
                       </label>
-                      {(origin === 'cianjur' || origin === 'both') ? (
-                        <label>
-                          <span>Nominal Arutala Cianjur (Rp)</span>
-                          <input inputMode="numeric" value={amounts[kitchen.id + ':cianjur'] ?? ''} onChange={(event) => updateAmount(kitchen.id + ':cianjur', event.target.value)} placeholder="0" />
-                        </label>
-                      ) : null}
-                      {(origin === 'cidaun' || origin === 'both') ? (
-                        <label>
-                          <span>Nominal Arutala Cidaun (Rp)</span>
-                          <input inputMode="numeric" value={amounts[kitchen.id + ':cidaun'] ?? ''} onChange={(event) => updateAmount(kitchen.id + ':cidaun', event.target.value)} placeholder="0" />
-                        </label>
-                      ) : null}
+                      <label>
+                        <span>Nominal Arutala Cidaun (Rp)</span>
+                        <input inputMode="numeric" value={amounts[kitchen.id + ':cidaun'] ?? ''} onChange={(event) => updateAmount(kitchen.id + ':cidaun', event.target.value)} placeholder="0" />
+                      </label>
                     </div>
                   ) : (
                     <label className="koperasi-real-single-amount">
