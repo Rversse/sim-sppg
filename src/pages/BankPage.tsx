@@ -16,6 +16,7 @@ import {
   getAccountLabel,
   getBankHistoryPage,
   getBankOverview,
+  getGuestBankOverview,
   getPaymentHistory,
   getRecipientAccounts,
   getRecipientHistory,
@@ -356,11 +357,13 @@ function getPartnerName(transaction: BankTransaction, incoming: boolean) {
 function AccountTableRow({
   summary,
   accountType,
-  onOpenHistory
+  onOpenHistory,
+  isGuest
 }: {
   summary: BankAccountSummary
   accountType: 'holding' | 'priority' | 'others'
   onOpenHistory: () => void
+  isGuest: boolean
 }) {
   const account = summary.account
 
@@ -378,7 +381,7 @@ function AccountTableRow({
             <>
               <span className="bank-account-meta-separator">•</span>
               <span className="bank-account-meta-number">
-                {account.account_number}
+                {isGuest ? `••${account.account_number}` : account.account_number}
               </span>
             </>
           ) : null}
@@ -405,18 +408,20 @@ function AccountTableRow({
         <BankAmountCell value={summary.balance} />
       </td>
 
-      <td className="bank-action-cell">
-        <button
-          type="button"
-          className="bank-history-button"
-          onClick={onOpenHistory}
-          aria-label={`Lihat riwayat ${account.name}`}
-          title={`Lihat riwayat ${account.name}`}
-        >
-          <History aria-hidden="true" />
-          <span>Riwayat</span>
-        </button>
-      </td>
+      {!isGuest ? (
+        <td className="bank-action-cell">
+          <button
+            type="button"
+            className="bank-history-button"
+            onClick={onOpenHistory}
+            aria-label={`Lihat riwayat ${account.name}`}
+            title={`Lihat riwayat ${account.name}`}
+          >
+            <History aria-hidden="true" />
+            <span>Riwayat</span>
+          </button>
+        </td>
+      ) : null}
     </tr>
   )
 }
@@ -469,6 +474,7 @@ export function BankPage() {
     useState(false)
   const [paymentAutocompleteOpen, setPaymentAutocompleteOpen] = useState(false)
 
+  const isGuest = user?.role === 'guest'
   const canSearchAccountHistory = canAccess(user?.role, 'reports.view')
   const canCreateTransaction = canAccess(user?.role, 'bank.transaction.create')
   const canExportBankTransactions = canAccess(user?.role, 'bank.export')
@@ -497,7 +503,9 @@ export function BankPage() {
       }
 
       try {
-        const data = await getBankOverview()
+        const data = isGuest
+          ? await getGuestBankOverview()
+          : await getBankOverview()
 
         if (cancelled) {
           return
@@ -538,6 +546,15 @@ export function BankPage() {
     }
 
     void refreshOverview(true)
+
+    if (isGuest) {
+      return () => {
+        cancelled = true
+        if (refreshTimer !== null) {
+          window.clearTimeout(refreshTimer)
+        }
+      }
+    }
 
     let channelDisposed = false
 
@@ -592,9 +609,11 @@ export function BankPage() {
 
       void supabase.removeChannel(channel)
     }
-  }, [])
+  }, [isGuest])
 
   const totalSummary = useMemo(() => {
+    if (overview?.totals) return overview.totals
+
     const summaries = overview?.summaries ?? []
 
     return summaries.reduce(
@@ -1168,7 +1187,7 @@ export function BankPage() {
               <div className="bank-panel-header">
                 <div className="bank-panel-heading">
                   <h2>Rekening</h2>
-                  <p>Klik Riwayat untuk melihat detail per rekening.</p>
+                  <p>{isGuest ? 'Ringkasan nominal rekening penampung dan prioritas.' : 'Klik Riwayat untuk melihat detail per rekening.'}</p>
                 </div>
 
                 <div className="bank-account-tools">
@@ -1223,8 +1242,15 @@ export function BankPage() {
               {overview?.summaries.length ? (
                 (() => {
                   const query = accountSearch.trim().toLowerCase()
+                  const availableSummaries = isGuest
+                    ? overview.summaries.filter(
+                        (summary) =>
+                          summary.account.is_holding_destination ||
+                          isPriorityAccount(summary.account, PRIORITY_OWNERS)
+                      )
+                    : overview.summaries
                   const filteredSummaries = query
-                    ? overview.summaries.filter((summary) => {
+                    ? availableSummaries.filter((summary) => {
                         const account = summary.account
                         const searchable = [
                           account.name,
@@ -1237,7 +1263,7 @@ export function BankPage() {
 
                         return searchable.includes(query)
                       })
-                    : overview.summaries
+                    : availableSummaries
 
                   const groups = getAccountGroups(filteredSummaries)
                   const renderGroupRows = (
@@ -1252,7 +1278,7 @@ export function BankPage() {
                         <tr
                           className={`bank-account-group-row bank-account-group-row--${accountType}`}
                         >
-                          <th colSpan={7}>
+                          <th colSpan={isGuest ? 6 : 7}>
                             <div className="bank-account-group-title">
                               <span>{title}</span>
                               <small>{items.length} rekening</small>
@@ -1268,6 +1294,7 @@ export function BankPage() {
                             onOpenHistory={() =>
                               openHistory(summary.account.id)
                             }
+                            isGuest={isGuest}
                           />
                         ))}
                       </>
@@ -1292,7 +1319,7 @@ export function BankPage() {
                           <col className="bank-account-col--number" />
                           <col className="bank-account-col--number" />
                           <col className="bank-account-col--number" />
-                          <col className="bank-account-col--action" />
+                          {!isGuest ? <col className="bank-account-col--action" /> : null}
                         </colgroup>
 
                         <thead>
@@ -1303,7 +1330,7 @@ export function BankPage() {
                             <th scope="col">Transfer masuk</th>
                             <th scope="col">Transfer keluar</th>
                             <th scope="col">Saldo akhir</th>
-                            <th scope="col">Aksi</th>
+                            {!isGuest ? <th scope="col">Aksi</th> : null}
                           </tr>
                         </thead>
 
@@ -1318,11 +1345,13 @@ export function BankPage() {
                             groups.priority,
                             'priority'
                           )}
-                          {renderGroupRows(
-                            'Rekening Lainnya',
-                            groups.others,
-                            'others'
-                          )}
+                          {!isGuest
+                            ? renderGroupRows(
+                                'Rekening Lainnya',
+                                groups.others,
+                                'others'
+                              )
+                            : null}
                         </tbody>
                       </table>
                     </div>
@@ -1805,7 +1834,7 @@ export function BankPage() {
         </div>
       ) : null}
 
-      {historySummary && historyAccountId ? (
+      {!isGuest && historySummary && historyAccountId ? (
         <div
           className="bank-modal-backdrop"
           role="presentation"
