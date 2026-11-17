@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Check, LoaderCircle, Pencil, Save } from 'lucide-react'
+import { Check, LoaderCircle, Pencil, Save, Trash2, X } from 'lucide-react'
 
 import { useAuth } from '@/features/auth/use-auth'
 import { useToast } from '@/features/ui/toast-context'
@@ -58,7 +58,8 @@ export function KoperasiRealEntry() {
   const [supplierId, setSupplierId] = useState('')
   const [amounts, setAmounts] = useState<Record<string, string>>({})
   const [saved, setSaved] = useState<SavedTransaction[]>([])
-  const [editing, setEditing] = useState<Record<string, { amount: string; note: string }>>({})
+  const [editing, setEditing] = useState<Record<string, { amount: string }>>({})
+  const [deleting, setDeleting] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [loadingSaved, setLoadingSaved] = useState(false)
@@ -168,12 +169,12 @@ export function KoperasiRealEntry() {
       const entries: Array<{ source: 'umum' | 'cianjur' | 'cidaun'; amount: number; note: string }> = []
       if (!special) {
         const amount = parseAmount(amounts[kitchen.id] ?? '')
-        if (amount > 0) entries.push({ source: 'umum', amount, note: 'Belanja Harian Koperasi Arutala' })
+        if (amount > 0) entries.push({ source: 'umum', amount, note: 'Arutala Cianjur' })
       } else {
         const cianjurAmount = parseAmount(amounts[kitchen.id + ':cianjur'] ?? '')
         const cidaunAmount = parseAmount(amounts[kitchen.id + ':cidaun'] ?? '')
-        if (cianjurAmount > 0) entries.push({ source: 'cianjur', amount: cianjurAmount, note: 'Koperasi Cianjur' })
-        if (cidaunAmount > 0) entries.push({ source: 'cidaun', amount: cidaunAmount, note: 'Koperasi Cidaun' })
+        if (cianjurAmount > 0) entries.push({ source: 'cianjur', amount: cianjurAmount, note: 'Arutala Cianjur' })
+        if (cidaunAmount > 0) entries.push({ source: 'cidaun', amount: cidaunAmount, note: 'Arutala Cidaun' })
       }
       for (const entry of entries) {
         const line = rows.length + 1
@@ -233,13 +234,27 @@ export function KoperasiRealEntry() {
       const { error } = await supabase.rpc('update_koperasi_real_transaction', {
         p_transaction_id: row.id,
         p_amount: amount,
-        p_note: draft.note.trim() || null
       })
       if (error) throw error
-      success('Transaksi diperbarui', 'Koreksi nominal/catatan berhasil disimpan.')
+      success('Nominal diperbarui', 'Koreksi nominal berhasil disimpan.')
       await loadSavedTransactions()
     } catch (saveFailure) {
       toastError('Gagal memperbarui transaksi', saveFailure instanceof Error ? saveFailure.message : 'Terjadi kesalahan.')
+    }
+  }
+
+  async function deleteSavedTransaction(row: SavedTransaction) {
+    if (!window.confirm('Hapus transaksi ' + (row.kitchens?.name ?? 'dapur') + ' sebesar Rp ' + formatAmount(Number(row.amount)) + '?')) return
+    setDeleting(row.id)
+    try {
+      const { error } = await supabase.rpc('delete_koperasi_real_transaction', { p_transaction_id: row.id })
+      if (error) throw error
+      success('Transaksi dihapus', 'Transaksi dikeluarkan dari perhitungan dan tetap tercatat pada audit batch.')
+      await loadSavedTransactions()
+    } catch (deleteFailure) {
+      toastError('Gagal menghapus transaksi', deleteFailure instanceof Error ? deleteFailure.message : 'Terjadi kesalahan.')
+    } finally {
+      setDeleting(null)
     }
   }
 
@@ -324,18 +339,20 @@ export function KoperasiRealEntry() {
                 <article className="koperasi-real-saved-row" key={row.id}>
                   <div className="koperasi-real-saved-kitchen">
                     <strong>{row.kitchens?.name ?? 'Dapur'}</strong>
-                    <span>{row.note ?? 'Belanja Harian Koperasi'}</span>
+                    <span>{row.note?.replace(/^Koperasi Cianjur$/, 'Arutala Cianjur').replace(/^Koperasi Cidaun$/, 'Arutala Cidaun').replace(/^Koperasi Arutala$/, 'Arutala Cianjur') ?? 'Arutala Cianjur'}</span>
                   </div>
                   {draft ? (
                     <div className="koperasi-real-edit-fields">
                       <label><span>Nominal (Rp)</span><input inputMode="numeric" value={formatAmountInput(draft.amount)} onChange={(event) => setEditing((current) => ({ ...current, [row.id]: { ...draft, amount: event.target.value.replace(/[^0-9]/g, '') } }))} /></label>
-                      <label><span>Catatan</span><input value={draft.note} onChange={(event) => setEditing((current) => ({ ...current, [row.id]: { ...draft, note: event.target.value } }))} /></label>
-                      <button type="button" className="koperasi-real-icon-button" onClick={() => void saveEdit(row)} aria-label="Simpan koreksi"><Check aria-hidden="true" /></button>
+                      
+                      <button type="button" className="koperasi-real-icon-button" onClick={() => void saveEdit(row)} aria-label="Simpan nominal"><Check aria-hidden="true" /></button>
+                      <button type="button" className="koperasi-real-icon-button" onClick={() => setEditing((current) => { const next = { ...current }; delete next[row.id]; return next })} aria-label="Batal edit"><X aria-hidden="true" /></button>
                     </div>
                   ) : (
                     <div className="koperasi-real-saved-actions">
                       <strong>Rp {formatAmount(Number(row.amount))}</strong>
-                      <button type="button" className="koperasi-real-icon-button" onClick={() => setEditing((current) => ({ ...current, [row.id]: { amount: String(row.amount), note: row.note ?? '' } }))} aria-label="Edit transaksi"><Pencil aria-hidden="true" /></button>
+                      <button type="button" className="koperasi-real-icon-button" onClick={() => setEditing((current) => ({ ...current, [row.id]: { amount: String(row.amount) } }))} aria-label="Edit nominal"><Pencil aria-hidden="true" /></button>
+                      <button type="button" className="koperasi-real-icon-button" onClick={() => void deleteSavedTransaction(row)} disabled={deleting === row.id} aria-label="Hapus transaksi"><Trash2 aria-hidden="true" /></button>
                     </div>
                   )}
                 </article>
