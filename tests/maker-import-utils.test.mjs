@@ -29,7 +29,7 @@ test('Maker RAB B3 output stays an income/RAB row and retains its B3 marker', ()
   const parsed = parseMakerDocument([
     'Warungbitung, 17-Nov-2026',
     'RAB B3 : Toko Arumikata Serba (Anita Agustina) - BNI / 2074968197 · Buah · 3.807.000'
-  ].join('\\n'))
+  ].join('\n'))
 
   assert.equal(parsed.error, null)
   assert.equal(parsed.kitchenName, 'Warungbitung')
