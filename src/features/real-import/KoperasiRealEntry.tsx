@@ -60,6 +60,8 @@ export function KoperasiRealEntry() {
   const [saved, setSaved] = useState<SavedTransaction[]>([])
   const [editing, setEditing] = useState<Record<string, { amount: string }>>({})
   const [deleting, setDeleting] = useState<string | null>(null)
+  const [confirmDelete, setConfirmDelete] = useState<string | null>(null)
+  const [removing, setRemoving] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [loadingSaved, setLoadingSaved] = useState(false)
@@ -244,15 +246,20 @@ export function KoperasiRealEntry() {
   }
 
   async function deleteSavedTransaction(row: SavedTransaction) {
-    if (!window.confirm('Hapus transaksi ' + (row.kitchens?.name ?? 'dapur') + ' sebesar Rp ' + formatAmount(Number(row.amount)) + '?')) return
     setDeleting(row.id)
     try {
       const { error } = await supabase.rpc('delete_koperasi_real_transaction', { p_transaction_id: row.id })
       if (error) throw error
-      success('Transaksi dihapus', 'Transaksi dikeluarkan dari perhitungan dan tetap tercatat pada audit batch.')
-      await loadSavedTransactions()
+      setRemoving(row.id)
+      await new Promise((resolve) => window.setTimeout(resolve, 220))
+      setSaved((current) => current.filter((item) => item.id !== row.id))
+      setEditing((current) => { const next = { ...current }; delete next[row.id]; return next })
+      setConfirmDelete(null)
+      success('Transaksi dihapus', 'Transaksi dikeluarkan dari perhitungan.')
+      void loadSavedTransactions()
     } catch (deleteFailure) {
       toastError('Gagal menghapus transaksi', deleteFailure instanceof Error ? deleteFailure.message : 'Terjadi kesalahan.')
+      setConfirmDelete(null)
     } finally {
       setDeleting(null)
     }
@@ -325,7 +332,7 @@ export function KoperasiRealEntry() {
           <div>
             <span>RIWAYAT TANGGAL DIPILIH</span>
             <h3>Transaksi yang sudah dicatat</h3>
-            <p>Hanya menampilkan transaksi yang dibuat oleh akun Koperasi ini pada tanggal terpilih. Koreksi nominal atau catatan jika ada salah input.</p>
+            <p>Hanya menampilkan transaksi yang dibuat oleh akun Koperasi ini pada tanggal terpilih. Anda dapat mengoreksi nominal atau menghapus transaksi yang salah input.</p>
           </div>
           <div className="koperasi-real-saved-total"><span>Total tersimpan</span><strong>Rp {formatAmount(totalSaved)}</strong></div>
         </div>
@@ -336,24 +343,34 @@ export function KoperasiRealEntry() {
             {saved.map((row) => {
               const draft = editing[row.id]
               return (
-                <article className="koperasi-real-saved-row" key={row.id}>
+                <article className={'koperasi-real-saved-row' + (removing === row.id ? ' is-removing' : '')} key={row.id}>
                   <div className="koperasi-real-saved-kitchen">
                     <strong>{row.kitchens?.name ?? 'Dapur'}</strong>
                     <span>{row.note?.replace(/^Koperasi Cianjur$/, 'Arutala Cianjur').replace(/^Koperasi Cidaun$/, 'Arutala Cidaun').replace(/^Koperasi Arutala$/, 'Arutala Cianjur') ?? 'Arutala Cianjur'}</span>
                   </div>
                   {draft ? (
                     <div className="koperasi-real-edit-fields">
-                      <label><span>Nominal (Rp)</span><input inputMode="numeric" value={formatAmountInput(draft.amount)} onChange={(event) => setEditing((current) => ({ ...current, [row.id]: { ...draft, amount: event.target.value.replace(/[^0-9]/g, '') } }))} /></label>
-                      
-                      <button type="button" className="koperasi-real-icon-button" onClick={() => void saveEdit(row)} aria-label="Simpan nominal"><Check aria-hidden="true" /></button>
-                      <button type="button" className="koperasi-real-icon-button" onClick={() => setEditing((current) => { const next = { ...current }; delete next[row.id]; return next })} aria-label="Batal edit"><X aria-hidden="true" /></button>
+                      <label><span>Nominal (Rp)</span><input inputMode="numeric" value={formatAmountInput(draft.amount)} onChange={(event) => setEditing((current) => ({ ...current, [row.id]: { amount: event.target.value.replace(/[^0-9]/g, '') } }))} /></label>
+                      <button type="button" className="koperasi-real-icon-button is-primary-action" onClick={() => void saveEdit(row)} aria-label="Simpan nominal" title="Simpan nominal"><Check aria-hidden="true" /></button>
+                      <button type="button" className="koperasi-real-icon-button" onClick={() => setEditing((current) => { const next = { ...current }; delete next[row.id]; return next })} aria-label="Batal edit" title="Batal edit"><X aria-hidden="true" /></button>
                     </div>
                   ) : (
-                    <div className="koperasi-real-saved-actions">
-                      <strong>Rp {formatAmount(Number(row.amount))}</strong>
-                      <button type="button" className="koperasi-real-icon-button" onClick={() => setEditing((current) => ({ ...current, [row.id]: { amount: String(row.amount) } }))} aria-label="Edit nominal"><Pencil aria-hidden="true" /></button>
-                      <button type="button" className="koperasi-real-icon-button" onClick={() => void deleteSavedTransaction(row)} disabled={deleting === row.id} aria-label="Hapus transaksi"><Trash2 aria-hidden="true" /></button>
-                    </div>
+                    <>
+                      <div className="koperasi-real-saved-actions">
+                        <strong>Rp {formatAmount(Number(row.amount))}</strong>
+                        <button type="button" className="koperasi-real-icon-button" onClick={() => { setConfirmDelete(null); setEditing((current) => ({ ...current, [row.id]: { amount: String(row.amount) } })) }} disabled={Boolean(deleting) || confirmDelete === row.id} aria-label="Edit nominal" title="Edit nominal"><Pencil aria-hidden="true" /></button>
+                        <button type="button" className="koperasi-real-icon-button is-danger-action" onClick={() => { setEditing((current) => { const next = { ...current }; delete next[row.id]; return next }); setConfirmDelete(row.id) }} disabled={Boolean(deleting) || confirmDelete === row.id} aria-label="Hapus transaksi" title="Hapus transaksi"><Trash2 aria-hidden="true" /></button>
+                      </div>
+                      {confirmDelete === row.id ? (
+                        <div className="koperasi-real-delete-confirm" role="group" aria-label="Konfirmasi hapus transaksi">
+                          <span>Hapus transaksi ini?</span>
+                          <button type="button" className="koperasi-real-delete-cancel" onClick={() => setConfirmDelete(null)} disabled={Boolean(deleting)}>Batal</button>
+                          <button type="button" className="koperasi-real-delete-accept" onClick={() => void deleteSavedTransaction(row)} disabled={Boolean(deleting)}>
+                            {deleting === row.id ? <><LoaderCircle className="is-spinning" aria-hidden="true" /> Menghapus…</> : 'Ya, hapus'}
+                          </button>
+                        </div>
+                      ) : null}
+                    </>
                   )}
                 </article>
               )
