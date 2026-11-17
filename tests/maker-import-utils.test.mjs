@@ -25,6 +25,27 @@ test('Koperasi Arutala OPS HARIAN output retains its fixed destination and note'
   assert.equal(parsed.rows[0].amount, 25000)
 })
 
+test('Maker RAB B3 output stays an income/RAB row and retains its B3 marker', () => {
+  const parsed = parseMakerDocument([
+    'Warungbitung, 17-Nov-2026',
+    'RAB B3 : Toko Arumikata Serba (Anita Agustina) - BNI / 2074968197 · Buah · 3.807.000'
+  ].join('\n'))
+
+  assert.equal(parsed.error, null)
+  assert.equal(parsed.kitchenName, 'Warungbitung')
+  assert.equal(parsed.transactionDate, '2026-11-17')
+  assert.equal(parsed.rows.length, 1)
+  assert.equal(parsed.rows[0].kind, 'rab')
+  assert.equal(parsed.rows[0].sourceCategory, 'RAB B3')
+  assert.equal(parsed.rows[0].isB3, true)
+  assert.equal(parsed.rows[0].recipientName, 'Toko Arumikata Serba (Anita Agustina)')
+  assert.equal(parsed.rows[0].bank, 'BNI')
+  assert.equal(parsed.rows[0].accountNumber, '2074968197')
+  assert.equal(parsed.rows[0].details, 'Buah')
+  assert.equal(parsed.rows[0].amount, 3807000)
+  assert.equal(parsed.rows[0].manualFlow, 'income')
+})
+
 test('IDR amounts preserve scale and reject malformed separators', () => {
   assert.equal(parseMakerAmount('241'), 241)
   assert.equal(parseMakerAmount('241.000'), 241000)
