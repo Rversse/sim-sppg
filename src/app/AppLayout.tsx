@@ -47,35 +47,35 @@ const navigationSections: NavigationSection[] = [
     ]
   },
   {
-    label: 'Master data',
+    label: 'Master Data',
     items: [
       {
-        label: 'Data dapur',
+        label: 'Data Dapur',
         to: '/master/kitchen',
         permission: 'kitchen.view',
         icon: ChefHat,
-        pageTitle: 'Data dapur'
+        pageTitle: 'Data Dapur'
       },
       {
-        label: 'Data rekening',
+        label: 'Data Rekening',
         to: '/master/disbursement-accounts',
         permission: 'disbursement-accounts.view',
         icon: Landmark,
-        pageTitle: 'Data rekening'
+        pageTitle: 'Data Rekening'
       },
       {
-        label: 'Data kendaraan',
+        label: 'Data Kendaraan',
         to: '/master/vehicle',
         permission: 'vehicle.view',
         icon: Car,
-        pageTitle: 'Data kendaraan'
+        pageTitle: 'Data Kendaraan'
       },
       {
-        label: 'Data supplier',
+        label: 'Data Supplier',
         to: '/master/supplier',
         permission: 'supplier.view',
         icon: Building2,
-        pageTitle: 'Data supplier'
+        pageTitle: 'Data Supplier'
       }
     ]
   },
@@ -83,18 +83,18 @@ const navigationSections: NavigationSection[] = [
     label: 'Transaksi',
     items: [
       {
-        label: 'Transaksi bank',
+        label: 'Transaksi Bank',
         to: '/bank',
         permission: 'bank.view',
         icon: ArrowLeftRight,
-        pageTitle: 'Transaksi bank'
+        pageTitle: 'Transaksi Bank'
       },
       {
-        label: 'Import maker',
+        label: 'Import Maker',
         to: '/maker-import',
         permission: 'maker-import.view',
         icon: ClipboardPaste,
-        pageTitle: 'Import maker'
+        pageTitle: 'Import Maker'
       },
       {
         label: 'Import RAB / Real',
@@ -116,11 +116,11 @@ const navigationSections: NavigationSection[] = [
         pageTitle: 'Laporan'
       },
       {
-        label: 'Perhitungan gaji',
+        label: 'Perhitungan Gaji',
         to: '/salary-calculation',
         permission: 'salary-calculation.view',
         icon: WalletCards,
-        pageTitle: 'Perhitungan gaji'
+        pageTitle: 'Perhitungan Gaji'
       }
     ]
   }
