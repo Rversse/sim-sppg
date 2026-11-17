@@ -485,7 +485,7 @@ export function parseMakerDocument(text: string): ParsedMakerDocument {
     }
   }
 
-  const header = allLines[0].trim().match(/^(.+?),\s*(\d{1,2}-[A-Za-z]{3}-\d{4})$/)
+  const header = allLines[0].trim().match(/^(.+?),\s*(\d{1,2}-[A-Za-z]{3}-\d{4})(?:\s*\(\d+\))?$/)
   if (!header) {
     return {
       kitchenName: '',
