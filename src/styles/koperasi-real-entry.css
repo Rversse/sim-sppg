@@ -136,10 +136,10 @@
 }
 .koperasi-real-kitchen {
   display: grid;
-  grid-template-columns: minmax(180px, 0.72fr) minmax(0, 1.28fr);
+  grid-template-columns: minmax(150px, 0.62fr) minmax(0, 1.38fr);
   align-items: center;
-  gap: 14px;
-  padding: 11px 12px;
+  gap: 12px;
+  padding: 8px 12px;
   border: 1px solid var(--theme-border);
   border-radius: 11px;
   background: var(--theme-surface-raised);
@@ -161,11 +161,26 @@
 }
 .koperasi-real-kitchen-fields {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 9px;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 7px;
 }
 .koperasi-real-kitchen-fields.koperasi-real-special {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: minmax(0, 1fr);
+}
+.koperasi-real-kitchen-fields label,
+.koperasi-real-single-amount {
+  display: grid;
+  grid-template-columns: minmax(145px, .42fr) minmax(0, 1fr);
+  align-items: center;
+  gap: 10px;
+}
+.koperasi-real-kitchen-fields label > span,
+.koperasi-real-single-amount > span {
+  line-height: 1.35;
+}
+.koperasi-real-kitchen-fields input,
+.koperasi-real-single-amount input {
+  height: 36px;
 }
 .koperasi-real-kitchen-fields input,
 .koperasi-real-single-amount input,
@@ -267,10 +282,11 @@
   .koperasi-real-date { width: 100%; }
   .koperasi-real-input-head { align-items: stretch; }
   .koperasi-real-input-head { flex-direction: column; }
-  .koperasi-real-kitchen { grid-template-columns: minmax(0, 1fr); gap: 9px; }
+  .koperasi-real-kitchen { grid-template-columns: minmax(0, 1fr); gap: 7px; }
   .koperasi-real-kitchen-fields,
-  .koperasi-real-kitchen-fields.koperasi-real-special { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .koperasi-real-single-amount { width: 100%; justify-self: stretch; }
+  .koperasi-real-kitchen-fields.koperasi-real-special { grid-template-columns: minmax(0, 1fr); }
+  .koperasi-real-kitchen-fields label,
+  .koperasi-real-single-amount { grid-template-columns: minmax(125px, .42fr) minmax(0, 1fr); width: 100%; justify-self: stretch; }
   .koperasi-real-saved-row { grid-template-columns: minmax(0, 1fr); }
   .koperasi-real-saved-actions { justify-content: space-between; }
   .koperasi-real-edit-fields { grid-template-columns: minmax(0, 1fr); }
