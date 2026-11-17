@@ -173,11 +173,11 @@ export function KoperasiRealEntry() {
       } else {
         if (origin === 'cianjur' || origin === 'both') {
           const amount = parseAmount(amounts[kitchen.id + ':cianjur'] ?? '')
-          if (amount > 0) entries.push({ source: 'cianjur', amount, note: 'Belanja Harian ' + ORIGIN_LABELS.cianjur })
+          if (amount > 0) entries.push({ source: 'cianjur', amount, note: 'Koperasi Cianjur' })
         }
         if (origin === 'cidaun' || origin === 'both') {
           const amount = parseAmount(amounts[kitchen.id + ':cidaun'] ?? '')
-          if (amount > 0) entries.push({ source: 'cidaun', amount, note: 'Belanja Harian ' + ORIGIN_LABELS.cidaun })
+          if (amount > 0) entries.push({ source: 'cidaun', amount, note: 'Koperasi Cidaun' })
         }
       }
       for (const entry of entries) {
