@@ -2,7 +2,7 @@ import type { Session } from '@supabase/supabase-js'
 
 import { supabase } from '@/lib/supabase'
 
-type LoginUsername = 'admin' | 'operator' | 'guest'
+type LoginUsername = 'admin' | 'operator' | 'koperasi' | 'guest'
 
 type LoginResponse = {
   access_token: string
