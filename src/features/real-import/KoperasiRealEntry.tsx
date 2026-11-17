@@ -302,7 +302,7 @@ export function KoperasiRealEntry() {
                             if (nextOrigin !== 'both' && nextOrigin !== 'cidaun') delete next[kitchen.id + ':cidaun']
                             return next
                           })
-                        }>
+                        }}>
                           <option value="">Pilih asal</option>
                           <option value="cianjur">Arutala Cianjur</option>
                           <option value="cidaun">Arutala Cidaun</option>
