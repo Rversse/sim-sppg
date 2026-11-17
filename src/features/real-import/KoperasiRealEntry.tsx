@@ -166,6 +166,13 @@ export function KoperasiRealEntry() {
         const amount = parseAmount(amounts[kitchen.id] ?? '')
         if (amount > 0) entries.push({ source: 'umum', amount, note: 'Belanja Harian Koperasi Arutala' })
       } else {
+        if (origin === 'both' && (
+          parseAmount(amounts[kitchen.id + ':cianjur'] ?? '') <= 0 ||
+          parseAmount(amounts[kitchen.id + ':cidaun'] ?? '') <= 0
+        )) {
+          toastError('Nominal belum lengkap', 'Isi kedua nominal Arutala untuk ' + kitchen.name + ' karena asal yang dipilih Keduanya.')
+          return
+        }
         if (origin === 'cianjur' || origin === 'both') {
           const amount = parseAmount(amounts[kitchen.id + ':cianjur'] ?? '')
           if (amount > 0) entries.push({ source: 'cianjur', amount, note: 'Koperasi Cianjur' })
@@ -283,7 +290,16 @@ export function KoperasiRealEntry() {
                     <div className="koperasi-real-kitchen-fields koperasi-real-special">
                       <label>
                         <span>Asal koperasi</span>
-                        <select value={origin} onChange={(event) => setOrigins((current) => ({ ...current, [kitchen.id]: event.target.value as Origin }))}>
+                        <select value={origin} onChange={(event) => {
+                          const nextOrigin = event.target.value as Origin
+                          setOrigins((current) => ({ ...current, [kitchen.id]: nextOrigin }))
+                          setAmounts((current) => {
+                            const next = { ...current }
+                            if (nextOrigin !== 'both' && nextOrigin !== 'cianjur') delete next[kitchen.id + ':cianjur']
+                            if (nextOrigin !== 'both' && nextOrigin !== 'cidaun') delete next[kitchen.id + ':cidaun']
+                            return next
+                          })
+                        }>
                           <option value="">Pilih asal</option>
                           <option value="cianjur">Arutala Cianjur</option>
                           <option value="cidaun">Arutala Cidaun</option>
