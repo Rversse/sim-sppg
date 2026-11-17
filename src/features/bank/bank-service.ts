@@ -85,9 +85,17 @@ export type BankAccountSummary = {
   balance: number
 }
 
+export type BankOverviewTotals = {
+  balance: number
+  disbursementIncome: number
+  transferIncome: number
+  transferExpense: number
+}
+
 export type BankOverview = {
   accounts: BankAccount[]
   summaries: BankAccountSummary[]
+  totals?: BankOverviewTotals
 }
 
 export type BankIncomeHistoryTransaction = {
@@ -351,6 +359,24 @@ export async function getBankIncomeTransactions(
 
     return (data ?? []) as TransactionIncomeRow[]
   })
+}
+
+export async function getGuestBankOverview(
+  client: SupabaseClient = supabase
+): Promise<BankOverview> {
+  const startDate = BANK_MODULE_START_DATE
+  const { today, incomeEndDate } = getBankReadEndDates()
+  const { data, error } = await client.rpc('get_guest_bank_overview', {
+    p_start_date: startDate,
+    p_today: today,
+    p_income_end_date: incomeEndDate
+  })
+
+  if (error) {
+    throw error
+  }
+
+  return data as unknown as BankOverview
 }
 
 export async function getBankOverview(
