@@ -123,7 +123,11 @@ export function KoperasiRealEntry() {
   }
 
   useEffect(() => {
-    void loadSavedTransactions()
+    // Defer the request so its loading-state update occurs outside the effect body.
+    const timer = window.setTimeout(() => {
+      void loadSavedTransactions()
+    }, 0)
+    return () => window.clearTimeout(timer)
     // loadSavedTransactions is intentionally keyed to the selected day and resolved supplier.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [date, supplierId, user?.id])
