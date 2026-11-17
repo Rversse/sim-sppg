@@ -13,9 +13,9 @@ const PIN_LENGTH = 8
 
 const accounts: Array<{ username: LoginUsername; label: string }> = [
   { username: 'admin', label: 'Admin' },
-  { username: 'operator', label: 'Operator' },
+  { username: 'guest', label: 'Guest' },
   { username: 'koperasi', label: 'Koperasi' },
-  { username: 'guest', label: 'Guest' }
+  { username: 'operator', label: 'Operator' }
 ]
 
 export function LoginPage() {
