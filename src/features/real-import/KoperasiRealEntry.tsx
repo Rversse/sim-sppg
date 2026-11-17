@@ -39,6 +39,10 @@ function formatAmount(value: number) {
   return new Intl.NumberFormat('id-ID').format(value)
 }
 
+function formatAmountInput(value: string) {
+  return value ? formatAmount(parseAmount(value)) : ''
+}
+
 async function hashPayload(value: string) {
   const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(value))
   return Array.from(new Uint8Array(digest))
@@ -274,17 +278,17 @@ export function KoperasiRealEntry() {
                     <div className="koperasi-real-kitchen-fields koperasi-real-special">
                       <label>
                         <span>Arutala Cianjur (Rp)</span>
-                        <input inputMode="numeric" value={amounts[kitchen.id + ':cianjur'] ?? ''} onChange={(event) => updateAmount(kitchen.id + ':cianjur', event.target.value)} placeholder="0" />
+                        <input inputMode="numeric" value={formatAmountInput(amounts[kitchen.id + ':cianjur'] ?? '')} onChange={(event) => updateAmount(kitchen.id + ':cianjur', event.target.value)} placeholder="0" />
                       </label>
                       <label>
                         <span>Arutala Cidaun (Rp)</span>
-                        <input inputMode="numeric" value={amounts[kitchen.id + ':cidaun'] ?? ''} onChange={(event) => updateAmount(kitchen.id + ':cidaun', event.target.value)} placeholder="0" />
+                        <input inputMode="numeric" value={formatAmountInput(amounts[kitchen.id + ':cidaun'] ?? '')} onChange={(event) => updateAmount(kitchen.id + ':cidaun', event.target.value)} placeholder="0" />
                       </label>
                     </div>
                   ) : (
                     <label className="koperasi-real-single-amount">
                       <span>Nominal (Rp)</span>
-                      <input inputMode="numeric" value={amounts[kitchen.id] ?? ''} onChange={(event) => updateAmount(kitchen.id, event.target.value)} placeholder="0" />
+                      <input inputMode="numeric" value={formatAmountInput(amounts[kitchen.id] ?? '')} onChange={(event) => updateAmount(kitchen.id, event.target.value)} placeholder="0" />
                     </label>
                   )}
                 </article>
@@ -324,7 +328,7 @@ export function KoperasiRealEntry() {
                   </div>
                   {draft ? (
                     <div className="koperasi-real-edit-fields">
-                      <label><span>Nominal (Rp)</span><input inputMode="numeric" value={draft.amount} onChange={(event) => setEditing((current) => ({ ...current, [row.id]: { ...draft, amount: event.target.value.replace(/[^0-9]/g, '') } }))} /></label>
+                      <label><span>Nominal (Rp)</span><input inputMode="numeric" value={formatAmountInput(draft.amount)} onChange={(event) => setEditing((current) => ({ ...current, [row.id]: { ...draft, amount: event.target.value.replace(/[^0-9]/g, '') } }))} /></label>
                       <label><span>Catatan</span><input value={draft.note} onChange={(event) => setEditing((current) => ({ ...current, [row.id]: { ...draft, note: event.target.value } }))} /></label>
                       <button type="button" className="koperasi-real-icon-button" onClick={() => void saveEdit(row)} aria-label="Simpan koreksi"><Check aria-hidden="true" /></button>
                     </div>
