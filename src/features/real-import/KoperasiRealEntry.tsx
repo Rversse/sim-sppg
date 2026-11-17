@@ -355,20 +355,22 @@ export function KoperasiRealEntry() {
                       <button type="button" className="koperasi-real-icon-button" onClick={() => setEditing((current) => { const next = { ...current }; delete next[row.id]; return next })} aria-label="Batal edit" title="Batal edit"><X aria-hidden="true" /></button>
                     </div>
                   ) : (
-                    <div className="koperasi-real-saved-actions">
-                      <strong>Rp {formatAmount(Number(row.amount))}</strong>
-                      <button type="button" className="koperasi-real-icon-button" onClick={() => { setConfirmDelete(null); setEditing((current) => ({ ...current, [row.id]: { amount: String(row.amount) } })) }} disabled={Boolean(deleting) || confirmDelete === row.id} aria-label="Edit nominal" title="Edit nominal"><Pencil aria-hidden="true" /></button>
-                      <button type="button" className="koperasi-real-icon-button is-danger-action" onClick={() => { setEditing((current) => { const next = { ...current }; delete next[row.id]; return next }); setConfirmDelete(row.id) }} disabled={Boolean(deleting) || confirmDelete === row.id} aria-label="Hapus transaksi" title="Hapus transaksi"><Trash2 aria-hidden="true" /></button>
-                    </div>
-                    {confirmDelete === row.id ? (
-                      <div className="koperasi-real-delete-confirm" role="group" aria-label="Konfirmasi hapus transaksi">
-                        <span>Hapus transaksi ini?</span>
-                        <button type="button" className="koperasi-real-delete-cancel" onClick={() => setConfirmDelete(null)} disabled={Boolean(deleting)}>Batal</button>
-                        <button type="button" className="koperasi-real-delete-accept" onClick={() => void deleteSavedTransaction(row)} disabled={Boolean(deleting)}>
-                          {deleting === row.id ? <><LoaderCircle className="is-spinning" aria-hidden="true" /> Menghapus…</> : 'Ya, hapus'}
-                        </button>
+                    <>
+                      <div className="koperasi-real-saved-actions">
+                        <strong>Rp {formatAmount(Number(row.amount))}</strong>
+                        <button type="button" className="koperasi-real-icon-button" onClick={() => { setConfirmDelete(null); setEditing((current) => ({ ...current, [row.id]: { amount: String(row.amount) } })) }} disabled={Boolean(deleting) || confirmDelete === row.id} aria-label="Edit nominal" title="Edit nominal"><Pencil aria-hidden="true" /></button>
+                        <button type="button" className="koperasi-real-icon-button is-danger-action" onClick={() => { setEditing((current) => { const next = { ...current }; delete next[row.id]; return next }); setConfirmDelete(row.id) }} disabled={Boolean(deleting) || confirmDelete === row.id} aria-label="Hapus transaksi" title="Hapus transaksi"><Trash2 aria-hidden="true" /></button>
                       </div>
-                    ) : null}
+                      {confirmDelete === row.id ? (
+                        <div className="koperasi-real-delete-confirm" role="group" aria-label="Konfirmasi hapus transaksi">
+                          <span>Hapus transaksi ini?</span>
+                          <button type="button" className="koperasi-real-delete-cancel" onClick={() => setConfirmDelete(null)} disabled={Boolean(deleting)}>Batal</button>
+                          <button type="button" className="koperasi-real-delete-accept" onClick={() => void deleteSavedTransaction(row)} disabled={Boolean(deleting)}>
+                            {deleting === row.id ? <><LoaderCircle className="is-spinning" aria-hidden="true" /> Menghapus…</> : 'Ya, hapus'}
+                          </button>
+                        </div>
+                      ) : null}
+                    </>
                   )}
                 </article>
               )
