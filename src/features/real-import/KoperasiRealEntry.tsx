@@ -342,7 +342,7 @@ export function KoperasiRealEntry() {
       <section className="koperasi-real-panel">
         <div className="koperasi-real-panel-head">
           <div>
-            <span>RIWAYAT HARI INI</span>
+            <span>RIWAYAT TANGGAL DIPILIH</span>
             <h3>Transaksi yang sudah dicatat</h3>
             <p>Hanya menampilkan transaksi yang dibuat oleh akun Koperasi ini pada tanggal terpilih. Koreksi nominal atau catatan jika ada salah input.</p>
           </div>
