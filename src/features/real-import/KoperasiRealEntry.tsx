@@ -270,7 +270,10 @@ export function KoperasiRealEntry() {
           </div>
           <label className="koperasi-real-date">
             <span>Tanggal transaksi</span>
-            <input type="date" value={date} onChange={(event) => setDate(event.target.value)} />
+            <input type="date" value={date} onChange={(event) => {
+              setDate(event.target.value)
+              setAmounts({})
+            }} />
           </label>
         </div>
 
@@ -333,7 +336,7 @@ export function KoperasiRealEntry() {
 
         <div className="koperasi-real-savebar">
           <div><span>Total input</span><strong>Rp {formatAmount(totalInput)}</strong></div>
-          <button type="button" className="maker-import-primary" onClick={() => void handleSave()} disabled={loading || saving || Boolean(loadError) || !supplierId}>
+          <button type="button" className="maker-import-primary" onClick={() => void handleSave()} disabled={loading || saving || Boolean(loadError) || !supplierId || !date}>
             {saving ? <><LoaderCircle className="is-spinning" /> Menyimpan…</> : <><Save aria-hidden="true" /> Simpan transaksi</>}
           </button>
         </div>
