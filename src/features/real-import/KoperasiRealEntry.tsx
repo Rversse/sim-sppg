@@ -4,6 +4,7 @@ import { Check, LoaderCircle, Pencil, Save, Wallet } from 'lucide-react'
 import { useAuth } from '@/features/auth/use-auth'
 import { useToast } from '@/features/ui/toast-context'
 import { supabase } from '@/lib/supabase'
+import '@/styles/koperasi-real-entry.css'
 
 type Kitchen = { id: string; name: string }
 type Origin = '' | 'cianjur' | 'cidaun' | 'both'
@@ -18,12 +19,6 @@ type SavedTransaction = {
 }
 
 const SPECIAL_KITCHENS = new Set(['cisepat', 'kertajadi'])
-const ORIGIN_LABELS = {
-  cianjur: 'Arutala Cianjur',
-  cidaun: 'Arutala Cidaun',
-  umum: 'Koperasi Arutala'
-} as const
-
 function localDateValue() {
   const now = new Date()
   const year = now.getFullYear()
@@ -235,11 +230,11 @@ export function KoperasiRealEntry() {
       return
     }
     try {
-      const { error } = await supabase
-        .from('transactions')
-        .update({ amount, note: draft.note.trim() || null })
-        .eq('id', row.id)
-        .eq('created_by', user.id)
+      const { error } = await supabase.rpc('update_koperasi_real_transaction', {
+        p_transaction_id: row.id,
+        p_amount: amount,
+        p_note: draft.note.trim() || null
+      })
       if (error) throw error
       success('Transaksi diperbarui', 'Koreksi nominal/catatan berhasil disimpan.')
       await loadSavedTransactions()
