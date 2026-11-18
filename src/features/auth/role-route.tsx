@@ -23,20 +23,11 @@ export function RoleRoute({ permission }: RoleRouteProps) {
     return <Navigate to="/login" replace />
   }
 
-  if (canAccess(user.role, permission)) {
-    return <Outlet />
+  if (!canAccess(user.role, permission)) {
+    // Keep the authenticated session intact. The unauthorized page offers
+    // a role-appropriate return path and an explicit logout action.
+    return <Navigate to="/unauthorized" replace />
   }
 
-  if (user.role === 'koperasi' && permission !== 'real-import.view') {
-    return <Navigate to="/real-import" replace />
-  }
-
-  // Viewer/guest only has access to Transaksi Bank.
-  // If they arrive at a protected route directly (for example /dashboard),
-  // send them to Bank instead of showing a dead-end Unauthorized page.
-  if (user.role === 'viewer' && permission !== 'bank.view') {
-    return <Navigate to="/bank" replace />
-  }
-
-  return <Navigate to="/unauthorized" replace />
+  return <Outlet />
 }
