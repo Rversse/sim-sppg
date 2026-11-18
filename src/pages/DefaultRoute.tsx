@@ -22,7 +22,7 @@ export function DefaultRoute() {
     return <Navigate to="/real-import" replace />
   }
 
-  if (user.role === 'viewer') {
+  if (user.role === 'viewer' || user.role === 'guest') {
     return <Navigate to="/bank" replace />
   }
 
