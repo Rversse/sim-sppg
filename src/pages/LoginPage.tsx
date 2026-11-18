@@ -54,7 +54,7 @@ export function LoginPage() {
 
   if (user) {
     return (
-      <Navigate to={user.role === 'viewer' ? '/bank' : user.role === 'koperasi' ? '/real-import' : '/dashboard'} replace />
+      <Navigate to={user.role === 'viewer' || user.role === 'guest' ? '/bank' : user.role === 'koperasi' ? '/real-import' : '/dashboard'} replace />
     )
   }
 
