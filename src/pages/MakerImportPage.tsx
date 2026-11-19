@@ -127,11 +127,13 @@ function isKoperasiArutalaBniAccount(account: AccountRef): boolean {
 }
 
 function isOpsHarianArutalaAccount(account: AccountRef, row: MakerImportDraftRow): boolean {
+  // Resolve using the selected kitchen's actual Neutral account mapping.
+  // Keep bank/account identity checks strict, but allow the optional note to be empty.
   return isKoperasiArutalaBniAccount(account) &&
-    normalizeMakerAccountNumber(account.account_number) === '1985322260' &&
+    normalizeMakerAccountNumber(account.account_number) === normalizeMakerAccountNumber(row.accountNumber) &&
     normalizeMakerText(row.recipientName) === 'koperasi arutala' &&
     normalizeMakerBank(row.bank) === 'BNI' &&
-    normalizeMakerAccountNumber(row.accountNumber) === '1985322260'
+    normalizeMakerAccountNumber(row.accountNumber) === normalizeMakerAccountNumber(account.account_number)
 }
 
 function hasMappedOpsHarianArutalaAccount(
@@ -360,6 +362,7 @@ function getRowDisposition(
 
   if (
     row.kind === 'ops_harian' &&
+    Boolean(row.details.trim()) &&
     normalizeMakerText(row.details) !== 'ops harian' &&
     !hasMappedOpsHarianArutalaAccount(row, kitchenId, refs) &&
     !row.verified
@@ -512,6 +515,7 @@ function getValidation(
 
     if (
       row.kind === 'ops_harian' &&
+      Boolean(row.details.trim()) &&
       normalizeMakerText(row.details) !== 'ops harian' &&
       !hasMappedOpsHarianArutalaAccount(row, kitchenId, refs)
     ) {
