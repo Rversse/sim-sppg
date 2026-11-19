@@ -388,7 +388,13 @@ function makeRow(
     kind === 'gas'
         ? gasDetails
         : kind === 'ops_harian'
-          ? parsed.details
+          ? parsed.details || (
+              normalizeMakerText(parsed.recipientName) === 'koperasi arutala' &&
+              normalizeMakerBank(parsed.bank) === 'BNI' &&
+              normalizeMakerAccountNumber(parsed.accountNumber) === '1985322260'
+                ? ''
+                : 'Ops Harian'
+            )
           : kind === 'rab'
             ? formatMakerProductList(parsed.details)
             : parsed.details
