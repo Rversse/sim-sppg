@@ -252,6 +252,8 @@ function parseAccountLine(value: string): {
   accountNumber: string
   details: string
 } | null {
+  // Maker OPS Arutala may intentionally omit details:
+  // "Koperasi Arutala - BNI / 1985322260".
   const match = value.trim().match(
     /^(.*?)\s+-\s+([A-Za-z][A-Za-z0-9 ]*?)\s*\/\s*((?:x{3,}\s+\d{4})|[^\s·]+)(?:\s*·\s*(.*))?$/i
   )
