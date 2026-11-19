@@ -454,7 +454,7 @@ test('Maker OPS HARIAN accepts Koperasi Arutala with no optional note', () => {
   const parsed = parseMakerDocument([
     'Campakamulya, 19-Nov-2026',
     'OPS HARIAN : Koperasi Arutala - BNI / 1985322260 · 1.200.000'
-  ].join('\\n'))
+  ].join('\n'))
 
   assert.equal(parsed.error, null)
   assert.equal(parsed.rows.length, 1)
