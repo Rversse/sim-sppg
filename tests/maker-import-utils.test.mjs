@@ -450,6 +450,23 @@ test('VA marker on custom OPS HARIAN remains an OPS HARIAN row', () => {
   assert.equal(parsed.rows[0].details, 'Biaya Operasional · VA')
 })
 
+test('Maker OPS HARIAN accepts Koperasi Arutala with no optional note', () => {
+  const parsed = parseMakerDocument([
+    'Campakamulya, 19-Nov-2026',
+    'OPS HARIAN : Koperasi Arutala - BNI / 1985322260 · 1.200.000'
+  ].join('\\n'))
+
+  assert.equal(parsed.error, null)
+  assert.equal(parsed.rows.length, 1)
+  assert.equal(parsed.rows[0].kind, 'ops_harian')
+  assert.equal(parsed.rows[0].recipientName, 'Koperasi Arutala')
+  assert.equal(parsed.rows[0].bank, 'BNI')
+  assert.equal(parsed.rows[0].accountNumber, '1985322260')
+  assert.equal(parsed.rows[0].details, '')
+  assert.equal(parsed.rows[0].amount, 1200000)
+  assert.equal(parsed.rows[0].manualFlow, 'ops_disbursement')
+})
+
 test('Maker OPS HARIAN supports custom recipient plus optional note', () => {
   const parsed = parseMakerDocument([
     'Cisepat, 23-Okt-2026',
