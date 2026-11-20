@@ -450,7 +450,7 @@ test('VA marker on custom OPS HARIAN remains an OPS HARIAN row', () => {
   assert.equal(parsed.rows[0].details, 'Biaya Operasional · VA')
 })
 
-test('Maker OPS HARIAN default note is blank for the Arutala neutral account', () => {
+test('Maker OPS HARIAN retains explicit Ops Harian note for the Arutala neutral account', () => {
   const parsed = parseMakerDocument([
     'Campakamulya, 19-Nov-2026',
     'OPS HARIAN : Koperasi Arutala - BNI / 1985322260 · Ops Harian · 1.200.000'
@@ -462,7 +462,7 @@ test('Maker OPS HARIAN default note is blank for the Arutala neutral account', (
   assert.equal(parsed.rows[0].recipientName, 'Koperasi Arutala')
   assert.equal(parsed.rows[0].bank, 'BNI')
   assert.equal(parsed.rows[0].accountNumber, '1985322260')
-  assert.equal(parsed.rows[0].details, '')
+  assert.equal(parsed.rows[0].details, 'Ops Harian')
   assert.equal(parsed.rows[0].amount, 1200000)
   assert.equal(parsed.rows[0].manualFlow, 'ops_disbursement')
 })
@@ -544,4 +544,20 @@ test('Maker GAS cylinder output with supplier-owner suffix imports consistently 
   assert.equal(custom.accountNumber, '1985322260')
   assert.equal(custom.details, 'Pembayaran plastik (HDPE)')
   assert.equal(custom.amount, 500000)
+})
+
+
+test('Maker OPS HARIAN Arutala neutral mapping preserves both purchase and default notes', () => {
+  const parsed = parseMakerDocument([
+    'Cisepat, 20-Nov-2026',
+    'OPS HARIAN : Koperasi Arutala - BNI / 1985322260 · Gas 12kg (3 tabung) · 270.000',
+    'OPS HARIAN : Koperasi Arutala - BNI / 1985322260 · Ops Harian · 225.000'
+  ].join('\n'))
+
+  assert.equal(parsed.error, null)
+  assert.equal(parsed.rows.length, 2)
+  assert.deepEqual(parsed.rows.map((row) => row.kind), ['ops_harian', 'ops_harian'])
+  assert.deepEqual(parsed.rows.map((row) => row.details), ['Gas 12kg (3 tabung)', 'Ops Harian'])
+  assert.deepEqual(parsed.rows.map((row) => row.accountNumber), ['1985322260', '1985322260'])
+  assert.deepEqual(parsed.rows.map((row) => row.amount), [270000, 225000])
 })
