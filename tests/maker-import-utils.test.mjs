@@ -450,11 +450,11 @@ test('VA marker on custom OPS HARIAN remains an OPS HARIAN row', () => {
   assert.equal(parsed.rows[0].details, 'Biaya Operasional · VA')
 })
 
-test('Maker OPS HARIAN with default Ops Harian note keeps the Arutala neutral account identity', () => {
+test('Maker OPS HARIAN default note is blank for the Arutala neutral account', () => {
   const parsed = parseMakerDocument([
     'Campakamulya, 19-Nov-2026',
     'OPS HARIAN : Koperasi Arutala - BNI / 1985322260 · Ops Harian · 1.200.000'
-  ].join('\\n'))
+  ].join('\n'))
 
   assert.equal(parsed.error, null)
   assert.equal(parsed.rows.length, 1)
@@ -462,7 +462,7 @@ test('Maker OPS HARIAN with default Ops Harian note keeps the Arutala neutral ac
   assert.equal(parsed.rows[0].recipientName, 'Koperasi Arutala')
   assert.equal(parsed.rows[0].bank, 'BNI')
   assert.equal(parsed.rows[0].accountNumber, '1985322260')
-  assert.equal(parsed.rows[0].details, 'Ops Harian')
+  assert.equal(parsed.rows[0].details, '')
   assert.equal(parsed.rows[0].amount, 1200000)
   assert.equal(parsed.rows[0].manualFlow, 'ops_disbursement')
 })

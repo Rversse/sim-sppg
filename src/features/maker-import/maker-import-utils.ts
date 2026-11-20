@@ -384,16 +384,20 @@ function makeRow(
     ? gasRecipientParts.join(' / ').trim() || 'Gas'
     : 'Gas'
 
+  const isArutalaNeutralOpsAccount =
+    normalizeMakerText(parsed.recipientName) === 'koperasi arutala' &&
+    normalizeMakerBank(parsed.bank) === 'BNI' &&
+    normalizeMakerAccountNumber(parsed.accountNumber) === '1985322260'
+  const normalizedOpsHarianDetails = normalizeMakerText(parsed.details)
   const details =
     kind === 'gas'
         ? gasDetails
         : kind === 'ops_harian'
-          ? parsed.details || (
-              normalizeMakerText(parsed.recipientName) === 'koperasi arutala' &&
-              normalizeMakerBank(parsed.bank) === 'BNI' &&
-              normalizeMakerAccountNumber(parsed.accountNumber) === '1985322260'
+          ? (
+              isArutalaNeutralOpsAccount &&
+              (!normalizedOpsHarianDetails || normalizedOpsHarianDetails === 'ops harian')
                 ? ''
-                : 'Ops Harian'
+                : parsed.details || 'Ops Harian'
             )
           : kind === 'rab'
             ? formatMakerProductList(parsed.details)
