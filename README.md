@@ -20,23 +20,72 @@
 
 ## Tentang proyek
 
-**SIM SPPG** adalah aplikasi manajemen operasional yang menggabungkan pemantauan aktivitas, pengelolaan master data, pencatatan transaksi, proses impor, dan pelaporan.
+**SIM SPPG** adalah aplikasi manajemen operasional dan keuangan untuk mengelola data dapur, rekening, transaksi bank, transaksi operasional, impor RAB/Real dan Maker, pencairan, supplier, kendaraan, perhitungan gaji, serta laporan dalam satu workspace.
 
 Repository ini bersifat **public** untuk transparansi dan pengelolaan kode. Data operasional tetap menggunakan layanan Supabase yang dikonfigurasi untuk aplikasi; repository tidak menyediakan akun, PIN, atau kredensial akses.
+
+## Status program saat ini
+
+**Snapshot: 20 November 2026.** SIM-SPPG aktif dikembangkan dan branch utama memuat modul operasional berikut:
+
+- Dashboard operasional dengan filter periode dan dapur.
+- Master data dapur, rekening, supplier, serta kendaraan.
+- Ledger Transaksi Bank yang terpisah dari transaksi operasional.
+- Import Maker dan Import RAB / Real dengan validasi, pemeriksaan duplikat, serta jejak audit batch.
+- Input Belanja Harian Real khusus role Koperasi.
+- Laporan operasional dan perhitungan alokasi gaji.
+
+Frontend dipublikasikan melalui GitHub Pages. Autentikasi, database, fungsi RPC, dan migration berjalan melalui proyek Supabase SIM-SPPG. CI memeriksa perubahan melalui GitHub Actions; deployment ke Pages dijalankan pada push ke main.
+
+Pembaruan terakhir yang tercatat di database: migration 20261120011504_preserve_ops_harian_neutral_notes. Migration ini mempertahankan catatan asli transaksi OPS HARIAN pada rekening Netral Arutala dan mencegah catatan OPS kosong otomatis berubah menjadi teks Gas.
 
 ## Modul aplikasi
 
 | Area | Modul | Cakupan |
 | --- | --- | --- |
-| **Dashboard** | Ringkasan operasional | Ringkasan transaksi, filter periode dan dapur, status pencairan, serta riwayat aktivitas. |
-| **Master Data** | Data Dapur | Data dan status dapur. |
-| | Data Rekening | Rekening penampung, rekening tujuan, serta mapping rekening untuk kebutuhan operasional. |
-| | Data Kendaraan | Data kendaraan dan pemantauan masa berlaku dokumen. |
-| | Data Supplier | Data supplier dan informasi rekening terkait. |
-| **Transaksi** | Transaksi Bank | Saldo rekening, transfer masuk/keluar, riwayat transaksi, dan ekspor Excel. |
-| | Import Maker | Parsing hasil Maker, pencocokan rekening dan tujuan operasional, validasi, pemeriksaan duplikat, serta review sebelum penyimpanan. |
-| | Import RAB / Real | Input langsung Belanja Harian Real untuk role Koperasi; Admin tetap memiliki alur impor laporan, validasi, dan audit batch. |
-| **Laporan** | Laporan operasional | Rekap pencairan belanja, pemasukan lainnya, dan pencairan operasional dengan filter periode serta ekspor. |
+| **Dashboard** | Ringkasan operasional | Ringkasan transaksi dan realisasi, filter periode/dapur, status harian, serta aktivitas operasional. |
+| **Master Data** | Data Dapur | Identitas dapur, PIC, yayasan, alamat, penerima operasional, dan status aktif. |
+| | Data Rekening | Rekening supplier/penampung, saldo awal, rekening tujuan, dan mapping rekening per dapur. |
+| | Data Kendaraan | Data kendaraan, nomor polisi, masa berlaku PKB/STNK, serta notifikasi dokumen. |
+| | Data Supplier | Profil supplier, pemilik usaha, kontak, alamat, jenis produk, dan rekening terkait. |
+| **Transaksi** | Transaksi Bank | Saldo rekening, transfer masuk/keluar, biaya admin, riwayat, koreksi transaksi, dan ekspor Excel. |
+| | Import Maker | Parsing output Maker, pencocokan rekening dan mapping tujuan, validasi manual, pemeriksaan duplikat, konfirmasi batch, serta penyimpanan jejak sumber untuk audit. |
+| | Import RAB / Real | Admin dapat memproses sumber Real melalui parser dan validasi batch. Role Koperasi mendapat form Belanja Harian Real untuk menginput nominal per dapur dan melihat transaksi hariannya sendiri. |
+| **Laporan** | Laporan operasional | Rekap keseluruhan, pencairan, dan supplier dengan filter periode, ekspor Excel, serta opsi cetak. |
+| | Perhitungan Gaji | Mengalokasikan 30% dari total RAB dapur dan membaginya ke jabatan berdasarkan persentase yang dikonfigurasi per dapur. |
+
+### Detail alur penting
+
+#### Import Maker
+
+Import Maker menerima teks output Maker, kemudian membangun draft transaksi yang dapat diperiksa sebelum disimpan. Prosesnya mencakup:
+
+- Identifikasi tanggal dan dapur dari header sumber.
+- Parsing kategori seperti RAB, GAS, OPS HARIAN, insentif fasilitas SPPG, gaji relawan, insentif PIC, dan Lain-lain.
+- Pencocokan nama penerima, bank, nomor rekening, rekening yang dimapping, serta aturan rekening operasional.
+- Validasi nominal dan detail, keputusan Admin untuk baris Lain-lain, serta pemeriksaan duplikat.
+- Penyimpanan batch, baris sumber, hasil validasi, dan status impor/pengecualian sebagai jejak audit.
+
+**Aturan khusus OPS HARIAN Arutala:** transaksi yang memakai rekening Netral Koperasi Arutala dan mapping dapur yang sesuai dicatat sebagai kategori OPS / Arutala. Catatan mengikuti teks sumber Maker, termasuk Ops Harian atau catatan pembelian seperti Gas 12kg (3 tabung). Catatan OPS yang kosong tetap kosong; tidak diisi otomatis dengan Gas. Ini berbeda dari transaksi sumber kategori GAS.
+
+#### Belanja Harian Real
+
+Role Koperasi diarahkan langsung ke menu **Belanja Harian Real**. Pengguna memasukkan nominal untuk dapur pada tanggal yang dipilih, melihat transaksi yang disimpan untuk akunnya, menyalin ringkasan harian, serta mengoreksi nominal atau menghapus transaksi miliknya sesuai aturan aplikasi.
+
+Pada form saat ini, dapur Cisepat dan Kertajadi memiliki input terpisah untuk sumber Arutala Cianjur dan Arutala Cidaun. Dapur lainnya menggunakan satu input umum Arutala Cianjur.
+
+#### Perhitungan Gaji
+
+Modul Admin menghitung alokasi sebesar **30% dari total RAB** untuk dapur dan periode terpilih. Alokasi dibagi ke Akuntan, Ahli Gizi, Aslap, dan Kepala SPPG. Persentase dapat dikonfigurasi per dapur dan jumlahnya harus tepat 100% sebelum disimpan.
+
+#### Pemisahan pencatatan
+
+SIM-SPPG menjaga dua domain pencatatan yang berbeda:
+
+- **Transaksi Bank** mencatat mutasi rekening, transfer, biaya admin, saldo awal, dan saldo rekening.
+- **Transaksi operasional** mencatat RAB, GAS, OPS, pencairan operasional, dan kategori transaksi program lainnya untuk kebutuhan dashboard dan laporan.
+
+Saldo rekening tidak boleh disamakan dengan total realisasi belanja atau pencairan operasional pada dashboard.
 
 ### Aplikasi pendamping
 
@@ -63,16 +112,17 @@ Keduanya bukan bagian dari bundle atau route aplikasi SIM-SPPG ini.
 
 ## Hak akses
 
-Akses halaman dan aksi dikendalikan melalui role dan permission di `src/features/auth/role-policy.ts`.
+Akses halaman dan aksi dikendalikan melalui role dan permission di src/features/auth/role-policy.ts.
 
 | Role | Akses ringkas |
 | --- | --- |
-| **Admin** | Seluruh modul: Dashboard, Master Data, Transaksi, Import, dan Laporan; termasuk pengelolaan data sesuai permission. |
-| **Operator** | Dashboard, melihat data dapur/supplier, mengelola data kendaraan, serta melihat, membuat, dan mengekspor transaksi bank. |
-| **Viewer** | Akses baca untuk Transaksi Bank. |
-| **Koperasi** | Hanya modul Belanja Harian Real: input nominal per dapur, pilihan asal Arutala untuk Cisepat/Kertajadi, dan koreksi transaksi milik akun sendiri. |
+| **Admin** | Seluruh modul: Dashboard, Master Data, Transaksi, Import, Laporan, dan Perhitungan Gaji; termasuk pengelolaan data dan proses impor. |
+| **Operator** | Melihat Dashboard, Data Dapur, dan Data Supplier; mengelola Data Kendaraan; serta melihat, membuat/mengoreksi, dan mengekspor transaksi bank. |
+| **Viewer** | Akses baca ke modul Transaksi Bank. Tidak memiliki aksi pembuatan transaksi atau ekspor. |
+| **Guest** | Ringkasan Transaksi Bank terbatas untuk rekening penampung dan rekening prioritas melalui fungsi database khusus. Tidak mendapat akses ke seluruh daftar rekening atau aksi transaksi. |
+| **Koperasi** | Hanya menu Belanja Harian Real. Dapat memasukkan nominal, melihat transaksi yang dibuat oleh akunnya, mengoreksi nominal, dan menghapus transaksi miliknya sesuai aturan backend. |
 
-Route juga dilindungi oleh komponen `ProtectedRoute` dan `RoleRoute`. Pembatasan di UI bukan pengganti kebijakan keamanan database: setiap perubahan backend harus tetap mempertahankan kontrol akses Supabase/RLS yang relevan.
+Route dilindungi oleh komponen ProtectedRoute dan RoleRoute. Aksi penting juga dibatasi melalui permission dan fungsi database/RPC. Pembatasan di UI bukan pengganti kebijakan keamanan database: perubahan backend harus tetap mempertahankan kontrol akses Supabase/RLS yang relevan.
 
 ## Menjalankan secara lokal
 
@@ -163,8 +213,8 @@ Breakpoint CSS membantu adaptasi layout, tetapi bukan klaim bahwa setiap kombina
 
 GitHub Actions menjalankan dua workflow:
 
-1. **Check SIM-SPPG** — dipicu oleh pull request dan push ke `main`. Menjalankan install, laporan audit dependency, lalu `npm run check`.
-2. **Deploy SIM-SPPG to GitHub Pages** — dipicu oleh push ke `main` atau manual melalui `workflow_dispatch`. Build diperiksa sebelum artefak dipublikasikan ke GitHub Pages.
+1. **Check SIM-SPPG** — dipicu oleh pull request dan push ke main. Menjalankan install dependency, laporan audit dependency, lalu npm run check (lint, test, dan production build).
+2. **Deploy SIM-SPPG to GitHub Pages** — dipicu oleh push ke main atau manual melalui workflow_dispatch. Workflow menjalankan npm run check, menyiapkan entry point SPA, lalu memublikasikan artefak ke GitHub Pages.
 
 Workflow membutuhkan repository Actions Variables berikut:
 
@@ -179,6 +229,9 @@ Beberapa batas domain yang harus dijaga saat mengembangkan aplikasi:
 
 - Transaksi operasional Dashboard dan ledger Transaksi Bank merupakan sumber data yang berbeda.
 - Saldo rekening dihitung dari saldo awal dan mutasi yang relevan, bukan sekadar total laporan pada periode terpilih.
+- Kategori transaksi, flow, rekening, dan tujuan operasional harus konsisten. Contohnya, transaksi OPS HARIAN Arutala yang masuk melalui rekening Netral tetap berkategori OPS, sedangkan transaksi sumber kategori GAS tetap berkategori GAS.
+- Catatan transaksi impor harus mengikuti catatan sumber. Jangan menambahkan fallback teks yang dapat mengubah arti catatan atau mencampur transaksi GAS dengan OPS.
+- Batch impor dan baris sumber perlu mempertahankan informasi audit, termasuk sumber asli, nomor baris, nominal, status impor, dan alasan pengecualian.
 - Aturan bisnis yang melibatkan transaksi, mapping, impor, atau perhitungan laporan perlu diperiksa bersama service TypeScript dan migration SQL terkait.
 - Jangan mengubah schema, RPC, permission, atau kebijakan database hanya untuk menyelesaikan perubahan tampilan.
 
