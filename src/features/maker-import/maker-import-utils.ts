@@ -388,17 +388,11 @@ function makeRow(
     normalizeMakerText(parsed.recipientName) === 'koperasi arutala' &&
     normalizeMakerBank(parsed.bank) === 'BNI' &&
     normalizeMakerAccountNumber(parsed.accountNumber) === '1985322260'
-  const normalizedOpsHarianDetails = normalizeMakerText(parsed.details)
   const details =
     kind === 'gas'
         ? gasDetails
         : kind === 'ops_harian'
-          ? (
-              isArutalaNeutralOpsAccount &&
-              (!normalizedOpsHarianDetails || normalizedOpsHarianDetails === 'ops harian')
-                ? ''
-                : parsed.details || 'Ops Harian'
-            )
+          ? parsed.details || (isArutalaNeutralOpsAccount ? '' : 'Ops Harian')
           : kind === 'rab'
             ? formatMakerProductList(parsed.details)
             : parsed.details
