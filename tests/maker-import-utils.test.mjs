@@ -29,13 +29,13 @@ test('OPS Real Maker output is parsed as expense OPS without bank identity', () 
   const parsed = parseMakerDocument([
     'Campakamulya, 23-Nov-2026',
     '_OPS Real_ · 1.200.000'
-  ].join('\\n'))
+  ].join('\n'))
 
   assert.equal(parsed.error, null)
   assert.equal(parsed.rows.length, 1)
   assert.equal(parsed.rows[0].kind, 'real_ops')
   assert.equal(parsed.rows[0].sourceCategory, 'OPS Real')
-  assert.equal(parsed.rows[0].flow ?? parsed.rows[0].manualFlow, 'ops_real')
+  assert.equal(parsed.rows[0].manualFlow, 'ops_real')
   assert.equal(parsed.rows[0].amount, 1200000)
   assert.equal(parsed.rows[0].recipientName, '')
   assert.equal(parsed.rows[0].bank, '')
