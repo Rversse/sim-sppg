@@ -198,8 +198,8 @@ export function AppLayout() {
     success('Berhasil keluar', 'Sesi Anda telah diakhiri.')
   }
   return (
-    <div className="app-shell">
-      <aside className="app-sidebar">
+    <div className={'app-shell' + (user?.role === 'koperasi' ? ' is-koperasi' : '')}>
+      {user?.role !== 'koperasi' ? <aside className="app-sidebar">
         <div className="app-brand">
           <NavLink to={user?.role === 'koperasi' ? '/real-import' : '/dashboard'} className="app-brand-home" aria-label={user?.role === 'koperasi' ? 'Belanja Harian Real' : 'Dashboard'}>
             <span className="app-brand-mark" aria-hidden="true">
@@ -298,7 +298,7 @@ export function AppLayout() {
             </div>
           ))}
         </nav>
-      </aside>
+      </aside> : null}
       <div className="app-content">
         <header className="app-header">
           <div className="app-header-left">
@@ -342,7 +342,7 @@ export function AppLayout() {
           <Outlet />
         </main>
       </div>
-      <nav className="app-mobile-nav" aria-label="Navigasi mobile">
+      {user?.role !== 'koperasi' ? <nav className="app-mobile-nav" aria-label="Navigasi mobile">
         {visibleNavigation.map((item) => {
           const Icon = item.icon
           return (
@@ -364,7 +364,7 @@ export function AppLayout() {
             </NavLink>
           )
         })}
-      </nav>
+      </nav> : null}
     </div>
   )
 }
