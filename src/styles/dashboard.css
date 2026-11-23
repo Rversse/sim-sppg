@@ -2003,3 +2003,107 @@
 :root[data-theme='dark'] .dashboard-kpi-grid > .dashboard-kpi.dashboard-kpi-rab-balance > small {
   color: var(--theme-text-secondary);
 }
+
+/* =========================================================
+   DASHBOARD OVERVIEW — SUMMARY + FILTER
+   ========================================================= */
+
+.dashboard-overview-grid {
+  display: grid;
+  width: 100%;
+  grid-template-columns: minmax(300px, 0.9fr) minmax(0, 2.1fr);
+  align-items: start;
+  gap: 12px;
+}
+
+.dashboard-summary-panel {
+  min-width: 0;
+  height: fit-content;
+  gap: 0;
+}
+
+.dashboard-summary-list {
+  display: grid;
+  min-width: 0;
+  gap: 0;
+  margin-top: 12px;
+}
+
+.dashboard-summary-row {
+  display: grid;
+  min-width: 0;
+  min-height: 34px;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  padding: 6px 0;
+}
+
+.dashboard-summary-row > span {
+  min-width: 0;
+  color: var(--theme-text-secondary);
+  font-size: 12px;
+  font-weight: var(--ui-weight-medium);
+  line-height: 1.35;
+}
+
+.dashboard-summary-row > strong {
+  color: var(--theme-text-primary);
+  font-size: 13px;
+  font-weight: var(--ui-weight-strong);
+  font-variant-numeric: tabular-nums;
+  line-height: 1.3;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.dashboard-summary-row-balance.is-positive > strong {
+  color: var(--app-success);
+}
+
+.dashboard-summary-row-balance.is-negative > strong {
+  color: var(--app-danger);
+}
+
+.dashboard-summary-row-balance.is-zero > strong {
+  color: var(--theme-text-primary);
+}
+
+.dashboard-summary-divider {
+  height: 1px;
+  margin: 7px 0;
+  background: var(--theme-border-soft, var(--theme-border));
+}
+
+.dashboard-summary-skeleton {
+  width: 128px;
+  height: 14px;
+  justify-self: end;
+}
+
+.dashboard-overview-grid > .dashboard-filter-card {
+  min-width: 0;
+  height: fit-content;
+}
+
+@media (max-width: 1200px) {
+  .dashboard-overview-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 560px) {
+  .dashboard-summary-panel,
+  .dashboard-filter-card {
+    padding: 14px;
+  }
+
+  .dashboard-summary-row {
+    min-height: 36px;
+  }
+
+  .dashboard-summary-row > strong {
+    font-size: 12px;
+  }
+}
+
