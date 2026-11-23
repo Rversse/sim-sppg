@@ -1542,13 +1542,56 @@ export function DashboardPage() {
           min-height: 38px;
         }
       `}</style>
+      <section className="dashboard-overview-grid">
+      <article className="dashboard-panel dashboard-summary-panel">
+        <div className="dashboard-panel-header">
+          <div>
+            <h2>Ringkasan</h2>
+          </div>
+        </div>
+
+        <div className="dashboard-summary-list">
+          <div className="dashboard-summary-row">
+            <span>RAB / Pencairan</span>
+            {loading ? <Skeleton className="dashboard-summary-skeleton" /> : <strong>{formatCurrency(summary.income)}</strong>}
+          </div>
+          <div className="dashboard-summary-row">
+            <span>RAB / Real</span>
+            {loading ? <Skeleton className="dashboard-summary-skeleton" /> : <strong>{formatCurrency(summary.expense)}</strong>}
+          </div>
+          <div className={`dashboard-summary-row dashboard-summary-row-balance ${rabBalance > 0 ? 'is-positive' : rabBalance < 0 ? 'is-negative' : 'is-zero'}`}>
+            <span>Sisa RAB</span>
+            {loading ? <Skeleton className="dashboard-summary-skeleton" /> : <strong>{formatCurrency(rabBalance)}</strong>}
+          </div>
+
+          <div className="dashboard-summary-divider" aria-hidden="true" />
+
+          <div className="dashboard-summary-row">
+            <span>OPS / Arutala</span>
+            {loading ? <Skeleton className="dashboard-summary-skeleton" /> : <strong>{formatCurrency(summary.gas)}</strong>}
+          </div>
+          <div className="dashboard-summary-row">
+            <span>OPS / Real</span>
+            {loading ? <Skeleton className="dashboard-summary-skeleton" /> : <strong>{formatCurrency(summary.opsReal)}</strong>}
+          </div>
+          <div className={`dashboard-summary-row dashboard-summary-row-balance ${opsBalance > 0 ? 'is-positive' : opsBalance < 0 ? 'is-negative' : 'is-zero'}`}>
+            <span>Sisa OPS</span>
+            {loading ? <Skeleton className="dashboard-summary-skeleton" /> : <strong>{formatCurrency(opsBalance)}</strong>}
+          </div>
+
+          <div className="dashboard-summary-divider" aria-hidden="true" />
+
+          <div className="dashboard-summary-row">
+            <span>OPS / Pencairan</span>
+            {loading ? <Skeleton className="dashboard-summary-skeleton" /> : <strong>{formatCurrency(summary.operationalDisbursement)}</strong>}
+          </div>
+        </div>
+      </article>
+
       <section className="dashboard-filter-card">
         <div className="dashboard-filter-heading">
           <div>
-            <strong>Filter dashboard</strong>
-            <span>
-              Gunakan filter untuk mempersempit data yang ditampilkan.
-            </span>
+            <strong>Filter</strong>
           </div>
           <button
             type="button"
@@ -1618,86 +1661,9 @@ export function DashboardPage() {
 
           </div>
       </section>
-
+      </section>
       {error ? <div className="dashboard-error">{error}</div> : null}
 
-      <section className="dashboard-kpi-grid">
-        <article
-          className={`dashboard-kpi ${
-            filters.flowType === 'income' ? 'dashboard-kpi-primary' : ''
-          }`}
-        >
-          <span className="dashboard-kpi-icon">
-            <WalletCards aria-hidden="true" />
-          </span>
-          <span>RAB / Pencairan</span>
-          {loading ? <Skeleton className="dashboard-kpi-skeleton" /> : <strong>{formatCurrency(summary.income)}</strong>}
-          <small>Total RAB pada periode terpilih</small>
-        </article>
-
-        <article
-          className={`dashboard-kpi ${
-            filters.flowType === 'expense' ? 'dashboard-kpi-primary' : ''
-          }`}
-        >
-          <span className="dashboard-kpi-icon">
-            <WalletCards aria-hidden="true" />
-          </span>
-          <span>RAB / Real</span>
-          {loading ? <Skeleton className="dashboard-kpi-skeleton" /> : <strong>{formatCurrency(summary.expense)}</strong>}
-          <small>Total realisasi supplier pada periode terpilih</small>
-        </article>
-
-        <article className="dashboard-kpi dashboard-kpi-rab-balance">
-          <span className="dashboard-kpi-icon">
-            <WalletCards aria-hidden="true" />
-          </span>
-          <span>Sisa RAB</span>
-          {loading ? <Skeleton className="dashboard-kpi-skeleton" /> : <strong>{formatCurrency(rabBalance)}</strong>}
-          <small>RAB / Pencairan dikurangi RAB / Real pada periode dan dapur terpilih</small>
-        </article>
-
-        <article
-          className={`dashboard-kpi ${
-            filters.flowType === 'gas' ? 'dashboard-kpi-primary' : ''
-          }`}
-        >
-          <span className="dashboard-kpi-icon">
-            <Landmark aria-hidden="true" />
-          </span>
-          <span>OPS / Arutala</span>
-          {loading ? <Skeleton className="dashboard-kpi-skeleton" /> : <strong>{formatCurrency(summary.gas)}</strong>}
-          <small>Seluruh transaksi netral ke rekening Koperasi Arutala BNI</small>
-        </article>
-
-        <article className="dashboard-kpi">
-          <span>OPS / Real</span>
-          {loading ? <Skeleton className="dashboard-kpi-skeleton" /> : <strong>{formatCurrency(summary.opsReal)}</strong>}
-          <small>Realisasi OPS pada periode terpilih</small>
-        </article>
-
-        <article className="dashboard-kpi dashboard-kpi-rab-balance">
-          <span>Sisa OPS</span>
-          {loading ? <Skeleton className="dashboard-kpi-skeleton" /> : <strong>{formatCurrency(opsBalance)}</strong>}
-          <small>OPS / Arutala dikurangi OPS / Real</small>
-        </article>
-
-        <article
-          className={`dashboard-kpi ${
-            filters.flowType === 'ops_disbursement'
-              ? 'dashboard-kpi-primary'
-              : ''
-          }`}
-        >
-          <span className="dashboard-kpi-icon">
-            <Settings2 aria-hidden="true" />
-          </span>
-          <span>OPS / Pencairan</span>
-          {loading ? <Skeleton className="dashboard-kpi-skeleton" /> : <strong>{formatCurrency(summary.operationalDisbursement)}</strong>}
-          <small>Total pencairan operasional masuk ke rekening Akuntan / Aslap pada periode terpilih</small>
-        </article>
-
-      </section>
 
       <section className="dashboard-main-grid">
         <article className="dashboard-panel dashboard-status-panel dashboard-main-panel">
