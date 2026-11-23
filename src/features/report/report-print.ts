@@ -447,14 +447,35 @@ function printReport(mode: ReportPrintMode = 'default') {
       table-layout: fixed !important;
     }
 
-    .reports-table-overall th:first-child,
-    .reports-table-overall td:first-child {
-      width: 18%;
+    .reports-table-overall th:nth-child(1),
+    .reports-table-overall td:nth-child(1) {
+      width: 18% !important;
     }
 
-    .reports-table-overall th:not(:first-child),
-    .reports-table-overall td:not(:first-child) {
-      width: 11.714%;
+    .reports-table-overall th:nth-child(2),
+    .reports-table-overall td:nth-child(2),
+    .reports-table-overall th:nth-child(3),
+    .reports-table-overall td:nth-child(3) {
+      width: 12.5% !important;
+    }
+
+    .reports-table-overall th:nth-child(4),
+    .reports-table-overall td:nth-child(4) {
+      width: 14% !important;
+    }
+
+    .reports-table-overall th:nth-child(5),
+    .reports-table-overall td:nth-child(5),
+    .reports-table-overall th:nth-child(6),
+    .reports-table-overall td:nth-child(6) {
+      width: 9.5% !important;
+    }
+
+    .reports-table-overall th:nth-child(7),
+    .reports-table-overall td:nth-child(7),
+    .reports-table-overall th:nth-child(8),
+    .reports-table-overall td:nth-child(8) {
+      width: 12% !important;
     }
 
     .reports-table .reports-currency {
@@ -494,6 +515,20 @@ function printReport(mode: ReportPrintMode = 'default') {
       padding: 6px 6px !important;
       border: 1px solid #D2DAEA !important;
       white-space: nowrap;
+    }
+
+    /* This stylesheet is embedded in the print iframe, so the report
+       page stylesheet cannot override these table header rules. */
+    .reports-overall-belanja-block .reports-table-overall thead th {
+      height: auto !important;
+      min-height: 0 !important;
+      padding: 8px 4px !important;
+      white-space: normal !important;
+      overflow-wrap: break-word !important;
+      word-break: normal !important;
+      line-height: 1.2 !important;
+      text-align: center !important;
+      vertical-align: middle !important;
     }
 
     .reports-overall-belanja-block .reports-subsection-title {
