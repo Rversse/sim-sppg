@@ -289,8 +289,13 @@ export function validateTransactionPayload(
     return 'Jenis pencairan operasional wajib dipilih'
   }
 
-  if (payload.flow_type === 'expense' && !payload.supplier_id) {
+  if (payload.flow_type === 'expense' && payload.category === 'Supplier' && !payload.supplier_id) {
     return 'Supplier wajib dipilih'
+  }
+
+  if (payload.flow_type === 'expense' && payload.category === 'OPS' &&
+    (payload.supplier_id || payload.account_id)) {
+    return 'OPS / Real tidak menggunakan rekening atau supplier'
   }
 
   return null
