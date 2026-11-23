@@ -2243,3 +2243,33 @@
   }
 }
 
+/* Slightly compact the left Dashboard column while preserving the paired rows. */
+@media (min-width: 1101px) {
+  .dashboard-layout-grid {
+    grid-template-columns: minmax(280px, 0.82fr) minmax(0, 2.18fr);
+  }
+}
+
+/* Center the uppercase summary title on both axes inside its heading area. */
+.dashboard-summary-panel .dashboard-panel-header {
+  min-height: 30px;
+  align-items: center;
+  justify-content: center;
+}
+
+.dashboard-summary-panel .dashboard-panel-header > div {
+  display: flex;
+  width: 100%;
+  min-height: 30px;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.dashboard-summary-panel .dashboard-panel-header h2 {
+  width: 100%;
+  margin: 0;
+  text-align: center;
+  text-transform: uppercase;
+}
+
