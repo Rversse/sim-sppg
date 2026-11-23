@@ -484,7 +484,7 @@ export function KoperasiRealEntry() {
           <p className="koperasi-real-muted">Memuat transaksi…</p>
         ) : rows.length === 0 ? (
           <p className="koperasi-real-empty">
-            Belum ada transaksi {isOps ? 'OPS / Real' : 'RAB / Real'} pada tanggal tersebut.
+            Belum ada transaksi {isOps ? 'OPS / Real.' : 'RAB / Real.'}
           </p>
         ) : (
           <div className="koperasi-real-saved-list">
@@ -707,7 +707,7 @@ export function KoperasiRealEntry() {
           )}
 
           <div className="koperasi-real-savebar">
-            <div><span>Total input RAB / Real</span><strong>Rp {formatAmount(totalRabInput)}</strong></div>
+            <div><span>Total RAB / Real</span><strong>Rp {formatAmount(totalRabInput)}</strong></div>
             <button
               type="button"
               className="maker-import-primary"
@@ -762,7 +762,7 @@ export function KoperasiRealEntry() {
                       </div>
                     ) : (
                       <label className="koperasi-real-single-amount">
-                        <span>Nominal OPS / Real (Rp)</span>
+                        <span>Nominal (Rp)</span>
                         <input
                           inputMode="numeric"
                           value={formatAmountInput(opsAmounts[kitchen.id] ?? '')}
@@ -778,7 +778,7 @@ export function KoperasiRealEntry() {
           )}
 
           <div className="koperasi-real-savebar">
-            <div><span>Total input OPS / Real</span><strong>Rp {formatAmount(totalOpsInput)}</strong></div>
+            <div><span>Total OPS / Real</span><strong>Rp {formatAmount(totalOpsInput)}</strong></div>
             <button
               type="button"
               className="maker-import-primary"
