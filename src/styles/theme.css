@@ -1,108 +1,22 @@
 /*
- * SIM-SPPG theme layer
- * Shared tokens keep every page, dialog, form and navigation surface in sync.
- * The light palette is the default foundation in core.css; this file defines
- * the dark palette and the persistent theme control.
+ * SIM-SPPG semantic theme layer.
+ * Base surfaces, typography and accent tokens live in core.css.
+ * This file contains semantic data colors and dark-theme component refinements.
  */
 
-:root[data-theme='dark'] {
+:root {
   color-scheme: dark;
-
-  --theme-inverse-surface: #ffffff;
-  --theme-inverse-text: #171717;
-
-  --theme-page-bg: #141415;
-  --theme-surface: #19191b;
-  --theme-surface-soft: #232325;
-  --theme-surface-raised: #1f1f21;
-
-  --theme-text-primary: #ededed;
-  --theme-text-secondary: #a1a1a6;
-  --theme-text-muted: #85858b;
-
-  --theme-border: #2a2a2d;
-  --theme-border-strong: #3a3a3e;
-
-  --theme-primary: #f8b26a;
-  --theme-primary-hover: #f2a255;
-  --theme-primary-soft: #2b2218;
-  --theme-primary-foreground: #1f1b16;
-
-  --theme-success: #34d399;
-  --theme-success-hover: #10b981;
-  --theme-success-soft: #102c2a;
-
-  --theme-warning: #fbbf24;
-  --theme-warning-hover: #f59e0b;
-  --theme-warning-soft: #342819;
-
-  --theme-danger: #f87171;
-  --theme-danger-soft: #351f28;
-  --theme-danger-foreground: #141415;
-
-  /* Semantic data colors stay legible on dark surfaces. */
-  --theme-data-neutral: #ededed;
-  --theme-data-teal: #5eead4;
-  --theme-data-red: #fca5a5;
-  --theme-data-purple: #a9b4cc;
-  --theme-data-blue: #8fb0d6;
-  --theme-data-cyan: #67e8f9;
-  --theme-data-amber: #fcd34d;
-  --theme-data-green: #4ade80;
-  --theme-data-orange: #fdba74;
-
-  --theme-focus-ring: 0 0 0 3px rgb(248 178 106 / 28%);
-
-  --theme-shadow-card: none;
-  --theme-shadow-hover: 0 0 0 1px var(--theme-border-strong);
-  --theme-shadow-modal: 0 24px 60px rgb(0 0 0 / 50%);
-
-  --theme-sidebar-bg: #0f0f10;
-  --theme-sidebar-text: #a1a1a6;
-  --theme-sidebar-text-muted: #85858b;
-  --theme-sidebar-text-active: #f8b26a;
-  --theme-sidebar-hover: #1b1b1d;
-  --theme-sidebar-active: #2b2218;
-
-  --theme-header-bg: rgb(20 20 21 / 92%);
-  --theme-header-shadow: none;
-  --theme-overlay: rgb(0 0 0 / 60%);
-
-  --read-text: var(--theme-text-primary);
-  --read-text-muted: var(--theme-text-secondary);
-  --read-border: var(--theme-border);
-
-  --color-background: var(--theme-page-bg);
-  --color-foreground: var(--theme-text-primary);
-  --color-primary: var(--theme-primary);
-  --color-primary-foreground: var(--theme-primary-foreground);
-  --color-accent: var(--theme-primary);
-  --color-muted: var(--theme-surface-soft);
-  --color-muted-foreground: var(--theme-text-secondary);
-  --color-border: var(--theme-border);
-  --color-success: var(--theme-success);
-  --color-warning: var(--theme-warning);
-  --color-danger: var(--theme-danger);
-}
-
-:root[data-theme='light'] {
-  color-scheme: light;
-
-  --theme-inverse-surface: #171717;
-  --theme-inverse-text: #ffffff;
-  --theme-primary-foreground: #ffffff;
-  --theme-danger-foreground: #ffffff;
-
-  /* Light-theme semantic colors retain the existing report palette. */
-  --theme-data-neutral: #18293f;
-  --theme-data-teal: #0f766e;
-  --theme-data-red: #dc2626;
-  --theme-data-purple: #5b6b8c;
-  --theme-data-blue: #3b6a96;
-  --theme-data-cyan: #0891b2;
-  --theme-data-amber: #a16207;
-  --theme-data-green: #15803d;
-  --theme-data-orange: #c2410c;
+  --theme-inverse-surface: #0F3460;
+  --theme-inverse-text: #1A1A2E;
+  --theme-data-neutral: #F9F9F9;
+  --theme-data-teal: #69D6CF;
+  --theme-data-red: #F08EA0;
+  --theme-data-purple: #B7A7E8;
+  --theme-data-blue: #87B9F0;
+  --theme-data-cyan: #71D6E8;
+  --theme-data-amber: #F0C96D;
+  --theme-data-green: #72CDA4;
+  --theme-data-orange: #D6A5E8;
 
   --color-background: var(--theme-page-bg);
   --color-foreground: var(--theme-text-primary);
@@ -131,65 +45,6 @@ body {
 
 .app-sidebar {
   border-right: 1px solid var(--theme-border);
-}
-
-.app-theme-switch {
-  position: relative;
-  display: inline-flex;
-  width: 60px;
-  min-width: 60px;
-  height: 36px;
-  align-items: center;
-  justify-content: flex-start;
-  padding: 3px;
-  border: 1px solid var(--theme-border-strong);
-  border-radius: 999px;
-  background: var(--theme-surface-soft);
-  cursor: pointer;
-  flex: 0 0 60px;
-  transition: border-color 160ms ease, background-color 180ms ease;
-}
-
-.app-theme-switch:hover {
-  border-color: var(--theme-primary);
-}
-
-.app-theme-switch:focus-visible {
-  outline: 2px solid var(--theme-primary);
-  outline-offset: 3px;
-}
-
-.app-theme-switch__track {
-  position: relative;
-  display: block;
-  width: 52px;
-  height: 28px;
-}
-
-.app-theme-switch__thumb {
-  position: absolute;
-  top: 0;
-  left: 0;
-  display: grid;
-  width: 28px;
-  height: 28px;
-  place-items: center;
-  border: 1px solid var(--theme-border-strong);
-  border-radius: 50%;
-  background: var(--theme-surface-raised);
-  color: var(--theme-text-secondary);
-  transform: translateX(0);
-  transition: transform 220ms cubic-bezier(.22, 1, .36, 1), background-color 180ms ease, color 180ms ease, border-color 180ms ease;
-}
-
-.app-theme-switch__thumb svg {
-  width: 15px;
-  height: 15px;
-  stroke-width: 1.5;
-}
-
-.app-theme-switch[data-theme='dark'] .app-theme-switch__thumb {
-  transform: translateX(24px);
 }
 
 /* Global dark-theme contrast safeguards for components that contain legacy fixed colors. */
@@ -396,9 +251,7 @@ body {
   body,
   .app-shell,
   .app-sidebar,
-  .app-header,
-  .app-theme-switch,
-  .app-theme-switch__thumb {
+  .app-header {
     transition: none !important;
   }
 }

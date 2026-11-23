@@ -31,7 +31,7 @@
 /* =========================================================
    SIM SPPG — CORE UI FOUNDATION
    Single owner for:
-   - light theme tokens
+   - canonical dark theme tokens
    - document baseline
    - app shell geometry
    - sidebar / navigation
@@ -45,66 +45,64 @@
    ========================================================= */
 
 /* =========================================================
-   LEDGER — LIGHT THEME TOKENS
-   Single light theme.
+   SIM SPPG — MIDNIGHT SHADOWS DARK THEME
+   One canonical palette for the entire application.
    ========================================================= */
 
 :root {
-  color-scheme: light;
+  color-scheme: dark;
 
-  --theme-page-bg: #fafafa;
-  --theme-surface: #ffffff;
-  --theme-surface-soft: #f4f4f5;
-  --theme-surface-raised: #ffffff;
+  --theme-page-bg: #1A1A2E;
+  --theme-surface: #16213E;
+  --theme-surface-soft: #1C2948;
+  --theme-surface-raised: #223454;
 
-  --theme-text-primary: #171717;
-  --theme-text-secondary: #525252;
-  --theme-text-muted: #737373;
+  --theme-text-primary: #F9F9F9;
+  --theme-text-secondary: #C8D1E1;
+  --theme-text-muted: #9EABC2;
 
-  --theme-border: #e4e4e7;
-  --theme-border-strong: #d4d4d8;
+  --theme-border: rgb(200 215 240 / 13%);
+  --theme-border-strong: rgb(200 215 240 / 24%);
 
-  --theme-primary: #8f520a;
-  --theme-primary-hover: #7a4508;
-  --theme-primary-soft: #fbf0e1;
-  --theme-primary-foreground: #ffffff;
+  --theme-primary: #E94560;
+  --theme-primary-hover: #F15B73;
+  --theme-primary-soft: rgb(233 69 96 / 16%);
+  --theme-primary-foreground: #F9F9F9;
 
-  --theme-success: #16a34a;
-  --theme-success-hover: #15803d;
-  --theme-success-soft: #e9f8ef;
+  --theme-success: #72CDA4;
+  --theme-success-hover: #8AD9B5;
+  --theme-success-soft: rgb(114 205 164 / 15%);
 
-  --theme-warning: #d97706;
-  --theme-warning-hover: #b45309;
-  --theme-warning-soft: #fff5e6;
+  --theme-warning: #F0C96D;
+  --theme-warning-hover: #F6D888;
+  --theme-warning-soft: rgb(240 201 109 / 15%);
 
-  --theme-danger: #dc2626;
-  --theme-danger-soft: #fff0f0;
+  --theme-danger: #E94560;
+  --theme-danger-soft: rgb(233 69 96 / 16%);
+  --theme-danger-foreground: #F9F9F9;
 
-  --theme-focus-ring: 0 0 0 3px rgb(143 82 10 / 0.22);
+  --theme-focus-ring: 0 0 0 3px rgb(233 69 96 / 30%);
 
-  --theme-shadow-card: 0 1px 2px rgb(0 0 0 / 0.05);
+  --theme-shadow-card: 0 8px 24px rgb(4 10 28 / 22%);
+  --theme-shadow-hover: 0 12px 30px rgb(4 10 28 / 32%);
+  --theme-shadow-modal: 0 28px 72px rgb(0 0 0 / 58%);
 
-  --theme-shadow-hover: 0 8px 24px rgb(0 0 0 / 0.06);
+  --theme-sidebar-bg: #171B32;
+  --theme-sidebar-text: #C8D1E1;
+  --theme-sidebar-text-muted: #9EABC2;
+  --theme-sidebar-text-active: #F9F9F9;
+  --theme-sidebar-hover: #202C49;
+  --theme-sidebar-active: #0F3460;
 
-  --theme-shadow-modal: 0 20px 50px rgb(0 0 0 / 0.14);
-
-  --theme-sidebar-bg: #f4f4f5;
-  --theme-sidebar-text: #525252;
-  --theme-sidebar-text-muted: #737373;
-  --theme-sidebar-text-active: #8f520a;
-  --theme-sidebar-hover: #ececee;
-  --theme-sidebar-active: #fbf0e1;
-
-  --theme-header-bg: rgb(250 250 250 / 0.92);
-  --theme-header-shadow: 0 1px 2px rgb(0 0 0 / 0.04);
-  --theme-overlay: rgb(0 0 0 / 0.32);
+  --theme-header-bg: rgb(22 33 62 / 94%);
+  --theme-header-shadow: 0 1px 0 rgb(249 249 249 / 6%);
+  --theme-overlay: rgb(5 9 22 / 72%);
 
   --theme-motion-fast: 150ms;
   --theme-motion: 220ms;
   --theme-motion-slow: 320ms;
   --theme-ease: cubic-bezier(0.22, 1, 0.36, 1);
 
-  /* Type scale. 11px is the floor for any readable text. */
   --ui-text-xs: 11px;
   --ui-text-sm: 12px;
   --ui-text-base: 13px;
@@ -121,7 +119,6 @@
   --ui-font-mono:
     ui-monospace, 'SF Mono', 'Cascadia Mono', Menlo, Consolas, monospace;
 
-  /* Spacing on a 4px grid. */
   --ui-space-1: 4px;
   --ui-space-2: 8px;
   --ui-space-3: 12px;
@@ -130,22 +127,17 @@
   --ui-space-6: 24px;
   --ui-space-8: 32px;
 
-  /* Radius ladder: control, card, panel. Inner radius = outer - padding. */
   --ui-radius-sm: 6px;
   --ui-radius-control: 8px;
   --ui-radius-card: 12px;
   --ui-radius-panel: 16px;
 
-  /* Hairlines are the text color at low opacity, so they follow the theme. */
-  --ui-hairline: color-mix(in srgb, var(--theme-text-primary) 9%, transparent);
+  --ui-hairline: color-mix(in srgb, var(--theme-text-primary) 10%, transparent);
 
-  /* Compact baseline for modal/form controls.
-   * Page-level primary controls intentionally override to 56px. */
   --app-control-height: 42px;
   --app-control-radius: 10px;
   --app-modal-radius: 18px;
 
-  /* Shared page geometry: every route uses the same outer layout. */
   --app-page-width: 100%;
   --app-page-max-width: none;
   --app-page-margin: 0;
@@ -158,7 +150,7 @@
 }
 
 html {
-  color-scheme: light;
+  color-scheme: dark;
 }
 
 html.theme-transitioning,
@@ -176,16 +168,16 @@ html.theme-transitioning *::after {
 
 @theme {
   --color-background: var(--theme-page-bg);
-  --color-foreground: #171717;
-  --color-primary: #8f520a;
-  --color-primary-foreground: #ffffff;
-  --color-accent: #8f520a;
-  --color-muted: #f4f4f5;
-  --color-muted-foreground: #525252;
+  --color-foreground: var(--theme-text-primary);
+  --color-primary: var(--theme-primary);
+  --color-primary-foreground: var(--theme-primary-foreground);
+  --color-accent: var(--theme-primary);
+  --color-muted: var(--theme-surface-soft);
+  --color-muted-foreground: var(--theme-text-secondary);
   --color-border: var(--theme-border);
-  --color-success: #16a34a;
-  --color-warning: #d97706;
-  --color-danger: #dc2626;
+  --color-success: var(--theme-success);
+  --color-warning: var(--theme-warning);
+  --color-danger: var(--theme-danger);
 }
 
 :root {

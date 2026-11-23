@@ -1,26 +1,19 @@
 <!doctype html>
-<html lang="id">
+<html lang="id" data-theme="dark">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="./fav.svg" />
     <link rel="icon" type="image/png" href="./fav.png" sizes="200x200" />
     <link rel="apple-touch-icon" href="./fav.png" />
-    <link rel="mask-icon" href="./fav.svg" color="#8f520a" />
-    <meta name="theme-color" content="#fafafa" />
+    <link rel="mask-icon" href="./fav.svg" color="#E94560" />
+    <meta name="theme-color" content="#1A1A2E" />
+    <meta name="color-scheme" content="dark" />
+    <style>
+      html { color-scheme: dark; background: #1A1A2E; }
+      body { margin: 0; background: #1A1A2E; color: #F9F9F9; }
+    </style>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <title>Sistem Informasi Manajemen - SPPG</title>
-    <script>
-      ;(function () {
-        var theme = 'dark'
-        try {
-          theme = localStorage.getItem('sim-sppg-theme') === 'light' ? 'light' : 'dark'
-        } catch {}
-        document.documentElement.dataset.theme = theme
-        document.documentElement.style.colorScheme = theme
-        var themeColor = document.querySelector('meta[name="theme-color"]')
-        if (themeColor) themeColor.content = theme === 'dark' ? '#0a1220' : '#f4f8fc'
-      })()
-    </script>
   </head>
   <body>
     <div id="root"></div>
