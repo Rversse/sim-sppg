@@ -111,6 +111,16 @@ export function matchesMakerAccountRecipient(
   return candidates.some((name) => Boolean(name) && normalizeMakerText(name) === target)
 }
 
+function normalizeMakerOpsHarianDetails(value: string): string {
+  const source = value.trim()
+  if (!source) return ''
+
+  // OPS HARIAN is a category label; remove it only when a specific note follows.
+  const withoutDefaultPrefix = source.replace(/^Ops\s+Harian\b[\s,:-]*/i, '').trim()
+
+  return withoutDefaultPrefix || 'Ops Harian'
+}
+
 function formatMakerProductList(value: string): string {
   const source = value.trim()
   if (!source) return ''
@@ -392,7 +402,7 @@ function makeRow(
     kind === 'gas'
         ? gasDetails
         : kind === 'ops_harian'
-          ? parsed.details || (isArutalaNeutralOpsAccount ? '' : 'Ops Harian')
+          ? normalizeMakerOpsHarianDetails(parsed.details) || (isArutalaNeutralOpsAccount ? '' : 'Ops Harian')
           : kind === 'rab'
             ? formatMakerProductList(parsed.details)
             : parsed.details

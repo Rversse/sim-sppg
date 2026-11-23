@@ -561,3 +561,32 @@ test('Maker OPS HARIAN Arutala neutral mapping preserves both purchase and defau
   assert.deepEqual(parsed.rows.map((row) => row.accountNumber), ['1985322260', '1985322260'])
   assert.deepEqual(parsed.rows.map((row) => row.amount), [270000, 225000])
 })
+
+
+test('Maker OPS HARIAN removes its redundant prefix only when a specific note follows', () => {
+  const parsed = parseMakerDocument([
+    'Campakamulya, 23-Nov-2026',
+    'OPS HARIAN : Koperasi Arutala - BNI / 1985322260 · Ops Harian bensin,sabun,bensin genset,token · 1.095.500',
+    'OPS HARIAN : Koperasi Arutala - BNI / 1985322260 · Ops Harian Galon aqua · 220.000',
+    'OPS HARIAN : Koperasi Arutala - BNI / 1985322260 · Ops Harian · 220.000',
+    'OPS HARIAN : Melan Fitriani - BNI / 2035516850 · Pembayaran BBM genset · 320.000',
+    'OPS HARIAN : Melan Fitriani - BNI / 2035516850 · Pembelian untuk Ops Harian · 100.000',
+    'OPS HARIAN : Koperasi Arutala - BNI / 1985322260 · 1.080.000'
+  ].join('\n'))
+
+  assert.equal(parsed.error, null)
+  assert.deepEqual(parsed.rows.map((row) => row.details), [
+    'bensin,sabun,bensin genset,token',
+    'Galon aqua',
+    'Ops Harian',
+    'Pembayaran BBM genset',
+    'Pembelian untuk Ops Harian',
+    ''
+  ])
+  assert.deepEqual(parsed.rows.map((row) => row.amount), [
+    1095500, 220000, 220000, 320000, 100000, 1080000
+  ])
+  assert.deepEqual(parsed.rows.map((row) => row.accountNumber), [
+    '1985322260', '1985322260', '1985322260', '2035516850', '2035516850', '1985322260'
+  ])
+})
