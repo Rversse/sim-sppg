@@ -197,14 +197,6 @@ export function KoperasiRealEntry() {
     () => Object.values(opsAmounts).reduce((total, value) => total + parseAmount(value), 0),
     [opsAmounts]
   )
-  const totalRabSaved = useMemo(
-    () => savedRab.reduce((total, row) => total + Number(row.amount), 0),
-    [savedRab]
-  )
-  const totalOpsSaved = useMemo(
-    () => savedOps.reduce((total, row) => total + Number(row.amount), 0),
-    [savedOps]
-  )
 
   function updateAmount(kind: RealKind, key: string, value: string) {
     const sanitized = value.replace(/[^0-9]/g, '')
