@@ -426,14 +426,14 @@
 }
 
 .reports-summary-grid.reports-summary-belanja {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  max-width: 860px;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  max-width: 1500px;
   margin: 0 auto 12px;
   gap: 8px;
 }
 
 .reports-summary-grid.reports-summary-belanja .reports-summary-card {
-  min-height: 100px;
+  min-height: 88px;
   align-content: center;
   justify-items: center;
   gap: 4px;
@@ -448,12 +448,6 @@
 .reports-summary-grid.reports-summary-belanja .reports-summary-card > strong {
   margin-top: 0;
   font-size: clamp(18px, 1.7vw, 22px);
-}
-
-.reports-summary-grid.reports-summary-belanja .reports-summary-card > small {
-  max-width: 220px;
-  font-size: var(--ui-text-xs);
-  line-height: 1.3;
 }
 
 .reports-summary-grid.reports-summary-belanja .reports-summary-card--rab {
@@ -1184,5 +1178,19 @@
 .reports-table-overall thead th.reports-col-gas {
   white-space: normal;
   line-height: 1.15;
+}
+
+/* Long formula headers wrap cleanly without widening the overall table. */
+.reports-overall-belanja-block .reports-table-overall thead th.reports-col-total {
+  white-space: normal;
+  line-height: 1.15;
+}
+
+/* Keep negative grand-total balances red in the on-screen report.
+   Print styling remains governed by the existing print stylesheet. */
+@media screen {
+  .reports-overall-belanja-block .reports-total-row td.negative {
+    color: var(--app-danger) !important;
+  }
 }
 
