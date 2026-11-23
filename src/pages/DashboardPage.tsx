@@ -65,7 +65,7 @@ import {
   getTodayLocal
 } from '@/lib/formatters'
 
-const DASHBOARD_HISTORY_PAGE_SIZE = 10
+const DASHBOARD_HISTORY_PAGE_SIZE = 12
 
 const FLOW_OPTIONS: { value: DashboardFlow | ''; label: string }[] = [
   { value: '', label: 'Semua transaksi' },
