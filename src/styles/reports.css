@@ -1156,6 +1156,62 @@
     border-color: var(--app-border-mid);
   }
 
+  /* The overall belanja table uses fixed widths in print so long
+     formula headers wrap instead of colliding with adjacent columns. */
+  .reports-overall-belanja-block .reports-table-overall {
+    width: 100%;
+    min-width: 0;
+    table-layout: fixed;
+  }
+
+  .reports-overall-belanja-block .reports-table-overall th,
+  .reports-overall-belanja-block .reports-table-overall td {
+    vertical-align: middle !important;
+  }
+
+  .reports-overall-belanja-block .reports-table-overall thead th {
+    white-space: normal !important;
+    overflow-wrap: break-word;
+    word-break: normal;
+    line-height: 1.2 !important;
+    text-align: center !important;
+    padding: 8px 5px !important;
+  }
+
+  .reports-overall-belanja-block .reports-table-overall th:nth-child(1),
+  .reports-overall-belanja-block .reports-table-overall td:nth-child(1) {
+    width: 18% !important;
+  }
+
+  .reports-overall-belanja-block .reports-table-overall th:nth-child(2),
+  .reports-overall-belanja-block .reports-table-overall td:nth-child(2) {
+    width: 12.5% !important;
+  }
+
+  .reports-overall-belanja-block .reports-table-overall th:nth-child(3),
+  .reports-overall-belanja-block .reports-table-overall td:nth-child(3) {
+    width: 12.5% !important;
+  }
+
+  .reports-overall-belanja-block .reports-table-overall th:nth-child(4),
+  .reports-overall-belanja-block .reports-table-overall td:nth-child(4) {
+    width: 14% !important;
+  }
+
+  .reports-overall-belanja-block .reports-table-overall th:nth-child(5),
+  .reports-overall-belanja-block .reports-table-overall td:nth-child(5),
+  .reports-overall-belanja-block .reports-table-overall th:nth-child(6),
+  .reports-overall-belanja-block .reports-table-overall td:nth-child(6) {
+    width: 9.5% !important;
+  }
+
+  .reports-overall-belanja-block .reports-table-overall th:nth-child(7),
+  .reports-overall-belanja-block .reports-table-overall td:nth-child(7),
+  .reports-overall-belanja-block .reports-table-overall th:nth-child(8),
+  .reports-overall-belanja-block .reports-table-overall td:nth-child(8) {
+    width: 12% !important;
+  }
+
   .reports-total-row {
     break-inside: avoid;
   }
