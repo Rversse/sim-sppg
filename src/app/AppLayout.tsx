@@ -201,7 +201,7 @@ export function AppLayout() {
     <div className={'app-shell' + (user?.role === 'koperasi' ? ' is-koperasi' : '')}>
       {user?.role !== 'koperasi' ? <aside className="app-sidebar">
         <div className="app-brand">
-          <NavLink to={user?.role === 'koperasi' ? '/real-import' : '/dashboard'} className="app-brand-home" aria-label={user?.role === 'koperasi' ? 'Belanja Harian Real' : 'Dashboard'}>
+          <NavLink to="/dashboard" className="app-brand-home" aria-label="Dashboard">
             <span className="app-brand-mark" aria-hidden="true">
               <img src={appBrandIcon} alt="" />
             </span>
