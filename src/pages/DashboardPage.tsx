@@ -1542,528 +1542,530 @@ export function DashboardPage() {
           min-height: 38px;
         }
       `}</style>
-      <section className="dashboard-overview-grid">
-      <article className="dashboard-panel dashboard-summary-panel">
-        <div className="dashboard-panel-header">
-          <div>
-            <h2>Ringkasan</h2>
-          </div>
-        </div>
-
-        <div className="dashboard-summary-list">
-          <div className="dashboard-summary-row">
-            <span>RAB / Pencairan</span>
-            {loading ? <Skeleton className="dashboard-summary-skeleton" /> : <strong>{formatCurrency(summary.income)}</strong>}
-          </div>
-          <div className="dashboard-summary-row">
-            <span>RAB / Real</span>
-            {loading ? <Skeleton className="dashboard-summary-skeleton" /> : <strong>{formatCurrency(summary.expense)}</strong>}
-          </div>
-          <div className={`dashboard-summary-row dashboard-summary-row-balance ${rabBalance > 0 ? 'is-positive' : rabBalance < 0 ? 'is-negative' : 'is-zero'}`}>
-            <span>Sisa RAB</span>
-            {loading ? <Skeleton className="dashboard-summary-skeleton" /> : <strong>{formatCurrency(rabBalance)}</strong>}
-          </div>
-
-          <div className="dashboard-summary-divider" aria-hidden="true" />
-
-          <div className="dashboard-summary-row">
-            <span>OPS / Arutala</span>
-            {loading ? <Skeleton className="dashboard-summary-skeleton" /> : <strong>{formatCurrency(summary.gas)}</strong>}
-          </div>
-          <div className="dashboard-summary-row">
-            <span>OPS / Real</span>
-            {loading ? <Skeleton className="dashboard-summary-skeleton" /> : <strong>{formatCurrency(summary.opsReal)}</strong>}
-          </div>
-          <div className={`dashboard-summary-row dashboard-summary-row-balance ${opsBalance > 0 ? 'is-positive' : opsBalance < 0 ? 'is-negative' : 'is-zero'}`}>
-            <span>Sisa OPS</span>
-            {loading ? <Skeleton className="dashboard-summary-skeleton" /> : <strong>{formatCurrency(opsBalance)}</strong>}
-          </div>
-
-          <div className="dashboard-summary-divider" aria-hidden="true" />
-
-          <div className="dashboard-summary-row">
-            <span>OPS / Pencairan</span>
-            {loading ? <Skeleton className="dashboard-summary-skeleton" /> : <strong>{formatCurrency(summary.operationalDisbursement)}</strong>}
-          </div>
-        </div>
-      </article>
-
-      <section className="dashboard-filter-card">
-        <div className="dashboard-filter-heading">
-          <div>
-            <strong>Filter</strong>
-          </div>
-          <button
-            type="button"
-            className="dashboard-reset"
-            onClick={() => {
-              setTransactionPage(1)
-              setFilters({
-                startDate: today,
-                endDate: today,
-                kitchenId: '',
-                flowType: '',
-                supplierFilter: ''
-              })
-            }}
-          >
-            Reset
-          </button>
-        </div>
-
-        <div className="dashboard-filter-grid">
-          <div className="dashboard-date-range-field">
-            <DateRangePicker
-              value={{
-                startDate: filters.startDate,
-                endDate: filters.endDate
-              }}
-              onChange={handleDateRangeChange}
-            />
-          </div>
-
-          <AnimatedSelect
-            label="Dapur"
-            value={filters.kitchenId}
-            options={kitchenFilterOptions}
-            placeholder="Semua dapur"
-            onChange={handleKitchen}
-          />
-
-          <AnimatedSelect
-            label="Jenis transaksi"
-            value={filters.flowType}
-            options={flowFilterOptions}
-            placeholder="Semua transaksi"
-            onChange={(value) => void handleFlow(value as DashboardFlow | '')}
-          />
-
-          {filters.flowType !== 'operational_disbursement' ? (
-            <AnimatedSelect
-              label={supplierFilterLabel}
-              value={supplierFilterValue}
-              options={supplierFilterOptions}
-              placeholder={supplierPlaceholder}
-              disabled={supplierDisabled}
-              onChange={(value) => updateFilter('supplierFilter', value)}
-            />
-          ) : null}
-
-          {includeSppgRent ? (
-            <button
-              type="button"
-              className="dashboard-transaction-action"
-              onClick={openCreateTransactionModal}
-            >
-              + Transaksi
-            </button>
-          ) : null}
-
-          </div>
-      </section>
-      </section>
       {error ? <div className="dashboard-error">{error}</div> : null}
 
-
-      <section className="dashboard-main-grid">
-        <article className="dashboard-panel dashboard-status-panel dashboard-main-panel">
+      <section className="dashboard-layout-grid">
+        <div className="dashboard-layout-column dashboard-layout-left">
+  <article className="dashboard-panel dashboard-summary-panel">
           <div className="dashboard-panel-header">
             <div>
-              <h2>Status pencairan</h2>
+              <h2>Ringkasan</h2>
             </div>
           </div>
-
-          {dailyStatus ? (
-            <>
-              <div className={`dashboard-operational-period ${showOperationalMonth ? '' : 'is-custom-range'}`}>
-                <div className="dashboard-operational-period-heading">
-                  <strong>{showOperationalMonth ? `Bulan Operasional Ke-${dashboardPeriod.month}` : 'Rentang tanggal dipilih'}</strong>
-                  <span>{formatDate(dashboardPeriod.startDate)} – {formatDate(dashboardPeriod.endDate)}</span>
-                </div>
-                {showOperationalMonth ? (
-                  <div className="dashboard-operational-progress" role="progressbar" aria-valuemin={0} aria-valuemax={28} aria-valuenow={dashboardPeriod.day} aria-label={`Hari ke-${dashboardPeriod.day} dari 28`}>
-                    <span style={{ width: `${dashboardPeriod.progress}%` }} />
-                  </div>
-                ) : <div className="dashboard-operational-divider" aria-hidden="true" />}
+  
+          <div className="dashboard-summary-list">
+            <div className="dashboard-summary-row">
+              <span>RAB / Pencairan</span>
+              {loading ? <Skeleton className="dashboard-summary-skeleton" /> : <strong>{formatCurrency(summary.income)}</strong>}
+            </div>
+            <div className="dashboard-summary-row">
+              <span>RAB / Real</span>
+              {loading ? <Skeleton className="dashboard-summary-skeleton" /> : <strong>{formatCurrency(summary.expense)}</strong>}
+            </div>
+            <div className={`dashboard-summary-row dashboard-summary-row-balance ${rabBalance > 0 ? 'is-positive' : rabBalance < 0 ? 'is-negative' : 'is-zero'}`}>
+              <span>Sisa RAB</span>
+              {loading ? <Skeleton className="dashboard-summary-skeleton" /> : <strong>{formatCurrency(rabBalance)}</strong>}
+            </div>
+  
+            <div className="dashboard-summary-divider" aria-hidden="true" />
+  
+            <div className="dashboard-summary-row">
+              <span>OPS / Arutala</span>
+              {loading ? <Skeleton className="dashboard-summary-skeleton" /> : <strong>{formatCurrency(summary.gas)}</strong>}
+            </div>
+            <div className="dashboard-summary-row">
+              <span>OPS / Real</span>
+              {loading ? <Skeleton className="dashboard-summary-skeleton" /> : <strong>{formatCurrency(summary.opsReal)}</strong>}
+            </div>
+            <div className={`dashboard-summary-row dashboard-summary-row-balance ${opsBalance > 0 ? 'is-positive' : opsBalance < 0 ? 'is-negative' : 'is-zero'}`}>
+              <span>Sisa OPS</span>
+              {loading ? <Skeleton className="dashboard-summary-skeleton" /> : <strong>{formatCurrency(opsBalance)}</strong>}
+            </div>
+  
+            <div className="dashboard-summary-divider" aria-hidden="true" />
+  
+            <div className="dashboard-summary-row">
+              <span>OPS / Pencairan</span>
+              {loading ? <Skeleton className="dashboard-summary-skeleton" /> : <strong>{formatCurrency(summary.operationalDisbursement)}</strong>}
+            </div>
+          </div>
+        </article>
+          
+  <article className="dashboard-panel dashboard-status-panel dashboard-main-panel">
+            <div className="dashboard-panel-header">
+              <div>
+                <h2>Status pencairan</h2>
               </div>
+            </div>
+  
+            {dailyStatus ? (
+              <>
+                <div className={`dashboard-operational-period ${showOperationalMonth ? '' : 'is-custom-range'}`}>
+                  <div className="dashboard-operational-period-heading">
+                    <strong>{showOperationalMonth ? `Bulan Operasional Ke-${dashboardPeriod.month}` : 'Rentang tanggal dipilih'}</strong>
+                    <span>{formatDate(dashboardPeriod.startDate)} – {formatDate(dashboardPeriod.endDate)}</span>
+                  </div>
+                  {showOperationalMonth ? (
+                    <div className="dashboard-operational-progress" role="progressbar" aria-valuemin={0} aria-valuemax={28} aria-valuenow={dashboardPeriod.day} aria-label={`Hari ke-${dashboardPeriod.day} dari 28`}>
+                      <span style={{ width: `${dashboardPeriod.progress}%` }} />
+                    </div>
+                  ) : <div className="dashboard-operational-divider" aria-hidden="true" />}
+                </div>
+  
+                <div className="dashboard-status-list">
+                  {dailyStatus.rows.map((row) => {
+                    const rowClass =
+                      row.status === 'has_pencairan'
+                        ? 'is-has-pencairan'
+                        : 'is-empty'
+  
+                    return (
+                      <div
+                        className={`dashboard-status-row ${rowClass}`}
+                        key={row.kitchen}
+                      >
+                        <div className="dashboard-status-identity">
+                          <strong>{row.kitchen}</strong>
+                          {(row.transactionCount + row.auditOnlyTransactionCount) > 0 ? (
+                            <div
+                              className="sppg-status-dots-track"
+                              aria-label={`${row.transactionCount} valid, ${row.auditOnlyTransactionCount} audit`}
+                              title={`${row.transactionCount} Valid · ${row.auditOnlyTransactionCount} Audit`}
+                              role="img"
+                            >
+                              {Array.from({ length: row.transactionCount }, (_, index) => (
+                                <i className="sppg-status-dot sppg-status-dot--valid" key={`db-${index}`} />
+                              ))}
+                              {Array.from({ length: row.auditOnlyTransactionCount }, (_, index) => (
+                                <i className="sppg-status-dot sppg-status-dot--audit" key={`audit-${index}`} />
+                              ))}
+                            </div>
+                          ) : null}
+                        </div>
+  
+                        <div className="dashboard-status-row-actions">
+                          <div className="dashboard-status-flags">
+                            <span
+                              className={`status-flag-rab ${
+                                row.income ? 'is-done' : ''
+                              }`}
+                              aria-label="RAB / Pencairan"
+                            >
+                              <WalletCards aria-hidden="true" />
+                            </span>
+                            <span
+                              className={`status-flag-real-rab ${
+                                row.expense ? 'is-done' : ''
+                              }`}
+                              aria-label="RAB / Real"
+                            >
+                              <WalletCards aria-hidden="true" />
+                            </span>
+                            {row.opsReal ? (
+                              <span className="status-flag-real-rab is-done" aria-label="OPS / Real">
+                                <WalletCards aria-hidden="true" />
+                              </span>
+                            ) : null}
+                            {row.gasAvailable || row.gas ? (
+                              <span
+                                className={`status-flag-gas ${
+                                  row.gas ? 'is-done' : ''
+                                }`}
+                                aria-label="OPS / Arutala"
+                              >
+                                <Landmark aria-hidden="true" />
+                              </span>
+                            ) : null}
+                            {row.opsHarianAvailable ? (
+                              <span
+                                className={`status-flag-pencairan-ops ${
+                                  row.operational ? 'is-done' : ''
+                                }`}
+                                aria-label="OPS / Pencairan"
+                              >
+                                <Settings2 aria-hidden="true" />
+                              </span>
+                            ) : null}
+                            {row.relawanSalaryAvailable ? (
+                              <span
+                                className={`status-flag-relawan-salary ${
+                                  row.relawanSalary ? 'is-done' : ''
+                                }`}
+                                aria-label="Gaji Relawan"
+                              >
+                                <Users aria-hidden="true" />
+                              </span>
+                            ) : null}
+                            {row.picIncentiveAvailable ? (
+                              <span
+                                className={`status-flag-pic-incentive ${
+                                  row.picIncentive ? 'is-done' : ''
+                                }`}
+                                aria-label="Insentif PIC"
+                              >
+                                <BadgePercent aria-hidden="true" />
+                              </span>
+                            ) : null}
+                            {row.sppgRentAvailable ? (
+                              <span
+                                className={`status-flag-sppg-rent ${
+                                  row.sppgRent ? 'is-done' : ''
+                                }`}
+                                aria-label="Insentif Fasilitas SPPG"
+                              >
+                                <Building2 aria-hidden="true" />
+                              </span>
+                            ) : null}
+                            {row.vehicleRentAvailable ? (
+                              <span
+                                className={`status-flag-vehicle-rent ${
+                                  row.vehicleRent ? 'is-done' : ''
+                                }`}
+                                aria-label="Sewa Kendaraan"
+                              >
+                                <Car aria-hidden="true" />
+                              </span>
+                            ) : null}
+                          </div>
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+              </>
+            ) : (
+              <div className="dashboard-empty">Memuat status dapur…</div>
+            )}
+          </article>
+        </div>
 
-              <div className="dashboard-status-list">
-                {dailyStatus.rows.map((row) => {
-                  const rowClass =
-                    row.status === 'has_pencairan'
-                      ? 'is-has-pencairan'
-                      : 'is-empty'
-
+        <div className="dashboard-layout-column dashboard-layout-right">
+  <section className="dashboard-filter-card">
+          <div className="dashboard-filter-heading">
+            <div>
+              <strong>Filter</strong>
+            </div>
+            <button
+              type="button"
+              className="dashboard-reset"
+              onClick={() => {
+                setTransactionPage(1)
+                setFilters({
+                  startDate: today,
+                  endDate: today,
+                  kitchenId: '',
+                  flowType: '',
+                  supplierFilter: ''
+                })
+              }}
+            >
+              Reset
+            </button>
+          </div>
+  
+          <div className="dashboard-filter-grid">
+            <div className="dashboard-date-range-field">
+              <DateRangePicker
+                value={{
+                  startDate: filters.startDate,
+                  endDate: filters.endDate
+                }}
+                onChange={handleDateRangeChange}
+              />
+            </div>
+  
+            <AnimatedSelect
+              label="Dapur"
+              value={filters.kitchenId}
+              options={kitchenFilterOptions}
+              placeholder="Semua dapur"
+              onChange={handleKitchen}
+            />
+  
+            <AnimatedSelect
+              label="Jenis transaksi"
+              value={filters.flowType}
+              options={flowFilterOptions}
+              placeholder="Semua transaksi"
+              onChange={(value) => void handleFlow(value as DashboardFlow | '')}
+            />
+  
+            {filters.flowType !== 'operational_disbursement' ? (
+              <AnimatedSelect
+                label={supplierFilterLabel}
+                value={supplierFilterValue}
+                options={supplierFilterOptions}
+                placeholder={supplierPlaceholder}
+                disabled={supplierDisabled}
+                onChange={(value) => updateFilter('supplierFilter', value)}
+              />
+            ) : null}
+  
+            {includeSppgRent ? (
+              <button
+                type="button"
+                className="dashboard-transaction-action"
+                onClick={openCreateTransactionModal}
+              >
+                + Transaksi
+              </button>
+            ) : null}
+  
+            </div>
+        </section>
+          
+  <section className="dashboard-panel dashboard-history-panel dashboard-main-panel">
+            <div className="dashboard-panel-header">
+              <div>
+                <h2>Riwayat transaksi</h2>
+                <p>
+                  Menampilkan {transactions.length} dari {totalTransactions}{' '}
+                  transaksi sesuai filter.
+                </p>
+              </div>
+              <span className="dashboard-panel-badge">Live dari database</span>
+            </div>
+  
+            <div className="dashboard-history">
+              {transactions.length ? (
+                transactions.map((transaction) => {
+                  const kitchen = kitchens.find(
+                    (item) => item.id === transaction.kitchen_id
+                  )
+                  const account = transaction.accounts
+                    ? Array.isArray(transaction.accounts)
+                      ? transaction.accounts[0]
+                      : transaction.accounts
+                    : undefined
+                  const supplier = transaction.suppliers
+                    ? Array.isArray(transaction.suppliers)
+                      ? transaction.suppliers[0]
+                      : transaction.suppliers
+                    : undefined
+                  const accountSupplier = account
+                    ? Array.isArray(account.income_suppliers)
+                      ? account.income_suppliers[0]
+                      : account.income_suppliers
+                    : null
+                  const temporaryDestination =
+                    transaction.destination_label?.trim() ||
+                    getMappedOperationalDestination(kitchen?.name)
+                  const isOtherIncomeTransaction =
+                    transaction.flow_type === 'income' && !transaction.kitchen_id
+                  const businessName = isOtherIncomeTransaction
+                    ? account?.name?.trim() || 'Rekening'
+                    : transaction.flow_type === 'expense'
+                      ? supplier?.name?.trim() || 'Supplier tidak diketahui'
+                      : transaction.flow_type === 'ops_disbursement'
+                        ? temporaryDestination || 'Tujuan operasional'
+                        : transaction.flow_type === 'operational_disbursement'
+                            ? operationalTypeLabel(transaction.operational_type)
+                            : accountSupplier?.business_name?.trim() ||
+                              account?.name?.trim() ||
+                              'Transaksi'
+                  const operationalMapping =
+                    transaction.flow_type === 'operational_disbursement'
+                      ? transaction.operational_account_mapping
+                      : null
+                  const ownerName =
+                    transaction.flow_type === 'operational_disbursement'
+                      ? operationalMapping?.owner_name ||
+                        getOperationalDestinationLabel(
+                          kitchen?.name,
+                          transaction.operational_type,
+                          transaction.transaction_date
+                        ) || ''
+                      : transaction.flow_type === 'expense' ||
+                          transaction.flow_type === 'ops_disbursement'
+                        ? ''
+                        : accountSupplier?.owner_name?.trim() || ''
+                  const bankAccount = operationalMapping
+                    ? `${operationalMapping.bank} - ${operationalMapping.account_number}`
+                    : account
+                      ? account.bank + ' - ' + account.account_number
+                      : ''
+  
                   return (
-                    <div
-                      className={`dashboard-status-row ${rowClass}`}
-                      key={row.kitchen}
-                    >
-                      <div className="dashboard-status-identity">
-                        <strong>{row.kitchen}</strong>
-                        {(row.transactionCount + row.auditOnlyTransactionCount) > 0 ? (
-                          <div
-                            className="sppg-status-dots-track"
-                            aria-label={`${row.transactionCount} valid, ${row.auditOnlyTransactionCount} audit`}
-                            title={`${row.transactionCount} Valid · ${row.auditOnlyTransactionCount} Audit`}
-                            role="img"
+                    <div className="dashboard-history-row" key={transaction.id}>
+                      <div className="dashboard-history-main">
+                        <div className="dashboard-history-heading">
+                          <strong className="dashboard-history-kitchen">
+                            {isOtherIncomeTransaction
+                              ? 'Transfer Lainnya'
+                              : kitchen?.name ?? 'Dapur tidak diketahui'}
+                            {!isOtherIncomeTransaction && kitchen?.id_sppg ? (
+                              <>
+                                <span className="dashboard-history-kitchen-separator">
+                                  /
+                                </span>
+                                <span className="dashboard-history-kitchen-id">
+                                  {kitchen.id_sppg}
+                                </span>
+                              </>
+                            ) : null}
+                          </strong>
+  
+                          <span
+                            className={flowClass(transaction.flow_type)}
+                            aria-label={flowLabel(transaction.flow_type, transaction.category, transaction.accounts)}
                           >
-                            {Array.from({ length: row.transactionCount }, (_, index) => (
-                              <i className="sppg-status-dot sppg-status-dot--valid" key={`db-${index}`} />
-                            ))}
-                            {Array.from({ length: row.auditOnlyTransactionCount }, (_, index) => (
-                              <i className="sppg-status-dot sppg-status-dot--audit" key={`audit-${index}`} />
-                            ))}
+                            <FlowIcon flow={transaction.flow_type} />
+                          </span>
+                        </div>
+  
+                        <div className="dashboard-history-party">
+                          <strong
+                            className={`dashboard-history-party-name ${flowClass(
+                              transaction.flow_type
+                            )
+                              .split(' ')
+                              .slice(1)
+                              .join(' ')}`}
+                          >
+                            {transaction.flow_type === 'expense' && transaction.category === 'OPS'
+                              ? 'OPS / Real'
+                              : businessName || transaction.category || 'Transaksi'}
+                          </strong>
+  
+                          {ownerName ? (
+                            <>
+                              <i aria-hidden="true">•</i>
+                              <span>{ownerName}</span>
+                            </>
+                          ) : null}
+  
+                          {bankAccount ? (
+                            <>
+                              <i aria-hidden="true">•</i>
+                              <span>{bankAccount}</span>
+                            </>
+                          ) : null}
+                        </div>
+  
+                        <time
+                          className="dashboard-history-timestamp"
+                          dateTime={transaction.created_at}
+                        >
+                          {formatHistoryInputTimestamp(transaction.created_at)}
+                        </time>
+  
+                        <div className="dashboard-history-divider" />
+  
+                        <p className="dashboard-history-note">
+                          <span>Catatan:</span> {transaction.note?.trim() || '-'}
+                        </p>
+                      </div>
+                      <div className="dashboard-history-side">
+                        <strong className="dashboard-history-amount">
+                          {formatCurrency(Number(transaction.amount))}
+                        </strong>
+  
+                        {includeSppgRent ? (
+                          <div className="dashboard-history-actions">
+                            <button
+                              type="button"
+                              onClick={() =>
+                                void openEditTransactionModal(transaction)
+                              }
+                            >
+                              Edit
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() =>
+                                void handleTransactionDelete(transaction)
+                              }
+                            >
+                              Hapus
+                            </button>
                           </div>
                         ) : null}
                       </div>
-
-                      <div className="dashboard-status-row-actions">
-                        <div className="dashboard-status-flags">
-                          <span
-                            className={`status-flag-rab ${
-                              row.income ? 'is-done' : ''
-                            }`}
-                            aria-label="RAB / Pencairan"
-                          >
-                            <WalletCards aria-hidden="true" />
-                          </span>
-                          <span
-                            className={`status-flag-real-rab ${
-                              row.expense ? 'is-done' : ''
-                            }`}
-                            aria-label="RAB / Real"
-                          >
-                            <WalletCards aria-hidden="true" />
-                          </span>
-                          {row.opsReal ? (
-                            <span className="status-flag-real-rab is-done" aria-label="OPS / Real">
-                              <WalletCards aria-hidden="true" />
-                            </span>
-                          ) : null}
-                          {row.gasAvailable || row.gas ? (
-                            <span
-                              className={`status-flag-gas ${
-                                row.gas ? 'is-done' : ''
-                              }`}
-                              aria-label="OPS / Arutala"
-                            >
-                              <Landmark aria-hidden="true" />
-                            </span>
-                          ) : null}
-                          {row.opsHarianAvailable ? (
-                            <span
-                              className={`status-flag-pencairan-ops ${
-                                row.operational ? 'is-done' : ''
-                              }`}
-                              aria-label="OPS / Pencairan"
-                            >
-                              <Settings2 aria-hidden="true" />
-                            </span>
-                          ) : null}
-                          {row.relawanSalaryAvailable ? (
-                            <span
-                              className={`status-flag-relawan-salary ${
-                                row.relawanSalary ? 'is-done' : ''
-                              }`}
-                              aria-label="Gaji Relawan"
-                            >
-                              <Users aria-hidden="true" />
-                            </span>
-                          ) : null}
-                          {row.picIncentiveAvailable ? (
-                            <span
-                              className={`status-flag-pic-incentive ${
-                                row.picIncentive ? 'is-done' : ''
-                              }`}
-                              aria-label="Insentif PIC"
-                            >
-                              <BadgePercent aria-hidden="true" />
-                            </span>
-                          ) : null}
-                          {row.sppgRentAvailable ? (
-                            <span
-                              className={`status-flag-sppg-rent ${
-                                row.sppgRent ? 'is-done' : ''
-                              }`}
-                              aria-label="Insentif Fasilitas SPPG"
-                            >
-                              <Building2 aria-hidden="true" />
-                            </span>
-                          ) : null}
-                          {row.vehicleRentAvailable ? (
-                            <span
-                              className={`status-flag-vehicle-rent ${
-                                row.vehicleRent ? 'is-done' : ''
-                              }`}
-                              aria-label="Sewa Kendaraan"
-                            >
-                              <Car aria-hidden="true" />
-                            </span>
-                          ) : null}
-                        </div>
-                      </div>
                     </div>
                   )
-                })}
-              </div>
-            </>
-          ) : (
-            <div className="dashboard-empty">Memuat status dapur…</div>
-          )}
-        </article>
-
-        <section className="dashboard-panel dashboard-history-panel dashboard-main-panel">
-          <div className="dashboard-panel-header">
-            <div>
-              <h2>Riwayat transaksi</h2>
-              <p>
-                Menampilkan {transactions.length} dari {totalTransactions}{' '}
-                transaksi sesuai filter.
-              </p>
-            </div>
-            <span className="dashboard-panel-badge">Live dari database</span>
-          </div>
-
-          <div className="dashboard-history">
-            {transactions.length ? (
-              transactions.map((transaction) => {
-                const kitchen = kitchens.find(
-                  (item) => item.id === transaction.kitchen_id
-                )
-                const account = transaction.accounts
-                  ? Array.isArray(transaction.accounts)
-                    ? transaction.accounts[0]
-                    : transaction.accounts
-                  : undefined
-                const supplier = transaction.suppliers
-                  ? Array.isArray(transaction.suppliers)
-                    ? transaction.suppliers[0]
-                    : transaction.suppliers
-                  : undefined
-                const accountSupplier = account
-                  ? Array.isArray(account.income_suppliers)
-                    ? account.income_suppliers[0]
-                    : account.income_suppliers
-                  : null
-                const temporaryDestination =
-                  transaction.destination_label?.trim() ||
-                  getMappedOperationalDestination(kitchen?.name)
-                const isOtherIncomeTransaction =
-                  transaction.flow_type === 'income' && !transaction.kitchen_id
-                const businessName = isOtherIncomeTransaction
-                  ? account?.name?.trim() || 'Rekening'
-                  : transaction.flow_type === 'expense'
-                    ? supplier?.name?.trim() || 'Supplier tidak diketahui'
-                    : transaction.flow_type === 'ops_disbursement'
-                      ? temporaryDestination || 'Tujuan operasional'
-                      : transaction.flow_type === 'operational_disbursement'
-                          ? operationalTypeLabel(transaction.operational_type)
-                          : accountSupplier?.business_name?.trim() ||
-                            account?.name?.trim() ||
-                            'Transaksi'
-                const operationalMapping =
-                  transaction.flow_type === 'operational_disbursement'
-                    ? transaction.operational_account_mapping
-                    : null
-                const ownerName =
-                  transaction.flow_type === 'operational_disbursement'
-                    ? operationalMapping?.owner_name ||
-                      getOperationalDestinationLabel(
-                        kitchen?.name,
-                        transaction.operational_type,
-                        transaction.transaction_date
-                      ) || ''
-                    : transaction.flow_type === 'expense' ||
-                        transaction.flow_type === 'ops_disbursement'
-                      ? ''
-                      : accountSupplier?.owner_name?.trim() || ''
-                const bankAccount = operationalMapping
-                  ? `${operationalMapping.bank} - ${operationalMapping.account_number}`
-                  : account
-                    ? account.bank + ' - ' + account.account_number
-                    : ''
-
-                return (
-                  <div className="dashboard-history-row" key={transaction.id}>
-                    <div className="dashboard-history-main">
-                      <div className="dashboard-history-heading">
-                        <strong className="dashboard-history-kitchen">
-                          {isOtherIncomeTransaction
-                            ? 'Transfer Lainnya'
-                            : kitchen?.name ?? 'Dapur tidak diketahui'}
-                          {!isOtherIncomeTransaction && kitchen?.id_sppg ? (
-                            <>
-                              <span className="dashboard-history-kitchen-separator">
-                                /
-                              </span>
-                              <span className="dashboard-history-kitchen-id">
-                                {kitchen.id_sppg}
-                              </span>
-                            </>
-                          ) : null}
-                        </strong>
-
-                        <span
-                          className={flowClass(transaction.flow_type)}
-                          aria-label={flowLabel(transaction.flow_type, transaction.category, transaction.accounts)}
-                        >
-                          <FlowIcon flow={transaction.flow_type} />
-                        </span>
-                      </div>
-
-                      <div className="dashboard-history-party">
-                        <strong
-                          className={`dashboard-history-party-name ${flowClass(
-                            transaction.flow_type
-                          )
-                            .split(' ')
-                            .slice(1)
-                            .join(' ')}`}
-                        >
-                          {transaction.flow_type === 'expense' && transaction.category === 'OPS'
-                            ? 'OPS / Real'
-                            : businessName || transaction.category || 'Transaksi'}
-                        </strong>
-
-                        {ownerName ? (
-                          <>
-                            <i aria-hidden="true">•</i>
-                            <span>{ownerName}</span>
-                          </>
-                        ) : null}
-
-                        {bankAccount ? (
-                          <>
-                            <i aria-hidden="true">•</i>
-                            <span>{bankAccount}</span>
-                          </>
-                        ) : null}
-                      </div>
-
-                      <time
-                        className="dashboard-history-timestamp"
-                        dateTime={transaction.created_at}
-                      >
-                        {formatHistoryInputTimestamp(transaction.created_at)}
-                      </time>
-
-                      <div className="dashboard-history-divider" />
-
-                      <p className="dashboard-history-note">
-                        <span>Catatan:</span> {transaction.note?.trim() || '-'}
-                      </p>
-                    </div>
-                    <div className="dashboard-history-side">
-                      <strong className="dashboard-history-amount">
-                        {formatCurrency(Number(transaction.amount))}
-                      </strong>
-
-                      {includeSppgRent ? (
-                        <div className="dashboard-history-actions">
-                          <button
-                            type="button"
-                            onClick={() =>
-                              void openEditTransactionModal(transaction)
-                            }
-                          >
-                            Edit
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() =>
-                              void handleTransactionDelete(transaction)
-                            }
-                          >
-                            Hapus
-                          </button>
-                        </div>
-                      ) : null}
-                    </div>
-                  </div>
-                )
-              })
-            ) : (
-              <div className="dashboard-empty">
-                Tidak ada transaksi yang cocok dengan filter.
-              </div>
-            )}
-          </div>
-
-          {totalTransactions > 0 ? (
-            <nav
-              className="dashboard-pagination"
-              aria-label="Pagination riwayat transaksi"
-            >
-              <span className="dashboard-pagination-summary">
-                Menampilkan{' '}
-                {(transactionPage - 1) * DASHBOARD_HISTORY_PAGE_SIZE + 1}–
-                {Math.min(
-                  transactionPage * DASHBOARD_HISTORY_PAGE_SIZE,
-                  totalTransactions
-                )}{' '}
-                dari {totalTransactions}
-              </span>
-
-              <div className="dashboard-pagination-controls">
-                <button
-                  type="button"
-                  className="dashboard-pagination-button dashboard-pagination-nav"
-                  disabled={transactionPage === 1 || loading}
-                  onClick={() =>
-                    setTransactionPage((current) => Math.max(1, current - 1))
-                  }
-                  aria-label="Halaman sebelumnya"
-                >
-                  ‹
-                </button>
-
-                <div className="dashboard-pagination-pages">
-                  {transactionPaginationPages.map((page, index) =>
-                    page === 'ellipsis' ? (
-                      <span
-                        className="dashboard-pagination-ellipsis"
-                        key={`ellipsis-${index}`}
-                        aria-hidden="true"
-                      >
-                        …
-                      </span>
-                    ) : (
-                      <button
-                        key={page}
-                        type="button"
-                        className={`dashboard-pagination-page ${
-                          page === transactionPage ? 'is-active' : ''
-                        }`}
-                        aria-current={
-                          page === transactionPage ? 'page' : undefined
-                        }
-                        disabled={loading}
-                        onClick={() => setTransactionPage(page)}
-                      >
-                        {page}
-                      </button>
-                    )
-                  )}
+                })
+              ) : (
+                <div className="dashboard-empty">
+                  Tidak ada transaksi yang cocok dengan filter.
                 </div>
-
-                <button
-                  type="button"
-                  className="dashboard-pagination-button dashboard-pagination-nav"
-                  disabled={transactionPage >= totalTransactionPages || loading}
-                  onClick={() =>
-                    setTransactionPage((current) =>
-                      Math.min(totalTransactionPages, current + 1)
-                    )
-                  }
-                  aria-label="Halaman berikutnya"
-                >
-                  ›
-                </button>
-              </div>
-            </nav>
-          ) : null}
-        </section>
+              )}
+            </div>
+  
+            {totalTransactions > 0 ? (
+              <nav
+                className="dashboard-pagination"
+                aria-label="Pagination riwayat transaksi"
+              >
+                <span className="dashboard-pagination-summary">
+                  Menampilkan{' '}
+                  {(transactionPage - 1) * DASHBOARD_HISTORY_PAGE_SIZE + 1}–
+                  {Math.min(
+                    transactionPage * DASHBOARD_HISTORY_PAGE_SIZE,
+                    totalTransactions
+                  )}{' '}
+                  dari {totalTransactions}
+                </span>
+  
+                <div className="dashboard-pagination-controls">
+                  <button
+                    type="button"
+                    className="dashboard-pagination-button dashboard-pagination-nav"
+                    disabled={transactionPage === 1 || loading}
+                    onClick={() =>
+                      setTransactionPage((current) => Math.max(1, current - 1))
+                    }
+                    aria-label="Halaman sebelumnya"
+                  >
+                    ‹
+                  </button>
+  
+                  <div className="dashboard-pagination-pages">
+                    {transactionPaginationPages.map((page, index) =>
+                      page === 'ellipsis' ? (
+                        <span
+                          className="dashboard-pagination-ellipsis"
+                          key={`ellipsis-${index}`}
+                          aria-hidden="true"
+                        >
+                          …
+                        </span>
+                      ) : (
+                        <button
+                          key={page}
+                          type="button"
+                          className={`dashboard-pagination-page ${
+                            page === transactionPage ? 'is-active' : ''
+                          }`}
+                          aria-current={
+                            page === transactionPage ? 'page' : undefined
+                          }
+                          disabled={loading}
+                          onClick={() => setTransactionPage(page)}
+                        >
+                          {page}
+                        </button>
+                      )
+                    )}
+                  </div>
+  
+                  <button
+                    type="button"
+                    className="dashboard-pagination-button dashboard-pagination-nav"
+                    disabled={transactionPage >= totalTransactionPages || loading}
+                    onClick={() =>
+                      setTransactionPage((current) =>
+                        Math.min(totalTransactionPages, current + 1)
+                      )
+                    }
+                    aria-label="Halaman berikutnya"
+                  >
+                    ›
+                  </button>
+                </div>
+              </nav>
+            ) : null}
+          </section>
+        </div>
       </section>
 
       {modalOpen ? (
