@@ -77,7 +77,7 @@ const FLOW_OPTIONS: { value: DashboardFlow | ''; label: string }[] = [
   { value: 'operational_disbursement', label: 'Pencairan Operasional' }
 ]
 
-function isKoperasiArutalaAccount(account: DashboardTransaction['accounts']) {
+function isKoperasiArutalaAccount(account: DashboardTransaction['accounts'] | undefined) {
   const value = Array.isArray(account) ? account[0] : account
   return value?.name?.trim().toLowerCase() === 'koperasi arutala' &&
     value.bank?.trim().toUpperCase() === 'BNI' &&
