@@ -37,7 +37,6 @@
 select:not([multiple]):not([size]) { padding-right:36px; cursor:pointer; }
 input[type=number],input[inputmode=numeric],input[inputmode=decimal] { font-variant-numeric:tabular-nums; }
 input[type=date],input[type=datetime-local],input[type=month],input[type=time] { min-width:0; max-width:100%; color-scheme:dark; }
-[data-theme=dark] input[type=date],[data-theme=dark] input[type=datetime-local],[data-theme=dark] input[type=month],[data-theme=dark] input[type=time],.dark input[type=date],.dark input[type=datetime-local],.dark input[type=month],.dark input[type=time] { color-scheme:dark; }
 input[type=file] { width:100%; min-width:0; max-width:100%; color:var(--form-muted); font:inherit; }
 input[type=file]::file-selector-button { min-height:34px; margin:3px 10px 3px 0; padding:0 12px; border:1px solid var(--form-border); border-radius:8px; color:var(--form-text); background:var(--form-bg); font:inherit; cursor:pointer; }
 :where(input[type=checkbox],input[type=radio]) { width:16px; height:16px; min-width:16px; min-height:16px; accent-color:var(--form-focus); vertical-align:middle; cursor:pointer; }
