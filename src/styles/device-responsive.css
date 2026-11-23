@@ -149,10 +149,6 @@ canvas {
     display: none !important;
   }
 
-  .app-theme-switch {
-    flex: 0 0 60px;
-  }
-
   .app-mobile-nav {
     position: fixed;
     z-index: 50;
@@ -953,28 +949,6 @@ canvas {
 
   .app-user {
     gap: 3px;
-  }
-
-  .app-theme-switch {
-    width: 42px;
-    min-width: 42px;
-    height: 34px;
-    flex: 0 0 42px;
-    padding: 3px;
-  }
-
-  .app-theme-switch__track {
-    width: 34px;
-    height: 26px;
-  }
-
-  .app-theme-switch__thumb {
-    width: 26px;
-    height: 26px;
-  }
-
-  .app-theme-switch[data-theme='dark'] .app-theme-switch__thumb {
-    transform: translateX(6px);
   }
 
   .app-logout-button,
