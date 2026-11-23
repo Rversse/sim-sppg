@@ -576,3 +576,27 @@
   }
 }
 
+.koperasi-real-creator-badge {
+  display: inline-flex;
+  width: fit-content;
+  align-items: center;
+  padding: 2px 7px;
+  border: 1px solid var(--theme-border);
+  border-radius: 999px;
+  background: var(--theme-surface);
+  color: var(--theme-text-muted);
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.koperasi-real-creator-badge.is-admin {
+  border-color: color-mix(in srgb, var(--theme-primary) 28%, var(--theme-border));
+  color: var(--theme-primary);
+}
+
+.koperasi-real-creator-badge.is-koperasi {
+  border-color: color-mix(in srgb, #49cdb9 30%, var(--theme-border));
+  color: #49cdb9;
+}
+

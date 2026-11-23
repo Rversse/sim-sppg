@@ -15,6 +15,9 @@ type SavedTransaction = {
   amount: number
   note: string | null
   real_import_batch_id: string | null
+  created_by: string
+  creator_role: 'admin' | 'koperasi'
+  category: 'Supplier' | 'OPS'
   kitchens: { name: string } | null
 }
 type RealKind = 'rab' | 'ops'
@@ -130,38 +133,21 @@ export function KoperasiRealEntry() {
     setLoadingSaved(true)
 
     try {
-      let rabRows: SavedTransaction[] = []
+      const { data, error } = await supabase.rpc('get_koperasi_real_history', {
+        p_transaction_date: date,
+        p_supplier_id: supplierId || null
+      })
 
-      if (supplierId) {
-        const { data, error } = await supabase
-          .from('transactions')
-          .select('id,transaction_date,kitchen_id,amount,note,real_import_batch_id,kitchens(name)')
-          .eq('transaction_date', date)
-          .eq('created_by', user.id)
-          .eq('supplier_id', supplierId)
-          .eq('flow_type', 'expense')
-          .eq('category', 'Supplier')
-          .not('real_import_batch_id', 'is', null)
-          .order('created_at', { ascending: true })
+      if (error) throw error
 
-        if (error) throw error
-        rabRows = (data ?? []) as unknown as SavedTransaction[]
-      }
+      const rows = (data ?? []) as Array<SavedTransaction & { kitchen_name: string }>
+      const mappedRows: SavedTransaction[] = rows.map((row) => ({
+        ...row,
+        kitchens: { name: row.kitchen_name }
+      }))
 
-      const { data: opsData, error: opsError } = await supabase
-        .from('transactions')
-        .select('id,transaction_date,kitchen_id,amount,note,real_import_batch_id,kitchens(name)')
-        .eq('transaction_date', date)
-        .eq('created_by', user.id)
-        .eq('flow_type', 'expense')
-        .eq('category', 'OPS')
-        .not('real_import_batch_id', 'is', null)
-        .order('created_at', { ascending: true })
-
-      if (opsError) throw opsError
-
-      setSavedRab(rabRows)
-      setSavedOps((opsData ?? []) as unknown as SavedTransaction[])
+      setSavedRab(mappedRows.filter((row) => row.category === 'Supplier') as SavedTransaction[])
+      setSavedOps(mappedRows.filter((row) => row.category === 'OPS') as SavedTransaction[])
       setEditing({})
     } catch (loadFailure) {
       toastError('Gagal memuat data tersimpan', loadFailure instanceof Error ? loadFailure.message : 'Terjadi kesalahan.')
@@ -474,7 +460,6 @@ export function KoperasiRealEntry() {
           <div>
             <span className="koperasi-real-section-label">{title}</span>
             <h3>{isOps ? 'Realisasi OPS / Real' : 'Belanja Harian RAB / Real'}</h3>
-            <p>Transaksi yang dicatat akun Koperasi ini pada tanggal terpilih.</p>
           </div>
           <div className="koperasi-real-saved-head-actions">
             <div className="koperasi-real-saved-total">
@@ -498,7 +483,7 @@ export function KoperasiRealEntry() {
           <p className="koperasi-real-muted">Memuat transaksi…</p>
         ) : rows.length === 0 ? (
           <p className="koperasi-real-empty">
-            Belum ada transaksi {isOps ? 'OPS / Real' : 'RAB / Real'} milik akun ini pada tanggal tersebut.
+            Belum ada transaksi {isOps ? 'OPS / Real' : 'RAB / Real'} pada tanggal tersebut.
           </p>
         ) : (
           <div className="koperasi-real-saved-list">
@@ -518,6 +503,9 @@ export function KoperasiRealEntry() {
                   <div className="koperasi-real-saved-kitchen">
                     <strong>{row.kitchens?.name ?? 'Dapur'}</strong>
                     <span>{sourceLabel}</span>
+                    <span className={'koperasi-real-creator-badge is-' + row.creator_role}>
+                      Input oleh {row.creator_role === 'admin' ? 'Admin' : 'Koperasi'}
+                    </span>
                   </div>
 
                   {draft ? (
@@ -558,7 +546,7 @@ export function KoperasiRealEntry() {
                         <X aria-hidden="true" />
                       </button>
                     </div>
-                  ) : (
+                  ) : row.created_by === user?.id && row.creator_role === 'koperasi' ? (
                     <>
                       <div className="koperasi-real-saved-actions">
                         <strong>Rp {formatAmount(Number(row.amount))}</strong>
@@ -619,6 +607,10 @@ export function KoperasiRealEntry() {
                         </div>
                       ) : null}
                     </>
+                  ) : (
+                    <div className="koperasi-real-saved-actions">
+                      <strong>Rp {formatAmount(Number(row.amount))}</strong>
+                    </div>
                   )}
                 </article>
               )
