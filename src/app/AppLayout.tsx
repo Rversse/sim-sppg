@@ -121,7 +121,8 @@ function getPageTitle(pathname: string) {
   return (
     navigationSections
       .flatMap((section) => section.items)
-      .find(({ to }) => pathname === to)?.pageTitle ?? ''
+      .find(({ to }) => pathname === to)?.pageTitle ??
+    (pathname === '/real-import' ? 'Belanja Harian Real' : '')
   )
 }
 function getRoleLabel(role: string | undefined) {
