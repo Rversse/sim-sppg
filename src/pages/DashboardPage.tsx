@@ -1775,7 +1775,7 @@ export function DashboardPage() {
                               <WalletCards aria-hidden="true" />
                             </span>
                           ) : null}
-                          {row.gasAvailable ? (
+                          {row.gasAvailable || row.gas ? (
                             <span
                               className={`status-flag-gas ${
                                 row.gas ? 'is-done' : ''
