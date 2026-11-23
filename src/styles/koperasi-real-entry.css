@@ -524,7 +524,7 @@
   white-space: nowrap;
 }
 
-@media (max-width: 1120px) {
+@media (max-width: 760px) {
   .koperasi-real-input-grid,
   .koperasi-real-history-grid {
     grid-template-columns: minmax(0, 1fr);
