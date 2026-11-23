@@ -1662,7 +1662,7 @@ export function DashboardPage() {
                               <WalletCards aria-hidden="true" />
                             </span>
                             {row.opsReal ? (
-                              <span className="status-flag-real-rab is-done" aria-label="OPS / Real">
+                              <span className="status-flag-real-rab is-done" aria-label="OPS / Real" title="OPS / Real — realisasi penggunaan dana operasional">
                                 <WalletCards aria-hidden="true" />
                               </span>
                             ) : null}
