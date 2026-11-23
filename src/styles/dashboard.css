@@ -2345,3 +2345,23 @@
   }
 }
 
+/* Align the bottom edges of Status Pencairan and Riwayat Transaksi.
+   Each column keeps its own top-panel height; the lower panel in the
+   shorter column expands to match the taller column's overall height. */
+@media (min-width: 1101px) {
+  .dashboard-layout-grid {
+    align-items: stretch;
+  }
+
+  .dashboard-layout-column {
+    grid-template-rows: auto minmax(min-content, 1fr);
+    align-content: stretch;
+  }
+
+  .dashboard-layout-grid .dashboard-status-panel,
+  .dashboard-layout-grid .dashboard-history-panel {
+    height: 100%;
+    align-self: stretch;
+  }
+}
+
