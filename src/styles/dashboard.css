@@ -2107,3 +2107,56 @@
   }
 }
 
+/* Dashboard columns flow independently so history sits directly under filters. */
+.dashboard-layout-grid {
+  display: grid;
+  width: 100%;
+  grid-template-columns: minmax(300px, 0.9fr) minmax(0, 2.1fr);
+  align-items: start;
+  gap: 12px;
+}
+
+.dashboard-layout-column {
+  display: grid;
+  min-width: 0;
+  align-content: start;
+  gap: 12px;
+}
+
+.dashboard-layout-column > .dashboard-panel,
+.dashboard-layout-column > .dashboard-filter-card {
+  min-width: 0;
+  width: 100%;
+}
+
+@media (max-width: 1100px) {
+  .dashboard-layout-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .dashboard-layout-column {
+    display: contents;
+  }
+
+  .dashboard-layout-grid > .dashboard-layout-left,
+  .dashboard-layout-grid > .dashboard-layout-right {
+    display: contents;
+  }
+
+  .dashboard-layout-grid > .dashboard-layout-left > .dashboard-summary-panel {
+    order: 2;
+  }
+
+  .dashboard-layout-grid > .dashboard-layout-left > .dashboard-status-panel {
+    order: 3;
+  }
+
+  .dashboard-layout-grid > .dashboard-layout-right > .dashboard-filter-card {
+    order: 1;
+  }
+
+  .dashboard-layout-grid > .dashboard-layout-right > .dashboard-history-panel {
+    order: 4;
+  }
+}
+
