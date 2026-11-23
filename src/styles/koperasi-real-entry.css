@@ -692,3 +692,20 @@
   }
 }
 
+/* Keep amount controls identical in both RAB / Real and OPS / Real panels. */
+.koperasi-real-kitchen,
+.koperasi-real-kitchen-ops {
+  grid-template-columns: minmax(130px, .62fr) minmax(0, 1.38fr);
+}
+
+.koperasi-real-kitchen-fields label,
+.koperasi-real-single-amount,
+.koperasi-real-kitchen-ops .koperasi-real-single-amount {
+  grid-template-columns: minmax(112px, .42fr) minmax(0, 1fr);
+}
+
+.koperasi-real-kitchen-fields label > span,
+.koperasi-real-single-amount > span {
+  white-space: nowrap;
+}
+

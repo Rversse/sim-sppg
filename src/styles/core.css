@@ -1526,3 +1526,25 @@ textarea:disabled {
 @media (prefers-reduced-motion: reduce) {
   .ui-skeleton::after { animation: none !important; }
 }
+
+/* Koperasi uses a single-purpose workspace without desktop or mobile navigation. */
+.app-shell.is-koperasi .app-sidebar,
+.app-shell.is-koperasi .app-mobile-nav {
+  display: none !important;
+}
+
+.app-shell.is-koperasi {
+  --sidebar-width: 0px;
+}
+
+.app-shell.is-koperasi .app-content {
+  width: 100%;
+  min-width: 0;
+}
+
+@media (max-width: 760px) {
+  .app-shell.is-koperasi .app-main {
+    padding-bottom: 24px;
+  }
+}
+
