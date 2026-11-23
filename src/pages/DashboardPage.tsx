@@ -685,6 +685,7 @@ export function DashboardPage() {
 
   const supplierDisabled =
     filters.flowType === 'gas' ||
+    filters.flowType === 'ops_real' ||
     filters.flowType === 'ops_disbursement' ||
     supplierLockedToArutala
 
