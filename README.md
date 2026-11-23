@@ -31,7 +31,8 @@ Repository ini bersifat **public** untuk transparansi dan pengelolaan kode. Data
 - Dashboard operasional dengan filter periode dan dapur.
 - Master data dapur, rekening, supplier, serta kendaraan.
 - Ledger Transaksi Bank yang terpisah dari transaksi operasional.
-- Import Maker dan Import RAB / Real dengan validasi, pemeriksaan duplikat, serta jejak audit batch.
+- Import Maker dengan validasi, pemeriksaan duplikat, serta jejak audit batch.
+- Input transaksi RAB / Real secara manual melalui Dashboard; input realisasi harian tetap tersedia khusus role Koperasi.
 - Input Belanja Harian Real khusus role Koperasi.
 - Laporan operasional dan perhitungan alokasi gaji.
 
@@ -50,7 +51,7 @@ Pembaruan terakhir yang tercatat di database: migration 20261120011504_preserve_
 | | Data Supplier | Profil supplier, pemilik usaha, kontak, alamat, jenis produk, dan rekening terkait. |
 | **Transaksi** | Transaksi Bank | Saldo rekening, transfer masuk/keluar, biaya admin, riwayat, koreksi transaksi, dan ekspor Excel. |
 | | Import Maker | Parsing output Maker, pencocokan rekening dan mapping tujuan, validasi manual, pemeriksaan duplikat, konfirmasi batch, serta penyimpanan jejak sumber untuk audit. |
-| | Import RAB / Real | Admin dapat memproses sumber Real melalui parser dan validasi batch. Role Koperasi mendapat form Belanja Harian Real untuk menginput nominal per dapur dan melihat transaksi hariannya sendiri. |
+| | Input RAB / Real | Admin/operator mencatat transaksi secara manual melalui Dashboard. Role Koperasi menggunakan form Belanja Harian Real untuk menginput nominal per dapur dan melihat transaksi hariannya sendiri. |
 | **Laporan** | Laporan operasional | Rekap keseluruhan, pencairan, dan supplier dengan filter periode, ekspor Excel, serta opsi cetak. |
 | | Perhitungan Gaji | Mengalokasikan 30% dari total RAB dapur dan membaginya ke jabatan berdasarkan persentase yang dikonfigurasi per dapur. |
 

@@ -1101,3 +1101,188 @@ canvas {
     line-height: 1.2;
   }
 }
+
+
+/* Bank workspace: keep controls and history modal inside the effective viewport,
+   including desktop browser zoom where the CSS viewport becomes narrower. */
+.bank-account-search input,
+.bank-history-search input,
+.bank-account-search input:focus,
+.bank-history-search input:focus,
+.bank-account-search input:focus-visible,
+.bank-history-search input:focus-visible {
+  display: block;
+  flex: 1 1 auto;
+  width: 100%;
+  min-width: 0;
+  height: 100%;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  border: 0 !important;
+  border-radius: 0 !important;
+  outline: 0 !important;
+  box-shadow: none !important;
+  background: transparent !important;
+  color: var(--theme-text-primary);
+  font: inherit;
+  line-height: normal;
+  box-sizing: border-box;
+  appearance: none;
+}
+
+@media (max-width: 1180px) {
+  .bank-page,
+  .bank-accounts-panel,
+  .bank-panel-header,
+  .bank-account-tools {
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+
+  .bank-account-tools {
+    flex-wrap: wrap;
+  }
+
+  .bank-account-search {
+    width: min(100%, 420px);
+    min-width: 0;
+    flex: 1 1 240px;
+  }
+
+  .bank-account-table-wrap {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+    overflow-y: visible;
+    overscroll-behavior-x: contain;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .bank-account-table {
+    min-width: 900px;
+  }
+
+  section.bank-history-modal {
+    width: min(860px, calc(100vw - var(--sidebar-width) - 32px));
+    max-width: calc(100vw - var(--sidebar-width) - 32px);
+    height: min(720px, calc(100dvh - 32px));
+    max-height: calc(100dvh - 32px);
+    min-height: 0;
+  }
+
+  .bank-history-summary {
+    grid-template-columns: minmax(0, 1fr);
+    min-width: 0;
+  }
+
+  .bank-history-current,
+  .bank-history-stats,
+  .bank-history-stat {
+    min-width: 0;
+  }
+
+  .bank-history-stats {
+    display: flex;
+    flex-wrap: wrap;
+  }
+
+  .bank-history-stat {
+    flex: 1 1 145px;
+  }
+
+  .bank-history-row {
+    grid-template-columns: minmax(0, 1fr) minmax(135px, 0.55fr);
+  }
+
+  .bank-history-values {
+    min-width: 0;
+  }
+}
+
+@media (max-width: 960px) {
+  section.bank-history-modal {
+    width: min(100%, calc(100vw - 24px));
+    max-width: calc(100vw - 24px);
+    height: auto;
+    max-height: calc(100dvh - 24px);
+  }
+
+  .bank-history-content {
+    min-height: 0;
+    max-height: min(52dvh, 420px);
+    overflow-y: auto;
+  }
+}
+
+@media (max-width: 600px) {
+  .bank-account-search {
+    width: 100%;
+    flex: 1 1 100%;
+  }
+
+  .bank-history-modal-header {
+    align-items: flex-start;
+    padding: 12px;
+  }
+
+  .bank-history-modal-header h2 {
+    font-size: 16px;
+  }
+
+  .bank-history-modal-header p {
+    overflow-wrap: anywhere;
+  }
+
+  .bank-history-header-actions {
+    gap: 6px;
+  }
+
+  .bank-history-summary {
+    margin: 10px 10px 6px;
+    padding: 8px;
+  }
+
+  .bank-history-stats {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 6px;
+  }
+
+  .bank-history-stat {
+    min-height: 66px;
+    padding: 8px;
+  }
+
+  .bank-history-current strong {
+    font-size: clamp(22px, 7vw, 30px);
+  }
+
+  .bank-history-content {
+    max-height: min(48dvh, 360px);
+    padding-inline: 10px;
+  }
+
+  .bank-history-pagination {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .bank-history-pagination-buttons {
+    width: 100%;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+  }
+}
+
+@media (max-width: 380px) {
+  .bank-history-stats {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .bank-history-pagination-info {
+    overflow-wrap: anywhere;
+  }
+}

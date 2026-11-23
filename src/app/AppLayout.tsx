@@ -10,7 +10,6 @@ import {
   FileText,
   WalletCards,
   ClipboardPaste,
-  FileSpreadsheet,
   LayoutDashboard,
   Landmark,
   LogOut,
@@ -96,13 +95,6 @@ const navigationSections: NavigationSection[] = [
         icon: ClipboardPaste,
         pageTitle: 'Import Maker'
       },
-      {
-        label: 'Import RAB / Real',
-        to: '/real-import',
-        permission: 'real-import.view',
-        icon: FileSpreadsheet,
-        pageTitle: 'Import RAB / Real'
-      },
     ]
   },
   {
@@ -129,7 +121,8 @@ function getPageTitle(pathname: string) {
   return (
     navigationSections
       .flatMap((section) => section.items)
-      .find(({ to }) => pathname === to)?.pageTitle ?? ''
+      .find(({ to }) => pathname === to)?.pageTitle ??
+    (pathname === '/real-import' ? 'Belanja Harian Real' : '')
   )
 }
 function getRoleLabel(role: string | undefined) {
@@ -176,17 +169,23 @@ export function AppLayout() {
       // Keep the selected theme for the current session if storage is unavailable.
     }
   }, [theme])
-  const realImportItem = navigationSections.flatMap((section) => section.items).find((item) => item.to === '/real-import')
-  const visibleSections = user?.role === 'koperasi' && realImportItem
-    ? [{ label: '', items: [{ ...realImportItem, label: 'Belanja Harian Real', pageTitle: 'Belanja Harian Real' }] }]
+  const koperasiRealNavigationItem: NavigationItem = {
+    label: 'Belanja Harian Real',
+    to: '/real-import',
+    permission: 'real-import.view',
+    icon: ClipboardPaste,
+    pageTitle: 'Belanja Harian Real'
+  }
+  const visibleSections = user?.role === 'koperasi'
+    ? [{ label: '', items: [koperasiRealNavigationItem] }]
     : navigationSections
-    .map((section) => ({
-      ...section,
-      items: section.items.filter((item) =>
-        canAccess(user?.role, item.permission)
-      )
-    }))
-    .filter((section) => section.items.length > 0)
+        .map((section) => ({
+          ...section,
+          items: section.items.filter((item) =>
+            canAccess(user?.role, item.permission)
+          )
+        }))
+        .filter((section) => section.items.length > 0)
   const visibleNavigation = visibleSections.flatMap((section) => section.items)
   async function handleLogout() {
     const { error: signOutError } = await supabase.auth.signOut()
