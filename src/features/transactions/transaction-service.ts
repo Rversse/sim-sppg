@@ -1,6 +1,7 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
 
 import { supabase } from '@/lib/supabase'
+import { getExpenseDuplicateFilters } from './transaction-duplicate-filter'
 
 export type TransactionFlow =
   | 'income'
@@ -327,7 +328,14 @@ export async function hasDuplicateTransaction(
   }
 
   if (payload.flow_type === 'expense') {
-    query = query.eq('supplier_id', payload.supplier_id)
+    for (const filter of getExpenseDuplicateFilters(
+      payload.category,
+      payload.supplier_id
+    )) {
+      query = filter.operator === 'is'
+        ? query.is(filter.column, null)
+        : query.eq(filter.column, filter.value)
+    }
   }
 
   if (payload.flow_type === 'operational_disbursement') {
