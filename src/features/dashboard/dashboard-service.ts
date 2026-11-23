@@ -9,6 +9,7 @@ export type DashboardFlow =
   | 'ops_disbursement'
   | 'operational_disbursement'
   | 'neutral'
+  | 'ops_real'
 
 export type DashboardFilters = {
   startDate: string
@@ -22,6 +23,7 @@ export type DashboardSummary = {
   income: number
   expense: number
   gas: number
+  opsReal: number
   operational: number
   operationalDisbursement: number
   sppgRent: number
@@ -125,6 +127,7 @@ export async function getDashboardSummary(
         income?: number
         expense?: number
         gas?: number
+        ops_real?: number
         operational?: number
         operational_disbursement?: number
         sppg_rent?: number
@@ -135,6 +138,7 @@ export async function getDashboardSummary(
     income: Number(row?.income ?? 0),
     expense: Number(row?.expense ?? 0),
     gas: Number(row?.gas ?? 0),
+    opsReal: Number(row?.ops_real ?? 0),
     operational: Number(row?.operational ?? 0),
     operationalDisbursement: Number(
       row?.operational_disbursement ?? 0
@@ -165,6 +169,22 @@ export async function getDashboardRABBalance(
     | undefined
 
   return Number(row?.income ?? 0) - Number(row?.expense ?? 0)
+}
+
+export async function getDashboardOPSBalance(
+  filters: DashboardFilters,
+  client: SupabaseClient = supabase
+): Promise<number> {
+  const { data, error } = await client.rpc('get_dashboard_summary', {
+    start_date: filters.startDate,
+    end_date: filters.endDate,
+    kitchen_uuid: filters.kitchenId || null,
+    flow_types: null,
+    supplier_filter: null
+  })
+  if (error) throw error
+  const row = data?.[0] as { gas?: number; ops_real?: number } | undefined
+  return Number(row?.gas ?? 0) - Number(row?.ops_real ?? 0)
 }
 
 export async function getActiveKitchens(
@@ -215,6 +235,10 @@ export async function getSupplierOptions(
   filters: Pick<DashboardFilters, 'kitchenId' | 'flowType'>,
   client: SupabaseClient = supabase
 ): Promise<{ value: string; label: string }[]> {
+  if (filters.flowType === 'ops_real') {
+    return []
+  }
+
   if (filters.flowType === 'ops_disbursement') {
     const kitchenQuery = client
       .from('kitchens')
@@ -268,6 +292,11 @@ export async function getSupplierOptions(
         : row.accounts
 
       if (!account) continue
+      if (
+        account.name?.trim().toLowerCase() !== 'koperasi arutala' ||
+        account.bank?.trim().toUpperCase() !== 'BNI' ||
+        account.account_number?.replace(/\s+/g, '') !== '1985322260'
+      ) continue
 
       options.set(account.id, {
         value: account.id,
@@ -419,10 +448,25 @@ export async function getDashboardTransactionPage(
   }
 
   if (filters.flowType) {
-    query =
-      filters.flowType === 'gas'
-        ? query.in('flow_type', ['gas', 'neutral'])
-        : query.eq('flow_type', filters.flowType)
+    if (filters.flowType === 'ops_real') {
+      query = query.eq('flow_type', 'expense').eq('category', 'OPS')
+    } else if (filters.flowType === 'gas') {
+      const { data: arutalaAccount, error: arutalaError } = await client
+        .from('accounts')
+        .select('id')
+        .eq('name', 'KOPERASI ARUTALA')
+        .eq('bank', 'BNI')
+        .eq('account_number', '1985322260')
+        .maybeSingle()
+      if (arutalaError) throw arutalaError
+      query = arutalaAccount
+        ? query.eq('flow_type', 'neutral').eq('account_id', arutalaAccount.id)
+        : query.eq('flow_type', 'neutral').eq('account_id', '__no_arutala_account__')
+    } else if (filters.flowType === 'expense') {
+      query = query.eq('flow_type', 'expense').eq('category', 'Supplier')
+    } else {
+      query = query.eq('flow_type', filters.flowType)
+    }
   }
 
   if (filters.supplierFilter) {
@@ -564,6 +608,7 @@ export async function getDailyStatus(
     transactionCount: number
     auditOnlyTransactionCount: number
     expense: boolean
+    opsReal: boolean
     gas: boolean
     gasAvailable: boolean
     operational: boolean
@@ -641,6 +686,7 @@ export async function getDailyStatus(
     kitchen_name: string | null
     income: boolean | null
     expense: boolean | null
+    ops_real: boolean | null
     gas: boolean | null
     operational: boolean | null
   }
@@ -706,6 +752,7 @@ export async function getDailyStatus(
     const auditOnlyTransactionCount =
       auditOnlyTransactionCountByKitchen.get(row.kitchen_id) ?? 0
     const expense = Boolean(row.expense)
+    const opsReal = Boolean(row.ops_real)
 
     const activeMappings = mappingTypesByKitchen.get(row.kitchen_id) ?? new Set<string>()
     const opsHarianAvailable = activeMappings.has('ops_harian')
@@ -751,6 +798,7 @@ export async function getDailyStatus(
       transactionCount,
       auditOnlyTransactionCount,
       expense,
+      opsReal,
       gas,
       gasAvailable,
       operational,

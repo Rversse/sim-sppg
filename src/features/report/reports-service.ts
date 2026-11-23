@@ -26,6 +26,8 @@ export type OverallKitchenReport = {
   income: number
   expense: number
   gas: number
+  opsReal: number
+  totalOpsBalance: number
   operational: number
   relawanSalary: number
   picIncentive: number
@@ -41,6 +43,8 @@ export type OverallDailyReport = {
   income: number
   expense: number
   gas: number
+  opsReal: number
+  totalOpsBalance: number
   operational: number
   sppgRent: number
   totalRAB: number
@@ -62,6 +66,8 @@ export type OverallReport = {
     income: number
     expense: number
     gas: number
+    opsReal: number
+    totalOpsBalance: number
     operational: number
       relawanSalary: number
     picIncentive: number
@@ -194,6 +200,7 @@ export function getOperationalTypeLabel(type: OperationalType) {
 type ReportTransaction = {
   amount: number | string | null
   transaction_date: string
+  category: string | null
   flow_type:
     | 'income'
     | 'expense'
@@ -295,6 +302,7 @@ async function getReportTransactions(
         amount,
         transaction_date,
         flow_type,
+        category,
         note,
         operational_type,
         kitchen_id,
@@ -501,6 +509,8 @@ export async function getOverallReport(
       income: 0,
       expense: 0,
       gas: 0,
+      opsReal: 0,
+      totalOpsBalance: 0,
       operational: 0,
       relawanSalary: 0,
       picIncentive: 0,
@@ -540,11 +550,15 @@ export async function getOverallReport(
 
     if (transaction.flow_type === 'income') {
       kitchen.income += amount
-    } else if (transaction.flow_type === 'expense') {
+    } else if (transaction.flow_type === 'expense' && transaction.category === 'OPS') {
+      kitchen.opsReal += amount
+    } else if (transaction.flow_type === 'expense' && transaction.category === 'Supplier') {
       kitchen.expense += amount
     } else if (
-      transaction.flow_type === 'gas' ||
-      transaction.flow_type === 'neutral'
+      transaction.flow_type === 'neutral' &&
+      transaction.accounts?.name?.trim().toLowerCase() === 'koperasi arutala' &&
+      transaction.accounts?.bank?.trim().toUpperCase() === 'BNI' &&
+      transaction.accounts?.account_number?.replace(/\s+/g, '') === '1985322260'
     ) {
       kitchen.gas += amount
     } else if (transaction.flow_type === 'ops_disbursement') {
@@ -589,8 +603,10 @@ export async function getOverallReport(
         income: 0,
         expense: 0,
         gas: 0,
+        opsReal: 0,
+        totalOpsBalance: 0,
         operational: 0,
-          sppgRent: 0,
+        sppgRent: 0,
         totalRAB: 0,
         totalOperational: 0
       }
@@ -600,11 +616,15 @@ export async function getOverallReport(
 
     if (transaction.flow_type === 'income') {
       dailyRow.income += amount
-    } else if (transaction.flow_type === 'expense') {
+    } else if (transaction.flow_type === 'expense' && transaction.category === 'OPS') {
+      dailyRow.opsReal += amount
+    } else if (transaction.flow_type === 'expense' && transaction.category === 'Supplier') {
       dailyRow.expense += amount
     } else if (
-      transaction.flow_type === 'gas' ||
-      transaction.flow_type === 'neutral'
+      transaction.flow_type === 'neutral' &&
+      transaction.accounts?.name?.trim().toLowerCase() === 'koperasi arutala' &&
+      transaction.accounts?.bank?.trim().toUpperCase() === 'BNI' &&
+      transaction.accounts?.account_number?.replace(/\s+/g, '') === '1985322260'
     ) {
       dailyRow.gas += amount
     } else if (transaction.flow_type === 'ops_disbursement') {
@@ -625,6 +645,8 @@ export async function getOverallReport(
   let totalIncome = 0
   let totalExpense = 0
   let totalGas = 0
+  let totalOpsReal = 0
+  let totalOpsBalance = 0
   let totalOperational = 0
   let totalRelawanSalary = 0
   let totalPicIncentive = 0
@@ -636,12 +658,15 @@ export async function getOverallReport(
 
   for (const kitchen of grouped.values()) {
     kitchen.totalRAB = kitchen.income - kitchen.expense
+    kitchen.totalOpsBalance = kitchen.gas - kitchen.opsReal
     kitchen.totalOperational =
       kitchen.operational
 
     totalIncome += kitchen.income
     totalExpense += kitchen.expense
     totalGas += kitchen.gas
+    totalOpsReal += kitchen.opsReal
+    totalOpsBalance += kitchen.totalOpsBalance
     totalOperational += kitchen.operational
     kitchen.totalSalaryAndIncentive = kitchen.relawanSalary + kitchen.picIncentive
     totalRelawanSalary += kitchen.relawanSalary
@@ -655,6 +680,7 @@ export async function getOverallReport(
 
   for (const row of daily.values()) {
     row.totalRAB = row.income - row.expense
+    row.totalOpsBalance = row.gas - row.opsReal
     row.totalOperational = row.operational
   }
 
@@ -675,6 +701,8 @@ export async function getOverallReport(
       income: totalIncome,
       expense: totalExpense,
       gas: totalGas,
+      opsReal: totalOpsReal,
+      totalOpsBalance,
       operational: totalOperational,
       relawanSalary: totalRelawanSalary,
       picIncentive: totalPicIncentive,
@@ -1079,7 +1107,7 @@ export async function getSupplierReport(
   const totals = createSupplierTotals()
 
   for (const transaction of transactions) {
-    if (transaction.flow_type !== 'expense') {
+    if (transaction.flow_type !== 'expense' || transaction.category !== 'Supplier') {
       continue
     }
 

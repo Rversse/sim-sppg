@@ -17,6 +17,7 @@ import {
   getActiveKitchens,
   getDashboardSummary,
   getDashboardRABBalance,
+  getDashboardOPSBalance,
   getDashboardTransactionPage,
   getDailyStatus,
   getSupplierOptions,
@@ -70,15 +71,29 @@ const FLOW_OPTIONS: { value: DashboardFlow | ''; label: string }[] = [
   { value: '', label: 'Semua transaksi' },
   { value: 'income', label: 'RAB / Pencairan' },
   { value: 'expense', label: 'RAB / Real' },
+  { value: 'ops_real', label: 'OPS / Real' },
   { value: 'gas', label: 'OPS / Arutala' },
   { value: 'ops_disbursement', label: 'OPS / Pencairan' },
   { value: 'operational_disbursement', label: 'Pencairan Operasional' }
 ]
 
-function flowLabel(flow: DashboardFlow) {
+function isKoperasiArutalaAccount(account: DashboardTransaction['accounts'] | undefined) {
+  const value = Array.isArray(account) ? account[0] : account
+  return value?.name?.trim().toLowerCase() === 'koperasi arutala' &&
+    value.bank?.trim().toUpperCase() === 'BNI' &&
+    value.account_number?.replace(/\s+/g, '') === '1985322260'
+}
+
+function flowLabel(
+  flow: DashboardFlow,
+  category?: string | null,
+  account?: DashboardTransaction['accounts']
+) {
   if (flow === 'income') return 'RAB / Pencairan'
+  if (flow === 'expense' && category === 'OPS') return 'OPS / Real'
   if (flow === 'expense') return 'RAB / Real'
-  if (flow === 'gas' || flow === 'neutral') return 'OPS / Arutala'
+  if (flow === 'neutral' && isKoperasiArutalaAccount(account)) return 'OPS / Arutala'
+  if (flow === 'gas' || (flow === 'neutral' && category === 'GAS')) return 'GAS'
   if (flow === 'ops_disbursement') return 'OPS / Pencairan'
   if (flow === 'operational_disbursement') return 'Pencairan Operasional'
   return 'Transaksi'
@@ -143,7 +158,7 @@ function getAvailableFlowsForKitchen(
   includeOperationalDisbursements = false
 ): DashboardFlow[] {
   const normalized = kitchenName?.trim().toLowerCase() ?? ''
-  const flows: DashboardFlow[] = ['income', 'expense']
+  const flows: DashboardFlow[] = ['income', 'expense', 'ops_real']
 
   if (normalized !== 'sukaraja' && normalized !== 'cihaur') {
     flows.push('gas')
@@ -251,11 +266,13 @@ export function DashboardPage() {
     income: 0,
     expense: 0,
     gas: 0,
+    opsReal: 0,
     operational: 0,
     operationalDisbursement: 0,
     sppgRent: 0
   })
   const [rabBalance, setRabBalance] = useState(0)
+  const [opsBalance, setOpsBalance] = useState(0)
   const [transactions, setTransactions] = useState<DashboardTransaction[]>([])
   const [totalTransactions, setTotalTransactions] = useState(0)
   const [transactionPage, setTransactionPage] = useState(1)
@@ -325,7 +342,7 @@ export function DashboardPage() {
         ? Promise.resolve(kitchensRef.current)
         : getActiveKitchens()
 
-      const [nextSummary, nextStatus, nextKitchens, nextTransactions, nextRabBalance] =
+      const [nextSummary, nextStatus, nextKitchens, nextTransactions, nextRabBalance, nextOpsBalance] =
         await Promise.all([
           getDashboardSummary(filters),
           getDailyStatus(filters.startDate, supabase),
@@ -338,12 +355,14 @@ export function DashboardPage() {
             true,
             true
           ),
-          getDashboardRABBalance(filters)
+          getDashboardRABBalance(filters),
+          getDashboardOPSBalance(filters)
         ])
 
       return {
         summary: nextSummary,
         rabBalance: nextRabBalance,
+        opsBalance: nextOpsBalance,
         dailyStatus: nextStatus,
         kitchens: nextKitchens,
         transactions: nextTransactions
@@ -383,6 +402,7 @@ export function DashboardPage() {
     (data: Awaited<ReturnType<typeof loadDashboardData>>) => {
       setSummary(data.summary)
       setRabBalance(data.rabBalance)
+      setOpsBalance(data.opsBalance)
       setTransactions(data.transactions.data)
       setTotalTransactions(data.transactions.total)
       setDailyStatus(data.dailyStatus)
@@ -393,7 +413,7 @@ export function DashboardPage() {
   )
   const loadDashboardLiveData = useCallback(
     async (page: number) => {
-      const [nextSummary, nextStatus, nextTransactions, nextRabBalance] = await Promise.all([
+      const [nextSummary, nextStatus, nextTransactions, nextRabBalance, nextOpsBalance] = await Promise.all([
         getDashboardSummary(filters),
         getDailyStatus(filters.startDate, supabase),
         getDashboardTransactionPage(
@@ -404,12 +424,14 @@ export function DashboardPage() {
           false,
           true
         ),
-        getDashboardRABBalance(filters)
+        getDashboardRABBalance(filters),
+        getDashboardOPSBalance(filters)
       ])
 
       return {
         summary: nextSummary,
         rabBalance: nextRabBalance,
+        opsBalance: nextOpsBalance,
         dailyStatus: nextStatus,
         transactions: nextTransactions
       }
@@ -421,6 +443,7 @@ export function DashboardPage() {
     (data: Awaited<ReturnType<typeof loadDashboardLiveData>>) => {
       setSummary(data.summary)
       setRabBalance(data.rabBalance)
+      setOpsBalance(data.opsBalance)
       setTransactions(data.transactions.data)
       setDailyStatus(data.dailyStatus)
     },
@@ -662,6 +685,7 @@ export function DashboardPage() {
 
   const supplierDisabled =
     filters.flowType === 'gas' ||
+    filters.flowType === 'ops_real' ||
     filters.flowType === 'ops_disbursement' ||
     supplierLockedToArutala
 
@@ -891,6 +915,15 @@ export function DashboardPage() {
       return
     }
 
+    if (flowType === 'ops_real') {
+      setFormAccounts([])
+      setFormSuppliers([])
+      setFormAccountId('')
+      setFormSupplierId('')
+      setFormEntryUnlocked(true)
+      return
+    }
+
     if (flowType === 'ops_disbursement') {
       setFormAccounts([])
       setFormSuppliers([])
@@ -991,7 +1024,9 @@ export function DashboardPage() {
         : transaction.kitchen_id ?? ''
     )
     setFormFlowType(
-      transaction.flow_type === 'neutral' ? 'gas' : transaction.flow_type
+      transaction.flow_type === 'expense' && transaction.category === 'OPS'
+        ? 'ops_real'
+        : transaction.flow_type === 'neutral' ? 'gas' : transaction.flow_type
     )
     setFormOperationalType(
       transaction.operational_type === 'school_pic_incentive' ||
@@ -1020,9 +1055,11 @@ export function DashboardPage() {
       const editFlowType: DashboardEntryFlow =
         isOtherIncomeTransaction
           ? 'other_income'
-          : transaction.flow_type === 'neutral'
-            ? 'gas'
-            : transaction.flow_type
+          : transaction.flow_type === 'expense' && transaction.category === 'OPS'
+            ? 'ops_real'
+            : transaction.flow_type === 'neutral'
+              ? 'gas'
+              : transaction.flow_type
 
       await loadFormOptions(
         transaction.kitchen_id ?? '',
@@ -1162,6 +1199,7 @@ export function DashboardPage() {
           focusNominalInput()
         }
       } else if (
+        value === 'ops_real' ||
         value === 'gas' ||
         value === 'ops_disbursement' ||
         value === 'operational_disbursement'
@@ -1273,16 +1311,20 @@ export function DashboardPage() {
       flow_type:
         formFlowType === 'gas'
           ? 'neutral'
-          : formFlowType === 'other_income'
-            ? 'income'
-            : formFlowType,
+          : formFlowType === 'ops_real'
+            ? 'expense'
+            : formFlowType === 'other_income'
+              ? 'income'
+              : formFlowType,
       category:
         formFlowType === 'income' || formFlowType === 'other_income'
           ? 'RAB'
-          : formFlowType === 'expense'
-            ? 'Supplier'
-            : formFlowType === 'gas'
-              ? 'GAS'
+          : formFlowType === 'ops_real'
+            ? 'OPS'
+            : formFlowType === 'expense'
+              ? 'Supplier'
+              : formFlowType === 'gas'
+                ? 'GAS'
               : formFlowType === 'operational_disbursement'
                 ? 'OPERATIONAL'
                 : 'OPS',
@@ -1625,7 +1667,19 @@ export function DashboardPage() {
           </span>
           <span>OPS / Arutala</span>
           {loading ? <Skeleton className="dashboard-kpi-skeleton" /> : <strong>{formatCurrency(summary.gas)}</strong>}
-          <small>Total operasional masuk ke rekening Arutala pada periode terpilih</small>
+          <small>Seluruh transaksi netral ke rekening Koperasi Arutala BNI</small>
+        </article>
+
+        <article className="dashboard-kpi">
+          <span>OPS / Real</span>
+          {loading ? <Skeleton className="dashboard-kpi-skeleton" /> : <strong>{formatCurrency(summary.opsReal)}</strong>}
+          <small>Realisasi OPS pada periode terpilih</small>
+        </article>
+
+        <article className="dashboard-kpi dashboard-kpi-rab-balance">
+          <span>Sisa OPS</span>
+          {loading ? <Skeleton className="dashboard-kpi-skeleton" /> : <strong>{formatCurrency(opsBalance)}</strong>}
+          <small>OPS / Arutala dikurangi OPS / Real</small>
         </article>
 
         <article
@@ -1716,7 +1770,12 @@ export function DashboardPage() {
                           >
                             <WalletCards aria-hidden="true" />
                           </span>
-                          {row.gasAvailable ? (
+                          {row.opsReal ? (
+                            <span className="status-flag-real-rab is-done" aria-label="OPS / Real">
+                              <WalletCards aria-hidden="true" />
+                            </span>
+                          ) : null}
+                          {row.gasAvailable || row.gas ? (
                             <span
                               className={`status-flag-gas ${
                                 row.gas ? 'is-done' : ''
@@ -1881,7 +1940,7 @@ export function DashboardPage() {
 
                         <span
                           className={flowClass(transaction.flow_type)}
-                          aria-label={flowLabel(transaction.flow_type)}
+                          aria-label={flowLabel(transaction.flow_type, transaction.category, transaction.accounts)}
                         >
                           <FlowIcon flow={transaction.flow_type} />
                         </span>
@@ -1896,9 +1955,9 @@ export function DashboardPage() {
                             .slice(1)
                             .join(' ')}`}
                         >
-                          {businessName ||
-                            transaction.category ||
-                            'Transaksi'}
+                          {transaction.flow_type === 'expense' && transaction.category === 'OPS'
+                            ? 'OPS / Real'
+                            : businessName || transaction.category || 'Transaksi'}
                         </strong>
 
                         {ownerName ? (
@@ -2210,6 +2269,11 @@ export function DashboardPage() {
                       </option>
                     ) : null}
                   </select>
+                </label>
+              ) : formFlowType === 'ops_real' ? (
+                <label>
+                  <span>Realisasi OPS</span>
+                  <div className="dashboard-transaction-fixed-account">Tanpa rekening dan supplier</div>
                 </label>
               ) : formFlowType === 'ops_disbursement' ? (
                 <label>

@@ -255,8 +255,9 @@ function addDailyDetailRows(
       row.expense,
       row.totalRAB,
       row.operational,
-      row.totalOperational,
-      row.gas
+      row.gas,
+      row.opsReal,
+      row.totalOpsBalance
     ])
   }
 }
@@ -274,8 +275,9 @@ function createOverallDetailSheet(
     'RAB / Real',
     'Total RAB',
     'OPS / Pencairan',
-    'Total Ops',
-    'OPS / Arutala'
+    'OPS / Arutala',
+    'OPS / Real',
+    'Sisa OPS'
   ])
   styleHeader(worksheet.getRow(1))
 
@@ -287,8 +289,9 @@ function createOverallDetailSheet(
     report.totals.expense,
     report.totals.totalRAB,
     report.totals.operational,
-    report.totals.totalOperational,
-    report.totals.gas
+    report.totals.gas,
+    report.totals.opsReal,
+    report.totals.totalOpsBalance
   ])
   styleTotalRow(totalRow)
 
@@ -430,8 +433,9 @@ function createOverallSummarySheet(
     'RAB / Real',
     'Total RAB',
     'OPS / Pencairan',
-    'Total Ops',
-    'OPS / Arutala'
+    'OPS / Arutala',
+    'OPS / Real',
+    'Sisa OPS'
   ])
 
   styleHeader(worksheet.getRow(headerRowNumber))
@@ -443,8 +447,9 @@ function createOverallSummarySheet(
       row.expense,
       row.totalRAB,
       row.operational,
-      row.totalOperational,
-      row.gas
+      row.gas,
+      row.opsReal,
+      row.totalOpsBalance
     ])
   }
 
@@ -454,8 +459,9 @@ function createOverallSummarySheet(
     report.totals.expense,
     report.totals.totalRAB,
     report.totals.operational,
-    report.totals.totalOperational,
-    report.totals.gas
+    report.totals.gas,
+    report.totals.opsReal,
+    report.totals.totalOpsBalance
   ])
 
   styleTotalRow(totalRow)

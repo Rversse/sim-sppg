@@ -278,6 +278,17 @@ export async function getTransactionAccounts(
           continue
         }
 
+        if (
+          flowType === 'gas' &&
+          (
+            account.name.trim().toLowerCase() !== 'koperasi arutala' ||
+            account.bank.trim().toUpperCase() !== 'BNI' ||
+            account.account_number.replace(/\s+/g, '') !== '1985322260'
+          )
+        ) {
+          continue
+        }
+
         const supplier = Array.isArray(account.income_suppliers)
           ? account.income_suppliers[0]
           : account.income_suppliers
