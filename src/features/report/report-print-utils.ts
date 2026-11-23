@@ -5,6 +5,6 @@ const BELANJA_PRINT_SUMMARY_LABELS: Record<string, string> = {
 }
 
 export function getBelanjaPrintSummaryLabel(label: string): string | null {
-  const normalized = label.trim().replace(/\\s+/g, ' ').toUpperCase()
+  const normalized = label.trim().replace(/\s+/g, ' ').toUpperCase()
   return BELANJA_PRINT_SUMMARY_LABELS[normalized] ?? null
 }
