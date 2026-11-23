@@ -1323,7 +1323,7 @@ export function DashboardPage() {
             : formFlowType === 'expense'
               ? 'Supplier'
               : formFlowType === 'gas'
-                ? 'OPS'
+                ? 'GAS'
               : formFlowType === 'operational_disbursement'
                 ? 'OPERATIONAL'
                 : 'OPS',
