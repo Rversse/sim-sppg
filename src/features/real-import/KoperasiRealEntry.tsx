@@ -337,17 +337,18 @@ export function KoperasiRealEntry() {
       )
       const lines = sortedRows.map((row) => {
         const kitchenName = row.kitchens?.name ?? 'Dapur'
-        if (kind === 'ops') return kitchenName + ' - Rp ' + formatAmount(Number(row.amount))
-
-        const source = row.note?.replace(/^Koperasi Cianjur$/, 'Arutala Cianjur')
-          .replace(/^Koperasi Cidaun$/, 'Arutala Cidaun')
-          .replace(/^Koperasi Arutala$/, 'Arutala Cianjur') ?? 'Arutala Cianjur'
         const special = SPECIAL_KITCHENS.has(kitchenKey(kitchenName))
-        const label = special ? kitchenName + ' - ' + source : kitchenName
+        const source = row.note
+          ?.replace(/^Koperasi Cianjur$/, 'Arutala Cianjur')
+          .replace(/^Koperasi Cidaun$/, 'Arutala Cidaun')
+          .replace(/^Koperasi Arutala$/, 'Arutala Cianjur')
+        const label = special && source && source !== 'OPS / Real'
+          ? kitchenName + ' - ' + source
+          : kitchenName
         return label + ' - Rp ' + formatAmount(Number(row.amount))
       })
 
-      const heading = kind === 'ops' ? 'OPS / Real - ' : 'Belanja Harian - '
+      const heading = kind === 'ops' ? 'Belanja Operasional Harian - ' : 'Belanja Harian - '
       const text = heading + formatCopyDate(date) + '\n\n' + lines.join('\n')
 
       if (navigator.clipboard?.writeText) {
@@ -459,11 +460,11 @@ export function KoperasiRealEntry() {
         <div className="koperasi-real-panel-head koperasi-real-history-head">
           <div>
             <span className="koperasi-real-section-label">{title}</span>
-            <h3>{isOps ? 'Realisasi OPS / Real' : 'Belanja Harian RAB / Real'}</h3>
+            <h3>{isOps ? 'Belanja Operasional Harian Real' : 'Belanja RAB Harian Real'}</h3>
           </div>
           <div className="koperasi-real-saved-head-actions">
             <div className="koperasi-real-saved-total">
-              <span>Total tersimpan</span>
+              <span>Total</span>
               <strong>Rp {formatAmount(total)}</strong>
             </div>
             <button
@@ -474,7 +475,7 @@ export function KoperasiRealEntry() {
               title={isOps ? 'Salin laporan OPS / Real' : 'Salin laporan RAB / Real'}
             >
               {isCopying ? <LoaderCircle className="is-spinning" aria-hidden="true" /> : isCopied ? <CheckCheck aria-hidden="true" /> : <Copy aria-hidden="true" />}
-              {isCopied ? 'Tersalin' : isCopying ? 'Menyalin…' : 'Copy data'}
+              {isCopied ? 'Tersalin' : isCopying ? 'Menyalin…' : 'Copy'}
             </button>
           </div>
         </div>
@@ -490,7 +491,9 @@ export function KoperasiRealEntry() {
             {rows.map((row) => {
               const draft = editing[row.id]
               const sourceLabel = isOps
-                ? 'OPS / Real'
+                ? row.note === 'Arutala Cianjur' || row.note === 'Arutala Cidaun'
+                  ? row.note
+                  : 'OPS / Real'
                 : row.note?.replace(/^Koperasi Cianjur$/, 'Arutala Cianjur')
                   .replace(/^Koperasi Cidaun$/, 'Arutala Cidaun')
                   .replace(/^Koperasi Arutala$/, 'Arutala Cianjur') ?? 'Arutala Cianjur'
@@ -624,13 +627,8 @@ export function KoperasiRealEntry() {
   return (
     <section className="koperasi-real-page">
       <section className="koperasi-real-panel koperasi-real-date-panel">
-        <div>
-          <span className="koperasi-real-section-label">TANGGAL INPUT</span>
-          <h3>Input harian Koperasi</h3>
-          <p>Pilih tanggal yang sama untuk mencatat RAB / Real dan OPS / Real.</p>
-        </div>
         <label className="koperasi-real-date">
-          <span>Tanggal transaksi</span>
+          <span>Tanggal</span>
           <input
             type="date"
             value={date}
@@ -653,8 +651,8 @@ export function KoperasiRealEntry() {
           <div className="koperasi-real-panel-head">
             <div>
               <span className="koperasi-real-section-label">INPUT RAB / REAL</span>
-              <h3>Belanja Harian RAB / Real</h3>
-              <p>Realisasi belanja supplier Koperasi Arutala.</p>
+              <h3>Belanja RAB Harian Real</h3>
+              <p>Realisasi belanja supplier ke Koperasi Arutala.</p>
             </div>
           </div>
 
@@ -725,8 +723,8 @@ export function KoperasiRealEntry() {
           <div className="koperasi-real-panel-head">
             <div>
               <span className="koperasi-real-section-label">INPUT OPS / REAL</span>
-              <h3>Realisasi OPS / Real</h3>
-              <p>Catat penggunaan dana OPS per dapur. Tidak memerlukan rekening atau supplier.</p>
+              <h3>Belanja Operasional Harian Real</h3>
+              <p>Realisasi belanja operasional harian ke Koperasi Arutala.</p>
             </div>
           </div>
 
@@ -734,22 +732,48 @@ export function KoperasiRealEntry() {
             <p className="koperasi-real-muted">Memuat daftar dapur…</p>
           ) : (
             <div className="koperasi-real-kitchen-list">
-              {orderedKitchens.map((kitchen) => (
-                <article className="koperasi-real-kitchen koperasi-real-kitchen-ops" key={kitchen.id}>
-                  <div className="koperasi-real-kitchen-name">
-                    <strong>{kitchen.name}</strong>
-                  </div>
-                  <label className="koperasi-real-single-amount">
-                    <span>Nominal OPS / Real (Rp)</span>
-                    <input
-                      inputMode="numeric"
-                      value={formatAmountInput(opsAmounts[kitchen.id] ?? '')}
-                      onChange={(event) => updateAmount('ops', kitchen.id, event.target.value)}
-                      placeholder="0"
-                    />
-                  </label>
-                </article>
-              ))}
+              {orderedKitchens.map((kitchen) => {
+                const special = SPECIAL_KITCHENS.has(kitchenKey(kitchen.name))
+                return (
+                  <article className="koperasi-real-kitchen koperasi-real-kitchen-ops" key={kitchen.id}>
+                    <div className="koperasi-real-kitchen-name">
+                      <strong>{kitchen.name}</strong>
+                    </div>
+                    {special ? (
+                      <div className="koperasi-real-kitchen-fields koperasi-real-special">
+                        <label>
+                          <span>Arutala Cianjur (Rp)</span>
+                          <input
+                            inputMode="numeric"
+                            value={formatAmountInput(opsAmounts[kitchen.id + ':cianjur'] ?? '')}
+                            onChange={(event) => updateAmount('ops', kitchen.id + ':cianjur', event.target.value)}
+                            placeholder="0"
+                          />
+                        </label>
+                        <label>
+                          <span>Arutala Cidaun (Rp)</span>
+                          <input
+                            inputMode="numeric"
+                            value={formatAmountInput(opsAmounts[kitchen.id + ':cidaun'] ?? '')}
+                            onChange={(event) => updateAmount('ops', kitchen.id + ':cidaun', event.target.value)}
+                            placeholder="0"
+                          />
+                        </label>
+                      </div>
+                    ) : (
+                      <label className="koperasi-real-single-amount">
+                        <span>Nominal OPS / Real (Rp)</span>
+                        <input
+                          inputMode="numeric"
+                          value={formatAmountInput(opsAmounts[kitchen.id] ?? '')}
+                          onChange={(event) => updateAmount('ops', kitchen.id, event.target.value)}
+                          placeholder="0"
+                        />
+                      </label>
+                    )}
+                  </article>
+                )
+              })}
             </div>
           )}
 
