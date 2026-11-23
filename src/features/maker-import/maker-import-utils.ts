@@ -115,12 +115,8 @@ function normalizeMakerOpsHarianDetails(value: string): string {
   const source = value.trim()
   if (!source) return ''
 
-  // Match the Generator's OPS HARIAN normalization: the category label is
-  // redundant when a more specific purchase note follows it.
-  const withoutPaymentPrefix = source.replace(/^Pembayaran\s+/i, '')
-  const withoutDefaultPrefix = withoutPaymentPrefix
-    .replace(/^Ops\s+Harian\b[\s,:-]*/i, '')
-    .trim()
+  // OPS HARIAN is a category label; remove it only when a specific note follows.
+  const withoutDefaultPrefix = source.replace(/^Ops\s+Harian\b[\s,:-]*/i, '').trim()
 
   return withoutDefaultPrefix || 'Ops Harian'
 }
