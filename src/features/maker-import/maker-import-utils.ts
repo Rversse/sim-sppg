@@ -10,6 +10,7 @@ export type MakerImportKind =
   | 'combined_payroll'
   | 'vehicle_rent'
   | 'lain_lain'
+  | 'real_ops'
 
 export type MakerManualFlow =
   | ''
@@ -18,6 +19,7 @@ export type MakerManualFlow =
   | 'gas'
   | 'neutral_lain_lain'
   | 'neutral_ops_harian'
+  | 'ops_real'
   | 'operational_disbursement'
 
 export type MakerOperationalType =
@@ -426,6 +428,7 @@ export function defaultManualFlow(kind: MakerImportKind): MakerManualFlow {
   if (kind === 'rab') return 'income'
   if (kind === 'gas') return 'gas'
   if (kind === 'ops_harian') return 'ops_disbursement'
+  if (kind === 'real_ops') return 'ops_real'
   if (
     kind === 'sppg_rent' ||
     kind === 'relawan_salary' ||
@@ -482,6 +485,7 @@ export function operationalRuleTypeForKind(
       return null
     case 'rab':
     case 'gas':
+    case 'real_ops':
     case 'combined_payroll':
       return null
   }
@@ -521,19 +525,7 @@ export function parseMakerDocument(text: string): ParsedMakerDocument {
     }
   }
 
-  const containsUnsupportedLegacyCategory = allLines.slice(1).some((line) =>
-    /^_OPS Real_\s*·/.test(line.trim())
-  )
-  if (containsUnsupportedLegacyCategory) {
-    return {
-      kitchenName: header[1].trim(),
-      transactionDate,
-      rows: [],
-      error: 'Dokumen mengandung kategori transaksi yang sudah tidak didukung. Hapus baris tersebut sebelum impor.'
-    }
-  }
-
-  const rows = allLines.slice(1).map((rawLine, index) => ({
+remove legacy block  const rows = allLines.slice(1).map((rawLine, index) => ({
     line: rawLine.trim(),
     lineNumber: index + 2
   })).filter((entry) =>
@@ -546,6 +538,28 @@ export function parseMakerDocument(text: string): ParsedMakerDocument {
 
     const beforeAmount = line.slice(0, amountDivider).trim()
     const amountText = line.slice(amountDivider + 1).trim()
+    if (/^_OPS Real_$/i.test(beforeAmount)) {
+      const amount = parseMakerAmount(amountText)
+      return {
+        id: 'line-' + lineNumber,
+        lineNumber,
+        rawLine: line,
+        kind: 'real_ops',
+        sourceCategory: 'OPS Real',
+        recipientName: '',
+        bank: '',
+        accountNumber: '',
+        amount,
+        details: '',
+        manualFlow: 'ops_real',
+        operationalType: '',
+        accountId: '',
+        operationalRuleId: '',
+        manualDecision: 'allow',
+        verified: false
+      }
+    }
+
     const colonAt = beforeAmount.indexOf(':')
     if (colonAt < 0) {
       return makeRow(line, lineNumber, 'Lain-lain', beforeAmount, amountText)
