@@ -572,7 +572,7 @@ test('Maker OPS HARIAN removes its redundant prefix only when a specific note fo
     'OPS HARIAN : Melan Fitriani - BNI / 2035516850 · Pembayaran BBM genset · 320.000',
     'OPS HARIAN : Melan Fitriani - BNI / 2035516850 · Pembelian untuk Ops Harian · 100.000',
     'OPS HARIAN : Koperasi Arutala - BNI / 1985322260 · 1.080.000'
-  ].join('\\n'))
+  ].join('\n'))
 
   assert.equal(parsed.error, null)
   assert.deepEqual(parsed.rows.map((row) => row.details), [
