@@ -557,7 +557,7 @@ export function parseMakerDocument(text: string): ParsedMakerDocument {
         operationalRuleId: '',
         manualDecision: 'allow',
         verified: false
-      }
+      } satisfies MakerImportDraftRow
     }
 
     const colonAt = beforeAmount.indexOf(':')
