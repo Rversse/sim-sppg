@@ -2273,3 +2273,75 @@
   text-transform: uppercase;
 }
 
+/* Keep each dashboard column independent: transaction history starts
+   immediately below Filter, while kitchen status stays below Summary. */
+.dashboard-layout-grid {
+  grid-template-areas: none;
+  align-items: start;
+}
+
+.dashboard-layout-column {
+  display: grid;
+  min-width: 0;
+  align-content: start;
+  gap: 12px;
+}
+
+.dashboard-layout-grid .dashboard-summary-panel,
+.dashboard-layout-grid .dashboard-filter-card,
+.dashboard-layout-grid .dashboard-status-panel,
+.dashboard-layout-grid .dashboard-history-panel {
+  grid-area: auto;
+  align-self: start;
+  width: 100%;
+  min-width: 0;
+}
+
+.dashboard-layout-grid .dashboard-history-panel {
+  height: auto;
+  min-height: 0;
+}
+
+.dashboard-layout-grid .dashboard-history {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  padding: 14px 8px 8px;
+}
+
+.dashboard-layout-grid .dashboard-history-row {
+  gap: 10px;
+  padding: 22px 10px 10px;
+}
+
+@media (max-width: 1100px) {
+  .dashboard-layout-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .dashboard-layout-column {
+    display: contents;
+  }
+
+  .dashboard-layout-grid > .dashboard-layout-left > .dashboard-summary-panel {
+    order: 3;
+  }
+
+  .dashboard-layout-grid > .dashboard-layout-left > .dashboard-status-panel {
+    order: 4;
+  }
+
+  .dashboard-layout-grid > .dashboard-layout-right > .dashboard-filter-card {
+    order: 1;
+  }
+
+  .dashboard-layout-grid > .dashboard-layout-right > .dashboard-history-panel {
+    order: 2;
+  }
+}
+
+@media (max-width: 560px) {
+  .dashboard-layout-grid .dashboard-history {
+    grid-template-columns: 1fr;
+  }
+}
+
