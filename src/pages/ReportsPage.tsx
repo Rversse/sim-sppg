@@ -428,7 +428,7 @@ function OverallReportView() {
         <>
           <div className="reports-disbursement-block reports-overall-belanja-block">
             <h2 className="reports-subsection-title">
-              Pencairan belanja harian
+              Pencairan Belanja Harian
             </h2>
 
 
@@ -438,7 +438,6 @@ function OverallReportView() {
                 <strong className={report.totals.totalRAB < 0 ? 'negative' : 'positive'}>
                   {formatCurrency(report.totals.totalRAB)}
                 </strong>
-                <small>Total belanja harian dikurangi belanja real</small>
               </article>
 
               <article className="reports-summary-card reports-summary-card--ops">
@@ -452,7 +451,6 @@ function OverallReportView() {
                 >
                   {formatCurrency(report.totals.totalOperational)}
                 </strong>
-                <small>Dicatat terpisah dan belum masuk perhitungan Sisa OPS</small>
               </article>
 
               <article className="reports-summary-card reports-summary-card--arutala">
@@ -460,13 +458,11 @@ function OverallReportView() {
                 <strong className="positive">
                   {formatCurrency(report.totals.gas)}
                 </strong>
-                <small>Seluruh transaksi netral ke rekening Koperasi Arutala BNI</small>
               </article>
 
               <article className="reports-summary-card reports-summary-card--ops">
                 <span>OPS / Real</span>
                 <strong>{formatCurrency(report.totals.opsReal)}</strong>
-                <small>Realisasi OPS pada periode terpilih</small>
               </article>
 
               <article className="reports-summary-card reports-summary-card--rab">
@@ -474,7 +470,6 @@ function OverallReportView() {
                 <strong className={report.totals.totalOpsBalance < 0 ? 'negative' : 'positive'}>
                   {formatCurrency(report.totals.totalOpsBalance)}
                 </strong>
-                <small>OPS / Arutala dikurangi OPS / Real</small>
               </article>
             </div>
 
@@ -483,13 +478,13 @@ function OverallReportView() {
               <thead>
                 <tr>
                   <th className="reports-col-kitchen">Dapur</th>
-                  <th className="reports-col-rab">RAB / pencairan</th>
-                  <th className="reports-col-real-rab">RAB / real</th>
-                  <th className="reports-col-total">Total RAB</th>
+                  <th className="reports-col-rab">RAB / Pencairan</th>
+                  <th className="reports-col-real-rab">RAB / Real</th>
+                  <th className="reports-col-total">Total RAB (Pencairan - Real)</th>
                   <th className="reports-col-ops">OPS / Pencairan</th>
                   <th className="reports-col-gas">OPS / Arutala</th>
                   <th className="reports-col-ops">OPS / Real</th>
-                  <th className="reports-col-total">Sisa OPS</th>
+                  <th className="reports-col-total">Sisa OPS (Arutala - Real)</th>
                 </tr>
               </thead>
               <tbody>
@@ -516,7 +511,7 @@ function OverallReportView() {
                   </tr>
                 ))}
                 <tr className="reports-total-row">
-                  <td>Grand total</td>
+                  <td>Grand Total</td>
                   <td>{formatCurrencyOrDash(report.totals.income)}</td>
                   <td>{formatCurrencyOrDash(report.totals.expense)}</td>
                   <td
