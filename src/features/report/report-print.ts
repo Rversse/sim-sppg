@@ -1,3 +1,5 @@
+import { getBelanjaPrintSummaryLabel } from './report-print-utils'
+
 type ReportPrintMode = 'default' | 'belanja' | 'operational'
 
 function printReport(mode: ReportPrintMode = 'default') {
@@ -50,6 +52,24 @@ function printReport(mode: ReportPrintMode = 'default') {
       '.reports-filter-panel, .reports-detail-list, .reports-detail, button'
     )
     .forEach((element) => element.remove())
+
+  if (mode === 'belanja') {
+    const summaryGrid = reportClone.querySelector<HTMLElement>(
+      '.reports-summary-grid.reports-summary-belanja'
+    )
+
+    summaryGrid?.querySelectorAll<HTMLElement>('.reports-summary-card').forEach((card) => {
+      const label = card.querySelector<HTMLElement>('span')
+      const printLabel = getBelanjaPrintSummaryLabel(label?.textContent ?? '')
+
+      if (!label || !printLabel) {
+        card.remove()
+        return
+      }
+
+      label.textContent = printLabel
+    })
+  }
 
   const operationalBlock = reportClone.querySelector<HTMLElement>(
     '.reports-overall-operational-block'
@@ -187,10 +207,14 @@ function printReport(mode: ReportPrintMode = 'default') {
     }
 
     body {
-      font-family: Arial, sans-serif;
+      font-family: "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, Roboto, Helvetica, Arial, sans-serif;
       color: #18293F;
       padding: 0;
       font-size: 10px;
+      line-height: 1.45;
+      letter-spacing: 0;
+      font-kerning: normal;
+      font-feature-settings: "kern" 1, "liga" 1;
       background: white;
       -webkit-print-color-adjust: exact;
       print-color-adjust: exact;
@@ -299,41 +323,75 @@ function printReport(mode: ReportPrintMode = 'default') {
     }
 
     .reports-summary-grid.reports-summary-belanja {
+      display: grid !important;
       grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
-      width: min(100%, 920px) !important;
-      max-width: 920px !important;
-      gap: 8px !important;
-      margin: 0 auto 10px !important;
+      width: 100% !important;
+      max-width: none !important;
+      gap: 10px !important;
+      margin: 0 auto 12px !important;
     }
 
     .reports-summary-grid.reports-summary-belanja .reports-summary-card {
-      min-height: 78px !important;
+      min-width: 0 !important;
+      min-height: 72px !important;
+      display: grid !important;
       align-content: center !important;
       justify-items: center !important;
-      gap: 4px !important;
-      padding: 8px 10px !important;
+      gap: 7px !important;
+      padding: 10px 14px !important;
+      border: 1px solid #D8E0EA !important;
+      border-top-width: 2px !important;
+      border-bottom-width: 2px !important;
       border-radius: 8px !important;
+      background: #FFFFFF !important;
+      box-shadow: none !important;
       break-inside: avoid;
       page-break-inside: avoid;
       text-align: center !important;
     }
 
+    .reports-summary-grid.reports-summary-belanja .reports-summary-card:nth-child(1) {
+      border-top-color: #DDA7A7 !important;
+      border-bottom-color: #DDA7A7 !important;
+    }
+
+    .reports-summary-grid.reports-summary-belanja .reports-summary-card:nth-child(2) {
+      border-top-color: #AFC0D5 !important;
+      border-bottom-color: #AFC0D5 !important;
+    }
+
+    .reports-summary-grid.reports-summary-belanja .reports-summary-card:nth-child(3) {
+      border-top-color: #91CDBD !important;
+      border-bottom-color: #91CDBD !important;
+    }
+
     .reports-summary-grid.reports-summary-belanja .reports-summary-card > span {
-      font-size: 8px !important;
+      max-width: 100%;
+      font-family: inherit !important;
+      font-size: 8.5px !important;
+      font-weight: 700 !important;
+      letter-spacing: 0.035em !important;
+      line-height: 1.3 !important;
+      color: #526174 !important;
+      text-align: center !important;
+      text-transform: uppercase;
     }
 
     .reports-summary-grid.reports-summary-belanja .reports-summary-card > strong {
       margin-top: 0 !important;
-      font-size: 14px !important;
+      font-family: inherit !important;
+      font-size: 17px !important;
+      font-weight: 700 !important;
+      font-variant-numeric: tabular-nums lining-nums !important;
+      font-feature-settings: "tnum" 1, "lnum" 1 !important;
+      letter-spacing: 0 !important;
+      line-height: 1.2 !important;
       text-align: center !important;
+      white-space: nowrap;
     }
 
     .reports-summary-grid.reports-summary-belanja .reports-summary-card > small {
-      max-width: 180px !important;
-      margin-inline: auto !important;
-      font-size: 7px !important;
-      line-height: 1.25 !important;
-      text-align: center !important;
+      display: none !important;
     }
 
     .reports-summary-card {
@@ -379,13 +437,17 @@ function printReport(mode: ReportPrintMode = 'default') {
       display: block;
       width: 100%;
       overflow: hidden;
+      font-family: inherit;
       font-size: 16px;
+      font-weight: 700;
+      font-variant-numeric: tabular-nums lining-nums;
+      font-feature-settings: "tnum" 1, "lnum" 1;
       line-height: 1.2;
       margin: 0;
       color: #18293F;
       white-space: nowrap;
       text-overflow: clip;
-      letter-spacing: -0.045em;
+      letter-spacing: 0;
     }
 
     .reports-summary-overall .reports-summary-card:nth-child(1) > span,
@@ -510,7 +572,10 @@ function printReport(mode: ReportPrintMode = 'default') {
       background: #ECF0F6 !important;
       vertical-align: middle;
       color: #637A96 !important;
+      font-family: inherit !important;
       font-size: 8.5px !important;
+      font-weight: 700 !important;
+      letter-spacing: 0.025em !important;
       text-transform: uppercase;
       padding: 6px 6px !important;
       border: 1px solid #D2DAEA !important;
@@ -675,7 +740,13 @@ function printReport(mode: ReportPrintMode = 'default') {
     }
 
     .reports-table td {
-      font-size: 10px !important;
+      font-family: inherit !important;
+      font-size: 9.5px !important;
+      font-weight: 600 !important;
+      font-variant-numeric: tabular-nums lining-nums !important;
+      font-feature-settings: "tnum" 1, "lnum" 1 !important;
+      letter-spacing: 0 !important;
+      line-height: 1.35 !important;
       padding: 6px 5px !important;
       text-align: center;
       vertical-align: middle;
