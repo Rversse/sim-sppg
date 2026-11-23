@@ -525,7 +525,7 @@ export function parseMakerDocument(text: string): ParsedMakerDocument {
     }
   }
 
-remove legacy block  const rows = allLines.slice(1).map((rawLine, index) => ({
+  const rows = allLines.slice(1).map((rawLine, index) => ({
     line: rawLine.trim(),
     lineNumber: index + 2
   })).filter((entry) =>
