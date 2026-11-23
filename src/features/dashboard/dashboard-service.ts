@@ -235,6 +235,10 @@ export async function getSupplierOptions(
   filters: Pick<DashboardFilters, 'kitchenId' | 'flowType'>,
   client: SupabaseClient = supabase
 ): Promise<{ value: string; label: string }[]> {
+  if (filters.flowType === 'ops_real') {
+    return []
+  }
+
   if (filters.flowType === 'ops_disbursement') {
     const kitchenQuery = client
       .from('kitchens')
