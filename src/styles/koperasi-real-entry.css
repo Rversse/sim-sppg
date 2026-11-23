@@ -600,3 +600,95 @@
   color: #49cdb9;
 }
 
+/* Compact desktop canvas with deliberate tablet and phone breakpoints. */
+.koperasi-real-page {
+  box-sizing: border-box;
+  width: min(100%, 1184px);
+  margin-inline: auto;
+}
+
+.koperasi-real-date-panel {
+  justify-content: flex-start;
+}
+
+.koperasi-real-date-panel .koperasi-real-date {
+  flex: 0 1 260px;
+  width: min(100%, 260px);
+}
+
+.koperasi-real-date-panel .koperasi-real-date > span {
+  color: var(--theme-text-secondary);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.koperasi-real-input-grid,
+.koperasi-real-history-grid {
+  gap: 14px;
+}
+
+@media (max-width: 900px) {
+  .koperasi-real-page {
+    width: 100%;
+    padding-inline: 10px;
+  }
+
+  .koperasi-real-input-grid,
+  .koperasi-real-history-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .koperasi-real-input-panel,
+  .koperasi-real-history-panel {
+    height: auto;
+  }
+
+  .koperasi-real-date-panel {
+    align-items: flex-start;
+  }
+}
+
+@media (max-width: 600px) {
+  .koperasi-real-page {
+    gap: 12px;
+    padding-inline: 6px;
+  }
+
+  .koperasi-real-panel {
+    padding: 13px;
+    border-radius: 13px;
+  }
+
+  .koperasi-real-date-panel .koperasi-real-date {
+    width: 100%;
+    flex-basis: 100%;
+  }
+
+  .koperasi-real-kitchen-fields label,
+  .koperasi-real-kitchen-ops .koperasi-real-single-amount,
+  .koperasi-real-single-amount {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 5px;
+  }
+
+  .koperasi-real-kitchen-fields label > span,
+  .koperasi-real-single-amount > span {
+    font-size: 11px;
+  }
+
+  .koperasi-real-kitchen-fields input,
+  .koperasi-real-single-amount input {
+    height: 40px;
+  }
+
+  .koperasi-real-savebar {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .koperasi-real-savebar .maker-import-primary {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
