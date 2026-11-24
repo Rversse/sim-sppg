@@ -1,7 +1,7 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { readFile } from 'node:fs/promises'
-import { getBelanjaPrintSummaryLabel } from '../src/features/report/report-print-utils.ts'
+import { getBelanjaPrintSummaryDescription, getBelanjaPrintSummaryLabel } from '../src/features/report/report-print-utils.ts'
 
 const printSource = await readFile(
   new URL('../src/features/report/report-print.ts', import.meta.url),
@@ -23,6 +23,18 @@ test('belanja print keeps the three net totals with formula labels', () => {
   )
   assert.equal(getBelanjaPrintSummaryLabel('OPS - Pencairan'), null)
   assert.equal(getBelanjaPrintSummaryLabel('OPS - Arutala'), null)
+})
+
+test('belanja print shows the requested explanation under each summary amount', () => {
+  assert.equal(getBelanjaPrintSummaryDescription('Total RAB'), 'Belanja Harian')
+  assert.equal(getBelanjaPrintSummaryDescription('Total OPS Arutala'), 'Belanja Ops Harian')
+  assert.equal(
+    getBelanjaPrintSummaryDescription('Total OPS Dapur'),
+    'Belanja Ops Harian ke Akuntan / Aslap / PIC Yayasan'
+  )
+  assert.equal(getBelanjaPrintSummaryDescription('OPS - Pencairan'), null)
+  assert.ok(printSource.includes('descriptionElement.textContent = description'))
+  assert.ok(printSource.includes('display: block !important;'))
 })
 
 test('print report filters summary cards only in belanja print mode', () => {
