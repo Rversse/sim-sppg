@@ -320,7 +320,7 @@ export function DashboardPage() {
         if (!cancelled) setOperationalDestinationRoles(roles)
       })
       .catch((loadError) => {
-        console.error('Gagal memuat tujuan OPS / Pencairan:', loadError)
+        console.error('Gagal memuat tujuan OPS - Pencairan:', loadError)
       })
 
     return () => {
@@ -973,7 +973,7 @@ export function DashboardPage() {
         setFormAccountId(gasAccount)
         setFormEntryUnlocked(Boolean(gasAccount))
       } else if (flowType === 'income' && accounts.length === 1) {
-        // One mapped RAB / Pencairan destination is unambiguous: select it automatically.
+        // One mapped RAB - Pencairan destination is unambiguous: select it automatically.
         setFormAccountId(accounts[0].value)
         setFormEntryUnlocked(true)
       } else {
@@ -2166,7 +2166,7 @@ export function DashboardPage() {
                   }
                 >
                   {formKitchenId === TRANSFER_LAINNYA_KITCHEN_VALUE ? (
-                    <option value="income">RAB / Pencairan</option>
+                    <option value="income">RAB - Pencairan</option>
                   ) : (
                     <>
                       <option value="">
