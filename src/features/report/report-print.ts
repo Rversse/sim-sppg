@@ -399,7 +399,18 @@ function printReport(mode: ReportPrintMode = 'default') {
     }
 
     .reports-summary-grid.reports-summary-belanja .reports-summary-card > small {
-      display: none !important;
+      display: block !important;
+      max-width: 100% !important;
+      margin: 0 !important;
+      color: #64748B !important;
+      font-family: inherit !important;
+      font-size: 8px !important;
+      font-weight: 400 !important;
+      letter-spacing: 0 !important;
+      line-height: 1.35 !important;
+      text-align: center !important;
+      text-transform: none !important;
+      white-space: normal !important;
     }
 
     .reports-summary-card {
