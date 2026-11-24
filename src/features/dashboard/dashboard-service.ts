@@ -7,6 +7,7 @@ export type DashboardFlow =
   | 'expense'
   | 'gas'
   | 'ops_disbursement'
+  | 'ops_disbursement_real'
   | 'operational_disbursement'
   | 'neutral'
   | 'ops_real'
@@ -26,6 +27,8 @@ export type DashboardSummary = {
   opsReal: number
   operational: number
   operationalDisbursement: number
+  opsDisbursementReal: number
+  opsDisbursementRemaining: number
   sppgRent: number
 }
 
@@ -122,6 +125,10 @@ export async function getDashboardSummary(
 
   if (error) throw error
 
+  const [opsDisbursementTotals] = await Promise.all([
+    getOpsDisbursementTotals(filters, client)
+  ])
+
   const row = data?.[0] as
     | {
         income?: number
@@ -143,8 +150,36 @@ export async function getDashboardSummary(
     operationalDisbursement: Number(
       row?.operational_disbursement ?? 0
     ),
+    opsDisbursementReal: opsDisbursementTotals.real,
+    opsDisbursementRemaining: opsDisbursementTotals.disbursement - opsDisbursementTotals.real,
     sppgRent: Number(row?.sppg_rent ?? 0)
   }
+}
+
+async function getOpsDisbursementTotals(
+  filters: DashboardFilters,
+  client: SupabaseClient
+): Promise<{ disbursement: number; real: number }> {
+  let query = client
+    .from('transactions')
+    .select('flow_type, amount')
+    .gte('transaction_date', filters.startDate)
+    .lte('transaction_date', filters.endDate)
+    .in('flow_type', ['ops_disbursement', 'ops_disbursement_real'])
+
+  if (filters.kitchenId) query = query.eq('kitchen_id', filters.kitchenId)
+
+  const { data, error } = await query
+  if (error) throw error
+
+  return (data ?? []).reduce(
+    (totals, row) => {
+      if (row.flow_type === 'ops_disbursement') totals.disbursement += Number(row.amount) || 0
+      if (row.flow_type === 'ops_disbursement_real') totals.real += Number(row.amount) || 0
+      return totals
+    },
+    { disbursement: 0, real: 0 }
+  )
 }
 
 export async function getDashboardRABBalance(
@@ -236,6 +271,10 @@ export async function getSupplierOptions(
   client: SupabaseClient = supabase
 ): Promise<{ value: string; label: string }[]> {
   if (filters.flowType === 'ops_real') {
+    return []
+  }
+
+  if (filters.flowType === 'ops_disbursement_real') {
     return []
   }
 
@@ -449,6 +488,8 @@ export async function getDashboardTransactionPage(
   if (filters.flowType) {
     if (filters.flowType === 'ops_real') {
       query = query.eq('flow_type', 'expense').eq('category', 'OPS')
+    } else if (filters.flowType === 'ops_disbursement_real') {
+      query = query.eq('flow_type', 'ops_disbursement_real')
     } else if (filters.flowType === 'gas') {
       const { data: arutalaAccount, error: arutalaError } = await client
         .from('accounts')
