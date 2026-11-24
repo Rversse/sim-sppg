@@ -71,7 +71,7 @@ const FLOW_OPTIONS: { value: DashboardFlow | ''; label: string }[] = [
   { value: 'income', label: 'RAB - Pencairan' },
   { value: 'expense', label: 'RAB - Real' },
   { value: 'ops_real', label: 'OPS - Arutala Real' },
-  { value: 'gas', label: 'OPS / Arutala' },
+  { value: 'gas', label: 'OPS - Arutala' },
   { value: 'ops_disbursement', label: 'OPS - Pencairan' },
   { value: 'operational_disbursement', label: 'Pencairan Operasional' }
 ]
@@ -91,7 +91,7 @@ function flowLabel(
   if (flow === 'income') return 'RAB - Pencairan'
   if (flow === 'expense' && category === 'OPS') return 'OPS - Arutala Real'
   if (flow === 'expense') return 'RAB - Real'
-  if (flow === 'neutral' && isKoperasiArutalaAccount(account)) return 'OPS / Arutala'
+  if (flow === 'neutral' && isKoperasiArutalaAccount(account)) return 'OPS - Arutala'
   if (flow === 'gas' || (flow === 'neutral' && category === 'GAS')) return 'GAS'
   if (flow === 'ops_disbursement') return 'OPS - Pencairan'
   if (flow === 'operational_disbursement') return 'Pencairan Operasional'
@@ -708,7 +708,7 @@ export function DashboardPage() {
             ? 'Tujuan Ops'
             : filters.flowType === 'operational_disbursement'
                 ? 'Jenis Operasional'
-                : 'Supplier / Rekening'
+                : 'Supplier - Rekening'
 
   const operationalDestination = getMappedOperationalDestination(
     selectedFilterKitchen?.name
@@ -727,7 +727,7 @@ export function DashboardPage() {
               ? 'Semua supplier'
               : filters.flowType === 'income'
                 ? 'Semua rekening'
-                : 'Semua supplier / rekening'
+                : 'Semua supplier - rekening'
 
   const selectedFormKitchen = kitchens.find(
     (kitchen) => kitchen.id === formKitchenId
@@ -1365,7 +1365,7 @@ export function DashboardPage() {
 
         if (duplicate) {
           const confirmed = window.confirm(
-            'Transaksi dengan tanggal, dapur, rekening/supplier, dan nominal yang sama sudah ada.\n\nTetap simpan?'
+            'Transaksi dengan tanggal, dapur, rekening - supplier, dan nominal yang sama sudah ada.\n\nTetap simpan?'
           )
 
           if (!confirmed) {
@@ -1579,7 +1579,7 @@ export function DashboardPage() {
             <div className="dashboard-summary-divider" aria-hidden="true" />
   
             <div className="dashboard-summary-row">
-              <span>OPS / Arutala</span>
+              <span>OPS - Arutala</span>
               {loading ? <Skeleton className="dashboard-summary-skeleton" /> : <strong>{formatCurrency(summary.gas)}</strong>}
             </div>
             <div className="dashboard-summary-row">
@@ -1688,8 +1688,8 @@ export function DashboardPage() {
                               className={`status-flag-gas ${
                                 row.gas ? 'is-done' : ''
                               }`}
-                              aria-label="OPS / Arutala"
-                              data-tooltip="OPS / Arutala"
+                              aria-label="OPS - Arutala"
+                              data-tooltip="OPS - Arutala"
                               tabIndex={0}
                             >
                               <Landmark aria-hidden="true" />
@@ -2270,7 +2270,7 @@ export function DashboardPage() {
                 <label>
                   <span>
                   {!formFlowType
-                    ? 'Supplier / Rekening'
+                    ? 'Supplier - Rekening'
                     : formFlowType === 'other_income'
                       ? 'Rekening Pemasukan'
                       : formFlowType === 'expense'
@@ -2406,7 +2406,7 @@ export function DashboardPage() {
                     }}
                     placeholder={
                       formFlowType === 'other_income'
-                        ? 'Masukkan catatan pemasukan / pencairan'
+                        ? 'Masukkan catatan pemasukan - pencairan'
                         : 'Pilih dapur dan jenis transaksi terlebih dahulu'
                     }
                   />
