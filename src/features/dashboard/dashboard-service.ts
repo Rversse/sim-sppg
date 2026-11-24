@@ -313,7 +313,6 @@ export async function getSupplierOptions(
     return [
       { value: 'relawan_salary', label: 'Gaji Relawan' },
       { value: 'pic_incentive', label: 'Insentif PIC' },
-      { value: 'vehicle_rent', label: 'Sewa Kendaraan' },
       { value: 'sppg_rent', label: 'Insentif Fasilitas SPPG' }
     ]
   }
@@ -617,10 +616,8 @@ export async function getDailyStatus(
     sppgRent: boolean
     relawanSalaryAvailable: boolean
     picIncentiveAvailable: boolean
-    vehicleRentAvailable: boolean
     relawanSalary: boolean
     picIncentive: boolean
-    vehicleRent: boolean
   }[]
 }> {
   const [
@@ -761,7 +758,6 @@ export async function getDailyStatus(
     const picIncentiveAvailable =
       activeMappings.has('pic_incentive_school') ||
       activeMappings.has('pic_incentive_posyandu')
-    const vehicleRentAvailable = activeMappings.has('vehicle_rent')
 
     const recordedOperationalTypes = operationalTypesByKitchen.get(row.kitchen_id)
     const operational = opsHarianAvailable && Boolean(row.operational)
@@ -777,8 +773,6 @@ export async function getDailyStatus(
         recordedOperationalTypes?.has('school_pic_incentive') ||
         recordedOperationalTypes?.has('kader_incentive')
       ) === true
-    const vehicleRent =
-      vehicleRentAvailable && Boolean(recordedOperationalTypes?.has('vehicle_rent'))
 
     // The status icons reflect active, permitted routes configured in Data Rekening.
     // Completion colors still reflect whether a matching transaction exists for the day.
@@ -807,10 +801,8 @@ export async function getDailyStatus(
       sppgRent,
       relawanSalaryAvailable,
       picIncentiveAvailable,
-      vehicleRentAvailable,
       relawanSalary,
       picIncentive,
-      vehicleRent
     }
   })
 
