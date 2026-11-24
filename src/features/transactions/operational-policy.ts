@@ -4,13 +4,13 @@ export const CIHAUR_OPERATIONAL_POLICY_START_DATE = '2026-10-12'
 export type EditableOperationalType =
   | 'relawan_salary'
   | 'pic_incentive'
-  | 'vehicle_rent'
   | 'sppg_rent'
 
 export type OperationalType =
   | EditableOperationalType
   | 'school_pic_incentive'
   | 'kader_incentive'
+  | 'vehicle_rent'
 
 export const OPERATIONAL_TYPE_OPTIONS: ReadonlyArray<{
   value: EditableOperationalType
@@ -18,7 +18,6 @@ export const OPERATIONAL_TYPE_OPTIONS: ReadonlyArray<{
 }> = [
   { value: 'relawan_salary', label: 'Gaji Relawan' },
   { value: 'pic_incentive', label: 'Insentif PIC' },
-  { value: 'vehicle_rent', label: 'Sewa Kendaraan' },
   { value: 'sppg_rent', label: 'Sewa SPPG' }
 ]
 
@@ -43,13 +42,12 @@ export function getAvailableOperationalTypes(
       transactionDate &&
       transactionDate < CIPETIR_OPERATIONAL_POLICY_START_DATE
     ) {
-      return ['vehicle_rent', 'sppg_rent']
+      return ['sppg_rent']
     }
 
     return [
       'relawan_salary',
       'pic_incentive',
-      'vehicle_rent',
       'sppg_rent'
     ]
   }
@@ -59,18 +57,18 @@ export function getAvailableOperationalTypes(
       transactionDate &&
       transactionDate < CIHAUR_OPERATIONAL_POLICY_START_DATE
     ) {
-      return ['vehicle_rent', 'sppg_rent']
+      return ['sppg_rent']
     }
 
     return OPERATIONAL_TYPE_OPTIONS.map((option) => option.value)
   }
 
   if (RENT_ONLY_KITCHENS.has(normalizedName)) {
-    return ['vehicle_rent', 'sppg_rent']
+    return ['sppg_rent']
   }
 
   if (normalizedName === 'sukaraja') {
-    return ['relawan_salary', 'vehicle_rent', 'sppg_rent']
+    return ['relawan_salary', 'sppg_rent']
   }
 
   return OPERATIONAL_TYPE_OPTIONS.map((option) => option.value)
@@ -87,6 +85,8 @@ export function isOperationalTypeAvailable(
     type === 'school_pic_incentive' || type === 'kader_incentive'
       ? 'pic_incentive'
       : type
+
+  if (normalizedType === 'vehicle_rent') return false
 
   return getAvailableOperationalTypes(kitchenName, transactionDate).includes(
     normalizedType

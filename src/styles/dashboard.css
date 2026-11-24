@@ -6,9 +6,9 @@
 
 .dashboard-page {
   --flow-rab: var(--theme-data-teal);
-  --flow-real-rab: var(--theme-data-red);
-  --flow-gas: var(--theme-data-purple);
-  --flow-pencairan-ops: var(--theme-data-cyan);
+  --flow-real-rab: color-mix(in srgb, var(--theme-data-teal) 58%, var(--theme-text-muted));
+  --flow-gas: var(--theme-data-blue);
+  --flow-pencairan-ops: var(--theme-data-amber);
   --flow-inactive: var(--theme-text-muted);
 
   --dashboard-emphasis-border: color-mix(
@@ -673,7 +673,7 @@
 }
 
 .dashboard-status-flags .status-flag-real-ops {
-  color: color-mix(in srgb, #5799e8 38%, var(--flow-inactive));
+  color: color-mix(in srgb, #5799e8 24%, var(--flow-inactive));
 }
 
 .dashboard-status-flags .status-flag-real-ops.is-done {
@@ -681,11 +681,11 @@
 }
 
 .dashboard-status-flags .status-flag-gas {
-  color: color-mix(in srgb, #b28ae8 38%, var(--flow-inactive));
+  color: color-mix(in srgb, #5799e8 38%, var(--flow-inactive));
 }
 
 .dashboard-status-flags .status-flag-gas.is-done {
-  color: #b28ae8;
+  color: #5799e8;
 }
 
 .dashboard-status-flags .status-flag-pencairan-ops {
@@ -705,9 +705,10 @@
 
 .dashboard-status-flags span::after {
   position: absolute;
-  top: calc(100% + 6px);
+  top: auto;
   right: 0;
-  z-index: 10;
+  bottom: calc(100% + 6px);
+  z-index: 30;
   padding: 4px 8px;
   border: 1px solid var(--theme-border);
   border-radius: 8px;
@@ -718,6 +719,7 @@
   font-weight: var(--ui-weight-medium);
   line-height: 1;
   opacity: 0;
+  transform: translateY(2px);
   pointer-events: none;
   transition:
     opacity var(--theme-motion-fast) ease,
@@ -725,26 +727,9 @@
   white-space: nowrap;
 }
 
-.dashboard-status-flags span[aria-label='OPS / Arutala']::after {
-  content: 'OPS / Arutala';
+.dashboard-status-flags span[data-tooltip]::after {
+  content: attr(data-tooltip);
 }
-
-.dashboard-status-flags span[aria-label='RAB / Pencairan']::after {
-  content: 'RAB / Pencairan';
-}
-
-.dashboard-status-flags span[aria-label='RAB / Real']::after {
-  content: 'RAB / Real';
-}
-
-.dashboard-status-flags span[aria-label='OPS / Real']::after {
-  content: 'OPS / Real';
-}
-
-.dashboard-status-flags span[aria-label='OPS / Pencairan']::after {
-  content: 'OPS / Pencairan';
-}
-
 
 .dashboard-status-flags span:hover::after,
 .dashboard-status-flags span:focus-visible::after {
@@ -892,8 +877,12 @@
   color: var(--flow-real-rab);
 }
 
+.dashboard-history-party-name.dashboard-flow-ops-real {
+  color: color-mix(in srgb, #5799e8 58%, var(--theme-text-muted));
+}
+
 .dashboard-history-party-name.dashboard-flow-gas {
-  color: var(--flow-gas);
+  color: #5799e8;
 }
 
 .dashboard-history-party-name.dashboard-flow-ops-disbursement {
@@ -1022,6 +1011,10 @@
 
 .dashboard-flow-expense {
   color: var(--flow-real-rab);
+}
+
+.dashboard-flow-ops-real {
+  color: color-mix(in srgb, #5799e8 58%, var(--theme-text-muted));
 }
 
 .dashboard-flow-gas,

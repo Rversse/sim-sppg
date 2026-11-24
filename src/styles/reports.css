@@ -460,12 +460,12 @@
 }
 
 .reports-summary-grid.reports-summary-belanja .reports-summary-card--ops {
-  border-left: 4px solid var(--theme-data-purple);
+  border-left: 4px solid var(--theme-data-amber);
 }
 
 .reports-summary-grid.reports-summary-belanja .reports-summary-card--ops > span,
 .reports-summary-grid.reports-summary-belanja .reports-summary-card--ops > strong {
-  color: var(--theme-data-purple);
+  color: var(--theme-data-amber);
 }
 
 .reports-summary-grid.reports-summary-belanja .reports-summary-card--arutala {
@@ -475,6 +475,15 @@
 .reports-summary-grid.reports-summary-belanja .reports-summary-card--arutala > span,
 .reports-summary-grid.reports-summary-belanja .reports-summary-card--arutala > strong {
   color: var(--theme-data-blue);
+}
+
+.reports-summary-grid.reports-summary-belanja .reports-summary-card--ops-real {
+  border-left: 4px solid color-mix(in srgb, var(--theme-data-blue) 58%, var(--theme-text-muted));
+}
+
+.reports-summary-grid.reports-summary-belanja .reports-summary-card--ops-real > span,
+.reports-summary-grid.reports-summary-belanja .reports-summary-card--ops-real > strong {
+  color: color-mix(in srgb, var(--theme-data-blue) 58%, var(--theme-text-muted));
 }
 
 .reports-summary-card {
@@ -673,15 +682,19 @@
 }
 
 .reports-table-overall thead th.reports-col-real-rab {
-  color: var(--theme-data-red);
+  color: color-mix(in srgb, var(--theme-data-teal) 58%, var(--theme-text-muted));
 }
 
 .reports-table-overall thead th.reports-col-gas {
   color: var(--theme-data-blue);
 }
 
+.reports-table-overall thead th.reports-col-ops-real {
+  color: color-mix(in srgb, var(--theme-data-blue) 58%, var(--theme-text-muted));
+}
+
 .reports-table-overall thead th.reports-col-ops {
-  color: var(--theme-data-purple);
+  color: var(--theme-data-amber);
 }
 
 

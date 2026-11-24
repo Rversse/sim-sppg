@@ -2,11 +2,8 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 
 import {
   BadgePercent,
-  Activity,
   Building2,
-  Car,
   Landmark,
-  ReceiptText,
   Settings2,
   Users,
   WalletCards
@@ -71,11 +68,11 @@ const DASHBOARD_HISTORY_PAGE_SIZE = 12
 
 const FLOW_OPTIONS: { value: DashboardFlow | ''; label: string }[] = [
   { value: '', label: 'Semua transaksi' },
-  { value: 'income', label: 'RAB / Pencairan' },
-  { value: 'expense', label: 'RAB / Real' },
-  { value: 'ops_real', label: 'OPS / Real' },
+  { value: 'income', label: 'RAB - Pencairan' },
+  { value: 'expense', label: 'RAB - Real' },
+  { value: 'ops_real', label: 'OPS - Arutala Real' },
   { value: 'gas', label: 'OPS / Arutala' },
-  { value: 'ops_disbursement', label: 'OPS / Pencairan' },
+  { value: 'ops_disbursement', label: 'OPS - Pencairan' },
   { value: 'operational_disbursement', label: 'Pencairan Operasional' }
 ]
 
@@ -91,12 +88,12 @@ function flowLabel(
   category?: string | null,
   account?: DashboardTransaction['accounts']
 ) {
-  if (flow === 'income') return 'RAB / Pencairan'
-  if (flow === 'expense' && category === 'OPS') return 'OPS / Real'
-  if (flow === 'expense') return 'RAB / Real'
+  if (flow === 'income') return 'RAB - Pencairan'
+  if (flow === 'expense' && category === 'OPS') return 'OPS - Arutala Real'
+  if (flow === 'expense') return 'RAB - Real'
   if (flow === 'neutral' && isKoperasiArutalaAccount(account)) return 'OPS / Arutala'
   if (flow === 'gas' || (flow === 'neutral' && category === 'GAS')) return 'GAS'
-  if (flow === 'ops_disbursement') return 'OPS / Pencairan'
+  if (flow === 'ops_disbursement') return 'OPS - Pencairan'
   if (flow === 'operational_disbursement') return 'Pencairan Operasional'
   return 'Transaksi'
 }
@@ -120,13 +117,19 @@ function operationalTypeLabel(
   }
 }
 
-function FlowIcon({ flow }: { flow: DashboardFlow }) {
-  if (flow === 'income') {
+function FlowIcon({
+  flow,
+  category
+}: {
+  flow: DashboardFlow
+  category?: string | null
+}) {
+  if (flow === 'income' || (flow === 'expense' && category !== 'OPS')) {
     return <WalletCards aria-hidden="true" />
   }
 
-  if (flow === 'expense') {
-    return <WalletCards aria-hidden="true" />
+  if (flow === 'expense' && category === 'OPS') {
+    return <Landmark aria-hidden="true" />
   }
 
   if (flow === 'gas' || flow === 'neutral') {
@@ -140,8 +143,11 @@ function FlowIcon({ flow }: { flow: DashboardFlow }) {
   return <Settings2 aria-hidden="true" />
 }
 
-function flowClass(flow: DashboardFlow) {
+function flowClass(flow: DashboardFlow, category?: string | null) {
   if (flow === 'income') return 'dashboard-flow dashboard-flow-income'
+  if (flow === 'expense' && category === 'OPS') {
+    return 'dashboard-flow dashboard-flow-ops-real'
+  }
   if (flow === 'expense') return 'dashboard-flow dashboard-flow-expense'
   if (flow === 'gas' || flow === 'neutral') {
     return 'dashboard-flow dashboard-flow-gas'
@@ -314,7 +320,7 @@ export function DashboardPage() {
         if (!cancelled) setOperationalDestinationRoles(roles)
       })
       .catch((loadError) => {
-        console.error('Gagal memuat tujuan OPS / Pencairan:', loadError)
+        console.error('Gagal memuat tujuan OPS - Pencairan:', loadError)
       })
 
     return () => {
@@ -967,7 +973,7 @@ export function DashboardPage() {
         setFormAccountId(gasAccount)
         setFormEntryUnlocked(Boolean(gasAccount))
       } else if (flowType === 'income' && accounts.length === 1) {
-        // One mapped RAB / Pencairan destination is unambiguous: select it automatically.
+        // One mapped RAB - Pencairan destination is unambiguous: select it automatically.
         setFormAccountId(accounts[0].value)
         setFormEntryUnlocked(true)
       } else {
@@ -1289,11 +1295,12 @@ export function DashboardPage() {
       modalMode === 'create' &&
       formFlowType === 'operational_disbursement' &&
       formOperationalType &&
-      !isOperationalTypeAvailable(
-        selectedFormKitchen?.name,
-        formOperationalType,
-        formDate
-      )
+      (formOperationalType === 'vehicle_rent' ||
+        !isOperationalTypeAvailable(
+          selectedFormKitchen?.name,
+          formOperationalType,
+          formDate
+        ))
     ) {
       setFormError('Jenis operasional tidak tersedia untuk dapur ini.')
       return
@@ -1557,11 +1564,11 @@ export function DashboardPage() {
   
           <div className="dashboard-summary-list">
             <div className="dashboard-summary-row">
-              <span>RAB / Pencairan</span>
+              <span>RAB - Pencairan</span>
               {loading ? <Skeleton className="dashboard-summary-skeleton" /> : <strong>{formatCurrency(summary.income)}</strong>}
             </div>
             <div className="dashboard-summary-row">
-              <span>RAB / Real</span>
+              <span>RAB - Real</span>
               {loading ? <Skeleton className="dashboard-summary-skeleton" /> : <strong>{formatCurrency(summary.expense)}</strong>}
             </div>
             <div className={`dashboard-summary-row dashboard-summary-row-balance ${rabBalance > 0 ? 'is-positive' : rabBalance < 0 ? 'is-negative' : 'is-zero'}`}>
@@ -1576,7 +1583,7 @@ export function DashboardPage() {
               {loading ? <Skeleton className="dashboard-summary-skeleton" /> : <strong>{formatCurrency(summary.gas)}</strong>}
             </div>
             <div className="dashboard-summary-row">
-              <span>OPS / Real</span>
+              <span>OPS - Arutala Real</span>
               {loading ? <Skeleton className="dashboard-summary-skeleton" /> : <strong>{formatCurrency(summary.opsReal)}</strong>}
             </div>
             <div className={`dashboard-summary-row dashboard-summary-row-balance ${opsBalance > 0 ? 'is-positive' : opsBalance < 0 ? 'is-negative' : 'is-zero'}`}>
@@ -1587,7 +1594,7 @@ export function DashboardPage() {
             <div className="dashboard-summary-divider" aria-hidden="true" />
   
             <div className="dashboard-summary-row">
-              <span>OPS / Pencairan</span>
+              <span>OPS - Pencairan</span>
               {loading ? <Skeleton className="dashboard-summary-skeleton" /> : <strong>{formatCurrency(summary.operationalDisbursement)}</strong>}
             </div>
           </div>
@@ -1651,8 +1658,8 @@ export function DashboardPage() {
                               className={`status-flag-rab ${
                                 row.income ? 'is-done' : ''
                               }`}
-                              aria-label="RAB / Pencairan"
-                              title="RAB / Pencairan"
+                              aria-label="RAB - Pencairan"
+                              data-tooltip="RAB - Pencairan"
                               tabIndex={0}
                             >
                               <WalletCards aria-hidden="true" />
@@ -1661,28 +1668,28 @@ export function DashboardPage() {
                               className={`status-flag-real-rab ${
                                 row.expense ? 'is-done' : ''
                               }`}
-                              aria-label="RAB / Real"
-                              title="RAB / Real"
+                              aria-label="RAB - Real"
+                              data-tooltip="RAB - Real"
                               tabIndex={0}
                             >
-                              <ReceiptText aria-hidden="true" />
+                              <WalletCards aria-hidden="true" />
                             </span>
                             <span
                               className={`status-flag-real-ops ${
                                 row.opsReal ? 'is-done' : ''
                               }`}
-                              aria-label="OPS / Real"
-                              title="OPS / Real"
+                              aria-label="OPS - Arutala Real"
+                              data-tooltip="OPS - Arutala Real"
                               tabIndex={0}
                             >
-                              <Activity aria-hidden="true" />
+                              <Landmark aria-hidden="true" />
                             </span>
                             <span
                               className={`status-flag-gas ${
                                 row.gas ? 'is-done' : ''
                               }`}
                               aria-label="OPS / Arutala"
-                              title="OPS / Arutala"
+                              data-tooltip="OPS / Arutala"
                               tabIndex={0}
                             >
                               <Landmark aria-hidden="true" />
@@ -1691,8 +1698,8 @@ export function DashboardPage() {
                               className={`status-flag-pencairan-ops ${
                                 row.operational ? 'is-done' : ''
                               }`}
-                              aria-label="OPS / Pencairan"
-                              title="OPS / Pencairan"
+                              aria-label="OPS - Pencairan"
+                              data-tooltip="OPS - Pencairan"
                               tabIndex={0}
                             >
                               <Settings2 aria-hidden="true" />
@@ -1727,16 +1734,7 @@ export function DashboardPage() {
                                 <Building2 aria-hidden="true" />
                               </span>
                             ) : null}
-                            {row.vehicleRentAvailable ? (
-                              <span
-                                className={`status-flag-vehicle-rent ${
-                                  row.vehicleRent ? 'is-done' : ''
-                                }`}
-                                aria-label="Sewa Kendaraan"
-                              >
-                                <Car aria-hidden="true" />
-                              </span>
-                            ) : null}
+
                           </div>
                         </div>
                       </div>
@@ -1917,24 +1915,25 @@ export function DashboardPage() {
                           </strong>
   
                           <span
-                            className={flowClass(transaction.flow_type)}
+                            className={flowClass(transaction.flow_type, transaction.category)}
                             aria-label={flowLabel(transaction.flow_type, transaction.category, transaction.accounts)}
                           >
-                            <FlowIcon flow={transaction.flow_type} />
+                            <FlowIcon flow={transaction.flow_type} category={transaction.category} />
                           </span>
                         </div>
   
                         <div className="dashboard-history-party">
                           <strong
                             className={`dashboard-history-party-name ${flowClass(
-                              transaction.flow_type
+                              transaction.flow_type,
+                              transaction.category
                             )
                               .split(' ')
                               .slice(1)
                               .join(' ')}`}
                           >
                             {transaction.flow_type === 'expense' && transaction.category === 'OPS'
-                              ? 'OPS / Real'
+                              ? 'OPS - Arutala Real'
                               : businessName || transaction.category || 'Transaksi'}
                           </strong>
   
@@ -2169,7 +2168,7 @@ export function DashboardPage() {
                   }
                 >
                   {formKitchenId === TRANSFER_LAINNYA_KITCHEN_VALUE ? (
-                    <option value="income">RAB / Pencairan</option>
+                    <option value="income">RAB - Pencairan</option>
                   ) : (
                     <>
                       <option value="">
@@ -2242,7 +2241,8 @@ export function DashboardPage() {
                     })}
                     {modalMode === 'edit' &&
                     formOperationalType !== '' &&
-                    !availableOperationalTypes.includes(formOperationalType) ? (
+                    (formOperationalType === 'vehicle_rent' ||
+                      !availableOperationalTypes.includes(formOperationalType)) ? (
                       <option value={formOperationalType}>
                         {operationalTypeLabel(formOperationalType)} (riwayat)
                       </option>
@@ -2274,9 +2274,9 @@ export function DashboardPage() {
                     : formFlowType === 'other_income'
                       ? 'Rekening Pemasukan'
                       : formFlowType === 'expense'
-                        ? 'RAB / Real'
+                        ? 'RAB - Real'
                         : formFlowType === 'income'
-                          ? 'Rekening Tujuan RAB / Pencairan'
+                          ? 'Rekening Tujuan RAB - Pencairan'
                           : formFlowType === 'gas'
                             ? 'Rekening Operasional'
                             : 'Rekening'}

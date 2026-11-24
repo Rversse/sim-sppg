@@ -58,7 +58,7 @@ type MappingGroup = {
 }
 
 const RULE_GROUPS: MappingGroup[] = [
-  { id: 'ops_harian', title: 'OPS / Pencairan', types: ['ops_harian'] },
+  { id: 'ops_harian', title: 'OPS - Pencairan', types: ['ops_harian'] },
   { id: 'sppg_rent', title: 'Insentif Fasilitas SPPG', types: ['sppg_rent'] },
   { id: 'gaji_relawan', title: 'Gaji Relawan', types: ['gaji_relawan'] },
   { id: 'gaji_akuntan', title: 'Gaji Akuntan', types: ['gaji_akuntan'] },
@@ -71,7 +71,7 @@ const RULE_GROUPS: MappingGroup[] = [
 ]
 
 const RULE_TYPE_LABELS: Record<Exclude<RuleType, 'vehicle_rent'>, string> = {
-  ops_harian: 'OPS / Pencairan',
+  ops_harian: 'OPS - Pencairan',
   sppg_rent: 'Insentif Fasilitas SPPG',
   gaji_relawan: 'Gaji Relawan',
   gaji_akuntan: 'Gaji Akuntan',
@@ -366,17 +366,6 @@ export function DisbursementAccountsPage() {
     () => rules.filter((rule) => rule.kitchen_id === selectedKitchenId && rule.rule_type !== 'vehicle_rent'),
     [rules, selectedKitchenId]
   )
-  const vehicleRules = useMemo(
-    () => rules.filter((rule) => rule.rule_type === 'vehicle_rent' && rule.is_active),
-    [rules]
-  )
-  const vehicleReference = vehicleRules[0] ?? null
-  const vehicleConsistent = vehicleRules.every((rule) =>
-    rule.owner_name === vehicleReference?.owner_name &&
-    rule.bank === vehicleReference?.bank &&
-    rule.account_number === vehicleReference?.account_number
-  )
-
   const addingKitchen = kitchens.find((kitchen) => kitchen.id === addingKitchenId)
   const availableAddTypes = ADDABLE_RULE_TYPES.filter((type) =>
     !rules.some((rule) => rule.kitchen_id === addingKitchenId && rule.rule_type === type)
@@ -531,36 +520,6 @@ export function DisbursementAccountsPage() {
           </div>
 
           <div className="disbursement-mapping-groups">
-            <section className="disbursement-mapping-group disbursement-vehicle-group">
-              {vehicleReference ? (
-                <div className="disbursement-mapping-row">
-                  <div className="disbursement-mapping-row-head">
-                    <div>
-                      <strong>Sewa kendaraan</strong>
-                      <span
-                        className={'disbursement-status-dot ' + (vehicleReference.mapping_status === 'active' ? 'is-allowed' : 'is-blocked')}
-                        title={vehicleReference.mapping_status === 'active' ? 'Masuk ke database diperbolehkan' : 'Diblokir dari database'}
-                        aria-label={vehicleReference.mapping_status === 'active' ? 'Masuk ke database diperbolehkan' : 'Diblokir dari database'}
-                        role="img"
-                      />
-                    </div>
-                  </div>
-                  <div className="disbursement-mapping-fields">
-                    <label><span>Nama penerima / pemilik</span><input value={vehicleReference.owner_name} disabled readOnly /></label>
-                    <label><span>Bank</span><input value={vehicleReference.bank} disabled readOnly /></label>
-                    <label><span>Nomor rekening</span><input value={vehicleReference.account_number} disabled readOnly /></label>
-                    <label><span>Tujuan rekening</span><input value="Berkah Mandiri Putra" disabled readOnly /></label>
-                    <label className="disbursement-mapping-status-field"><span>Input ke Database</span><input value={vehicleReference.mapping_status === 'active' ? 'Masuk' : 'Diblokir'} disabled readOnly /></label>
-                    <div className="disbursement-mapping-actions" aria-hidden="true" />
-                  </div>
-                  {!vehicleConsistent ? (
-                    <small className="is-warning">Rekening Sewa Kendaraan berbeda antar-dapur. Samakan sebelum digunakan.</small>
-                  ) : null}
-                </div>
-              ) : (
-                <div className="disbursement-page-error">Mapping rekening Sewa Kendaraan belum tersedia.</div>
-              )}
-            </section>
             {RULE_GROUPS.map((group) => (
               <section className={`disbursement-mapping-group disbursement-group-${group.id}`} key={group.id}>
                 {group.types.map((type) => {
