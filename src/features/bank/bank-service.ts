@@ -1528,7 +1528,7 @@ export async function getBankExportTransactions(
       counterparty: kitchen?.name
         ? `Pencairan ${kitchen.name}`
         : isOperational
-          ? 'OPS / Arutala'
+          ? 'OPS - Arutala'
           : 'Pencairan Dashboard',
       paymentFor: row.note?.trim() || '-',
       transferAmount: amount,
