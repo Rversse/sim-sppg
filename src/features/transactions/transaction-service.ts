@@ -296,6 +296,13 @@ export function validateTransactionPayload(
   }
 
   if (
+    payload.flow_type === 'ops_disbursement_real' &&
+    (payload.category !== 'OPS' || payload.account_id || payload.supplier_id || payload.destination_label || payload.operational_type)
+  ) {
+    return 'OPS - Pencairan Real tidak menggunakan rekening, supplier, atau tujuan'
+  }
+
+  if (
     payload.flow_type === 'operational_disbursement' &&
     !payload.operational_type
   ) {
