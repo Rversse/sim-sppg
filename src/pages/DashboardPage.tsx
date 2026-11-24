@@ -1558,7 +1558,7 @@ export function DashboardPage() {
   <article className="dashboard-panel dashboard-summary-panel">
           <div className="dashboard-panel-header">
             <div>
-              <h2>Ringkasan</h2>
+              <h2>Ringkasan{selectedFilterKitchen ? ` - ${selectedFilterKitchen.name}` : ''}</h2>
             </div>
           </div>
   
