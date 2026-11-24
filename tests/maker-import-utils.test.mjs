@@ -462,7 +462,7 @@ test('OPS HARIAN Virtual Account without a recipient is retained as audit-ready 
   const parsed = parseMakerDocument([
     'Campakamulya, 24-Nov-2026',
     'OPS HARIAN : BNI / 8806085172101120 · Token Listrik · VA · 504.000'
-  ].join('\\n'))
+  ].join('\n'))
 
   assert.equal(parsed.error, null)
   assert.equal(parsed.rows.length, 1)
