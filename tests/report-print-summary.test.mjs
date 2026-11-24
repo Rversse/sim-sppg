@@ -8,21 +8,21 @@ const printSource = await readFile(
   'utf8'
 )
 
-test('belanja print keeps only the three requested summary cards with formula labels', () => {
+test('belanja print keeps the three net totals with formula labels', () => {
   assert.equal(
     getBelanjaPrintSummaryLabel('Total RAB'),
     'TOTAL RAB (PENCAIRAN - REAL)'
   )
   assert.equal(
-    getBelanjaPrintSummaryLabel('OPS / Pencairan'),
-    'OPS / PENCAIRAN'
+    getBelanjaPrintSummaryLabel('Total OPS Arutala'),
+    'TOTAL OPS ARUTALA (ARUTALA - REAL)'
   )
   assert.equal(
-    getBelanjaPrintSummaryLabel('Sisa OPS'),
-    'SISA OPS (ARUTALA - REAL)'
+    getBelanjaPrintSummaryLabel('Total OPS Dapur'),
+    'TOTAL OPS DAPUR (PENCAIRAN - REAL)'
   )
-  assert.equal(getBelanjaPrintSummaryLabel('OPS / Arutala'), null)
-  assert.equal(getBelanjaPrintSummaryLabel('OPS / Real'), null)
+  assert.equal(getBelanjaPrintSummaryLabel('OPS - Pencairan'), null)
+  assert.equal(getBelanjaPrintSummaryLabel('OPS - Arutala'), null)
 })
 
 test('print report filters summary cards only in belanja print mode', () => {
