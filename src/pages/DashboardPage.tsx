@@ -143,8 +143,11 @@ function FlowIcon({
   return <Settings2 aria-hidden="true" />
 }
 
-function flowClass(flow: DashboardFlow) {
+function flowClass(flow: DashboardFlow, category?: string | null) {
   if (flow === 'income') return 'dashboard-flow dashboard-flow-income'
+  if (flow === 'expense' && category === 'OPS') {
+    return 'dashboard-flow dashboard-flow-ops-real'
+  }
   if (flow === 'expense') return 'dashboard-flow dashboard-flow-expense'
   if (flow === 'gas' || flow === 'neutral') {
     return 'dashboard-flow dashboard-flow-gas'
@@ -1911,7 +1914,7 @@ export function DashboardPage() {
                           </strong>
   
                           <span
-                            className={flowClass(transaction.flow_type)}
+                            className={flowClass(transaction.flow_type, transaction.category)}
                             aria-label={flowLabel(transaction.flow_type, transaction.category, transaction.accounts)}
                           >
                             <FlowIcon flow={transaction.flow_type} category={transaction.category} />
