@@ -1265,6 +1265,12 @@
 
 
 
+@media (min-width: 761px) {
+  .reports-summary-grid.reports-summary-belanja {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
 /* Overall belanja: blue net totals and a compact Dapur column. */
 .reports-summary-grid.reports-summary-belanja .reports-summary-card--total {
   border-left: 4px solid var(--theme-data-blue);
