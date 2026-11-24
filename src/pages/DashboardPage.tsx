@@ -2,9 +2,11 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 
 import {
   BadgePercent,
+  Activity,
   Building2,
   Car,
   Landmark,
+  ReceiptText,
   Settings2,
   Users,
   WalletCards
@@ -1650,6 +1652,8 @@ export function DashboardPage() {
                                 row.income ? 'is-done' : ''
                               }`}
                               aria-label="RAB / Pencairan"
+                              title="RAB / Pencairan"
+                              tabIndex={0}
                             >
                               <WalletCards aria-hidden="true" />
                             </span>
@@ -1658,34 +1662,41 @@ export function DashboardPage() {
                                 row.expense ? 'is-done' : ''
                               }`}
                               aria-label="RAB / Real"
+                              title="RAB / Real"
+                              tabIndex={0}
                             >
-                              <WalletCards aria-hidden="true" />
+                              <ReceiptText aria-hidden="true" />
                             </span>
-                            {row.opsReal ? (
-                              <span className="status-flag-real-rab is-done" aria-label="OPS / Real">
-                                <WalletCards aria-hidden="true" />
-                              </span>
-                            ) : null}
-                            {row.gasAvailable || row.gas ? (
-                              <span
-                                className={`status-flag-gas ${
-                                  row.gas ? 'is-done' : ''
-                                }`}
-                                aria-label="OPS / Arutala"
-                              >
-                                <Landmark aria-hidden="true" />
-                              </span>
-                            ) : null}
-                            {row.opsHarianAvailable ? (
-                              <span
-                                className={`status-flag-pencairan-ops ${
-                                  row.operational ? 'is-done' : ''
-                                }`}
-                                aria-label="OPS / Pencairan"
-                              >
-                                <Settings2 aria-hidden="true" />
-                              </span>
-                            ) : null}
+                            <span
+                              className={`status-flag-real-ops ${
+                                row.opsReal ? 'is-done' : ''
+                              }`}
+                              aria-label="OPS / Real"
+                              title="OPS / Real"
+                              tabIndex={0}
+                            >
+                              <Activity aria-hidden="true" />
+                            </span>
+                            <span
+                              className={`status-flag-gas ${
+                                row.gas ? 'is-done' : ''
+                              }`}
+                              aria-label="OPS / Arutala"
+                              title="OPS / Arutala"
+                              tabIndex={0}
+                            >
+                              <Landmark aria-hidden="true" />
+                            </span>
+                            <span
+                              className={`status-flag-pencairan-ops ${
+                                row.operational ? 'is-done' : ''
+                              }`}
+                              aria-label="OPS / Pencairan"
+                              title="OPS / Pencairan"
+                              tabIndex={0}
+                            >
+                              <Settings2 aria-hidden="true" />
+                            </span>
                             {row.relawanSalaryAvailable ? (
                               <span
                                 className={`status-flag-relawan-salary ${
