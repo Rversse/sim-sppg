@@ -5,28 +5,6 @@ DECLARE
   v_definition text;
   v_old_identity text := $old_identity$
     if v_kind = 'real_ops' or (v_kind = 'lain_lain' and v_requested_disposition = 'excluded') then
-      -- OPS Real and explicitly Blocked Lain-lain rows do not need a bank/account identity in the source line.
-      v_source_recipient := '';
-      v_source_bank := '';
-      v_source_account_number := '';
-    else
-      v_source_match := regexp_match(v_raw_line, ' - ([A-Za-z][A-Za-z0-9 ]*) / ([xX]{3,}[[:space:]]+[0-9]{4}|[^[:space:]·]+)');
-      if v_source_match is null then
-        raise exception 'Nama/bank/nomor rekening sumber pada baris % tidak terbaca.', v_line_number;
-      end if;
-      v_source_bank := upper(regexp_replace(btrim(v_source_match[1]), '\\s+', ' ', 'g'));
-      v_source_account_number := regexp_replace(btrim(v_source_match[2]), '\\s+', '', 'g');
-      v_source_body := btrim(substring(v_raw_line from position(':' in v_raw_line) + 1));
-      v_source_prefix := btrim(regexp_replace(v_source_body, ' - [A-Za-z][A-Za-z0-9 ]* / ([xX]{3,}[[:space:]]+[0-9]{4}|[^[:space:]·]+).*$', ''));
-      if v_kind = 'lain_lain' then
-        v_source_recipient := btrim(regexp_replace(v_source_prefix, '^.* - ', ''));
-      elsif v_kind = 'gas' then
-        v_source_recipient := btrim(split_part(v_source_prefix, ' / ', 1));
-      else
-        v_source_recipient := v_source_prefix;
-      end if;
-      if v_source_recipient = '' then raise exception 'Nama penerima pada sumber baris % kosong.', v_line_number; end if;
-    end if;
 $old_identity$;
   v_new_identity text := $new_identity$
     if v_kind = 'ops_harian'
@@ -41,36 +19,14 @@ $old_identity$;
         raise exception 'Bank/nomor Virtual Account pada baris % tidak terbaca.', v_line_number;
       end if;
       v_source_recipient := '';
-      v_source_bank := upper(regexp_replace(btrim(v_source_match[1]), '\\s+', ' ', 'g'));
-      v_source_account_number := regexp_replace(btrim(v_source_match[2]), '\\s+', '', 'g');
-      if upper(regexp_replace(btrim(v_bank), '\\s+', ' ', 'g')) <> v_source_bank
-        or regexp_replace(btrim(v_account_number), '\\s+', '', 'g') <> v_source_account_number
+      v_source_bank := upper(btrim(v_source_match[1]));
+      v_source_account_number := replace(btrim(v_source_match[2]), ' ', '');
+      if upper(btrim(v_bank)) <> v_source_bank
+        or replace(btrim(v_account_number), ' ', '') <> v_source_account_number
         or btrim(v_recipient) <> '' then
         raise exception 'Bank/nomor Virtual Account preview baris % berbeda dari teks sumber.', v_line_number;
       end if;
     elsif v_kind = 'real_ops' or (v_kind = 'lain_lain' and v_requested_disposition = 'excluded') then
-      -- OPS Real and explicitly Blocked Lain-lain rows do not need a bank/account identity in the source line.
-      v_source_recipient := '';
-      v_source_bank := '';
-      v_source_account_number := '';
-    else
-      v_source_match := regexp_match(v_raw_line, ' - ([A-Za-z][A-Za-z0-9 ]*) / ([xX]{3,}[[:space:]]+[0-9]{4}|[^[:space:]·]+)');
-      if v_source_match is null then
-        raise exception 'Nama/bank/nomor rekening sumber pada baris % tidak terbaca.', v_line_number;
-      end if;
-      v_source_bank := upper(regexp_replace(btrim(v_source_match[1]), '\\s+', ' ', 'g'));
-      v_source_account_number := regexp_replace(btrim(v_source_match[2]), '\\s+', '', 'g');
-      v_source_body := btrim(substring(v_raw_line from position(':' in v_raw_line) + 1));
-      v_source_prefix := btrim(regexp_replace(v_source_body, ' - [A-Za-z][A-Za-z0-9 ]* / ([xX]{3,}[[:space:]]+[0-9]{4}|[^[:space:]·]+).*$', ''));
-      if v_kind = 'lain_lain' then
-        v_source_recipient := btrim(regexp_replace(v_source_prefix, '^.* - ', ''));
-      elsif v_kind = 'gas' then
-        v_source_recipient := btrim(split_part(v_source_prefix, ' / ', 1));
-      else
-        v_source_recipient := v_source_prefix;
-      end if;
-      if v_source_recipient = '' then raise exception 'Nama penerima pada sumber baris % kosong.', v_line_number; end if;
-    end if;
 $new_identity$;
   v_old_exclusion text := $old_exclusion$
     -- Explicit Admin Block for Lain-lain is allowed even without a matching program mapping.
