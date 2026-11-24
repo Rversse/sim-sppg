@@ -1704,36 +1704,36 @@ export function DashboardPage() {
                             >
                               <Settings2 aria-hidden="true" />
                             </span>
-                            {row.relawanSalaryAvailable ? (
-                              <span
-                                className={`status-flag-relawan-salary ${
-                                  row.relawanSalary ? 'is-done' : ''
-                                }`}
-                                aria-label="Gaji Relawan"
-                              >
-                                <Users aria-hidden="true" />
-                              </span>
-                            ) : null}
-                            {row.picIncentiveAvailable ? (
-                              <span
-                                className={`status-flag-pic-incentive ${
-                                  row.picIncentive ? 'is-done' : ''
-                                }`}
-                                aria-label="Insentif PIC"
-                              >
-                                <BadgePercent aria-hidden="true" />
-                              </span>
-                            ) : null}
-                            {row.sppgRentAvailable ? (
-                              <span
-                                className={`status-flag-sppg-rent ${
-                                  row.sppgRent ? 'is-done' : ''
-                                }`}
-                                aria-label="Insentif Fasilitas SPPG"
-                              >
-                                <Building2 aria-hidden="true" />
-                              </span>
-                            ) : null}
+                            <span
+                              className={`status-flag-relawan-salary ${
+                                row.relawanSalary ? 'is-done' : ''
+                              }`}
+                              aria-label="Gaji Relawan"
+                              data-tooltip="Gaji Relawan"
+                              tabIndex={0}
+                            >
+                              <Users aria-hidden="true" />
+                            </span>
+                            <span
+                              className={`status-flag-pic-incentive ${
+                                row.picIncentive ? 'is-done' : ''
+                              }`}
+                              aria-label="Insentif PIC"
+                              data-tooltip="Insentif PIC"
+                              tabIndex={0}
+                            >
+                              <BadgePercent aria-hidden="true" />
+                            </span>
+                            <span
+                              className={`status-flag-sppg-rent ${
+                                row.sppgRent ? 'is-done' : ''
+                              }`}
+                              aria-label="Insentif Fasilitas SPPG"
+                              data-tooltip="Insentif Fasilitas SPPG"
+                              tabIndex={0}
+                            >
+                              <Building2 aria-hidden="true" />
+                            </span>
 
                           </div>
                         </div>
