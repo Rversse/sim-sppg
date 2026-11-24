@@ -673,11 +673,15 @@
 }
 
 .reports-table-overall thead th.reports-col-real-rab {
-  color: var(--theme-data-red);
+  color: color-mix(in srgb, var(--theme-data-teal) 58%, var(--theme-text-muted));
 }
 
 .reports-table-overall thead th.reports-col-gas {
   color: var(--theme-data-blue);
+}
+
+.reports-table-overall thead th.reports-col-ops-real {
+  color: color-mix(in srgb, var(--theme-data-blue) 58%, var(--theme-text-muted));
 }
 
 .reports-table-overall thead th.reports-col-ops {
