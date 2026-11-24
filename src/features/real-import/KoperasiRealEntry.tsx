@@ -102,7 +102,7 @@ export function KoperasiRealEntry() {
 
         if (supplierResult.error) {
           setSupplierId('')
-          setSupplierError('Referensi supplier Koperasi Arutala gagal dimuat. Input OPS / Real tetap dapat digunakan.')
+          setSupplierError('Referensi supplier Koperasi Arutala gagal dimuat. Input OPS - Real tetap dapat digunakan.')
         } else {
           const supplier = (supplierResult.data ?? []).find(
             (item) => kitchenKey(item.name) === 'koperasi arutala'
@@ -112,7 +112,7 @@ export function KoperasiRealEntry() {
             setSupplierId(supplier.id)
           } else {
             setSupplierId('')
-            setSupplierError('Supplier aktif Koperasi Arutala tidak ditemukan. Input RAB / Real dinonaktifkan; OPS / Real tetap tersedia.')
+            setSupplierError('Supplier aktif Koperasi Arutala tidak ditemukan. Input RAB - Real dinonaktifkan; OPS - Real tetap tersedia.')
           }
         }
       } catch (loadFailure) {
@@ -195,7 +195,7 @@ export function KoperasiRealEntry() {
 
   async function handleSaveRab() {
     if (!user?.id || !supplierId || !date) {
-      toastError('RAB / Real belum siap', supplierError || 'Referensi Koperasi Arutala belum tersedia.')
+      toastError('RAB - Real belum siap', supplierError || 'Referensi Koperasi Arutala belum tersedia.')
       return
     }
 
@@ -240,7 +240,7 @@ export function KoperasiRealEntry() {
     }
 
     if (rows.length === 0) {
-      toastError('Belum ada nominal', 'Isi minimal satu nominal RAB / Real sebelum menyimpan.')
+      toastError('Belum ada nominal', 'Isi minimal satu nominal RAB - Real sebelum menyimpan.')
       return
     }
 
@@ -259,14 +259,14 @@ export function KoperasiRealEntry() {
 
       const result = (data ?? {}) as { inserted_count?: number; total_amount?: number }
       success(
-        'RAB / Real tersimpan',
+        'RAB - Real tersimpan',
         (result.inserted_count ?? rows.length) + ' transaksi berhasil disimpan · Rp ' +
           formatAmount(result.total_amount ?? totalRabInput)
       )
       setRabAmounts({})
       await loadSavedTransactions()
     } catch (saveFailure) {
-      toastError('Gagal menyimpan RAB / Real', saveFailure instanceof Error ? saveFailure.message : 'Terjadi kesalahan.')
+      toastError('Gagal menyimpan RAB - Real', saveFailure instanceof Error ? saveFailure.message : 'Terjadi kesalahan.')
     } finally {
       setSavingRab(false)
     }
@@ -277,7 +277,7 @@ export function KoperasiRealEntry() {
 
     const rows = buildKoperasiOpsRealRows(orderedKitchens, opsAmounts)
     if (rows.length === 0) {
-      toastError('Belum ada nominal', 'Isi minimal satu nominal OPS / Real sebelum menyimpan.')
+      toastError('Belum ada nominal', 'Isi minimal satu nominal OPS - Real sebelum menyimpan.')
       return
     }
 
@@ -296,14 +296,14 @@ export function KoperasiRealEntry() {
 
       const result = (data ?? {}) as { inserted_count?: number; total_amount?: number }
       success(
-        'OPS / Real tersimpan',
+        'OPS - Real tersimpan',
         (result.inserted_count ?? rows.length) + ' transaksi berhasil disimpan · Rp ' +
           formatAmount(result.total_amount ?? totalOpsInput)
       )
       setOpsAmounts({})
       await loadSavedTransactions()
     } catch (saveFailure) {
-      toastError('Gagal menyimpan OPS / Real', saveFailure instanceof Error ? saveFailure.message : 'Terjadi kesalahan.')
+      toastError('Gagal menyimpan OPS - Real', saveFailure instanceof Error ? saveFailure.message : 'Terjadi kesalahan.')
     } finally {
       setSavingOps(false)
     }
@@ -342,7 +342,7 @@ export function KoperasiRealEntry() {
           ?.replace(/^Koperasi Cianjur$/, 'Arutala Cianjur')
           .replace(/^Koperasi Cidaun$/, 'Arutala Cidaun')
           .replace(/^Koperasi Arutala$/, 'Arutala Cianjur')
-        const label = special && source && source !== 'OPS / Real'
+        const label = special && source && source !== 'OPS - Real'
           ? kitchenName + ' - ' + source
           : kitchenName
         return label + ' - Rp ' + formatAmount(Number(row.amount))
@@ -450,7 +450,7 @@ export function KoperasiRealEntry() {
 
   function renderSavedPanel(rows: SavedTransaction[], kind: RealKind) {
     const isOps = kind === 'ops'
-    const title = isOps ? 'RIWAYAT OPS / REAL' : 'RIWAYAT RAB / REAL'
+    const title = isOps ? 'RIWAYAT OPS - REAL' : 'RIWAYAT RAB - REAL'
     const total = rows.reduce((sum, row) => sum + Number(row.amount), 0)
     const isCopying = copyingKind === kind
     const isCopied = copiedKind === kind
@@ -472,7 +472,7 @@ export function KoperasiRealEntry() {
               className="koperasi-real-copy-button"
               onClick={() => void copyDailyReport(rows, kind)}
               disabled={rows.length === 0 || loadingSaved || Boolean(copyingKind)}
-              title={isOps ? 'Salin laporan OPS / Real' : 'Salin laporan RAB / Real'}
+              title={isOps ? 'Salin laporan OPS - Real' : 'Salin laporan RAB - Real'}
             >
               {isCopying ? <LoaderCircle className="is-spinning" aria-hidden="true" /> : isCopied ? <CheckCheck aria-hidden="true" /> : <Copy aria-hidden="true" />}
               {isCopied ? 'Tersalin' : isCopying ? 'Menyalin…' : 'Copy'}
@@ -484,7 +484,7 @@ export function KoperasiRealEntry() {
           <p className="koperasi-real-muted">Memuat transaksi…</p>
         ) : rows.length === 0 ? (
           <p className="koperasi-real-empty">
-            Belum ada transaksi {isOps ? 'OPS / Real.' : 'RAB / Real.'}
+            Belum ada transaksi {isOps ? 'OPS - Real.' : 'RAB - Real.'}
           </p>
         ) : (
           <div className="koperasi-real-saved-list">
@@ -493,7 +493,7 @@ export function KoperasiRealEntry() {
               const sourceLabel = isOps
                 ? row.note === 'Arutala Cianjur' || row.note === 'Arutala Cidaun'
                   ? row.note
-                  : 'OPS / Real'
+                  : 'OPS - Real'
                 : row.note?.replace(/^Koperasi Cianjur$/, 'Arutala Cianjur')
                   .replace(/^Koperasi Cidaun$/, 'Arutala Cidaun')
                   .replace(/^Koperasi Arutala$/, 'Arutala Cianjur') ?? 'Arutala Cianjur'
@@ -650,7 +650,7 @@ export function KoperasiRealEntry() {
         <section className="koperasi-real-panel koperasi-real-input-panel is-rab">
           <div className="koperasi-real-panel-head">
             <div>
-              <span className="koperasi-real-section-label">INPUT RAB / REAL</span>
+              <span className="koperasi-real-section-label">INPUT RAB - REAL</span>
               <h3>Belanja RAB Harian Real</h3>
               <p>Realisasi belanja supplier ke Koperasi Arutala.</p>
             </div>
@@ -707,14 +707,14 @@ export function KoperasiRealEntry() {
           )}
 
           <div className="koperasi-real-savebar">
-            <div><span>Total RAB / Real</span><strong>Rp {formatAmount(totalRabInput)}</strong></div>
+            <div><span>Total RAB - Real</span><strong>Rp {formatAmount(totalRabInput)}</strong></div>
             <button
               type="button"
               className="maker-import-primary"
               onClick={() => void handleSaveRab()}
               disabled={loading || savingRab || Boolean(loadError) || !supplierId || !date}
             >
-              {savingRab ? <><LoaderCircle className="is-spinning" /> Menyimpan…</> : <><Save aria-hidden="true" /> Simpan RAB / Real</>}
+              {savingRab ? <><LoaderCircle className="is-spinning" /> Menyimpan…</> : <><Save aria-hidden="true" /> Simpan RAB - Real</>}
             </button>
           </div>
         </section>
@@ -722,7 +722,7 @@ export function KoperasiRealEntry() {
         <section className="koperasi-real-panel koperasi-real-input-panel is-ops">
           <div className="koperasi-real-panel-head">
             <div>
-              <span className="koperasi-real-section-label">INPUT OPS / REAL</span>
+              <span className="koperasi-real-section-label">INPUT OPS - REAL</span>
               <h3>Belanja Operasional Harian Real</h3>
               <p>Realisasi belanja operasional harian ke Koperasi Arutala.</p>
             </div>
@@ -778,14 +778,14 @@ export function KoperasiRealEntry() {
           )}
 
           <div className="koperasi-real-savebar">
-            <div><span>Total OPS / Real</span><strong>Rp {formatAmount(totalOpsInput)}</strong></div>
+            <div><span>Total OPS - Real</span><strong>Rp {formatAmount(totalOpsInput)}</strong></div>
             <button
               type="button"
               className="maker-import-primary"
               onClick={() => void handleSaveOps()}
               disabled={loading || savingOps || Boolean(loadError) || !date}
             >
-              {savingOps ? <><LoaderCircle className="is-spinning" /> Menyimpan…</> : <><Save aria-hidden="true" /> Simpan OPS / Real</>}
+              {savingOps ? <><LoaderCircle className="is-spinning" /> Menyimpan…</> : <><Save aria-hidden="true" /> Simpan OPS - Real</>}
             </button>
           </div>
         </section>
