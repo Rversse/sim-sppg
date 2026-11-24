@@ -460,7 +460,7 @@ function OverallReportView() {
                 </strong>
               </article>
 
-              <article className="reports-summary-card reports-summary-card--ops">
+              <article className="reports-summary-card reports-summary-card--ops-real">
                 <span>OPS - Arutala Real</span>
                 <strong>{formatCurrency(report.totals.opsReal)}</strong>
               </article>
