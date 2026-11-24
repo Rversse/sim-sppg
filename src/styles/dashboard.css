@@ -2411,18 +2411,12 @@
 }
 
 
-/* Tighten transaction-card rhythm and remove the unused space before pagination. */
+/* Distribute transaction rows evenly through the stretched history panel.
+   This keeps its bottom edge aligned with Status Pencairan while making
+   the vertical distance between card rows consistent. */
 .dashboard-layout-grid .dashboard-history {
-  gap: 8px;
-  padding-bottom: 4px;
-}
-
-.dashboard-layout-grid .dashboard-history-row {
-  padding-bottom: 9px;
-}
-
-.dashboard-layout-grid .dashboard-history-main {
-  gap: 6px;
+  gap: 10px;
+  padding-bottom: 8px;
 }
 
 .dashboard-layout-grid .dashboard-pagination {
@@ -2430,17 +2424,16 @@
 }
 
 @media (min-width: 1101px) {
-  /* Let the history panel follow its cards instead of stretching to the
-     neighboring status panel and leaving a large blank area at the bottom. */
   .dashboard-layout-grid .dashboard-history-panel {
-    height: auto;
+    height: 100%;
     min-height: 0;
-    align-self: start;
+    align-self: stretch;
   }
 
   .dashboard-layout-grid .dashboard-history {
-    flex: 0 0 auto;
-    overflow-y: visible;
-    align-content: start;
+    flex: 1 1 auto;
+    min-height: 0;
+    align-content: space-between;
+    overflow-y: auto;
   }
 }
