@@ -2409,3 +2409,38 @@
     padding-block: 12px;
   }
 }
+
+
+/* Tighten transaction-card rhythm and remove the unused space before pagination. */
+.dashboard-layout-grid .dashboard-history {
+  gap: 8px;
+  padding-bottom: 4px;
+}
+
+.dashboard-layout-grid .dashboard-history-row {
+  padding-bottom: 9px;
+}
+
+.dashboard-layout-grid .dashboard-history-main {
+  gap: 6px;
+}
+
+.dashboard-layout-grid .dashboard-pagination {
+  padding-top: 8px;
+}
+
+@media (min-width: 1101px) {
+  /* Let the history panel follow its cards instead of stretching to the
+     neighboring status panel and leaving a large blank area at the bottom. */
+  .dashboard-layout-grid .dashboard-history-panel {
+    height: auto;
+    min-height: 0;
+    align-self: start;
+  }
+
+  .dashboard-layout-grid .dashboard-history {
+    flex: 0 0 auto;
+    overflow-y: visible;
+    align-content: start;
+  }
+}
