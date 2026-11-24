@@ -373,7 +373,7 @@ function makeRow(
     // bank/account identity and note, but let the disposition layer mark them
     // audit-only so they never become SIM-SPPG transactions.
     const virtualAccountMatch = body.trim().match(
-      /^([A-Za-z][A-Za-z0-9 ]*?)\\s*\\/\\s*([0-9]+)(?:\\s*·\\s*(.*))?$/i
+      /^([A-Za-z][A-Za-z0-9 ]*?)\s*\/\s*([0-9]+)(?:\s*·\s*(.*))?$/i
     )
     if (virtualAccountMatch) {
       return {
