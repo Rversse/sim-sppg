@@ -1,4 +1,4 @@
-import { getBelanjaPrintSummaryLabel } from './report-print-utils'
+import { getBelanjaPrintSummaryDescription, getBelanjaPrintSummaryLabel } from './report-print-utils'
 
 type ReportPrintMode = 'default' | 'belanja' | 'operational'
 
@@ -60,14 +60,20 @@ function printReport(mode: ReportPrintMode = 'default') {
 
     summaryGrid?.querySelectorAll<HTMLElement>('.reports-summary-card').forEach((card) => {
       const label = card.querySelector<HTMLElement>('span')
-      const printLabel = getBelanjaPrintSummaryLabel(label?.textContent ?? '')
+      const sourceLabel = label?.textContent ?? ''
+      const printLabel = getBelanjaPrintSummaryLabel(sourceLabel)
+      const description = getBelanjaPrintSummaryDescription(sourceLabel)
 
-      if (!label || !printLabel) {
+      if (!label || !printLabel || !description) {
         card.remove()
         return
       }
 
       label.textContent = printLabel
+
+      const descriptionElement = card.querySelector<HTMLElement>('small') ?? document.createElement('small')
+      descriptionElement.textContent = description
+      if (!descriptionElement.parentElement) card.append(descriptionElement)
     })
   }
 
