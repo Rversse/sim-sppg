@@ -207,10 +207,11 @@ function printReport(mode: ReportPrintMode = 'default') {
     }
 
     body {
-      font-family: "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, Roboto, Helvetica, Arial, sans-serif;
+      font-family: Arial, Helvetica, sans-serif;
       color: #18293F;
       padding: 0;
-      font-size: 10px;
+      font-size: 10.5px;
+      font-weight: 400;
       line-height: 1.45;
       letter-spacing: 0;
       font-kerning: normal;
@@ -271,6 +272,7 @@ function printReport(mode: ReportPrintMode = 'default') {
 
     .reports-header h1 {
       font-size: 20px;
+      font-weight: 700;
       line-height: 1.2;
       margin: 0;
       color: #18293F;
@@ -305,8 +307,8 @@ function printReport(mode: ReportPrintMode = 'default') {
 
     .reports-subsection-title {
       color: #111827 !important;
-      font-weight: 800 !important;
-      margin-bottom: 22px !important;
+      font-weight: 650 !important;
+      margin-bottom: 16px !important;
       break-after: avoid;
       page-break-after: avoid;
     }
@@ -369,8 +371,8 @@ function printReport(mode: ReportPrintMode = 'default') {
       max-width: 100%;
       font-family: inherit !important;
       font-size: 8.5px !important;
-      font-weight: 700 !important;
-      letter-spacing: 0.035em !important;
+      font-weight: 600 !important;
+      letter-spacing: 0.015em !important;
       line-height: 1.3 !important;
       color: #1D4ED8 !important;
       text-align: center !important;
@@ -381,7 +383,7 @@ function printReport(mode: ReportPrintMode = 'default') {
       margin-top: 0 !important;
       font-family: inherit !important;
       font-size: 17px !important;
-      font-weight: 700 !important;
+      font-weight: 600 !important;
       font-variant-numeric: tabular-nums lining-nums !important;
       font-feature-settings: "tnum" 1, "lnum" 1 !important;
       letter-spacing: 0 !important;
@@ -426,8 +428,8 @@ function printReport(mode: ReportPrintMode = 'default') {
 
     .reports-summary-card > span {
       display: block;
-      font-size: 10px;
-      font-weight: bold;
+      font-size: 9.5px;
+      font-weight: 600;
       text-transform: uppercase;
       color: #637A96;
       margin-bottom: 4px;
@@ -438,8 +440,8 @@ function printReport(mode: ReportPrintMode = 'default') {
       width: 100%;
       overflow: hidden;
       font-family: inherit;
-      font-size: 16px;
-      font-weight: 700;
+      font-size: 15px;
+      font-weight: 600;
       font-variant-numeric: tabular-nums lining-nums;
       font-feature-settings: "tnum" 1, "lnum" 1;
       line-height: 1.2;
@@ -510,23 +512,25 @@ function printReport(mode: ReportPrintMode = 'default') {
     }
 
     .reports-table-overall th:nth-child(1),
-    .reports-table-overall td:nth-child(1) { width: 11% !important; }
+    .reports-table-overall td:nth-child(1) { width: 9% !important; }
     .reports-table-overall th:nth-child(2),
-    .reports-table-overall td:nth-child(2) { width: 11% !important; }
+    .reports-table-overall td:nth-child(2) { width: 10% !important; }
     .reports-table-overall th:nth-child(3),
-    .reports-table-overall td:nth-child(3) { width: 10% !important; }
+    .reports-table-overall td:nth-child(3) { width: 9% !important; }
     .reports-table-overall th:nth-child(4),
-    .reports-table-overall td:nth-child(4) { width: 13% !important; }
+    .reports-table-overall td:nth-child(4) { width: 11% !important; }
     .reports-table-overall th:nth-child(5),
-    .reports-table-overall td:nth-child(5) { width: 11% !important; }
+    .reports-table-overall td:nth-child(5) { width: 10% !important; }
     .reports-table-overall th:nth-child(6),
-    .reports-table-overall td:nth-child(6) { width: 11% !important; }
+    .reports-table-overall td:nth-child(6) { width: 10% !important; }
     .reports-table-overall th:nth-child(7),
-    .reports-table-overall td:nth-child(7) { width: 10% !important; }
+    .reports-table-overall td:nth-child(7) { width: 11% !important; }
     .reports-table-overall th:nth-child(8),
-    .reports-table-overall td:nth-child(8) { width: 10% !important; }
+    .reports-table-overall td:nth-child(8) { width: 9% !important; }
     .reports-table-overall th:nth-child(9),
-    .reports-table-overall td:nth-child(9) { width: 13% !important; }
+    .reports-table-overall td:nth-child(9) { width: 9% !important; }
+    .reports-table-overall th:nth-child(10),
+    .reports-table-overall td:nth-child(10) { width: 12% !important; }
 
     .reports-table .reports-currency {
       position: relative;
@@ -561,9 +565,9 @@ function printReport(mode: ReportPrintMode = 'default') {
       vertical-align: middle;
       color: #637A96 !important;
       font-family: inherit !important;
-      font-size: 8.5px !important;
-      font-weight: 700 !important;
-      letter-spacing: 0.025em !important;
+      font-size: 8.25px !important;
+      font-weight: 600 !important;
+      letter-spacing: 0.01em !important;
       text-transform: uppercase;
       padding: 6px 6px !important;
       border: 1px solid #D2DAEA !important;
@@ -597,22 +601,22 @@ function printReport(mode: ReportPrintMode = 'default') {
     .reports-overall-belanja-block .reports-table th.reports-col-real-ops,
     .reports-overall-belanja-block .reports-table th.reports-col-gas {
       color: #111827 !important;
-      font-weight: 900 !important;
+      font-weight: 600 !important;
     }
 
     .reports-overall-belanja-block .reports-table td {
       color: #18293F !important;
-      font-weight: 600 !important;
+      font-weight: 500 !important;
     }
 
     .reports-overall-belanja-block .reports-table td.positive {
       color: #1DB96A !important;
-      font-weight: bold !important;
+      font-weight: 600 !important;
     }
 
     .reports-overall-belanja-block .reports-table td.negative {
       color: #E8404A !important;
-      font-weight: bold !important;
+      font-weight: 600 !important;
     }
 
     .reports-overall-belanja-block .reports-total-row td {
@@ -620,7 +624,7 @@ function printReport(mode: ReportPrintMode = 'default') {
       background: #E2E8F0 !important;
       border-top: 2px solid #334155 !important;
       border-bottom: 2px solid #334155 !important;
-      font-weight: 900 !important;
+      font-weight: 700 !important;
     }
 
     .reports-table-overall thead th.reports-col-kitchen,
@@ -662,7 +666,7 @@ function printReport(mode: ReportPrintMode = 'default') {
     .reports-table-overall thead th.reports-col-real-ops,
     .reports-table-overall thead th.reports-col-gas {
       color: #111827 !important;
-      font-weight: 900 !important;
+      font-weight: 600 !important;
       background: #ECF0F6 !important;
     }
 
@@ -736,7 +740,7 @@ function printReport(mode: ReportPrintMode = 'default') {
     .reports-table td {
       font-family: inherit !important;
       font-size: 9.5px !important;
-      font-weight: 600 !important;
+      font-weight: 500 !important;
       font-variant-numeric: tabular-nums lining-nums !important;
       font-feature-settings: "tnum" 1, "lnum" 1 !important;
       letter-spacing: 0 !important;
@@ -769,7 +773,7 @@ function printReport(mode: ReportPrintMode = 'default') {
     }
 
     .reports-total-row td {
-      font-weight: 900 !important;
+      font-weight: 700 !important;
       background: #E2E8F0 !important;
       border-top: 2px solid #64748B !important;
       border-bottom: 2px solid #64748B !important;
@@ -779,12 +783,12 @@ function printReport(mode: ReportPrintMode = 'default') {
 
     .reports-table .positive {
       color: #1DB96A !important;
-      font-weight: bold;
+      font-weight: 600;
     }
 
     .reports-table .negative {
       color: #E8404A !important;
-      font-weight: bold;
+      font-weight: 600;
     }
 
     .reports-empty,
