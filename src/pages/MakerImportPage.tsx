@@ -179,11 +179,8 @@ function getRowOperationalType(
 }
 
 function getOperationalRuleType(row: MakerImportDraftRow): string | null {
-  if (row.kind === 'ops_harian') {
-    const details = normalizeMakerText(row.details).replace(/^pembayaran\s+/, '')
-    if (details.includes('gaji pengawas keuangan')) return 'gaji_akuntan'
-    if (details.includes('gaji pengawas gizi')) return 'gaji_ahli_gizi'
-  }
+  // OPS HARIAN is classified by its Maker source category, never by free-text notes.
+  // Salary and incentive categories have their own Maker kinds and mapping rules.
   return operationalRuleTypeForKind(row.kind, getRowOperationalType(row))
 }
 
@@ -360,19 +357,6 @@ function getRowDisposition(
     }
   }
 
-  if (
-    row.kind === 'ops_harian' &&
-    Boolean(row.details.trim()) &&
-    normalizeMakerText(row.details) !== 'ops harian' &&
-    !hasMappedOpsHarianArutalaAccount(row, kitchenId, refs) &&
-    !row.verified
-  ) {
-    return {
-      status: 'excluded',
-      reason: 'Deskripsi OPS HARIAN berbeda dari Ops Harian dan belum divalidasi. Baris hanya disimpan untuk audit.'
-    }
-  }
-
   if (row.kind === 'combined_payroll') {
     return {
       status: 'excluded',
@@ -511,15 +495,6 @@ function getValidation(
       errors.push('Bank/nomor rekening pada draft tidak sama dengan mapping database. Periksa data sumber.')
     } else if (matchedAccount && !accountNameMatchesRecipient(matchedAccount, row.recipientName)) {
       confirmations.push('Nama penerima berbeda dari nama rekening di database.')
-    }
-
-    if (
-      row.kind === 'ops_harian' &&
-      Boolean(row.details.trim()) &&
-      normalizeMakerText(row.details) !== 'ops harian' &&
-      !hasMappedOpsHarianArutalaAccount(row, kitchenId, refs)
-    ) {
-      confirmations.push('Deskripsi OPS HARIAN berbeda dari Ops Harian. Validasi agar transaksi masuk ke OPS / Pencairan; jika tidak divalidasi, baris hanya disimpan untuk audit.')
     }
 
     if (flow === 'gas' && kitchen && ['sukaraja', 'cihaur'].includes(normalizeMakerText(kitchen.name))) {
