@@ -361,6 +361,14 @@
   font-weight: var(--ui-weight-strong);
 }
 
+.reports-overall-belanja-block .reports-table-overall thead th > span {
+  display: block;
+}
+
+.reports-overall-belanja-block .reports-table-overall thead th > .reports-header-parenthetical {
+  white-space: nowrap;
+}
+
 .reports-overall-belanja-block .reports-table tbody td.positive {
   color: var(--app-success);
   font-weight: var(--ui-weight-strong);
