@@ -351,18 +351,18 @@ function printReport(mode: ReportPrintMode = 'default') {
     }
 
     .reports-summary-grid.reports-summary-belanja .reports-summary-card:nth-child(1) {
-      border-top-color: #DDA7A7 !important;
-      border-bottom-color: #DDA7A7 !important;
+      border-top-color: #93C5FD !important;
+      border-bottom-color: #93C5FD !important;
     }
 
     .reports-summary-grid.reports-summary-belanja .reports-summary-card:nth-child(2) {
-      border-top-color: #AFC0D5 !important;
-      border-bottom-color: #AFC0D5 !important;
+      border-top-color: #60A5FA !important;
+      border-bottom-color: #60A5FA !important;
     }
 
     .reports-summary-grid.reports-summary-belanja .reports-summary-card:nth-child(3) {
-      border-top-color: #91CDBD !important;
-      border-bottom-color: #91CDBD !important;
+      border-top-color: #2563EB !important;
+      border-bottom-color: #2563EB !important;
     }
 
     .reports-summary-grid.reports-summary-belanja .reports-summary-card > span {
@@ -372,7 +372,7 @@ function printReport(mode: ReportPrintMode = 'default') {
       font-weight: 700 !important;
       letter-spacing: 0.035em !important;
       line-height: 1.3 !important;
-      color: #526174 !important;
+      color: #1D4ED8 !important;
       text-align: center !important;
       text-transform: uppercase;
     }
@@ -510,35 +510,23 @@ function printReport(mode: ReportPrintMode = 'default') {
     }
 
     .reports-table-overall th:nth-child(1),
-    .reports-table-overall td:nth-child(1) {
-      width: 18% !important;
-    }
-
+    .reports-table-overall td:nth-child(1) { width: 11% !important; }
     .reports-table-overall th:nth-child(2),
-    .reports-table-overall td:nth-child(2),
+    .reports-table-overall td:nth-child(2) { width: 11% !important; }
     .reports-table-overall th:nth-child(3),
-    .reports-table-overall td:nth-child(3) {
-      width: 12.5% !important;
-    }
-
+    .reports-table-overall td:nth-child(3) { width: 10% !important; }
     .reports-table-overall th:nth-child(4),
-    .reports-table-overall td:nth-child(4) {
-      width: 14% !important;
-    }
-
+    .reports-table-overall td:nth-child(4) { width: 13% !important; }
     .reports-table-overall th:nth-child(5),
-    .reports-table-overall td:nth-child(5),
+    .reports-table-overall td:nth-child(5) { width: 11% !important; }
     .reports-table-overall th:nth-child(6),
-    .reports-table-overall td:nth-child(6) {
-      width: 9.5% !important;
-    }
-
+    .reports-table-overall td:nth-child(6) { width: 11% !important; }
     .reports-table-overall th:nth-child(7),
-    .reports-table-overall td:nth-child(7),
+    .reports-table-overall td:nth-child(7) { width: 10% !important; }
     .reports-table-overall th:nth-child(8),
-    .reports-table-overall td:nth-child(8) {
-      width: 12% !important;
-    }
+    .reports-table-overall td:nth-child(8) { width: 10% !important; }
+    .reports-table-overall th:nth-child(9),
+    .reports-table-overall td:nth-child(9) { width: 13% !important; }
 
     .reports-table .reports-currency {
       position: relative;
@@ -676,6 +664,12 @@ function printReport(mode: ReportPrintMode = 'default') {
       color: #111827 !important;
       font-weight: 900 !important;
       background: #ECF0F6 !important;
+    }
+
+    .reports-overall-belanja-block .reports-table-overall thead th.reports-col-total {
+      color: #1D4ED8 !important;
+      background: #DBEAFE !important;
+      border-color: #93C5FD !important;
     }
 
     .reports-table-overall-operational th {
