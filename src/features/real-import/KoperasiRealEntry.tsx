@@ -342,7 +342,7 @@ export function KoperasiRealEntry() {
           ?.replace(/^Koperasi Cianjur$/, 'Arutala Cianjur')
           .replace(/^Koperasi Cidaun$/, 'Arutala Cidaun')
           .replace(/^Koperasi Arutala$/, 'Arutala Cianjur')
-        const label = special && source && source !== 'OPS - Real'
+        const label = special && source && source !== 'OPS / Real'
           ? kitchenName + ' - ' + source
           : kitchenName
         return label + ' - Rp ' + formatAmount(Number(row.amount))
