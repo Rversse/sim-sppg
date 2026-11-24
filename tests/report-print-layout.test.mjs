@@ -22,18 +22,21 @@ test('overall report print iframe wraps headers and vertically centers them', ()
   )
 })
 
-test('overall report print narrows Dapur and aligns the nine columns', () => {
+test('overall report print fits ten columns and keeps Dapur compact', () => {
   assert.match(
     printSource,
-    /\.reports-table-overall th:nth-child\(1\),[\s\S]*?\.reports-table-overall td:nth-child\(1\) \{ width: 11% !important; \}/
+    /\.reports-table-overall th:nth-child\(1\),[\s\S]*?\.reports-table-overall td:nth-child\(1\) \{ width: 9% !important; \}/
   )
   assert.match(
     printSource,
-    /\.reports-table-overall th:nth-child\(6\),[\s\S]*?\.reports-table-overall td:nth-child\(6\) \{ width: 11% !important; \}/
-  )
-  assert.match(
-    printSource,
-    /\.reports-table-overall th:nth-child\(9\),[\s\S]*?\.reports-table-overall td:nth-child\(9\) \{ width: 13% !important; \}/
+    /\.reports-table-overall th:nth-child\(10\),[\s\S]*?\.reports-table-overall td:nth-child\(10\) \{ width: 12% !important; \}/
   )
   assert.ok(printSource.includes('background: #DBEAFE !important;'))
+})
+
+test('print table typography avoids extra-bold weights', () => {
+  assert.ok(printSource.includes('font-family: Arial, Helvetica, sans-serif;'))
+  assert.ok(printSource.includes('font-weight: 600 !important;'))
+  assert.ok(printSource.includes('font-weight: 700 !important;'))
+  assert.ok(!printSource.includes('font-weight: 900 !important;'))
 })
