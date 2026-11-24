@@ -8,6 +8,7 @@ export type TransactionFlow =
   | 'expense'
   | 'gas'
   | 'ops_disbursement'
+  | 'ops_disbursement_real'
   | 'operational_disbursement'
   | 'neutral'
 
@@ -229,6 +230,17 @@ export function buildTransactionPayload(
         operational_type: null
       }
 
+    case 'ops_disbursement_real':
+      return {
+        ...base,
+        flow_type: 'ops_disbursement_real',
+        category: 'OPS',
+        account_id: null,
+        supplier_id: null,
+        destination_label: null,
+        operational_type: null
+      }
+
     case 'ops_disbursement':
       return {
         ...base,
@@ -281,6 +293,13 @@ export function validateTransactionPayload(
     !payload.destination_label
   ) {
     return 'Tujuan operasional wajib diisi'
+  }
+
+  if (
+    payload.flow_type === 'ops_disbursement_real' &&
+    (payload.category !== 'OPS' || payload.account_id || payload.supplier_id || payload.destination_label || payload.operational_type)
+  ) {
+    return 'OPS - Pencairan Real tidak menggunakan rekening, supplier, atau tujuan'
   }
 
   if (
@@ -340,6 +359,10 @@ export async function hasDuplicateTransaction(
 
   if (payload.flow_type === 'operational_disbursement') {
     query = query.eq('operational_type', payload.operational_type)
+  }
+
+  if (payload.flow_type === 'ops_disbursement_real') {
+    query = query.is('account_id', null).is('supplier_id', null)
   }
 
   if (payload.flow_type === 'income' || payload.flow_type === 'gas') {
