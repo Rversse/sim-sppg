@@ -1013,6 +1013,10 @@
   color: var(--flow-real-rab);
 }
 
+.dashboard-flow-ops-real {
+  color: color-mix(in srgb, #5799e8 58%, var(--theme-text-muted));
+}
+
 .dashboard-flow-gas,
 .dashboard-flow-neutral {
   color: var(--flow-gas);
