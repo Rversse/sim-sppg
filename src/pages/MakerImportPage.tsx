@@ -136,24 +136,6 @@ function isOpsHarianArutalaAccount(account: AccountRef, row: MakerImportDraftRow
     normalizeMakerAccountNumber(row.accountNumber) === normalizeMakerAccountNumber(account.account_number)
 }
 
-function hasMappedOpsHarianArutalaAccount(
-  row: MakerImportDraftRow,
-  kitchenId: string,
-  refs: ImportReferences
-): boolean {
-  if (row.kind !== 'ops_harian') return false
-  const neutralAccountIds = new Set(
-    refs.accountRules
-      .filter((rule) => rule.kitchen_id === kitchenId && rule.flow_type === 'neutral')
-      .map((rule) => rule.account_id)
-  )
-  return refs.accounts.some((account) =>
-    neutralAccountIds.has(account.id) &&
-    account.id === row.accountId &&
-    isOpsHarianArutalaAccount(account, row)
-  )
-}
-
 function operationalTargetRoleLabel(role: OperationalAccountRule['target_role']): string {
   switch (role) {
     case 'akuntan': return 'Akuntan'
