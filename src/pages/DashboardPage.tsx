@@ -4,7 +4,6 @@ import {
   BadgePercent,
   Activity,
   Building2,
-  Car,
   Landmark,
   ReceiptText,
   Settings2,
@@ -299,7 +298,6 @@ export function DashboardPage() {
   const [formOperationalType, setFormOperationalType] = useState<
     | 'relawan_salary'
     | 'pic_incentive'
-    | 'vehicle_rent'
     | 'sppg_rent'
     | ''
   >('')
@@ -1727,16 +1725,7 @@ export function DashboardPage() {
                                 <Building2 aria-hidden="true" />
                               </span>
                             ) : null}
-                            {row.vehicleRentAvailable ? (
-                              <span
-                                className={`status-flag-vehicle-rent ${
-                                  row.vehicleRent ? 'is-done' : ''
-                                }`}
-                                aria-label="Sewa Kendaraan"
-                              >
-                                <Car aria-hidden="true" />
-                              </span>
-                            ) : null}
+
                           </div>
                         </div>
                       </div>
