@@ -696,6 +696,15 @@ function printReport(mode: ReportPrintMode = 'default') {
       border-color: #93C5FD !important;
     }
 
+    .reports-overall-belanja-block .reports-table-overall thead th > span {
+      display: block !important;
+    }
+
+    .reports-overall-belanja-block .reports-table-overall thead th > .reports-header-parenthetical {
+      white-space: nowrap !important;
+      font-weight: 600 !important;
+    }
+
     .reports-table-overall-operational th {
       font-size: 8.5px !important;
       line-height: 1.15 !important;
