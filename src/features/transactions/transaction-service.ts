@@ -296,7 +296,7 @@ export function validateTransactionPayload(
 
   if (payload.flow_type === 'expense' && payload.category === 'OPS' &&
     (payload.supplier_id || payload.account_id)) {
-    return 'OPS / Real tidak menggunakan rekening atau supplier'
+    return 'OPS - Real tidak menggunakan rekening atau supplier'
   }
 
   return null

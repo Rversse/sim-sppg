@@ -232,7 +232,7 @@ function MappingEditor({
 
       <div className="disbursement-mapping-fields">
         <label>
-          <span>Nama penerima / pemilik</span>
+          <span>Nama penerima - pemilik</span>
           <input
             value={draft.ownerName}
             onChange={(event) => setDraft((current) => ({ ...current, ownerName: event.target.value }))}

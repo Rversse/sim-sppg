@@ -333,7 +333,7 @@ function addTransactionsSheet(
     period,
     'Saldo berjalan dihitung sejak ' +
       formatDisplayDate(BANK_MODULE_START_DATE) +
-      '. Tanggal mengikuti tanggal transaksi pada data, bukan waktu input. Transfer bank mengikuti tanggal pada Form Tambah Transaksi Bank; RAB / Pencairan mengikuti tanggal program.'
+      '. Tanggal mengikuti tanggal transaksi pada data, bukan waktu input. Transfer bank mengikuti tanggal pada Form Tambah Transaksi Bank; RAB - Pencairan mengikuti tanggal program.'
   )
 
   worksheet.addRow([
@@ -343,8 +343,8 @@ function addTransactionsSheet(
     'No. Rekening',
     'Arah',
     'Jenis Mutasi',
-    'Dari / Kepada',
-    'Keperluan / Catatan',
+    'Dari - Kepada',
+    'Keperluan - Catatan',
     'Nominal Transfer',
     'Biaya Admin',
     'Total Mutasi',

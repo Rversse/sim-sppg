@@ -461,7 +461,7 @@ function getValidation(
       matchedAccount = refs.accounts.find((account) => account.id === row.accountId)
       if (!matchedAccount || !ruleAccountIds.has(matchedAccount.id)) {
         errors.push(flow === 'income'
-          ? 'Rekening ini belum dimapping sebagai RAB/Pencairan untuk dapur terpilih.'
+          ? 'Rekening ini belum dimapping sebagai RAB - Pencairan untuk dapur terpilih.'
           : flow === 'neutral_ops_harian'
             ? 'Rekening OPS HARIAN custom belum dimapping sebagai rekening netral untuk dapur terpilih.'
             : 'Rekening Lain-lain belum dimapping sebagai rekening netral untuk dapur terpilih.')
@@ -474,7 +474,7 @@ function getValidation(
     }
 
     if (matchedAccount && !accountMatchesRow(matchedAccount, row)) {
-      errors.push('Bank/nomor rekening pada draft tidak sama dengan mapping database. Periksa data sumber.')
+      errors.push('Bank - nomor rekening pada draft tidak sama dengan mapping database. Periksa data sumber.')
     } else if (matchedAccount && !accountNameMatchesRecipient(matchedAccount, row.recipientName)) {
       confirmations.push('Nama penerima berbeda dari nama rekening di database.')
     }
@@ -556,7 +556,7 @@ function getValidation(
       errors.push(row.kind === 'lain_lain'
         ? opsMatches.length === 0
           ? 'Lain-lain hanya bisa Allow jika rekening terdeteksi sebagai Akuntan, Aslap, atau Koperasi Arutala BNI.'
-          : 'Mapping Akuntan/Aslap lebih dari satu untuk rekening ini. Periksa mapping aktif di database.'
+          : 'Mapping Akuntan - Aslap lebih dari satu untuk rekening ini. Periksa mapping aktif di database.'
         : opsMatches.length === 0
           ? 'Rekening OPS HARIAN belum cocok dengan mapping aktif di Data Rekening.'
           : 'Mapping rekening OPS HARIAN lebih dari satu. Periksa mapping aktif di Data Rekening.')
@@ -871,7 +871,7 @@ export function MakerImportPage() {
                   : item.account_id === null)
           )
           if (existingMatch) {
-            reasons[row.id] = 'Tanggal, dapur, jenis, rekening/tujuan, dan nominal sama dengan transaksi yang sudah ada.'
+            reasons[row.id] = 'Tanggal, dapur, jenis, rekening - tujuan, dan nominal sama dengan transaksi yang sudah ada.'
           }
 
           const key = [
@@ -1254,7 +1254,7 @@ export function MakerImportPage() {
                     ) : null}
 
                     <div className="maker-import-readonly-kind">
-                      <span>Jenis transaksi: <strong>{flow === 'ops_real' ? 'OPS / Real' : flow === 'neutral_ops_harian' || (flow === 'neutral_lain_lain' && normalizeMakerText(row.recipientName) === 'koperasi arutala' && normalizeMakerBank(row.bank) === 'BNI' && normalizeMakerAccountNumber(row.accountNumber) === '1985322260') ? 'OPS HARIAN / Netral' : row.kind === 'lain_lain' ? (flow === 'neutral_lain_lain' ? 'Lain-lain / Netral' : 'OPS / Pencairan') : row.kind === 'combined_payroll' ? 'Payroll gabungan' : flow === 'income' ? 'RAB / Pencairan' : flow === 'gas' ? 'GAS' : flow === 'ops_disbursement' ? 'OPS / Pencairan' : 'Pencairan Operasional — ' + operationalTypeLabel(row.operationalType || defaultOperationalType(row.kind))}</strong></span>
+                      <span>Jenis transaksi: <strong>{flow === 'ops_real' ? 'OPS - Real' : flow === 'neutral_ops_harian' || (flow === 'neutral_lain_lain' && normalizeMakerText(row.recipientName) === 'koperasi arutala' && normalizeMakerBank(row.bank) === 'BNI' && normalizeMakerAccountNumber(row.accountNumber) === '1985322260') ? 'OPS HARIAN - Netral' : row.kind === 'lain_lain' ? (flow === 'neutral_lain_lain' ? 'Lain-lain - Netral' : 'OPS - Pencairan') : row.kind === 'combined_payroll' ? 'Payroll gabungan' : flow === 'income' ? 'RAB - Pencairan' : flow === 'gas' ? 'GAS' : flow === 'ops_disbursement' ? 'OPS - Pencairan' : 'Pencairan Operasional — ' + operationalTypeLabel(row.operationalType || defaultOperationalType(row.kind))}</strong></span>
                       {flow === 'income' || flow === 'neutral_lain_lain' || flow === 'neutral_ops_harian' ? (
                         <label className="maker-import-account-select">
                           <select value={row.accountId} onChange={(event) => chooseAccount(row, event.target.value)} disabled={saving || rowLocked || !kitchenId}>
@@ -1293,7 +1293,7 @@ export function MakerImportPage() {
                     <div className="maker-import-fields">
                         {flow !== 'ops_real' ? <>
                         <label>
-                          <span>Nama penerima / rekening</span>
+                          <span>Nama penerima - rekening</span>
                           <input value={row.recipientName} onChange={(event) => updateRow(row.id, { recipientName: event.target.value, accountId: '', operationalRuleId: '', verified: false })} title="Draft dapat dikoreksi. Teks sumber asli tetap tersimpan untuk audit; identitas rekening harus cocok dengan mapping database." disabled={saving || rowLocked} />
                         </label>
                         <label>
@@ -1314,7 +1314,7 @@ export function MakerImportPage() {
                           }} title="Nominal draft dapat dikoreksi. Nominal sumber asli tetap tersimpan untuk audit." disabled={saving || rowLocked} />
                         </label>
                         {flow !== 'ops_real' ? <label className="maker-import-detail-field">
-                          <span>Detail / produk / periode / keperluan</span>
+                          <span>Detail - produk - periode - keperluan</span>
                           <input value={row.details} onChange={(event) => updateRow(row.id, { details: event.target.value, verified: false })} title="Detail draft dapat dikoreksi; baris sumber asli tetap disimpan untuk audit." disabled={saving || rowLocked} />
                         </label> : null}
                     </div>

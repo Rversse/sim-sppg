@@ -454,7 +454,7 @@ function OverallReportView() {
               </article>
 
               <article className="reports-summary-card reports-summary-card--arutala">
-                <span>OPS / Arutala</span>
+                <span>OPS - Arutala</span>
                 <strong className="positive">
                   {formatCurrency(report.totals.gas)}
                 </strong>
@@ -482,7 +482,7 @@ function OverallReportView() {
                   <th className="reports-col-real-rab">RAB - Real</th>
                   <th className="reports-col-total">Total RAB (Pencairan - Real)</th>
                   <th className="reports-col-ops">OPS - Pencairan</th>
-                  <th className="reports-col-gas">OPS / Arutala</th>
+                  <th className="reports-col-gas">OPS - Arutala</th>
                   <th className="reports-col-ops-real">OPS - Arutala Real</th>
                   <th className="reports-col-total">Sisa OPS (Arutala - Real)</th>
                 </tr>
