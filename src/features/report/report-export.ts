@@ -496,7 +496,7 @@ function createOverallSummarySheet(
     worksheet.addRow([
       getOperationalKitchenLabel(row.kitchenName, row.recipientName),
       row.sppgRent,
-      row.vehicleRent,
+      row.vehicleRentMapped ? row.vehicleRent : '—',
       isOperationalTypeAvailable(row.kitchenName, 'relawan_salary', endDate)
         ? row.relawanSalary
         : '—',
