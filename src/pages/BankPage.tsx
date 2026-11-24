@@ -1403,7 +1403,7 @@ export function BankPage() {
                 Pilih periode yang mau dicek. Tanggal di Excel mengikuti tanggal
                 transaksi yang tercatat, bukan tanggal saat data dimasukkan. Untuk
                 transfer bank, tanggal mengikuti field Tanggal di form ini; untuk
-                RAB / Pencairan, tanggal mengikuti tanggal program.
+                RAB - Pencairan, tanggal mengikuti tanggal program.
               </p>
 
               <div className="bank-export-date-grid">
@@ -2005,7 +2005,7 @@ export function BankPage() {
                     const isGas =
                       transaction.flow_type === 'gas' ||
                       transaction.flow_type === 'neutral'
-                    const badge = isGas ? 'OPS / Arutala' : 'RAB / PENCAIRAN'
+                    const badge = isGas ? 'OPS / Arutala' : 'RAB - PENCAIRAN'
                     const badgeClass = isGas
                       ? 'bank-history-badge bank-history-badge--gas'
                       : 'bank-history-badge bank-history-badge--rab'
