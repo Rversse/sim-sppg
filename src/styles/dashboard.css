@@ -673,7 +673,7 @@
 }
 
 .dashboard-status-flags .status-flag-real-ops {
-  color: color-mix(in srgb, #5799e8 38%, var(--flow-inactive));
+  color: color-mix(in srgb, #5799e8 24%, var(--flow-inactive));
 }
 
 .dashboard-status-flags .status-flag-real-ops.is-done {
@@ -681,11 +681,11 @@
 }
 
 .dashboard-status-flags .status-flag-gas {
-  color: color-mix(in srgb, #b28ae8 38%, var(--flow-inactive));
+  color: color-mix(in srgb, #5799e8 38%, var(--flow-inactive));
 }
 
 .dashboard-status-flags .status-flag-gas.is-done {
-  color: #b28ae8;
+  color: #5799e8;
 }
 
 .dashboard-status-flags .status-flag-pencairan-ops {
@@ -705,8 +705,9 @@
 
 .dashboard-status-flags span::after {
   position: absolute;
-  top: calc(100% + 6px);
+  top: auto;
   right: 0;
+  bottom: calc(100% + 6px);
   z-index: 10;
   padding: 4px 8px;
   border: 1px solid var(--theme-border);
@@ -718,6 +719,7 @@
   font-weight: var(--ui-weight-medium);
   line-height: 1;
   opacity: 0;
+  transform: translateY(2px);
   pointer-events: none;
   transition:
     opacity var(--theme-motion-fast) ease,
@@ -725,26 +727,9 @@
   white-space: nowrap;
 }
 
-.dashboard-status-flags span[aria-label='OPS / Arutala']::after {
-  content: 'OPS / Arutala';
+.dashboard-status-flags span[data-tooltip]::after {
+  content: attr(data-tooltip);
 }
-
-.dashboard-status-flags span[aria-label='RAB / Pencairan']::after {
-  content: 'RAB / Pencairan';
-}
-
-.dashboard-status-flags span[aria-label='RAB / Real']::after {
-  content: 'RAB / Real';
-}
-
-.dashboard-status-flags span[aria-label='OPS / Real']::after {
-  content: 'OPS / Real';
-}
-
-.dashboard-status-flags span[aria-label='OPS / Pencairan']::after {
-  content: 'OPS / Pencairan';
-}
-
 
 .dashboard-status-flags span:hover::after,
 .dashboard-status-flags span:focus-visible::after {
