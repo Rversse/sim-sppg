@@ -54,6 +54,7 @@ function printReport(mode: ReportPrintMode = 'default') {
     .forEach((element) => element.remove())
 
   if (mode === 'belanja') {
+    reportClone.querySelector('.reports-subsection-title')?.remove()
     const summaryGrid = reportClone.querySelector<HTMLElement>(
       '.reports-summary-grid.reports-summary-belanja'
     )
@@ -146,7 +147,7 @@ function printReport(mode: ReportPrintMode = 'default') {
 
   const title =
     mode === 'belanja'
-      ? 'Pencairan Belanja Harian dan Pemasukan Lainnya'
+      ? 'Pencairan Belanja Harian'
       : mode === 'operational'
         ? 'Pencairan Operasional Harian'
         : defaultTitle
@@ -166,7 +167,9 @@ function printReport(mode: ReportPrintMode = 'default') {
         : ''
 
   const kitchen =
-    kitchenName && kitchenName !== 'Semua Dapur' ? `Dapur: ${kitchenName}` : ''
+    mode !== 'belanja' && kitchenName && kitchenName !== 'Semua Dapur'
+      ? `Dapur: ${kitchenName}`
+      : ''
 
   const printedAtParts = new Intl.DateTimeFormat('id-ID', {
     day: '2-digit',
