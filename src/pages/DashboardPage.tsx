@@ -2241,7 +2241,8 @@ export function DashboardPage() {
                     })}
                     {modalMode === 'edit' &&
                     formOperationalType !== '' &&
-                    !availableOperationalTypes.includes(formOperationalType) ? (
+                    (formOperationalType === 'vehicle_rent' ||
+                      !availableOperationalTypes.includes(formOperationalType)) ? (
                       <option value={formOperationalType}>
                         {operationalTypeLabel(formOperationalType)} (riwayat)
                       </option>
