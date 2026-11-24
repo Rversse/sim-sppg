@@ -458,6 +458,26 @@ test('Maker OPS HARIAN preserves custom purchase notes for mapped neutral routin
   assert.deepEqual(parsed.rows.map((row) => row.accountNumber), ['1985322260', '1985322260', '407701032673505'])
 })
 
+test('OPS HARIAN Virtual Account without a recipient is retained as audit-ready bank data', () => {
+  const parsed = parseMakerDocument([
+    'Campakamulya, 24-Nov-2026',
+    'OPS HARIAN : BNI / 8806085172101120 · Token Listrik · VA · 504.000'
+  ].join('\n'))
+
+  assert.equal(parsed.error, null)
+  assert.equal(parsed.rows.length, 1)
+
+  const row = parsed.rows[0]
+  assert.equal(row.kind, 'ops_harian')
+  assert.equal(row.sourceCategory, 'OPS HARIAN')
+  assert.equal(row.manualFlow, 'ops_disbursement')
+  assert.equal(row.recipientName, '')
+  assert.equal(row.bank, 'BNI')
+  assert.equal(row.accountNumber, '8806085172101120')
+  assert.equal(row.details, 'Token Listrik · VA')
+  assert.equal(row.amount, 504000)
+})
+
 test('VA marker on custom OPS HARIAN remains an OPS HARIAN row', () => {
   const parsed = parseMakerDocument([
     'Cisepat, 16-Okt-2026',
