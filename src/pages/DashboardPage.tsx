@@ -1577,6 +1577,11 @@ export function DashboardPage() {
           <div className="dashboard-panel-header">
             <div>
               <h2>Ringkasan{selectedFilterKitchen ? ` - ${selectedFilterKitchen.name}` : ''}</h2>
+              <p className="dashboard-summary-period">
+                {filters.startDate === filters.endDate
+                  ? formatDate(filters.startDate)
+                  : `${formatDate(filters.startDate)} – ${formatDate(filters.endDate)}`}
+              </p>
             </div>
           </div>
   
