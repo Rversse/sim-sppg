@@ -40,3 +40,25 @@ test('print table typography avoids extra-bold weights', () => {
   assert.ok(printSource.includes('font-weight: 700 !important;'))
   assert.ok(!printSource.includes('font-weight: 900 !important;'))
 })
+
+
+test('belanja print uses compact title and omits the operational month placeholder as a kitchen label', () => {
+  assert.ok(printSource.includes("? 'Pencairan Belanja Harian'"))
+  assert.ok(printSource.includes("reportClone.querySelector('.reports-subsection-title')?.remove()"))
+  assert.ok(printSource.includes("mode !== 'belanja' && kitchenName"))
+})
+
+test('parenthetical total header text is placed on its own second line in screen and print reports', async () => {
+  const reportPage = await readFile(
+    new URL('../src/pages/ReportsPage.tsx', import.meta.url),
+    'utf8'
+  )
+  const reportStyles = await readFile(
+    new URL('../src/styles/reports.css', import.meta.url),
+    'utf8'
+  )
+
+  assert.equal((reportPage.match(/className="reports-header-parenthetical"/g) ?? []).length, 3)
+  assert.ok(reportStyles.includes('.reports-overall-belanja-block .reports-table-overall thead th > .reports-header-parenthetical'))
+  assert.ok(printSource.includes('.reports-overall-belanja-block .reports-table-overall thead th > .reports-header-parenthetical'))
+})
