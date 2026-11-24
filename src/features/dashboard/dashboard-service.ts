@@ -125,9 +125,13 @@ export async function getDashboardSummary(
 
   if (error) throw error
 
-  const [opsDisbursementTotals] = await Promise.all([
-    getOpsDisbursementTotals(filters, client)
-  ])
+  const shouldLoadOpsDisbursementTotals =
+    !filters.flowType ||
+    filters.flowType === 'ops_disbursement' ||
+    filters.flowType === 'ops_disbursement_real'
+  const opsDisbursementTotals = shouldLoadOpsDisbursementTotals
+    ? await getOpsDisbursementTotals(filters, client)
+    : { disbursement: 0, real: 0 }
 
   const row = data?.[0] as
     | {
