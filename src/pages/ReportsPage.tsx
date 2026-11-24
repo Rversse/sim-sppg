@@ -427,11 +427,6 @@ function OverallReportView() {
       {!loading && !error && report && (
         <>
           <div className="reports-disbursement-block reports-overall-belanja-block">
-            <h2 className="reports-subsection-title">
-              Pencairan Belanja Harian
-            </h2>
-
-
             <div className="reports-summary-grid reports-summary-belanja">
               <article className="reports-summary-card reports-summary-card--total">
                 <span>Total RAB</span>
@@ -462,13 +457,13 @@ function OverallReportView() {
                   <th className="reports-col-kitchen">Dapur</th>
                   <th className="reports-col-rab">RAB - Pencairan</th>
                   <th className="reports-col-real-rab">RAB - Real</th>
-                  <th className="reports-col-total">Total RAB (Pencairan - Real)</th>
+                  <th className="reports-col-total"><span>Total RAB</span><span className="reports-header-parenthetical">(Pencairan - Real)</span></th>
                   <th className="reports-col-ops">OPS - Pencairan</th>
                   <th className="reports-col-ops-disbursement-real">OPS - Pencairan Real</th>
-                  <th className="reports-col-total">Total OPS Dapur (Pencairan - Real)</th>
+                  <th className="reports-col-total"><span>Total OPS Dapur</span><span className="reports-header-parenthetical">(Pencairan - Real)</span></th>
                   <th className="reports-col-gas">OPS - Arutala</th>
                   <th className="reports-col-ops-real">OPS - Arutala Real</th>
-                  <th className="reports-col-total">Total OPS Arutala (Arutala - Real)</th>
+                  <th className="reports-col-total"><span>Total OPS Arutala</span><span className="reports-header-parenthetical">(Arutala - Real)</span></th>
                 </tr>
               </thead>
               <tbody>
