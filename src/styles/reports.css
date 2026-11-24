@@ -460,12 +460,12 @@
 }
 
 .reports-summary-grid.reports-summary-belanja .reports-summary-card--ops {
-  border-left: 4px solid var(--theme-data-purple);
+  border-left: 4px solid var(--theme-data-amber);
 }
 
 .reports-summary-grid.reports-summary-belanja .reports-summary-card--ops > span,
 .reports-summary-grid.reports-summary-belanja .reports-summary-card--ops > strong {
-  color: var(--theme-data-purple);
+  color: var(--theme-data-amber);
 }
 
 .reports-summary-grid.reports-summary-belanja .reports-summary-card--arutala {
@@ -520,7 +520,7 @@
 }
 
 .reports-summary-overall .reports-summary-card:nth-child(2) {
-  border-left-color: var(--theme-data-purple);
+  border-left-color: var(--theme-data-amber);
 }
 
 .reports-summary-overall .reports-summary-card:nth-child(3) {
@@ -553,7 +553,7 @@
 
 .reports-summary-overall .reports-summary-card:nth-child(3) > span,
 .reports-summary-overall .reports-summary-card:nth-child(3) > strong {
-  color: var(--theme-data-purple);
+  color: var(--theme-data-amber);
 }
 
 .reports-summary-overall .reports-summary-card:nth-child(4) > span,
@@ -694,7 +694,7 @@
 }
 
 .reports-table-overall thead th.reports-col-ops {
-  color: var(--theme-data-purple);
+  color: var(--theme-data-amber);
 }
 
 
