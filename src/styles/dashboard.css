@@ -657,7 +657,7 @@
 
 /* Five primary flows use distinct active hues; Real variants are deliberately muted. */
 .dashboard-status-flags .status-flag-rab {
-  color: color-mix(in srgb, #35c9bd 38%, var(--flow-inactive));
+  color: var(--flow-inactive);
 }
 
 .dashboard-status-flags .status-flag-rab.is-done {
@@ -665,7 +665,7 @@
 }
 
 .dashboard-status-flags .status-flag-real-rab {
-  color: color-mix(in srgb, #35c9bd 28%, var(--flow-inactive));
+  color: var(--flow-inactive);
 }
 
 .dashboard-status-flags .status-flag-real-rab.is-done {
@@ -673,7 +673,7 @@
 }
 
 .dashboard-status-flags .status-flag-real-ops {
-  color: color-mix(in srgb, #5799e8 24%, var(--flow-inactive));
+  color: var(--flow-inactive);
 }
 
 .dashboard-status-flags .status-flag-real-ops.is-done {
@@ -681,7 +681,7 @@
 }
 
 .dashboard-status-flags .status-flag-gas {
-  color: color-mix(in srgb, #5799e8 38%, var(--flow-inactive));
+  color: var(--flow-inactive);
 }
 
 .dashboard-status-flags .status-flag-gas.is-done {
@@ -689,7 +689,7 @@
 }
 
 .dashboard-status-flags .status-flag-pencairan-ops {
-  color: color-mix(in srgb, #e6a64c 38%, var(--flow-inactive));
+  color: var(--flow-inactive);
 }
 
 .dashboard-status-flags .status-flag-pencairan-ops.is-done {
