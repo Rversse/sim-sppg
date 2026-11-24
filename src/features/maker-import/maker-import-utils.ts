@@ -368,6 +368,28 @@ function makeRow(
                     ? 'pic_posyandu'
                     : 'lain_lain'
 
+  if (kind === 'ops_harian' && isVirtualAccount) {
+    // Virtual Account payouts have no individual recipient name. Keep their
+    // bank/account identity and note, but let the disposition layer mark them
+    // audit-only so they never become SIM-SPPG transactions.
+    const virtualAccountMatch = body.trim().match(
+      /^([A-Za-z][A-Za-z0-9 ]*?)\\s*\\/\\s*([0-9]+)(?:\\s*·\\s*(.*))?$/i
+    )
+    if (virtualAccountMatch) {
+      return {
+        ...unrecognized,
+        kind: 'ops_harian',
+        sourceCategory: label,
+        recipientName: '',
+        bank: normalizeMakerBank(virtualAccountMatch[1]),
+        accountNumber: normalizeMakerAccountNumber(virtualAccountMatch[2]),
+        details: (virtualAccountMatch[3] ?? '').trim(),
+        manualFlow: 'ops_disbursement',
+        operationalType: ''
+      }
+    }
+  }
+
   const parsed = parseAccountLine(body)
   if (!parsed) {
     return {
