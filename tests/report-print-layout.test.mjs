@@ -22,13 +22,18 @@ test('overall report print iframe wraps headers and vertically centers them', ()
   )
 })
 
-test('overall report print keeps the two OPS columns narrower', () => {
+test('overall report print narrows Dapur and aligns the nine columns', () => {
   assert.match(
     printSource,
-    /\.reports-table-overall th:nth-child\(5\),[\s\S]*?\.reports-table-overall td:nth-child\(6\)\s*\{\s*width: 9\.5% !important;/
+    /\.reports-table-overall th:nth-child\(1\),[\s\S]*?\.reports-table-overall td:nth-child\(1\) \{ width: 11% !important; \}/
   )
-  assert.doesNotMatch(
+  assert.match(
     printSource,
-    /\.reports-table-overall th:not\(:first-child\)[\s\S]*?width: 11\.714%;/
+    /\.reports-table-overall th:nth-child\(6\),[\s\S]*?\.reports-table-overall td:nth-child\(6\) \{ width: 11% !important; \}/
   )
+  assert.match(
+    printSource,
+    /\.reports-table-overall th:nth-child\(9\),[\s\S]*?\.reports-table-overall td:nth-child\(9\) \{ width: 13% !important; \}/
+  )
+  assert.ok(printSource.includes('background: #DBEAFE !important;'))
 })
