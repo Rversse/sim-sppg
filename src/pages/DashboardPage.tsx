@@ -1924,7 +1924,8 @@ export function DashboardPage() {
                         <div className="dashboard-history-party">
                           <strong
                             className={`dashboard-history-party-name ${flowClass(
-                              transaction.flow_type
+                              transaction.flow_type,
+                              transaction.category
                             )
                               .split(' ')
                               .slice(1)
