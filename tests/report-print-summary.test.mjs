@@ -31,11 +31,13 @@ test('print report filters summary cards only in belanja print mode', () => {
   assert.ok(printSource.includes('grid-template-columns: repeat(3, minmax(0, 1fr)) !important;'))
 })
 
-test('print report uses system typography and tabular figures for amounts', () => {
-  assert.ok(printSource.includes('font-family: "Segoe UI", system-ui'))
+test('print report uses readable Arial typography and tabular figures for amounts', () => {
+  assert.ok(printSource.includes('font-family: Arial, Helvetica, sans-serif;'))
+  assert.ok(printSource.includes('font-weight: 400;'))
   assert.ok(printSource.includes('font-variant-numeric: tabular-nums lining-nums'))
   assert.ok(printSource.includes('font-feature-settings: "tnum" 1, "lnum" 1'))
   assert.ok(printSource.includes('letter-spacing: 0 !important;'))
+  assert.ok(!printSource.includes('font-weight: 900 !important;'))
 })
 
 test('three print summary cards receive subtle top and bottom accent borders', () => {
