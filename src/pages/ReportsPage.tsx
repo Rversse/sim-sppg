@@ -465,6 +465,7 @@ function OverallReportView() {
                   <th className="reports-col-total">Total RAB (Pencairan - Real)</th>
                   <th className="reports-col-ops">OPS - Pencairan</th>
                   <th className="reports-col-ops-disbursement-real">OPS - Pencairan Real</th>
+                  <th className="reports-col-total">Total OPS Dapur (Pencairan - Real)</th>
                   <th className="reports-col-gas">OPS - Arutala</th>
                   <th className="reports-col-ops-real">OPS - Arutala Real</th>
                   <th className="reports-col-total">Total OPS Arutala (Arutala - Real)</th>
@@ -487,6 +488,9 @@ function OverallReportView() {
                     </td>
                     <td>{formatCurrencyOrDash(item.operational)}</td>
                     <td>{formatCurrencyOrDash(item.opsDisbursementReal)}</td>
+                    <td className={item.totalOpsKitchenBalance < 0 ? 'negative' : 'positive'}>
+                      {formatCurrencyOrDash(item.totalOpsKitchenBalance)}
+                    </td>
                     <td>{formatCurrencyOrDash(item.gas)}</td>
                     <td>{formatCurrencyOrDash(item.opsReal)}</td>
                     <td className={item.totalOpsBalance < 0 ? 'negative' : 'positive'}>
@@ -507,6 +511,9 @@ function OverallReportView() {
                   </td>
                   <td>{formatCurrencyOrDash(report.totals.operational)}</td>
                   <td>{formatCurrencyOrDash(report.totals.opsDisbursementReal)}</td>
+                  <td className={report.totals.totalOpsKitchenBalance < 0 ? 'negative' : 'positive'}>
+                    {formatCurrencyOrDash(report.totals.totalOpsKitchenBalance)}
+                  </td>
                   <td>{formatCurrencyOrDash(report.totals.gas)}</td>
                   <td>{formatCurrencyOrDash(report.totals.opsReal)}</td>
                   <td className={report.totals.totalOpsBalance < 0 ? 'negative' : 'positive'}>
