@@ -6,9 +6,9 @@
 
 .dashboard-page {
   --flow-rab: var(--theme-data-teal);
-  --flow-real-rab: var(--theme-data-red);
-  --flow-gas: var(--theme-data-purple);
-  --flow-pencairan-ops: var(--theme-data-cyan);
+  --flow-real-rab: color-mix(in srgb, var(--theme-data-teal) 58%, var(--theme-text-muted));
+  --flow-gas: var(--theme-data-blue);
+  --flow-pencairan-ops: var(--theme-data-amber);
   --flow-inactive: var(--theme-text-muted);
 
   --dashboard-emphasis-border: color-mix(
