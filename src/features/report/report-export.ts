@@ -275,7 +275,7 @@ function createOverallDetailSheet(
     'RAB - Real',
     'Total RAB',
     'OPS - Pencairan',
-    'OPS / Arutala',
+    'OPS - Arutala',
     'OPS - Arutala Real',
     'Sisa OPS'
   ])
@@ -317,7 +317,7 @@ function createIncomeDetailSheet(
 
   setupWorksheet(worksheet)
 
-  worksheet.addRow(['Supplier / Rekening', 'Owner', 'Bank', 'Tanggal', 'Total'])
+  worksheet.addRow(['Supplier - Rekening', 'Owner', 'Bank', 'Tanggal', 'Total'])
 
   styleHeader(worksheet.getRow(1))
 
@@ -433,7 +433,7 @@ function createOverallSummarySheet(
     'RAB - Real',
     'Total RAB',
     'OPS - Pencairan',
-    'OPS / Arutala',
+    'OPS - Arutala',
     'OPS - Arutala Real',
     'Sisa OPS'
   ])
@@ -536,7 +536,7 @@ function createIncomeSummarySheet(
   const worksheet = workbook.addWorksheet('Rekap Pemasukan')
 
   setupWorksheet(worksheet)
-  worksheet.addRow(['Supplier / Rekening', 'Owner', 'Bank', 'Total'])
+  worksheet.addRow(['Supplier - Rekening', 'Owner', 'Bank', 'Total'])
   styleHeader(worksheet.getRow(1))
 
   for (const row of report.rows) {
@@ -568,7 +568,7 @@ function createPencairanSheet(
   addReportTitle(worksheet, 'PENCAIRAN BELANJA', startDate, endDate)
 
   worksheet.addRow([
-    'Nama Supplier / Rekening',
+    'Nama Supplier - Rekening',
     'Nama Pemilik',
     'Rekening Bank',
     'Total'
