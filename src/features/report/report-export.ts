@@ -256,6 +256,7 @@ function addDailyDetailRows(
       row.totalRAB,
       row.operational,
       row.opsDisbursementReal,
+      row.totalOpsKitchenBalance,
       row.gas,
       row.opsReal,
       row.totalOpsBalance
@@ -277,6 +278,7 @@ function createOverallDetailSheet(
     'Total RAB',
     'OPS - Pencairan',
     'OPS - Pencairan Real',
+    'Total OPS Dapur',
     'OPS - Arutala',
     'OPS - Arutala Real',
     'Total OPS Arutala'
@@ -292,13 +294,14 @@ function createOverallDetailSheet(
     report.totals.totalRAB,
     report.totals.operational,
     report.totals.opsDisbursementReal,
+    report.totals.totalOpsKitchenBalance,
     report.totals.gas,
     report.totals.opsReal,
     report.totals.totalOpsBalance
   ])
   styleTotalRow(totalRow)
 
-  setCurrencyColumns(worksheet, [2, 3, 4, 5, 6, 7, 8, 9])
+  setCurrencyColumns(worksheet, [2, 3, 4, 5, 6, 7, 8, 9, 10])
   setColumnWidths(worksheet, {
     1: 16,
     2: 18,
@@ -307,8 +310,9 @@ function createOverallDetailSheet(
     5: 18,
     6: 18,
     7: 18,
-    8: 20,
-    9: 22
+    8: 18,
+    9: 20,
+    10: 22
   })
   styleBody(worksheet)
 }
@@ -438,6 +442,7 @@ function createOverallSummarySheet(
     'Total RAB',
     'OPS - Pencairan',
     'OPS - Pencairan Real',
+    'Total OPS Dapur',
     'OPS - Arutala',
     'OPS - Arutala Real',
     'Total OPS Arutala'
@@ -453,6 +458,7 @@ function createOverallSummarySheet(
       row.totalRAB,
       row.operational,
       row.opsDisbursementReal,
+      row.totalOpsKitchenBalance,
       row.gas,
       row.opsReal,
       row.totalOpsBalance
@@ -466,6 +472,7 @@ function createOverallSummarySheet(
     report.totals.totalRAB,
     report.totals.operational,
     report.totals.opsDisbursementReal,
+    report.totals.totalOpsKitchenBalance,
     report.totals.gas,
     report.totals.opsReal,
     report.totals.totalOpsBalance
