@@ -612,3 +612,19 @@ test('Maker OPS HARIAN removes its redundant prefix only when a specific note fo
     '1985322260', '1985322260', '1985322260', '2035516850', '2035516850', '1985322260'
   ])
 })
+
+
+test('OPS HARIAN custom details always resolve to the ops_harian mapping category', async () => {
+  const { operationalRuleTypeForKind } = await import('../src/features/maker-import/maker-import-utils.ts')
+
+  for (const detail of [
+    'bensin,sabun,masker',
+    'BPJSTK',
+    'gaji pengawas keuangan',
+    'gaji pengawas gizi',
+    'pembayaran BBM genset'
+  ]) {
+    // The detail is not an input to source-category mapping; OPS HARIAN remains OPS.
+    assert.equal(operationalRuleTypeForKind('ops_harian', ''), 'ops_harian', detail)
+  }
+})
