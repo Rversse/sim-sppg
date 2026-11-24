@@ -1295,11 +1295,12 @@ export function DashboardPage() {
       modalMode === 'create' &&
       formFlowType === 'operational_disbursement' &&
       formOperationalType &&
-      !isOperationalTypeAvailable(
-        selectedFormKitchen?.name,
-        formOperationalType,
-        formDate
-      )
+      (formOperationalType === 'vehicle_rent' ||
+        !isOperationalTypeAvailable(
+          selectedFormKitchen?.name,
+          formOperationalType,
+          formDate
+        ))
     ) {
       setFormError('Jenis operasional tidak tersedia untuk dapur ini.')
       return
