@@ -1100,23 +1100,32 @@
 
 .dashboard-history-actions {
   display: flex;
-  gap: 8px;
+  gap: 6px;
 }
 
 .dashboard-history-actions button {
+  display: grid;
+  width: 30px;
+  min-width: 30px;
   min-height: 30px;
-  padding: 4px 8px;
+  height: 30px;
+  place-items: center;
+  padding: 0;
   border: 1px solid var(--app-border);
   border-radius: 8px;
   background: var(--app-surface);
   color: var(--app-text-muted);
-  font-size: var(--ui-text-xs);
-  font-weight: var(--ui-weight-medium);
   cursor: pointer;
   transition:
     border-color 150ms ease,
     background-color 150ms ease,
     color 150ms ease;
+}
+
+.dashboard-history-actions button svg {
+  width: 14px;
+  height: 14px;
+  stroke-width: 1.9;
 }
 
 .dashboard-history-actions button:hover {
@@ -1189,7 +1198,7 @@
   display: flex;
   width: min(820px, 100%);
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
   gap: 8px;
   margin: 0 auto;
   padding: 12px 4px 2px;
