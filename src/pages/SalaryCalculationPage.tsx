@@ -13,7 +13,6 @@ import {
 import type { KitchenSalaryCalculation } from '@/features/salary-calculation/salary-calculation-service'
 import { useToast } from '@/features/ui/toast-context'
 import { DateRangePicker } from '@/components/ui/date-range-picker'
-import { supabase } from '@/lib/supabase'
 import { subscribeToRealtimeTables } from '@/lib/realtime-sync'
 
 type KitchenOption = { id: string; name: string }
