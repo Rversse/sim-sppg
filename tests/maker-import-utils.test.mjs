@@ -655,7 +655,7 @@ test('OPS HARIAN Virtual Account keeps the free-form note for Allow or audit dec
     'OPS HARIAN : BNI / 8806085794177152 · (Shopee) Indopaper continuous form 2 ply · VA · 205.000',
     'OPS HARIAN : BNI / 8806085794177153 · token · VA · 100.000',
     'OPS HARIAN : Petugas Cadangan - BCA / 1234567890 · wifi · VA · 75.000'
-  ].join('\\n'))
+  ].join('\n'))
 
   assert.equal(parsed.error, null)
   assert.equal(parsed.rows.length, 3)
