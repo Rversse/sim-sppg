@@ -60,11 +60,10 @@ import { AnimatedSelect } from '@/components/ui/animated-select'
 import {
   formatCurrency,
   formatDate,
-  formatDateTimeWithSeconds,
   getTodayLocal
 } from '@/lib/formatters'
 
-const DASHBOARD_HISTORY_PAGE_SIZE = 12
+const DASHBOARD_HISTORY_PAGE_SIZE = 10
 
 const FLOW_OPTIONS: { value: DashboardFlow | ''; label: string }[] = [
   { value: '', label: 'Semua transaksi' },
@@ -119,36 +118,6 @@ function operationalTypeLabel(
   }
 }
 
-function FlowIcon({
-  flow,
-  category
-}: {
-  flow: DashboardFlow
-  category?: string | null
-}) {
-  if (flow === 'income' || (flow === 'expense' && category !== 'OPS')) {
-    return <WalletCards aria-hidden="true" />
-  }
-
-  if (
-    (flow === 'expense' && category === 'OPS') ||
-    flow === 'gas' ||
-    flow === 'neutral'
-  ) {
-    return <Droplets aria-hidden="true" />
-  }
-
-  if (flow === 'ops_disbursement' || flow === 'ops_disbursement_real') {
-    return <Settings2 aria-hidden="true" />
-  }
-
-  if (flow === 'operational_disbursement') {
-    return <Building2 aria-hidden="true" />
-  }
-
-  return <Settings2 aria-hidden="true" />
-}
-
 function flowClass(flow: DashboardFlow, category?: string | null) {
   if (flow === 'income') return 'dashboard-flow dashboard-flow-income'
   if (flow === 'expense' && category === 'OPS') {
@@ -201,10 +170,6 @@ function parseIntegerInput(value: string) {
   const digits = value.replace(/\D/g, '')
 
   return digits ? Number(digits) : 0
-}
-
-function formatHistoryInputTimestamp(value: string) {
-  return `Input: ${formatDateTimeWithSeconds(value)}`
 }
 
 const TRANSFER_LAINNYA_KITCHEN_VALUE = '__transfer_lainnya__'
@@ -1949,6 +1914,15 @@ export function DashboardPage() {
                     : account
                       ? account.bank + ' - ' + account.account_number
                       : ''
+                  const transactionFlowClass = flowClass(
+                    transaction.flow_type,
+                    transaction.category
+                  ).split(' ').slice(1).join(' ')
+                  const transactionTypeLabel = flowLabel(
+                    transaction.flow_type,
+                    transaction.category,
+                    transaction.accounts
+                  )
   
                   return (
                     <div className="dashboard-history-row" key={transaction.id}>
@@ -1970,29 +1944,15 @@ export function DashboardPage() {
                             ) : null}
                           </strong>
   
-                          <span
-                            className={flowClass(transaction.flow_type, transaction.category)}
-                            aria-label={flowLabel(transaction.flow_type, transaction.category, transaction.accounts)}
-                          >
-                            <FlowIcon flow={transaction.flow_type} category={transaction.category} />
-                          </span>
                         </div>
   
                         <div className="dashboard-history-party">
                           <strong
-                            className={`dashboard-history-party-name ${flowClass(
-                              transaction.flow_type,
-                              transaction.category
-                            )
-                              .split(' ')
-                              .slice(1)
-                              .join(' ')}`}
+                            className={`dashboard-history-party-name ${transactionFlowClass}`}
                           >
-                            {transaction.flow_type === 'expense' && transaction.category === 'OPS'
-                              ? 'OPS - Arutala Real'
-                              : transaction.flow_type === 'ops_disbursement_real'
-                                ? 'OPS - Pencairan Real'
-                                : businessName || transaction.category || 'Transaksi'}
+                            {transaction.flow_type === 'ops_disbursement_real'
+                              ? 'Realisasi OPS - Pencairan'
+                              : businessName || transaction.category || 'Transaksi'}
                           </strong>
   
                           {ownerName ? (
@@ -2010,12 +1970,9 @@ export function DashboardPage() {
                           ) : null}
                         </div>
   
-                        <time
-                          className="dashboard-history-timestamp"
-                          dateTime={transaction.created_at}
-                        >
-                          {formatHistoryInputTimestamp(transaction.created_at)}
-                        </time>
+                        <span className={`dashboard-history-type ${transactionFlowClass}`}>
+                          {transactionTypeLabel}
+                        </span>
   
                         <div className="dashboard-history-divider" />
   
