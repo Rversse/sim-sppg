@@ -126,7 +126,15 @@ export function KoperasiRealEntry() {
     }
 
     void loadReferences()
-    return () => { cancelled = true }
+    const unsubscribeRealtime = subscribeToRealtimeTables(
+      'koperasi-real-references-live',
+      [{ table: 'kitchens' }, { table: 'suppliers' }],
+      () => { void loadReferences() }
+    )
+    return () => {
+      cancelled = true
+      unsubscribeRealtime()
+    }
   }, [])
 
   async function loadSavedTransactions() {
