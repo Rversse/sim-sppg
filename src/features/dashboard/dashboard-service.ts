@@ -802,7 +802,7 @@ export async function getDailyStatus(
       normalizedKitchenName !== 'sukaraja' &&
       normalizedKitchenName !== 'cihaur'
 
-    const gas = gasAvailable && Boolean(row.gas)
+    const gas = Boolean(row.gas)
     const income = Boolean(row.income)
     const transactionCount =
       disbursementTransactionCountByKitchen.get(row.kitchen_id) ?? 0
@@ -820,25 +820,19 @@ export async function getDailyStatus(
       activeMappings.has('pic_incentive_posyandu')
 
     const recordedOperationalTypes = operationalTypesByKitchen.get(row.kitchen_id)
-    const operational = opsHarianAvailable && Boolean(row.operational)
-    const opsDisbursementAvailable = opsHarianAvailable || Boolean(row.operational)
+    const operational = Boolean(row.operational)
+    const opsDisbursementAvailable = opsHarianAvailable || operational
     const opsDisbursementReal = opsDisbursementRealByKitchen.has(row.kitchen_id)
     const opsDisbursementRealAvailable = opsHarianAvailable || opsDisbursementReal
-    const sppgRent =
-      sppgRentAvailable && Boolean(recordedOperationalTypes?.has('sppg_rent'))
-    const relawanSalary =
-      relawanSalaryAvailable &&
-      Boolean(recordedOperationalTypes?.has('relawan_salary'))
-    const picIncentive =
-      picIncentiveAvailable &&
-      (
-        recordedOperationalTypes?.has('pic_incentive') ||
-        recordedOperationalTypes?.has('school_pic_incentive') ||
-        recordedOperationalTypes?.has('kader_incentive')
-      ) === true
+    const sppgRent = Boolean(recordedOperationalTypes?.has('sppg_rent'))
+    const relawanSalary = Boolean(recordedOperationalTypes?.has('relawan_salary'))
+    const picIncentive = (
+      recordedOperationalTypes?.has('pic_incentive') ||
+      recordedOperationalTypes?.has('school_pic_incentive') ||
+      recordedOperationalTypes?.has('kader_incentive')
+    ) === true
 
-    // The status icons reflect active, permitted routes configured in Data Rekening.
-    // Completion colors still reflect whether a matching transaction exists for the day.
+    // Status indicators are based on transactions recorded for the selected date.
     const hasPencairan = income
     const status: 'has_pencairan' | 'empty' = hasPencairan
       ? 'has_pencairan'
