@@ -547,9 +547,17 @@ export function BankPage() {
 
     void refreshOverview(true)
 
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') scheduleOverviewRefresh()
+    }
+    window.addEventListener('focus', scheduleOverviewRefresh)
+    document.addEventListener('visibilitychange', handleVisibilityChange)
+
     if (isGuest) {
       return () => {
         cancelled = true
+        window.removeEventListener('focus', scheduleOverviewRefresh)
+        document.removeEventListener('visibilitychange', handleVisibilityChange)
         if (refreshTimer !== null) {
           window.clearTimeout(refreshTimer)
         }
@@ -557,6 +565,7 @@ export function BankPage() {
     }
 
     let channelDisposed = false
+    let hasConnected = false
 
     const channel = supabase
       .channel(
@@ -594,7 +603,10 @@ export function BankPage() {
           return
         }
 
-        if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
+        if (status === 'SUBSCRIBED') {
+          if (hasConnected) scheduleOverviewRefresh()
+          hasConnected = true
+        } else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT' || status === 'CLOSED') {
           console.warn(`Bank realtime subscription status: ${status}`)
         }
       })
@@ -602,6 +614,8 @@ export function BankPage() {
     return () => {
       cancelled = true
       channelDisposed = true
+      window.removeEventListener('focus', scheduleOverviewRefresh)
+      document.removeEventListener('visibilitychange', handleVisibilityChange)
 
       if (refreshTimer !== null) {
         window.clearTimeout(refreshTimer)

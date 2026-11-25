@@ -4,6 +4,7 @@ import { Check, CheckCheck, Copy, LoaderCircle, Pencil, Save, Trash2, X } from '
 import { useAuth } from '@/features/auth/use-auth'
 import { useToast } from '@/features/ui/toast-context'
 import { supabase } from '@/lib/supabase'
+import { subscribeToRealtimeTables } from '@/lib/realtime-sync'
 import { buildKoperasiOpsRealRows } from '@/features/real-import/koperasi-ops-real-utils'
 import '@/styles/koperasi-real-entry.css'
 
@@ -125,7 +126,15 @@ export function KoperasiRealEntry() {
     }
 
     void loadReferences()
-    return () => { cancelled = true }
+    const unsubscribeRealtime = subscribeToRealtimeTables(
+      'koperasi-real-references-live',
+      [{ table: 'kitchens' }, { table: 'suppliers' }],
+      () => { void loadReferences() }
+    )
+    return () => {
+      cancelled = true
+      unsubscribeRealtime()
+    }
   }, [])
 
   async function loadSavedTransactions() {
@@ -162,6 +171,18 @@ export function KoperasiRealEntry() {
     }, 0)
     return () => window.clearTimeout(timer)
     // The selected date, supplier reference, and account determine both saved lists.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [date, supplierId, user?.id])
+
+  useEffect(() => {
+    return subscribeToRealtimeTables(
+      'koperasi-real-entry-live',
+      [{ table: 'transactions' }, { table: 'kitchens' }, { table: 'suppliers' }],
+      () => {
+        void loadSavedTransactions()
+      }
+    )
+    // Refresh the currently selected date and references after remote writes or reconnect.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [date, supplierId, user?.id])
 

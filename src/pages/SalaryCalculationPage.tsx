@@ -13,6 +13,7 @@ import {
 import type { KitchenSalaryCalculation } from '@/features/salary-calculation/salary-calculation-service'
 import { useToast } from '@/features/ui/toast-context'
 import { DateRangePicker } from '@/components/ui/date-range-picker'
+import { subscribeToRealtimeTables } from '@/lib/realtime-sync'
 
 type KitchenOption = { id: string; name: string }
 
@@ -91,6 +92,30 @@ export function SalaryCalculationPage() {
       cancelled = true
     }
   }, [kitchenId, toastError])
+
+  useEffect(() => {
+    return subscribeToRealtimeTables(
+      'salary-calculation-live',
+      [
+        { table: 'transactions' },
+        { table: 'kitchen_salary_allocations' },
+        { table: 'kitchens' }
+      ],
+      () => {
+        void loadKitchens()
+        if (kitchenId) {
+          void getKitchenSalaryAllocation(kitchenId)
+            .then(setAllocation)
+            .catch((err: unknown) => console.error('Gagal menyinkronkan alokasi gaji:', err))
+          if (calculation) {
+            void getKitchenSalaryCalculation({ kitchenId, startDate, endDate })
+              .then(setCalculation)
+              .catch((err: unknown) => console.error('Gagal menyinkronkan perhitungan gaji:', err))
+          }
+        }
+      }
+    )
+  }, [calculation, endDate, kitchenId, loadKitchens, startDate])
 
   async function calculate() {
     if (!kitchenId) {
