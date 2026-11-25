@@ -1057,6 +1057,7 @@
   .reports-summary-card {
     min-height: auto;
     padding: 10px;
+    border: 1.5px solid #000000 !important;
     box-shadow: none;
   }
 
@@ -1086,7 +1087,9 @@
   }
 
   .reports-overall-belanja-block .reports-table thead th {
-    color: #111827 !important;
+    color: #1D4ED8 !important;
+    background: #E5E7EB !important;
+    border-color: #D2DAEA !important;
     font-weight: var(--ui-weight-strong) !important;
   }
 
@@ -1336,4 +1339,20 @@
   .reports-overall-belanja-block .reports-table-overall td:nth-child(9) { width: 9% !important; }
   .reports-overall-belanja-block .reports-table-overall th:nth-child(10),
   .reports-overall-belanja-block .reports-table-overall td:nth-child(10) { width: 12% !important; }
+}
+
+
+/* Keep browser print output aligned with the dedicated print iframe. */
+@media print {
+  .reports-summary-overall .reports-summary-card:nth-child(n),
+  .reports-summary-grid.reports-summary-belanja .reports-summary-card:nth-child(n) {
+    border: 1.5px solid #000000 !important;
+  }
+
+  .reports-table thead th,
+  .reports-overall-belanja-block .reports-table-overall thead th.reports-col-total {
+    color: #1D4ED8 !important;
+    background: #E5E7EB !important;
+    border-color: #D2DAEA !important;
+  }
 }
