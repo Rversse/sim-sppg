@@ -538,7 +538,7 @@ export function parseMakerDocument(text: string): ParsedMakerDocument {
     }
   }
 
-  const header = allLines[0].trim().match(/^(.+?),\s*(\d{1,2}-[A-Za-z]{3}-\d{4})(?:\s*\(\d+\))?$/)
+  const header = allLines[0].trim().match(/^(.+?),\s*(\d{1,2}-[A-Za-z]{3}-\d{4})(?:\s*\((\d+)\))?$/)
   if (!header) {
     return {
       kitchenName: '',
@@ -548,10 +548,27 @@ export function parseMakerDocument(text: string): ParsedMakerDocument {
     }
   }
 
+  const kitchenName = header[1].trim()
+  const requestMarker = header[3]
+  const normalizedKitchenName = normalizeMakerText(kitchenName)
+  const expectedRequestMarker =
+    normalizedKitchenName === 'cibaregbeg' ? '29'
+      : normalizedKitchenName === 'warungbitung' ? '37'
+        : null
+
+  if (requestMarker !== undefined && requestMarker !== expectedRequestMarker) {
+    return {
+      kitchenName,
+      transactionDate: '',
+      rows: [],
+      error: 'Penanda request pada header tidak cocok dengan nama dapur.'
+    }
+  }
+
   const transactionDate = parseMakerDate(header[2])
   if (!transactionDate) {
     return {
-      kitchenName: header[1].trim(),
+      kitchenName,
       transactionDate: '',
       rows: [],
       error: 'Tanggal pada header tidak valid.'
@@ -604,7 +621,7 @@ export function parseMakerDocument(text: string): ParsedMakerDocument {
   })
 
   return {
-    kitchenName: header[1].trim(),
+    kitchenName,
     transactionDate,
     rows,
     error: null
