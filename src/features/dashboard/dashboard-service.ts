@@ -656,6 +656,9 @@ export async function getDailyStatus(
     gas: boolean
     gasAvailable: boolean
     operational: boolean
+    opsDisbursementAvailable: boolean
+    opsDisbursementReal: boolean
+    opsDisbursementRealAvailable: boolean
     opsHarianAvailable: boolean
     sppgRentAvailable: boolean
     sppgRent: boolean
@@ -668,6 +671,7 @@ export async function getDailyStatus(
   const [
     { data: dailyStatusRows, error: statusError },
     { data: incomeRows, error: incomeError },
+    { data: opsDisbursementRealRows, error: opsDisbursementRealError },
     { data: operationalRows, error: operationalError },
     { data: mappingRows, error: mappingError },
     { data: makerBatches, error: makerBatchesError }
@@ -688,6 +692,11 @@ export async function getDailyStatus(
       ]),
     client
       .from('transactions')
+      .select('kitchen_id')
+      .eq('transaction_date', selectedDate)
+      .eq('flow_type', 'ops_disbursement_real'),
+    client
+      .from('transactions')
       .select('kitchen_id, operational_type')
       .eq('transaction_date', selectedDate)
       .eq('flow_type', 'operational_disbursement')
@@ -705,6 +714,7 @@ export async function getDailyStatus(
 
   if (statusError) throw statusError
   if (incomeError) throw incomeError
+  if (opsDisbursementRealError) throw opsDisbursementRealError
   if (operationalError) throw operationalError
   if (mappingError) throw mappingError
   if (makerBatchesError) throw makerBatchesError
@@ -741,6 +751,7 @@ export async function getDailyStatus(
   const typedData = (dailyStatusRows ?? []) as DashboardDailyStatusRpcRow[]
   const typedMappingRows = (mappingRows ?? []) as DashboardOperationalMappingRow[]
   const disbursementTransactionCountByKitchen = new Map<string, number>()
+  const opsDisbursementRealByKitchen = new Set<string>()
   const auditOnlyTransactionCountByKitchen = new Map<string, number>()
   const operationalTypesByKitchen = new Map<string, Set<string>>()
   const mappingTypesByKitchen = new Map<string, Set<string>>()
@@ -752,6 +763,10 @@ export async function getDailyStatus(
       row.kitchen_id,
       (disbursementTransactionCountByKitchen.get(row.kitchen_id) ?? 0) + 1
     )
+  }
+
+  for (const row of opsDisbursementRealRows ?? []) {
+    if (row.kitchen_id) opsDisbursementRealByKitchen.add(row.kitchen_id)
   }
 
   for (const row of makerAuditResult.data ?? []) {
@@ -806,6 +821,9 @@ export async function getDailyStatus(
 
     const recordedOperationalTypes = operationalTypesByKitchen.get(row.kitchen_id)
     const operational = opsHarianAvailable && Boolean(row.operational)
+    const opsDisbursementAvailable = opsHarianAvailable || Boolean(row.operational)
+    const opsDisbursementReal = opsDisbursementRealByKitchen.has(row.kitchen_id)
+    const opsDisbursementRealAvailable = opsHarianAvailable || opsDisbursementReal
     const sppgRent =
       sppgRentAvailable && Boolean(recordedOperationalTypes?.has('sppg_rent'))
     const relawanSalary =
@@ -841,6 +859,9 @@ export async function getDailyStatus(
       gas,
       gasAvailable,
       operational,
+      opsDisbursementAvailable,
+      opsDisbursementReal,
+      opsDisbursementRealAvailable,
       opsHarianAvailable,
       sppgRentAvailable,
       sppgRent,
