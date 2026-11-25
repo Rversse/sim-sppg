@@ -576,9 +576,10 @@
 
 .dashboard-status-row {
   display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  justify-content: flex-start;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
   gap: 8px;
   padding: 8px 3px;
   border: 1px solid transparent;
@@ -621,22 +622,27 @@
 }
 
 .dashboard-status-identity {
+  flex: 1 1 140px;
   min-width: 0;
-  width: 100%;
+  width: auto;
 }
 
 .dashboard-status-row-actions {
   display: flex;
+  flex: 0 1 auto;
   min-width: 0;
-  width: 100%;
-  justify-content: flex-start;
+  width: auto;
+  max-width: 100%;
+  justify-content: flex-end;
 }
 
 .dashboard-status-flags {
   display: flex;
-  flex: 1 1 auto;
+  flex: 0 1 auto;
   flex-wrap: wrap;
   min-width: 0;
+  max-width: 100%;
+  justify-content: flex-end;
   gap: 4px 8px;
 }
 
@@ -771,6 +777,15 @@
   height: 100%;
   margin: 0;
   overflow: hidden;
+}
+
+.dashboard-history-summary {
+  margin: 0 4px;
+  padding: 0 4px 10px;
+  border-bottom: 1px solid var(--app-border);
+  color: var(--theme-text-secondary);
+  font-size: var(--ui-text-xs);
+  font-weight: var(--ui-weight-medium);
 }
 
 .dashboard-history {
@@ -1871,10 +1886,12 @@
 
 .dashboard-status-row-actions {
   display: flex;
-  flex: 0 0 auto;
+  flex: 0 1 auto;
   align-items: center;
-  align-self: stretch;
-  justify-content: center;
+  align-self: auto;
+  justify-content: flex-end;
+  width: auto;
+  max-width: 100%;
   gap: 8px;
 }
 
@@ -2458,5 +2475,30 @@
     min-height: 0;
     align-content: space-between;
     overflow-y: auto;
+  }
+}
+
+
+/* Keep kitchen labels and flow icons on one line at desktop widths.
+   At browser zoom / narrow viewports, move the icon group below the label. */
+@media (max-width: 1100px) {
+  .dashboard-status-row {
+    align-items: flex-start;
+  }
+
+  .dashboard-status-identity {
+    flex: 1 1 100%;
+    width: 100%;
+  }
+
+  .dashboard-status-row-actions {
+    flex: 1 1 100%;
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .dashboard-status-flags {
+    width: 100%;
+    justify-content: flex-start;
   }
 }
