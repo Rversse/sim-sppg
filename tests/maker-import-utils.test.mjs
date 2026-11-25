@@ -648,3 +648,29 @@ test('OPS HARIAN custom details always resolve to the ops_harian mapping categor
     assert.equal(operationalRuleTypeForKind('ops_harian', ''), 'ops_harian', detail)
   }
 })
+
+test('OPS HARIAN Virtual Account keeps the free-form note for Allow or audit decisions', () => {
+  const parsed = parseMakerDocument([
+    'Cisepat, 25-Nov-2026',
+    'OPS HARIAN : BNI / 8806085794177152 · (Shopee) Indopaper continuous form 2 ply · VA · 205.000',
+    'OPS HARIAN : BNI / 8806085794177153 · token · VA · 100.000',
+    'OPS HARIAN : Petugas Cadangan - BCA / 1234567890 · wifi · VA · 75.000'
+  ].join('\\n'))
+
+  assert.equal(parsed.error, null)
+  assert.equal(parsed.rows.length, 3)
+
+  assert.deepEqual(parsed.rows.map((row) => row.kind), ['ops_harian', 'ops_harian', 'ops_harian'])
+  assert.deepEqual(parsed.rows.map((row) => row.manualDecision), ['pending', 'pending', 'pending'])
+  assert.deepEqual(parsed.rows.map((row) => row.details), [
+    '(Shopee) Indopaper continuous form 2 ply · VA',
+    'token · VA',
+    'wifi · VA'
+  ])
+  assert.deepEqual(parsed.rows.map((row) => row.accountNumber), [
+    '8806085794177152',
+    '8806085794177153',
+    '1234567890'
+  ])
+  assert.equal(parsed.rows[2].recipientName, 'Petugas Cadangan')
+})
