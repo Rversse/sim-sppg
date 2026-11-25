@@ -123,6 +123,15 @@ function normalizeMakerOpsHarianDetails(value: string): string {
   return withoutDefaultPrefix || 'Ops Harian'
 }
 
+function removeMakerVirtualAccountMarker(value: string): string {
+  return value
+    .split('·')
+    .map((part) => part.trim())
+    .filter((part) => normalizeMakerText(part) !== 'va')
+    .join(' · ')
+    .trim()
+}
+
 function formatMakerProductList(value: string): string {
   const source = value.trim()
   if (!source) return ''
@@ -383,7 +392,7 @@ function makeRow(
         recipientName: '',
         bank: normalizeMakerBank(virtualAccountMatch[1]),
         accountNumber: normalizeMakerAccountNumber(virtualAccountMatch[2]),
-        details: (virtualAccountMatch[3] ?? '').trim(),
+        details: removeMakerVirtualAccountMarker(virtualAccountMatch[3] ?? ''),
         manualFlow: 'ops_disbursement',
         operationalType: ''
       }
@@ -426,7 +435,9 @@ function makeRow(
     kind === 'gas'
         ? gasDetails
         : kind === 'ops_harian'
-          ? normalizeMakerOpsHarianDetails(parsed.details) || (isArutalaNeutralOpsAccount ? '' : 'Ops Harian')
+          ? (isVirtualAccount
+              ? removeMakerVirtualAccountMarker(parsed.details)
+              : normalizeMakerOpsHarianDetails(parsed.details)) || (isArutalaNeutralOpsAccount ? '' : 'Ops Harian')
           : kind === 'rab'
             ? formatMakerProductList(parsed.details)
             : parsed.details

@@ -474,7 +474,7 @@ test('OPS HARIAN Virtual Account without a recipient is retained as audit-ready 
   assert.equal(row.recipientName, '')
   assert.equal(row.bank, 'BNI')
   assert.equal(row.accountNumber, '8806085172101120')
-  assert.equal(row.details, 'Token Listrik · VA')
+  assert.equal(row.details, 'Token Listrik')
   assert.equal(row.amount, 504000)
 })
 
@@ -489,7 +489,7 @@ test('VA marker on custom OPS HARIAN remains an OPS HARIAN row', () => {
   assert.equal(parsed.rows[0].kind, 'ops_harian')
   assert.equal(parsed.rows[0].manualFlow, 'ops_disbursement')
   assert.equal(parsed.rows[0].recipientName, 'Petugas Cadangan')
-  assert.equal(parsed.rows[0].details, 'Biaya Operasional · VA')
+  assert.equal(parsed.rows[0].details, 'Biaya Operasional')
 })
 
 test('Maker OPS HARIAN retains explicit Ops Harian note for the Arutala neutral account', () => {
@@ -647,4 +647,30 @@ test('OPS HARIAN custom details always resolve to the ops_harian mapping categor
     // The detail is not an input to source-category mapping; OPS HARIAN remains OPS.
     assert.equal(operationalRuleTypeForKind('ops_harian', ''), 'ops_harian', detail)
   }
+})
+
+test('OPS HARIAN Virtual Account keeps the free-form note for Allow or audit decisions', () => {
+  const parsed = parseMakerDocument([
+    'Cisepat, 25-Nov-2026',
+    'OPS HARIAN : BNI / 8806085794177152 · (Shopee) Indopaper continuous form 2 ply · VA · 205.000',
+    'OPS HARIAN : BNI / 8806085794177153 · token · VA · 100.000',
+    'OPS HARIAN : Petugas Cadangan - BCA / 1234567890 · wifi · VA · 75.000'
+  ].join('\n'))
+
+  assert.equal(parsed.error, null)
+  assert.equal(parsed.rows.length, 3)
+
+  assert.deepEqual(parsed.rows.map((row) => row.kind), ['ops_harian', 'ops_harian', 'ops_harian'])
+  assert.deepEqual(parsed.rows.map((row) => row.manualDecision), ['pending', 'pending', 'pending'])
+  assert.deepEqual(parsed.rows.map((row) => row.details), [
+    '(Shopee) Indopaper continuous form 2 ply',
+    'token',
+    'wifi'
+  ])
+  assert.deepEqual(parsed.rows.map((row) => row.accountNumber), [
+    '8806085794177152',
+    '8806085794177153',
+    '1234567890'
+  ])
+  assert.equal(parsed.rows[2].recipientName, 'Petugas Cadangan')
 })

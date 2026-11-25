@@ -212,12 +212,28 @@ function operationalRuleMatchesRow(
   })
 }
 
+function isOpsHarianVirtualAccount(row: MakerImportDraftRow): boolean {
+  return row.kind === 'ops_harian' &&
+    /(?:^|[·\s])VA(?:$|[·\s])/i.test(row.rawLine)
+}
+
 function applyInitialMappings(
   rows: MakerImportDraftRow[],
   kitchenId: string,
   refs: ImportReferences
 ): MakerImportDraftRow[] {
   return rows.map((row) => {
+    // A VA is routed by explicit Admin choice, not by an account-owner mapping.
+    if (isOpsHarianVirtualAccount(row)) {
+      return {
+        ...row,
+        manualFlow: 'ops_disbursement',
+        operationalType: '',
+        accountId: '',
+        operationalRuleId: ''
+      }
+    }
+
     if (row.kind === 'lain_lain') {
       const neutralAccountIds = new Set(
         refs.accountRules
@@ -332,11 +348,13 @@ function getRowDisposition(
   kitchenId: string,
   refs: ImportReferences
 ): RowDisposition {
-  if (/(?:^|[ ·])VA(?:$|[ ·])/i.test(row.rawLine)) {
-    return {
-      status: 'excluded',
-      reason: 'Transfer Virtual Account dikecualikan dari transaksi program. Baris tetap disimpan untuk audit sumber.'
-    }
+  if (isOpsHarianVirtualAccount(row)) {
+    return row.manualDecision === 'block'
+      ? {
+          status: 'excluded',
+          reason: 'Virtual Account dipilih untuk audit saja. Baris tetap disimpan tanpa membuat transaksi program.'
+        }
+      : { status: 'import', reason: null }
   }
 
   if (row.kind === 'combined_payroll') {
@@ -432,6 +450,12 @@ function getValidation(
   }
   let matchedAccount: AccountRef | undefined
   let matchedOperationalRule: OperationalAccountRule | undefined
+
+  // An approved OPS HARIAN VA is a generic OPS disbursement for this kitchen.
+  // Do not require a named recipient or an Akuntan/Aslap account rule.
+  if (isOpsHarianVirtualAccount(row)) {
+    return { errors, confirmations }
+  }
 
   if (flow === 'income' || flow === 'gas' || flow === 'neutral_lain_lain' || flow === 'neutral_ops_harian') {
     const expectedFlow = flow === 'income' ? 'income' : 'neutral'
@@ -739,7 +763,7 @@ export function MakerImportPage() {
         accountId: '',
         operationalRuleId: '',
         verified: false,
-        manualDecision: row.kind === 'lain_lain' ? 'pending' : row.manualDecision
+        manualDecision: row.kind === 'lain_lain' || isOpsHarianVirtualAccount(row) ? 'pending' : row.manualDecision
       })),
       nextKitchenId,
       refs
@@ -766,7 +790,7 @@ export function MakerImportPage() {
     updateRow(row.id, { operationalRuleId: rule.id, verified: false })
   }
 
-  function decideLainLain(row: MakerImportDraftRow, decision: 'allow' | 'block') {
+  function decideManualRow(row: MakerImportDraftRow, decision: 'allow' | 'block') {
     updateRow(row.id, { manualDecision: decision, verified: false })
   }
 
@@ -811,7 +835,7 @@ export function MakerImportPage() {
         if (!kitchenId) return
         const transactionResult = await supabase
           .from('transactions')
-          .select('id,flow_type,category,amount,account_id,destination_label,operational_type')
+          .select('id,flow_type,category,amount,note,account_id,destination_label,operational_type')
           .eq('transaction_date', transactionDate)
           .eq('kitchen_id', kitchenId)
         if (transactionResult.error) throw transactionResult.error
@@ -820,6 +844,7 @@ export function MakerImportPage() {
           flow_type: string
           category: string
           amount: number | string
+          note: string | null
           account_id: string | null
           destination_label: string | null
           operational_type: string | null
@@ -831,7 +856,7 @@ export function MakerImportPage() {
 
         for (const { row, validation, flowInfo, disposition } of checks) {
           if (disposition.status !== 'import' || row.amount === null) continue
-          if (row.kind === 'lain_lain' && row.manualDecision !== 'allow') continue
+          if ((row.kind === 'lain_lain' || isOpsHarianVirtualAccount(row)) && row.manualDecision !== 'allow') continue
           if (!flowInfo.flow_type || !flowInfo.category) continue
           const flow = flowInfo.flow_type
           const isIncome = flow === 'income'
@@ -847,13 +872,17 @@ export function MakerImportPage() {
             supplier: 'Pihak Luar',
             other: 'OPS'
           }
+          const isVirtualAccount = isOpsHarianVirtualAccount(row)
           const destinationLabel = isOps
-            ? (rolePrefix[validation.operationalRule?.target_role ?? ''] ?? 'Akuntan') + ' ' + selectedKitchenName
+            ? isVirtualAccount
+              ? 'OPS ' + selectedKitchenName
+              : (rolePrefix[validation.operationalRule?.target_role ?? ''] ?? 'Akuntan') + ' ' + selectedKitchenName
             : null
           const candidate = {
             flow_type: flow,
             category: flowInfo.category,
             amount: row.amount,
+            note: isOps ? (row.details.trim() || 'Ops Harian') : null,
             account_id: accountId,
             destination_label: destinationLabel,
             operational_type: isOperational ? flowInfo.operational_type : null
@@ -865,7 +894,8 @@ export function MakerImportPage() {
             (candidate.flow_type === 'income' || candidate.flow_type === 'neutral'
               ? item.account_id === candidate.account_id
               : candidate.flow_type === 'ops_disbursement'
-                ? item.destination_label === candidate.destination_label && item.account_id === null
+                ? item.destination_label === candidate.destination_label && item.account_id === null &&
+                (!isVirtualAccount || item.note === candidate.note)
                 : candidate.flow_type === 'operational_disbursement'
                   ? item.operational_type === candidate.operational_type
                   : item.account_id === null)
@@ -909,9 +939,12 @@ export function MakerImportPage() {
 
   const totalAmount = rows.reduce((total, row) => total + (row.amount ?? 0), 0)
   const excludedChecks = checks.filter(({ disposition }) => disposition.status === 'excluded')
-  const pendingManualChecks = checks.filter(({ row }) => row.kind === 'lain_lain' && row.manualDecision === 'pending')
+  const pendingManualChecks = checks.filter(({ row }) =>
+    (row.kind === 'lain_lain' || isOpsHarianVirtualAccount(row)) && row.manualDecision === 'pending'
+  )
   const importableChecks = checks.filter(({ row, disposition }) =>
-    disposition.status === 'import' && !(row.kind === 'lain_lain' && row.manualDecision === 'pending')
+    disposition.status === 'import' &&
+    !((row.kind === 'lain_lain' || isOpsHarianVirtualAccount(row)) && row.manualDecision === 'pending')
   )
   const excludedAmount = excludedChecks.reduce((total, { row }) => total + (row.amount ?? 0), 0)
   const importableAmount = importableChecks.reduce((total, { row }) => total + (row.amount ?? 0), 0)
@@ -925,7 +958,7 @@ export function MakerImportPage() {
   ).length
   const blockingCount = checks.filter(({ row, validation, flowInfo, disposition }) =>
     validation.errors.length > 0 ||
-    (row.kind === 'lain_lain' && row.manualDecision === 'pending') ||
+    ((row.kind === 'lain_lain' || isOpsHarianVirtualAccount(row)) && row.manualDecision === 'pending') ||
     (row.kind === 'lain_lain' && row.manualDecision === 'allow' && !row.verified) ||
     (disposition.status === 'import' && ((validation.confirmations.length > 0 && !row.verified) || !flowInfo.flow_type || !flowInfo.category))
   ).length + (sourceIdentityMismatch ? 1 : 0) + duplicateCount
@@ -985,7 +1018,9 @@ export function MakerImportPage() {
           supplier_id: null,
           destination_label: disposition.status === 'excluded' || !isOpsDisbursement
             ? null
-            : validation.operationalRule?.target_role === 'aslap'
+            : isOpsHarianVirtualAccount(row)
+              ? 'OPS ' + activeKitchen.name
+              : validation.operationalRule?.target_role === 'aslap'
               ? 'Aslap ' + activeKitchen.name
               : validation.operationalRule?.target_role === 'akuntan'
                 ? 'Akuntan ' + activeKitchen.name
@@ -1167,7 +1202,7 @@ export function MakerImportPage() {
               <div><small>Total pencairan</small><strong>{rows.length}</strong></div>
               <div><small>Pencairan masuk</small><strong>{importableChecks.length}</strong><small>Rp {formatAmount(importableAmount)}</small></div>
               <div className={excludedChecks.length > 0 ? 'is-attention' : 'is-ready'}><small>Dikecualikan</small><strong>{excludedChecks.length}</strong><small>Rp {formatAmount(excludedAmount)}</small></div>
-              <div className={pendingManualChecks.length > 0 ? 'is-attention' : 'is-ready'}><small>Perlu keputusan</small><strong>{pendingManualChecks.length}</strong><small>Lain-Lain</small></div>
+              <div className={pendingManualChecks.length > 0 ? 'is-attention' : 'is-ready'}><small>Perlu keputusan</small><strong>{pendingManualChecks.length}</strong><small>Lain-Lain / VA</small></div>
               <div className={blockingCount > 0 ? 'is-attention' : 'is-ready'}><small>Status validasi</small><strong>{blockingCount > 0 ? blockingCount + ' perlu koreksi' : 'Siap disimpan'}</strong></div>
             </div>
           </section>
@@ -1216,8 +1251,10 @@ export function MakerImportPage() {
                 const hasNameMismatch = flow === 'income' || flow === 'gas' || flow === 'neutral_lain_lain'
                   ? Boolean(expectedAccount && !accountNameMatchesRecipient(expectedAccount, row.recipientName))
                   : Boolean(expectedOperational && normalizeMakerText(expectedOperational.owner_name) !== normalizeMakerText(row.recipientName))
+                const isVirtualAccount = isOpsHarianVirtualAccount(row)
+                const needsManualDecision = row.kind === 'lain_lain' || isVirtualAccount
                 const manualRequired = row.kind === 'lain_lain' || hasNameMismatch || validation.confirmations.length > 0
-                const manualDecisionPending = row.kind === 'lain_lain' && row.manualDecision === 'pending'
+                const manualDecisionPending = needsManualDecision && row.manualDecision === 'pending'
                 const rowBlocked = disposition.status === 'excluded'
                 const rowLocked = rowBlocked && (row.kind !== 'lain_lain' || row.manualDecision === 'block')
                 const rowInvalid = !rowBlocked && (manualDecisionPending ||
@@ -1235,19 +1272,19 @@ export function MakerImportPage() {
                         <h4>{title}</h4>
                       </div>
                       <span className={'maker-import-row-status' + (rowBlocked ? ' is-blocked' : rowInvalid ? ' is-invalid' : ' is-valid')}>
-                        {rowBlocked ? <><ShieldAlert aria-hidden="true" /> Tidak Valid</> : manualDecisionPending ? <><AlertTriangle aria-hidden="true" /> Perlu keputusan</> : rowInvalid ? <><AlertTriangle aria-hidden="true" /> Perlu koreksi</> : <><CheckCircle2 aria-hidden="true" /> Valid</>}
+                        {manualDecisionPending ? <><AlertTriangle aria-hidden="true" /> Perlu keputusan</> : isVirtualAccount && row.manualDecision === 'block' ? <><ShieldAlert aria-hidden="true" /> Audit saja</> : rowBlocked ? <><ShieldAlert aria-hidden="true" /> Tidak Valid</> : rowInvalid ? <><AlertTriangle aria-hidden="true" /> Perlu koreksi</> : <><CheckCircle2 aria-hidden="true" /> Valid</>}
                       </span>
                     </div>
-                    {row.kind === 'lain_lain' ? (
+                    {needsManualDecision ? (
                       <div className={'maker-import-manual-decision' + (manualDecisionPending ? ' is-pending' : row.manualDecision === 'block' ? ' is-blocked' : ' is-allowed')}>
                         <div className="maker-import-manual-decision-actions">
                           <button type="button" className={'maker-import-decision-button is-allow' + (row.manualDecision === 'allow' ? ' is-selected' : '')}
-                            aria-pressed={row.manualDecision === 'allow'} onClick={() => decideLainLain(row, 'allow')} disabled={saving}>
-                            <CheckCircle2 aria-hidden="true" /> Allow — boleh masuk program
+                            aria-pressed={row.manualDecision === 'allow'} onClick={() => decideManualRow(row, 'allow')} disabled={saving}>
+                            <CheckCircle2 aria-hidden="true" /> {isVirtualAccount ? 'Allow — masuk OPS - Pencairan' : 'Allow — boleh masuk program'}
                           </button>
                           <button type="button" className={'maker-import-decision-button is-block' + (row.manualDecision === 'block' ? ' is-selected' : '')}
-                            aria-pressed={row.manualDecision === 'block'} onClick={() => decideLainLain(row, 'block')} disabled={saving}>
-                            <ShieldAlert aria-hidden="true" /> Block — audit saja
+                            aria-pressed={row.manualDecision === 'block'} onClick={() => decideManualRow(row, 'block')} disabled={saving}>
+                            <ShieldAlert aria-hidden="true" /> {isVirtualAccount ? 'Audit — simpan saja' : 'Block — audit saja'}
                           </button>
                         </div>
                       </div>
@@ -1292,17 +1329,19 @@ export function MakerImportPage() {
 
                     <div className="maker-import-fields">
                         {flow !== 'ops_real' ? <>
-                        <label>
-                          <span>Nama penerima - rekening</span>
-                          <input value={row.recipientName} onChange={(event) => updateRow(row.id, { recipientName: event.target.value, accountId: '', operationalRuleId: '', verified: false })} title="Draft dapat dikoreksi. Teks sumber asli tetap tersimpan untuk audit; identitas rekening harus cocok dengan mapping database." disabled={saving || rowLocked} />
-                        </label>
+                        {!isVirtualAccount ? (
+                          <label>
+                            <span>Nama penerima - rekening</span>
+                            <input value={row.recipientName} onChange={(event) => updateRow(row.id, { recipientName: event.target.value, accountId: '', operationalRuleId: '', verified: false })} title="Draft dapat dikoreksi. Teks sumber asli tetap tersimpan untuk audit; identitas rekening harus cocok dengan mapping database." disabled={saving || rowLocked} />
+                          </label>
+                        ) : null}
                         <label>
                           <span>Bank</span>
-                          <input value={row.bank} onChange={(event) => updateRow(row.id, { bank: event.target.value, accountId: '', operationalRuleId: '', verified: false })} title="Bank pada draft dapat dikoreksi, tetapi harus cocok dengan mapping database." disabled={saving || rowLocked} />
+                          <input value={row.bank} onChange={(event) => updateRow(row.id, { bank: event.target.value, accountId: '', operationalRuleId: '', verified: false })} title="Bank pada draft dapat dikoreksi, tetapi harus cocok dengan mapping database." disabled={saving || rowLocked || isVirtualAccount} />
                         </label>
                         <label>
                           <span>Nomor rekening</span>
-                          <input value={row.accountNumber} onChange={(event) => updateRow(row.id, { accountNumber: event.target.value, accountId: '', operationalRuleId: '', verified: false })} title="Nomor rekening pada draft dapat dikoreksi, tetapi harus cocok dengan mapping database." disabled={saving || rowLocked} />
+                          <input value={row.accountNumber} onChange={(event) => updateRow(row.id, { accountNumber: event.target.value, accountId: '', operationalRuleId: '', verified: false })} title="Nomor rekening pada draft dapat dikoreksi, tetapi harus cocok dengan mapping database." disabled={saving || rowLocked || isVirtualAccount} />
                         </label>
                         </> : null}
                         <label>
