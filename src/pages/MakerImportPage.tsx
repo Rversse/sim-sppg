@@ -20,6 +20,7 @@ import {
   type MakerOperationalType
 } from '@/features/maker-import/maker-import-utils'
 import { supabase } from '@/lib/supabase'
+import { subscribeToRealtimeTables } from '@/lib/realtime-sync'
 import { useToast } from '@/features/ui/toast-context'
 
 type KitchenRef = { id: string; name: string; is_active: boolean; operational_recipient_name: string | null }
@@ -704,8 +705,20 @@ export function MakerImportPage() {
       }
     }
     void loadReferences()
+    const unsubscribeRealtime = subscribeToRealtimeTables(
+      'maker-import-references-live',
+      [
+        { table: 'kitchens' },
+        { table: 'accounts' },
+        { table: 'kitchen_account_rules' },
+        { table: 'kitchen_operational_account_rules' },
+        { table: 'maker_master_data_version' }
+      ],
+      () => { void loadReferences() }
+    )
     return () => {
       cancelled = true
+      unsubscribeRealtime()
     }
   }, [])
 
