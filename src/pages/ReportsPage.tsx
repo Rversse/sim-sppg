@@ -204,8 +204,16 @@ function useReportData<T>(
         }
       })
 
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') scheduleRealtimeRefresh()
+    }
+    window.addEventListener('focus', scheduleRealtimeRefresh)
+    document.addEventListener('visibilitychange', handleVisibilityChange)
+
     return () => {
       cancelled = true
+      window.removeEventListener('focus', scheduleRealtimeRefresh)
+      document.removeEventListener('visibilitychange', handleVisibilityChange)
 
       if (refreshTimer !== null) {
         clearTimeout(refreshTimer)
