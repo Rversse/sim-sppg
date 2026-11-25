@@ -1963,11 +1963,11 @@ export function DashboardPage() {
                             ) : null}
   
                             {ownerName ? (
-                            <>
-                              <i aria-hidden="true">•</i>
-                              <span>{ownerName}</span>
-                            </>
-                          ) : null}
+                              <>
+                                <i aria-hidden="true">•</i>
+                                <span>{ownerName}</span>
+                              </>
+                            ) : null}
   
                             {bankAccount ? (
                               <>
