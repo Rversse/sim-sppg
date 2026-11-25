@@ -1882,15 +1882,19 @@ export function DashboardPage() {
                     getMappedOperationalDestination(kitchen?.name)
                   const isOtherIncomeTransaction =
                     transaction.flow_type === 'income' && !transaction.kitchen_id
-                  const businessName = isOtherIncomeTransaction
-                    ? account?.name?.trim() || 'Rekening'
-                    : transaction.flow_type === 'expense'
-                      ? supplier?.name?.trim() || 'Supplier tidak diketahui'
-                      : transaction.flow_type === 'ops_disbursement'
-                        ? temporaryDestination || 'Tujuan operasional'
-                        : transaction.flow_type === 'ops_disbursement_real'
-                          ? 'Realisasi OPS - Pencairan'
-                        : transaction.flow_type === 'operational_disbursement'
+                  const hideUnmappedBusinessName =
+                    (transaction.flow_type === 'expense' &&
+                      transaction.category === 'OPS') ||
+                    transaction.flow_type === 'ops_disbursement_real'
+                  const businessName = hideUnmappedBusinessName
+                    ? ''
+                    : isOtherIncomeTransaction
+                      ? account?.name?.trim() || 'Rekening'
+                      : transaction.flow_type === 'expense'
+                        ? supplier?.name?.trim() || 'Supplier tidak diketahui'
+                        : transaction.flow_type === 'ops_disbursement'
+                          ? temporaryDestination || 'Tujuan operasional'
+                          : transaction.flow_type === 'operational_disbursement'
                             ? operationalTypeLabel(transaction.operational_type)
                             : accountSupplier?.business_name?.trim() ||
                               account?.name?.trim() ||
@@ -1948,29 +1952,31 @@ export function DashboardPage() {
   
                         </div>
   
-                        <div className="dashboard-history-party">
-                          <strong
-                            className={`dashboard-history-party-name ${transactionFlowClass}`}
-                          >
-                            {transaction.flow_type === 'ops_disbursement_real'
-                              ? 'Realisasi OPS - Pencairan'
-                              : businessName || transaction.category || 'Transaksi'}
-                          </strong>
+                        {!hideUnmappedBusinessName || ownerName || bankAccount ? (
+                          <div className="dashboard-history-party">
+                            {!hideUnmappedBusinessName ? (
+                              <strong
+                                className={`dashboard-history-party-name ${transactionFlowClass}`}
+                              >
+                                {businessName || transaction.category || 'Transaksi'}
+                              </strong>
+                            ) : null}
   
-                          {ownerName ? (
+                            {ownerName ? (
                             <>
                               <i aria-hidden="true">•</i>
                               <span>{ownerName}</span>
                             </>
                           ) : null}
   
-                          {bankAccount ? (
-                            <>
-                              <i aria-hidden="true">•</i>
-                              <span>{bankAccount}</span>
-                            </>
-                          ) : null}
-                        </div>
+                            {bankAccount ? (
+                              <>
+                                <i aria-hidden="true">•</i>
+                                <span>{bankAccount}</span>
+                              </>
+                            ) : null}
+                          </div>
+                        ) : null}
   
                         <span className={`dashboard-history-type ${transactionFlowClass}`}>
                           {transactionTypeLabel}
