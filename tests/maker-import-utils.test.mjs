@@ -683,7 +683,7 @@ test('Cibaregbeg and Warungbitung accept standard headers and their own optional
     'Warungbitung, 25-Nov-2026',
     'Warungbitung, 25-Nov-2026 (37)'
   ]) {
-    const parsed = parseMakerDocument([header, 'RAB : CV Test - BNI / 123456 · Beras · 1.000'].join('\\n'))
+    const parsed = parseMakerDocument([header, 'RAB : CV Test - BNI / 123456 · Beras · 1.000'].join('\n'))
     assert.equal(parsed.error, null, header)
     assert.equal(parsed.rows.length, 1, header)
   }
@@ -696,7 +696,7 @@ test('Maker parser rejects crossed request markers and markers on other kitchens
     'Cisepat, 25-Nov-2026 (29)',
     'Cisepat, 25-Nov-2026 (37)'
   ]) {
-    const parsed = parseMakerDocument([header, 'RAB : CV Test - BNI / 123456 · Beras · 1.000'].join('\\n'))
+    const parsed = parseMakerDocument([header, 'RAB : CV Test - BNI / 123456 · Beras · 1.000'].join('\n'))
     assert.match(parsed.error ?? '', /Penanda request/)
     assert.deepEqual(parsed.rows, [])
   }
