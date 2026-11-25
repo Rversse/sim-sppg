@@ -792,11 +792,11 @@
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   align-content: start;
-  gap: 12px;
+  gap: 10px;
   flex: 1 1 auto;
   min-height: 0;
-  margin-top: 12px;
-  padding: 20px 12px 8px;
+  margin-top: 8px;
+  padding: 12px 8px 8px;
   overflow-y: auto;
   border-top: 1px solid var(--app-border);
   scrollbar-width: thin;
@@ -808,10 +808,10 @@
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   align-items: start;
-  gap: 16px;
+  gap: 10px;
   min-width: 0;
   margin: 0;
-  padding: 24px 12px 12px;
+  padding: 12px 10px 10px;
   border: 1px solid var(--app-border-soft);
   border-radius: 12px;
   background: var(--theme-surface-raised);
@@ -836,14 +836,14 @@
 .dashboard-history-main {
   display: grid;
   min-width: 0;
-  gap: 8px;
+  gap: 6px;
 }
 
 .dashboard-history-heading {
   display: flex;
   min-width: 0;
   align-items: center;
-  gap: 8px;
+  gap: 0;
 }
 
 .dashboard-history-heading > strong {
@@ -891,7 +891,7 @@
   min-width: 0;
   flex-wrap: wrap;
   align-items: center;
-  gap: 6px;
+  gap: 4px;
   color: var(--app-text-dark);
   font-size: 11px;
   line-height: 1.4;
@@ -942,18 +942,43 @@
   color: var(--theme-text-secondary);
 }
 
-.dashboard-history-timestamp {
+.dashboard-history-type {
   display: inline-flex;
   align-items: center;
   width: fit-content;
-  min-height: 19px;
-  padding: 0 6px;
-  border-radius: 6px;
-  background: var(--theme-surface-soft);
+  min-height: 16px;
   color: var(--theme-text-secondary);
-  font-size: var(--ui-text-xs);
-  font-weight: var(--ui-weight-medium);
+  font-size: 11px;
+  font-weight: var(--ui-weight-strong);
   line-height: 1.3;
+}
+
+.dashboard-history-type.dashboard-flow-income {
+  color: var(--flow-rab);
+}
+
+.dashboard-history-type.dashboard-flow-expense {
+  color: var(--flow-real-rab);
+}
+
+.dashboard-history-type.dashboard-flow-ops-real {
+  color: color-mix(in srgb, #5799e8 58%, var(--theme-text-muted));
+}
+
+.dashboard-history-type.dashboard-flow-gas {
+  color: #5799e8;
+}
+
+.dashboard-history-type.dashboard-flow-ops-disbursement {
+  color: var(--flow-pencairan-ops);
+}
+
+.dashboard-history-type.dashboard-flow-neutral {
+  color: var(--flow-gas);
+}
+
+.dashboard-history-type.dashboard-flow-operational-expense {
+  color: var(--theme-data-amber);
 }
 
 .dashboard-history-divider {
@@ -1606,9 +1631,9 @@
 
   .dashboard-history-row {
     grid-template-columns: minmax(0, 1fr) auto;
-    gap: 12px;
-    margin: 0 0 8px;
-    padding: 30px 12px 12px;
+    gap: 10px;
+    margin: 0;
+    padding: 12px 10px 10px;
   }
 
   .dashboard-history-side {
@@ -2351,12 +2376,12 @@
 .dashboard-layout-grid .dashboard-history {
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 10px;
-  padding: 14px 8px 8px;
+  padding: 12px 8px 8px;
 }
 
 .dashboard-layout-grid .dashboard-history-row {
   gap: 10px;
-  padding: 22px 10px 10px;
+  padding: 12px 10px 10px;
 }
 
 @media (max-width: 1100px) {
@@ -2451,10 +2476,11 @@
 }
 
 
-/* Distribute transaction rows evenly through the stretched history panel.
-   This keeps its bottom edge aligned with Status Pencairan while making
-   the vertical distance between card rows consistent. */
+/* Keep transaction cards grouped with a fixed, predictable gap.
+   Empty space remains below short filtered result sets instead of being
+   distributed between rows. */
 .dashboard-layout-grid .dashboard-history {
+  align-content: start;
   gap: 10px;
   padding-bottom: 8px;
 }
@@ -2473,7 +2499,7 @@
   .dashboard-layout-grid .dashboard-history {
     flex: 1 1 auto;
     min-height: 0;
-    align-content: space-between;
+    align-content: start;
     overflow-y: auto;
   }
 }
