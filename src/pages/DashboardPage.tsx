@@ -1,12 +1,10 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 
 import {
-  ArrowDownToLine,
   BadgePercent,
   Building2,
   Droplets,
   Landmark,
-  Receipt,
   Settings2,
   Users,
   WalletCards
