@@ -214,7 +214,7 @@ function operationalRuleMatchesRow(
 
 function isOpsHarianVirtualAccount(row: MakerImportDraftRow): boolean {
   return row.kind === 'ops_harian' &&
-    /\bVA\b/i.test(row.rawLine)
+    /(?:^|[·\s])VA(?:$|[·\s])/i.test(row.rawLine)
 }
 
 function applyInitialMappings(
