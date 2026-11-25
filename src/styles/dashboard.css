@@ -2502,3 +2502,28 @@
     justify-content: flex-start;
   }
 }
+
+
+.dashboard-status-counts {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 3px;
+  color: var(--theme-text-secondary);
+  font-size: 10px;
+  font-weight: var(--ui-weight-medium);
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.dashboard-status-counts-valid {
+  color: var(--app-success);
+}
+
+.dashboard-status-counts-audit {
+  color: var(--app-warning);
+}
+
+.dashboard-status-counts-separator {
+  color: var(--theme-text-muted);
+}
