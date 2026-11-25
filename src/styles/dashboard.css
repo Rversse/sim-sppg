@@ -2295,6 +2295,7 @@
 /* Make the Ringkasan heading visually distinct and centered. */
 .dashboard-summary-panel .dashboard-panel-header {
   justify-content: center;
+  padding-bottom: 6px;
 }
 
 .dashboard-summary-panel .dashboard-panel-header > div {
