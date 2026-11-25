@@ -2484,6 +2484,7 @@
 @media (max-width: 1100px) {
   .dashboard-status-row {
     align-items: flex-start;
+    row-gap: 3px;
   }
 
   .dashboard-status-identity {
