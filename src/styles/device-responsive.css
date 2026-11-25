@@ -686,7 +686,8 @@ canvas {
     min-width: 0;
     grid-template-columns: minmax(0, 1fr);
     align-items: start;
-    gap: 9px;
+    row-gap: 2px;
+    column-gap: 0;
   }
 
   .dashboard-status-row > .dashboard-status-identity {
