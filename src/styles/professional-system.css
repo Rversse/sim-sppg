@@ -1231,7 +1231,7 @@ button:focus-visible, [role='button']:focus-visible, a:focus-visible { outline: 
 .dashboard-status-row {
   min-width: 0;
   margin: 0;
-  padding: 12px 8px;
+  padding: 4px 8px;
   border: 1px solid var(--theme-border);
   border-radius: 10px;
   background: var(--theme-surface);
