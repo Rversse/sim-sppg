@@ -1,9 +1,12 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 
 import {
+  ArrowDownToLine,
   BadgePercent,
   Building2,
+  Droplets,
   Landmark,
+  Receipt,
   Settings2,
   Users,
   WalletCards
@@ -1686,85 +1689,98 @@ export function DashboardPage() {
                         <div className="dashboard-status-row-actions">
                           <div className="dashboard-status-flags">
                             <span
-                              className={`status-flag-rab ${
-                                row.income ? 'is-done' : ''
-                              }`}
+                              className={`status-flag-rab ${row.income ? 'is-done' : ''}`}
                               aria-label="RAB - Pencairan"
                               data-tooltip="RAB - Pencairan"
+                              title="RAB - Pencairan"
                               tabIndex={0}
                             >
                               <WalletCards aria-hidden="true" />
                             </span>
                             <span
-                              className={`status-flag-real-rab ${
-                                row.expense ? 'is-done' : ''
-                              }`}
+                              className={`status-flag-real-rab ${row.expense ? 'is-done' : ''}`}
                               aria-label="RAB - Real"
                               data-tooltip="RAB - Real"
+                              title="RAB - Real"
                               tabIndex={0}
                             >
-                              <WalletCards aria-hidden="true" />
+                              <Receipt aria-hidden="true" />
                             </span>
                             <span
-                              className={`status-flag-real-ops ${
-                                row.opsReal ? 'is-done' : ''
-                              }`}
+                              className={`status-flag-real-ops ${row.opsReal ? 'is-done' : ''}`}
                               aria-label="OPS - Arutala Real"
                               data-tooltip="OPS - Arutala Real"
+                              title="OPS - Arutala Real"
                               tabIndex={0}
                             >
                               <Landmark aria-hidden="true" />
                             </span>
-                            <span
-                              className={`status-flag-gas ${
-                                row.gas ? 'is-done' : ''
-                              }`}
-                              aria-label="OPS - Arutala"
-                              data-tooltip="OPS - Arutala"
-                              tabIndex={0}
-                            >
-                              <Landmark aria-hidden="true" />
-                            </span>
-                            <span
-                              className={`status-flag-pencairan-ops ${
-                                row.operational ? 'is-done' : ''
-                              }`}
-                              aria-label="OPS - Pencairan"
-                              data-tooltip="OPS - Pencairan"
-                              tabIndex={0}
-                            >
-                              <Settings2 aria-hidden="true" />
-                            </span>
-                            <span
-                              className={`status-flag-relawan-salary ${
-                                row.relawanSalary ? 'is-done' : ''
-                              }`}
-                              aria-label="Gaji Relawan"
-                              data-tooltip="Gaji Relawan"
-                              tabIndex={0}
-                            >
-                              <Users aria-hidden="true" />
-                            </span>
-                            <span
-                              className={`status-flag-pic-incentive ${
-                                row.picIncentive ? 'is-done' : ''
-                              }`}
-                              aria-label="Insentif PIC"
-                              data-tooltip="Insentif PIC"
-                              tabIndex={0}
-                            >
-                              <BadgePercent aria-hidden="true" />
-                            </span>
-                            <span
-                              className={`status-flag-sppg-rent ${
-                                row.sppgRent ? 'is-done' : ''
-                              }`}
-                              aria-label="Insentif Fasilitas SPPG"
-                              data-tooltip="Insentif Fasilitas SPPG"
-                              tabIndex={0}
-                            >
-                              <Building2 aria-hidden="true" />
-                            </span>
+                            {row.gasAvailable ? (
+                              <span
+                                className={`status-flag-gas ${row.gas ? 'is-done' : ''}`}
+                                aria-label="OPS - Arutala"
+                                data-tooltip="OPS - Arutala"
+                                title="OPS - Arutala"
+                                tabIndex={0}
+                              >
+                                <Droplets aria-hidden="true" />
+                              </span>
+                            ) : null}
+                            {row.opsDisbursementAvailable ? (
+                              <span
+                                className={`status-flag-pencairan-ops ${row.operational ? 'is-done' : ''}`}
+                                aria-label="OPS - Pencairan"
+                                data-tooltip="OPS - Pencairan"
+                                title="OPS - Pencairan"
+                                tabIndex={0}
+                              >
+                                <Settings2 aria-hidden="true" />
+                              </span>
+                            ) : null}
+                            {row.opsDisbursementRealAvailable ? (
+                              <span
+                                className={`status-flag-pencairan-ops-real ${row.opsDisbursementReal ? 'is-done' : ''}`}
+                                aria-label="OPS - Pencairan Real"
+                                data-tooltip="OPS - Pencairan Real"
+                                title="OPS - Pencairan Real"
+                                tabIndex={0}
+                              >
+                                <ArrowDownToLine aria-hidden="true" />
+                              </span>
+                            ) : null}
+                            {row.relawanSalaryAvailable ? (
+                              <span
+                                className={`status-flag-relawan-salary ${row.relawanSalary ? 'is-done' : ''}`}
+                                aria-label="Gaji Relawan"
+                                data-tooltip="Gaji Relawan"
+                                title="Gaji Relawan"
+                                tabIndex={0}
+                              >
+                                <Users aria-hidden="true" />
+                              </span>
+                            ) : null}
+                            {row.picIncentiveAvailable ? (
+                              <span
+                                className={`status-flag-pic-incentive ${row.picIncentive ? 'is-done' : ''}`}
+                                aria-label="Insentif PIC"
+                                data-tooltip="Insentif PIC"
+                                title="Insentif PIC"
+                                tabIndex={0}
+                              >
+                                <BadgePercent aria-hidden="true" />
+                              </span>
+                            ) : null}
+                            {row.sppgRentAvailable ? (
+                              <span
+                                className={`status-flag-sppg-rent ${row.sppgRent ? 'is-done' : ''}`}
+                                aria-label="Insentif Fasilitas SPPG"
+                                data-tooltip="Insentif Fasilitas SPPG"
+                                title="Insentif Fasilitas SPPG"
+                                tabIndex={0}
+                              >
+                                <Building2 aria-hidden="true" />
+                              </span>
+                            ) : null}
 
                           </div>
                         </div>
@@ -1858,12 +1874,7 @@ export function DashboardPage() {
             <div className="dashboard-panel-header">
               <div>
                 <h2>Riwayat transaksi</h2>
-                <p>
-                  Menampilkan {transactions.length} dari {totalTransactions}{' '}
-                  transaksi sesuai filter.
-                </p>
               </div>
-              <span className="dashboard-panel-badge">Live dari database</span>
             </div>
   
             <div className="dashboard-history">

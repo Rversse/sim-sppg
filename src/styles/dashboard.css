@@ -576,9 +576,10 @@
 
 .dashboard-status-row {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: flex-start;
+  gap: 8px;
   padding: 8px 3px;
   border: 1px solid transparent;
   border-bottom-color: var(--app-border-soft);
@@ -619,10 +620,24 @@
   color: var(--app-danger);
 }
 
+.dashboard-status-identity {
+  min-width: 0;
+  width: 100%;
+}
+
+.dashboard-status-row-actions {
+  display: flex;
+  min-width: 0;
+  width: 100%;
+  justify-content: flex-start;
+}
+
 .dashboard-status-flags {
   display: flex;
-  flex: 0 0 auto;
-  gap: 4px;
+  flex: 1 1 auto;
+  flex-wrap: wrap;
+  min-width: 0;
+  gap: 4px 8px;
 }
 
 .dashboard-status-flags span {
@@ -694,6 +709,14 @@
 
 .dashboard-status-flags .status-flag-pencairan-ops.is-done {
   color: #e6a64c;
+}
+
+.dashboard-status-flags .status-flag-pencairan-ops-real {
+  color: var(--flow-inactive);
+}
+
+.dashboard-status-flags .status-flag-pencairan-ops-real.is-done {
+  color: #b68b5c;
 }
 
 
