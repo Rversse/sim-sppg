@@ -350,30 +350,13 @@ function printReport(mode: ReportPrintMode = 'default') {
       justify-items: center !important;
       gap: 7px !important;
       padding: 10px 14px !important;
-      border: 1px solid #D8E0EA !important;
-      border-top-width: 2px !important;
-      border-bottom-width: 2px !important;
+      border: 1.5px solid #000000 !important;
       border-radius: 8px !important;
       background: #FFFFFF !important;
       box-shadow: none !important;
       break-inside: avoid;
       page-break-inside: avoid;
       text-align: center !important;
-    }
-
-    .reports-summary-grid.reports-summary-belanja .reports-summary-card:nth-child(1) {
-      border-top-color: #93C5FD !important;
-      border-bottom-color: #93C5FD !important;
-    }
-
-    .reports-summary-grid.reports-summary-belanja .reports-summary-card:nth-child(2) {
-      border-top-color: #60A5FA !important;
-      border-bottom-color: #60A5FA !important;
-    }
-
-    .reports-summary-grid.reports-summary-belanja .reports-summary-card:nth-child(3) {
-      border-top-color: #2563EB !important;
-      border-bottom-color: #2563EB !important;
     }
 
     .reports-summary-grid.reports-summary-belanja .reports-summary-card > span {
@@ -418,32 +401,12 @@ function printReport(mode: ReportPrintMode = 'default') {
 
     .reports-summary-card {
       background: #fff !important;
-      border: 1.5px solid #d2daea !important;
+      border: 1.5px solid #000000 !important;
       border-radius: 10px !important;
       padding: 10px 9px !important;
       min-height: 0 !important;
       box-shadow: none !important;
       break-inside: avoid;
-    }
-
-    .reports-summary-overall .reports-summary-card:nth-child(1) {
-      border-left: 5px solid #0f766e !important;
-    }
-
-    .reports-summary-overall .reports-summary-card:nth-child(2) {
-      border-left: 5px solid #dc2626 !important;
-    }
-
-    .reports-summary-overall .reports-summary-card:nth-child(3) {
-      border-left: 5px solid #5b6b8c !important;
-    }
-
-    .reports-summary-overall .reports-summary-card:nth-child(4) {
-      border-left: 5px solid #0891b2 !important;
-    }
-
-    .reports-summary-overall .reports-summary-card:nth-child(5) {
-      border-left: 5px solid #8f520a !important;
     }
 
     .reports-summary-card > span {
@@ -581,9 +544,9 @@ function printReport(mode: ReportPrintMode = 'default') {
     }
 
     .reports-table th {
-      background: #ECF0F6 !important;
+      background: #E5E7EB !important;
       vertical-align: middle;
-      color: #637A96 !important;
+      color: #1D4ED8 !important;
       font-family: inherit !important;
       font-size: 8.25px !important;
       font-weight: 600 !important;
@@ -620,7 +583,8 @@ function printReport(mode: ReportPrintMode = 'default') {
     .reports-overall-belanja-block .reports-table th.reports-col-ops,
     .reports-overall-belanja-block .reports-table th.reports-col-real-ops,
     .reports-overall-belanja-block .reports-table th.reports-col-gas {
-      color: #111827 !important;
+      color: #1D4ED8 !important;
+      background: #E5E7EB !important;
       font-weight: 600 !important;
     }
 
@@ -647,31 +611,6 @@ function printReport(mode: ReportPrintMode = 'default') {
       font-weight: 700 !important;
     }
 
-    .reports-table-overall thead th.reports-col-kitchen,
-    .reports-table-overall thead th.reports-col-total {
-      color: #18293F !important;
-    }
-
-    .reports-table-overall thead th.reports-col-rab {
-      color: #0F766E !important;
-    }
-
-    .reports-table-overall thead th.reports-col-real-rab {
-      color: #DC2626 !important;
-    }
-
-    .reports-table-overall thead th.reports-col-gas {
-      color: #8f520a !important;
-    }
-
-    .reports-table-overall thead th.reports-col-ops {
-      color: #5B6B8C !important;
-    }
-
-    .reports-table-overall thead th.reports-col-real-ops {
-      color: #0891B2 !important;
-    }
-
     .reports-table-overall thead th.reports-col-gas {
       white-space: normal !important;
       line-height: 1.15 !important;
@@ -685,15 +624,10 @@ function printReport(mode: ReportPrintMode = 'default') {
     .reports-table-overall thead th.reports-col-ops,
     .reports-table-overall thead th.reports-col-real-ops,
     .reports-table-overall thead th.reports-col-gas {
-      color: #111827 !important;
-      font-weight: 600 !important;
-      background: #ECF0F6 !important;
-    }
-
-    .reports-overall-belanja-block .reports-table-overall thead th.reports-col-total {
       color: #1D4ED8 !important;
-      background: #DBEAFE !important;
-      border-color: #93C5FD !important;
+      font-weight: 600 !important;
+      background: #E5E7EB !important;
+      border-color: #D2DAEA !important;
     }
 
     .reports-overall-belanja-block .reports-table-overall thead th > span {
