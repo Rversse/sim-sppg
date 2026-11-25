@@ -214,7 +214,7 @@ function operationalRuleMatchesRow(
 
 function isOpsHarianVirtualAccount(row: MakerImportDraftRow): boolean {
   return row.kind === 'ops_harian' &&
-    /(?:^|[·\\s])VA(?:$|[·\\s])/i.test(row.rawLine)
+    /\bVA\b/i.test(row.rawLine)
 }
 
 function applyInitialMappings(
@@ -1202,7 +1202,7 @@ export function MakerImportPage() {
               <div><small>Total pencairan</small><strong>{rows.length}</strong></div>
               <div><small>Pencairan masuk</small><strong>{importableChecks.length}</strong><small>Rp {formatAmount(importableAmount)}</small></div>
               <div className={excludedChecks.length > 0 ? 'is-attention' : 'is-ready'}><small>Dikecualikan</small><strong>{excludedChecks.length}</strong><small>Rp {formatAmount(excludedAmount)}</small></div>
-              <div className={pendingManualChecks.length > 0 ? 'is-attention' : 'is-ready'}><small>Perlu keputusan</small><strong>{pendingManualChecks.length}</strong><small>Lain-Lain</small></div>
+              <div className={pendingManualChecks.length > 0 ? 'is-attention' : 'is-ready'}><small>Perlu keputusan</small><strong>{pendingManualChecks.length}</strong><small>Lain-Lain / VA</small></div>
               <div className={blockingCount > 0 ? 'is-attention' : 'is-ready'}><small>Status validasi</small><strong>{blockingCount > 0 ? blockingCount + ' perlu koreksi' : 'Siap disimpan'}</strong></div>
             </div>
           </section>
@@ -1337,11 +1337,11 @@ export function MakerImportPage() {
                         ) : null}
                         <label>
                           <span>Bank</span>
-                          <input value={row.bank} onChange={(event) => updateRow(row.id, { bank: event.target.value, accountId: '', operationalRuleId: '', verified: false })} title="Bank pada draft dapat dikoreksi, tetapi harus cocok dengan mapping database." disabled={saving || rowLocked} />
+                          <input value={row.bank} onChange={(event) => updateRow(row.id, { bank: event.target.value, accountId: '', operationalRuleId: '', verified: false })} title="Bank pada draft dapat dikoreksi, tetapi harus cocok dengan mapping database." disabled={saving || rowLocked || isVirtualAccount} />
                         </label>
                         <label>
                           <span>Nomor rekening</span>
-                          <input value={row.accountNumber} onChange={(event) => updateRow(row.id, { accountNumber: event.target.value, accountId: '', operationalRuleId: '', verified: false })} title="Nomor rekening pada draft dapat dikoreksi, tetapi harus cocok dengan mapping database." disabled={saving || rowLocked} />
+                          <input value={row.accountNumber} onChange={(event) => updateRow(row.id, { accountNumber: event.target.value, accountId: '', operationalRuleId: '', verified: false })} title="Nomor rekening pada draft dapat dikoreksi, tetapi harus cocok dengan mapping database." disabled={saving || rowLocked || isVirtualAccount} />
                         </label>
                         </> : null}
                         <label>
