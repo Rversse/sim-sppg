@@ -52,10 +52,10 @@ test('print report uses readable Arial typography and tabular figures for amount
   assert.ok(!printSource.includes('font-weight: 900 !important;'))
 })
 
-test('three print summary cards receive subtle top and bottom accent borders', () => {
-  assert.ok(printSource.includes('border-top-width: 2px !important;'))
-  assert.ok(printSource.includes('border-bottom-width: 2px !important;'))
-  assert.ok(printSource.includes('nth-child(1)'))
-  assert.ok(printSource.includes('nth-child(2)'))
-  assert.ok(printSource.includes('nth-child(3)'))
+test('print summary cards use a consistent black border', () => {
+  assert.ok(printSource.includes('border: 1.5px solid #000000 !important;'))
+  assert.ok(!printSource.includes('border-top-color: #93C5FD'))
+  assert.ok(!printSource.includes('border-top-color: #60A5FA'))
+  assert.ok(!printSource.includes('border-top-color: #2563EB'))
+  assert.ok(!printSource.includes('border-left: 5px solid #0f766e'))
 })
