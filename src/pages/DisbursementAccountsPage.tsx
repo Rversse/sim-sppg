@@ -3,6 +3,7 @@ import { Edit3, Plus, Save, Trash2, X } from 'lucide-react'
 import { Skeleton } from '@/components/ui/skeleton'
 
 import { supabase } from '@/lib/supabase'
+import { subscribeToRealtimeTables } from '@/lib/realtime-sync'
 import { canAccess } from '@/features/auth/role-policy'
 import { useAuth } from '@/features/auth/use-auth'
 import { useToast } from '@/features/ui/toast-context'
@@ -359,6 +360,15 @@ export function DisbursementAccountsPage() {
     return () => {
       cancelled = true
     }
+  }, [canView, load])
+
+  useEffect(() => {
+    if (!canView) return
+    return subscribeToRealtimeTables(
+      'disbursement-account-mappings-live',
+      [{ table: 'kitchens' }, { table: 'kitchen_operational_account_rules' }],
+      () => { void load() }
+    )
   }, [canView, load])
 
   const selectedKitchen = kitchens.find((kitchen) => kitchen.id === selectedKitchenId)
