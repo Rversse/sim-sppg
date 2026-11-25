@@ -4,7 +4,9 @@ import {
   BadgePercent,
   Building2,
   Droplets,
+  Pencil,
   Settings2,
+  Trash2,
   Users,
   WalletCards
 } from 'lucide-react'
@@ -63,7 +65,7 @@ import {
   getTodayLocal
 } from '@/lib/formatters'
 
-const DASHBOARD_HISTORY_PAGE_SIZE = 10
+const DASHBOARD_HISTORY_PAGE_SIZE = 12
 
 const FLOW_OPTIONS: { value: DashboardFlow | ''; label: string }[] = [
   { value: '', label: 'Semua transaksi' },
@@ -1989,19 +1991,25 @@ export function DashboardPage() {
                           <div className="dashboard-history-actions">
                             <button
                               type="button"
+                              className="dashboard-history-action-edit"
                               onClick={() =>
                                 void openEditTransactionModal(transaction)
                               }
+                              aria-label="Edit transaksi"
+                              title="Edit transaksi"
                             >
-                              Edit
+                              <Pencil aria-hidden="true" />
                             </button>
                             <button
                               type="button"
+                              className="dashboard-history-action-delete"
                               onClick={() =>
                                 void handleTransactionDelete(transaction)
                               }
+                              aria-label="Hapus transaksi"
+                              title="Hapus transaksi"
                             >
-                              Hapus
+                              <Trash2 aria-hidden="true" />
                             </button>
                           </div>
                         ) : null}
