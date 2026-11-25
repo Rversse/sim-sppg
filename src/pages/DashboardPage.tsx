@@ -1680,17 +1680,16 @@ export function DashboardPage() {
                           <strong>{row.kitchen}</strong>
                           {(row.transactionCount + row.auditOnlyTransactionCount) > 0 ? (
                             <div
-                              className="sppg-status-dots-track"
-                              aria-label={`${row.transactionCount} valid, ${row.auditOnlyTransactionCount} audit`}
-                              title={`${row.transactionCount} Valid · ${row.auditOnlyTransactionCount} Audit`}
-                              role="img"
+                              className="dashboard-status-counts"
+                              aria-label={`${row.transactionCount} Valid / ${row.auditOnlyTransactionCount} Audit`}
                             >
-                              {Array.from({ length: row.transactionCount }, (_, index) => (
-                                <i className="sppg-status-dot sppg-status-dot--valid" key={`db-${index}`} />
-                              ))}
-                              {Array.from({ length: row.auditOnlyTransactionCount }, (_, index) => (
-                                <i className="sppg-status-dot sppg-status-dot--audit" key={`audit-${index}`} />
-                              ))}
+                              <span className="dashboard-status-counts-valid">
+                                {row.transactionCount} Valid
+                              </span>
+                              <span className="dashboard-status-counts-separator" aria-hidden="true">/</span>
+                              <span className="dashboard-status-counts-audit">
+                                {row.auditOnlyTransactionCount} Audit
+                              </span>
                             </div>
                           ) : null}
                         </div>
