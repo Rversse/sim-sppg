@@ -2476,10 +2476,11 @@
 }
 
 
-/* Distribute transaction rows evenly through the stretched history panel.
-   This keeps its bottom edge aligned with Status Pencairan while making
-   the vertical distance between card rows consistent. */
+/* Keep transaction cards grouped with a fixed, predictable gap.
+   Empty space remains below short filtered result sets instead of being
+   distributed between rows. */
 .dashboard-layout-grid .dashboard-history {
+  align-content: start;
   gap: 10px;
   padding-bottom: 8px;
 }
