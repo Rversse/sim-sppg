@@ -4,7 +4,6 @@ import {
   BadgePercent,
   Building2,
   Droplets,
-  Landmark,
   Settings2,
   Users,
   WalletCards
