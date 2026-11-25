@@ -31,7 +31,9 @@ test('overall report print fits ten columns and keeps Dapur compact', () => {
     printSource,
     /\.reports-table-overall th:nth-child\(10\),[\s\S]*?\.reports-table-overall td:nth-child\(10\) \{ width: 12% !important; \}/
   )
-  assert.ok(printSource.includes('background: #DBEAFE !important;'))
+  assert.ok(printSource.includes('background: #E5E7EB !important;'))
+  assert.ok(printSource.includes('color: #1D4ED8 !important;'))
+  assert.ok(!printSource.includes('background: #DBEAFE !important;'))
 })
 
 test('print table typography avoids extra-bold weights', () => {
