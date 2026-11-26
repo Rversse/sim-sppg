@@ -81,6 +81,36 @@ function allocationFromRow(row: SalaryAllocationRow): SalaryAllocation {
   }
 }
 
+export function adjustSalaryAllocation(
+  current: SalaryAllocation,
+  editedKey: SalaryRoleKey,
+  requestedValue: number
+): SalaryAllocation {
+  const keys = Object.keys(ROLE_LABELS) as SalaryRoleKey[]
+  const editedCents = Math.min(10000, Math.max(0, Math.round(requestedValue * 100)))
+  const remainingCents = 10000 - editedCents
+  const otherKeys = keys.filter((key) => key !== editedKey)
+  const weights = otherKeys.map((key) => Math.max(0, Math.round(current[key] * 100)))
+  const weightTotal = weights.reduce((sum, value) => sum + value, 0)
+
+  const shares = otherKeys.map((key, index) => {
+    const exact = weightTotal > 0
+      ? (remainingCents * weights[index]) / weightTotal
+      : remainingCents / otherKeys.length
+    return { key, cents: Math.floor(exact), remainder: exact - Math.floor(exact) }
+  })
+
+  let centsLeft = remainingCents - shares.reduce((sum, share) => sum + share.cents, 0)
+  shares.sort((a, b) => b.remainder - a.remainder || keys.indexOf(a.key) - keys.indexOf(b.key))
+  for (let index = 0; index < shares.length && centsLeft > 0; index += 1, centsLeft -= 1) {
+    shares[index].cents += 1
+  }
+
+  const result = { ...current, [editedKey]: editedCents / 100 }
+  for (const share of shares) result[share.key] = share.cents / 100
+  return result
+}
+
 export function validateSalaryAllocation(
   allocation: SalaryAllocation
 ): string | null {
