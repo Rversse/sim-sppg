@@ -214,6 +214,7 @@ export function SalaryCalculationPage() {
           <div className="salary-field salary-field--kitchen">
             <label htmlFor="salary-kitchen">Dapur</label>
             <select id="salary-kitchen" value={kitchenId} onChange={(event) => {
+              setAllocationLoading(true)
               setKitchenId(event.target.value)
               setCalculation(null)
             }} disabled={loading}>
