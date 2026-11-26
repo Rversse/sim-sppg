@@ -14,6 +14,7 @@ import {
 import { supabase } from '@/lib/supabase'
 import { getOperationalMonthRange } from '@/features/operational-month/operational-month'
 import { useAuth } from '@/features/auth/use-auth'
+import { canAccess, canManageDashboardTransaction } from '@/features/auth/role-policy'
 import {
   getActiveKitchens,
   getDashboardSummary,
@@ -217,6 +218,13 @@ type StatusData = Awaited<ReturnType<typeof getDailyStatus>>
 export function DashboardPage() {
   const { user } = useAuth()
   const isAdmin = user?.role === 'admin'
+  const isOperator = user?.role === 'operator'
+  const canCreateDashboardTransaction = canAccess(
+    user?.role,
+    'dashboard.ops-disbursement-real.manage'
+  )
+  const canManageTransaction = (transaction: DashboardTransaction) =>
+    canManageDashboardTransaction(user?.role, transaction.flow_type)
   const includeSppgRent = isAdmin
   const today = getTodayLocal()
   const operationalMonth = getOperationalMonthRange(today)
@@ -997,7 +1005,7 @@ export function DashboardPage() {
   }
 
   function openCreateTransactionModal() {
-    if (user?.role !== 'admin') return
+    if (!canCreateDashboardTransaction) return
 
     resetTransactionForm()
     setModalMode('create')
@@ -1006,7 +1014,7 @@ export function DashboardPage() {
   }
 
   async function openEditTransactionModal(transaction: DashboardTransaction) {
-    if (user?.role !== 'admin') return
+    if (!canManageTransaction(transaction)) return
 
     setModalMode('edit')
     setEditingId(transaction.id)
@@ -1041,10 +1049,12 @@ export function DashboardPage() {
     setModalOpen(true)
 
     try {
-      const availableFlows = getAvailableFlowsForKitchen(
-        kitchens.find((kitchen) => kitchen.id === transaction.kitchen_id)?.name,
-        includeSppgRent
-      )
+      const availableFlows = isOperator
+        ? ['ops_disbursement_real'] as DashboardFlow[]
+        : getAvailableFlowsForKitchen(
+            kitchens.find((kitchen) => kitchen.id === transaction.kitchen_id)?.name,
+            includeSppgRent
+          )
 
       setAvailableFormFlows(availableFlows)
 
@@ -1111,19 +1121,22 @@ export function DashboardPage() {
 
     try {
       const selectedKitchen = kitchens.find((kitchen) => kitchen.id === value)
-      const availableFlows = getAvailableFlowsForKitchen(
-        selectedKitchen?.name,
-        includeSppgRent
-      )
-      const nextFlowType =
-        preserveSupplierFlow && availableFlows.includes('expense')
+      const availableFlows = isOperator
+        ? ['ops_disbursement_real'] as DashboardFlow[]
+        : getAvailableFlowsForKitchen(selectedKitchen?.name, includeSppgRent)
+      const nextFlowType = isOperator
+        ? 'ops_disbursement_real'
+        : preserveSupplierFlow && availableFlows.includes('expense')
           ? 'expense'
           : ''
 
       setAvailableFormFlows(availableFlows)
       setFormFlowType(nextFlowType)
 
-      if (nextFlowType === 'expense') {
+      if (nextFlowType === 'ops_disbursement_real') {
+        await loadFormOptions(value, nextFlowType)
+        focusNominalInput()
+      } else if (nextFlowType === 'expense') {
         await loadFormOptions(value, nextFlowType)
 
         const isSukaraja = selectedKitchen?.name?.includes('Sukaraja') ?? false
@@ -1141,6 +1154,8 @@ export function DashboardPage() {
   }
 
   async function handleFormFlowChange(value: DashboardEntryFlow) {
+    if (isOperator && value !== 'ops_disbursement_real') return
+
     setFormFlowType(value)
     setFormAccountId('')
     setFormSupplierId('')
@@ -1211,6 +1226,11 @@ export function DashboardPage() {
 
   async function handleTransactionSubmit() {
     if (saving) return
+
+    if (isOperator && formFlowType !== 'ops_disbursement_real') {
+      setFormError('Operator hanya dapat menginput OPS - Pencairan Real.')
+      return
+    }
 
     if (!formDate) {
       setFormError('Tanggal wajib dipilih.')
@@ -1369,7 +1389,15 @@ export function DashboardPage() {
           allowDuplicate = true
         }
 
-        await createTransaction(payload, supabase, { allowDuplicate })
+        if (!user?.id) {
+          throw new Error('Pengguna pembuat transaksi tidak ditemukan.')
+        }
+
+        await createTransaction(
+          { ...payload, created_by: user.id },
+          supabase,
+          { allowDuplicate }
+        )
       } else {
         if (!editingId) {
           throw new Error('ID transaksi tidak ditemukan')
@@ -1447,7 +1475,7 @@ export function DashboardPage() {
   }
 
   async function handleTransactionDelete(transaction: DashboardTransaction) {
-    if (user?.role !== 'admin') return
+    if (!canManageTransaction(transaction)) return
 
     const confirmed = window.confirm(
       `Hapus transaksi ${formatDate(transaction.transaction_date)} sebesar ${formatCurrency(
@@ -1838,7 +1866,7 @@ export function DashboardPage() {
               />
             ) : null}
   
-            {includeSppgRent ? (
+            {canCreateDashboardTransaction ? (
               <button
                 type="button"
                 className="dashboard-transaction-action"
@@ -1993,7 +2021,7 @@ export function DashboardPage() {
                           {formatCurrency(Number(transaction.amount))}
                         </strong>
   
-                        {includeSppgRent ? (
+                        {canManageTransaction(transaction) ? (
                           <div className="dashboard-history-actions">
                             <button
                               type="button"
@@ -2166,9 +2194,11 @@ export function DashboardPage() {
                       {kitchen.name}
                     </option>
                   ))}
-                  <option value={TRANSFER_LAINNYA_KITCHEN_VALUE}>
-                    Transfer lainnya
-                  </option>
+                  {!isOperator ? (
+                    <option value={TRANSFER_LAINNYA_KITCHEN_VALUE}>
+                      Transfer lainnya
+                    </option>
+                  ) : null}
                 </select>
               </label>
 
@@ -2179,7 +2209,8 @@ export function DashboardPage() {
                   disabled={
                     !formKitchenId ||
                     modalMode === 'edit' ||
-                    formKitchenId === TRANSFER_LAINNYA_KITCHEN_VALUE
+                    formKitchenId === TRANSFER_LAINNYA_KITCHEN_VALUE ||
+                    isOperator
                   }
                   onChange={(event) =>
                     void handleFormFlowChange(
@@ -2187,7 +2218,13 @@ export function DashboardPage() {
                     )
                   }
                 >
-                  {formKitchenId === TRANSFER_LAINNYA_KITCHEN_VALUE ? (
+                  {isOperator ? (
+                    formKitchenId ? (
+                      <option value="ops_disbursement_real">OPS - Pencairan Real</option>
+                    ) : (
+                      <option value="">Pilih dapur terlebih dahulu</option>
+                    )
+                  ) : formKitchenId === TRANSFER_LAINNYA_KITCHEN_VALUE ? (
                     <option value="income">RAB - Pencairan</option>
                   ) : (
                     <>
