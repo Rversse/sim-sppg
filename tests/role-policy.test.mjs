@@ -6,6 +6,7 @@ test('Guest and legacy Viewer can only view bank transactions', () => {
   const deniedPermissions = [
     'dashboard.view',
     'dashboard.transaction.create',
+    'dashboard.ops-disbursement-real.manage',
     'kitchen.view',
     'kitchen.manage',
     'disbursement-accounts.view',
@@ -36,9 +37,17 @@ test('Guest and legacy Viewer can only view bank transactions', () => {
 test('Admin and Operator can access dashboard; Koperasi is limited to Real Import', () => {
   assert.equal(canAccess('admin', 'dashboard.view'), true)
   assert.equal(canAccess('operator', 'dashboard.view'), true)
+  assert.equal(canAccess('operator', 'dashboard.ops-disbursement-real.manage'), true)
+  assert.equal(canAccess('admin', 'dashboard.ops-disbursement-real.manage'), true)
+  assert.equal(canAccess('koperasi', 'dashboard.ops-disbursement-real.manage'), false)
   assert.equal(canAccess('koperasi', 'dashboard.view'), false)
   assert.equal(canAccess('koperasi', 'real-import.view'), true)
   assert.equal(canAccess('koperasi', 'bank.view'), false)
+})
+
+test('Operator keeps existing Bank Transaction CRUD permission unchanged', () => {
+  assert.equal(canAccess('operator', 'bank.transaction.create'), true)
+  assert.equal(canAccess('operator', 'bank.export'), true)
 })
 
 test('Guest cannot create, export, or mutate bank transactions', () => {
