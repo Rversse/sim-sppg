@@ -4,7 +4,7 @@ import {
   adjustSalaryAllocation,
   DEFAULT_SALARY_ALLOCATION,
   validateSalaryAllocation
-} from '../src/features/salary-calculation/salary-calculation-service.ts'
+} from '../src/features/salary-calculation/salary-allocation-utils.ts'
 
 function total(allocation) {
   return Object.values(allocation).reduce((sum, value) => sum + value, 0)
