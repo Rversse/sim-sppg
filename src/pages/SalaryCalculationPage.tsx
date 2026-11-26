@@ -1,12 +1,11 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { Calculator, RefreshCw } from 'lucide-react'
+import { Calculator, RefreshCw, Save } from 'lucide-react'
 
 import { getActiveKitchens } from '@/features/kitchen/kitchen-service'
 import type { SalaryAllocation } from '@/features/salary-calculation/salary-calculation-service'
 import {
   DEFAULT_SALARY_ALLOCATION,
   DEFAULT_SALARY_ALLOCATION_RATE,
-  adjustSalaryAllocation,
   getKitchenSalarySettings,
   getKitchenSalaryCalculation,
   saveKitchenSalaryAllocation,
@@ -154,6 +153,27 @@ export function SalaryCalculationPage() {
     }
   }
 
+  async function saveAllocationRate() {
+    if (!kitchenId || saving) return
+    const rateValid = Number.isFinite(allocationRate) && allocationRate >= 0 && allocationRate <= 100 && Math.round(allocationRate * 100) === allocationRate * 100
+    if (!rateValid) {
+      toastError('Alokasi tidak valid', 'Alokasi sisa RAB harus berada di antara 0 dan 100 dengan maksimal dua angka desimal.')
+      return
+    }
+
+    setSaving(true)
+    try {
+      const savedSettings = await getKitchenSalarySettings(kitchenId)
+      await saveKitchenSalaryAllocation(kitchenId, savedSettings.allocation, allocationRate)
+      success('Alokasi disimpan', 'Persentase alokasi sisa RAB berhasil disimpan.')
+    } catch (err) {
+      console.error(err)
+      toastError('Gagal menyimpan alokasi', err instanceof Error ? err.message : 'Terjadi kesalahan.')
+    } finally {
+      setSaving(false)
+    }
+  }
+
   async function saveAllocation() {
     if (!kitchenId || saving) return
     const validationError = validateSalaryAllocation(allocation)
@@ -165,11 +185,11 @@ export function SalaryCalculationPage() {
     setSaving(true)
     try {
       await saveKitchenSalaryAllocation(kitchenId, allocation, allocationRate)
-      success('Pembagian disimpan', 'Persentase dan alokasi sisa RAB untuk dapur ini berhasil disimpan.')
+      success('Persentase disimpan', 'Pembagian persentase jabatan berhasil disimpan.')
       if (calculation) await calculate()
     } catch (err) {
       console.error(err)
-      toastError('Gagal menyimpan pembagian', err instanceof Error ? err.message : 'Terjadi kesalahan.')
+      toastError('Gagal menyimpan persentase', err instanceof Error ? err.message : 'Terjadi kesalahan.')
     } finally {
       setSaving(false)
     }
@@ -201,7 +221,7 @@ export function SalaryCalculationPage() {
                 step="0.01"
                 value={allocationRate}
                 onChange={(event) => setAllocationRate(event.target.value === '' ? 0 : Number(event.target.value))}
-                onBlur={() => void saveAllocation()}
+                onBlur={() => void saveAllocationRate()}
                 disabled={!kitchenId || allocationLoading}
               />
               <span>%</span>
@@ -242,7 +262,7 @@ export function SalaryCalculationPage() {
           <div>
             <h3>Persentase</h3>
           </div>
-          <span className={Math.abs(percentageTotal - 100) < 0.000001 ? 'salary-total-valid' : 'salary-total-invalid'}>
+          <span className={percentageTotal <= 100 ? 'salary-total-valid' : 'salary-total-invalid'}>
             Total {percentageTotal.toLocaleString('id-ID', { maximumFractionDigits: 2 })}%
           </span>
         </div>
@@ -257,12 +277,10 @@ export function SalaryCalculationPage() {
                   max="100"
                   step="0.01"
                   value={allocation[field.key]}
-                  onChange={(event) => setAllocation((current) => adjustSalaryAllocation(
-                    current,
-                    field.key,
-                    event.target.value === '' ? 0 : Number(event.target.value)
-                  ))}
-                  onBlur={() => void saveAllocation()}
+                  onChange={(event) => setAllocation((current) => ({
+                    ...current,
+                    [field.key]: event.target.value === '' ? 0 : Number(event.target.value)
+                  }))}
                   disabled={!kitchenId || allocationLoading}
                 />
                 <span>%</span>
@@ -270,15 +288,26 @@ export function SalaryCalculationPage() {
             </label>
           ))}
         </div>
-        <div className="salary-panel-footer salary-panel-footer--calculate">
+        <div className="salary-panel-footer salary-panel-footer--actions">
           <button
             type="button"
-            className="salary-primary-button"
+            className="salary-icon-button"
+            onClick={() => void saveAllocation()}
+            disabled={!kitchenId || saving || allocationLoading || !allocationRateValid || percentageTotal > 100}
+            aria-label="Simpan persentase"
+            title={saving ? 'Menyimpan...' : 'Simpan persentase'}
+          >
+            <Save aria-hidden="true" />
+          </button>
+          <button
+            type="button"
+            className="salary-primary-button salary-icon-only-button"
             onClick={() => void calculate()}
-            disabled={loading || calculating || saving || allocationLoading || !kitchenId || !allocationRateValid || Math.abs(percentageTotal - 100) > 0.000001}
+            disabled={loading || calculating || saving || allocationLoading || !kitchenId || !allocationRateValid || percentageTotal > 100}
+            aria-label="Hitung"
+            title={calculating ? 'Menghitung...' : 'Hitung'}
           >
             {calculating ? <RefreshCw className="salary-spin" aria-hidden="true" /> : <Calculator aria-hidden="true" />}
-            {calculating ? 'Menghitung...' : 'Hitung'}
           </button>
         </div>
       </div>
@@ -314,7 +343,7 @@ export function SalaryCalculationPage() {
               ))}
               <div className="salary-result-row salary-result-row--total">
                 <span>Total dibagikan</span>
-                <span>100%</span>
+                <span>{calculation.roles.reduce((sum, role) => sum + role.percent, 0).toLocaleString('id-ID', { maximumFractionDigits: 2 })}%</span>
                 <strong>{formatRupiah(calculation.roles.reduce((sum, role) => sum + role.amount, 0))}</strong>
               </div>
             </div>
