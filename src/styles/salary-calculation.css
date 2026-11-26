@@ -53,3 +53,9 @@
 .salary-rate-field>span,.salary-allocation-grid>.salary-field>span{align-self:center;text-align:center}
 .salary-icon-only-button{width:40px;min-width:40px;padding:0}
 .salary-panel-footer--actions{justify-content:flex-end}
+
+.salary-allocation-row{display:flex;align-items:flex-end;gap:12px;min-width:0}
+.salary-allocation-row .salary-allocation-grid{flex:1;min-width:0}
+.salary-allocation-save{flex:0 0 38px;margin-bottom:0}
+@media(max-width:850px){.salary-allocation-row{align-items:flex-end}.salary-allocation-row .salary-allocation-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:560px){.salary-allocation-row{gap:8px}.salary-allocation-save{flex-basis:36px;width:36px;height:36px}}
