@@ -17,7 +17,13 @@ export type SalaryAllocationRow = {
   nutritionist_percent: number | string
   aslap_percent: number | string
   head_percent: number | string
+  allocation_rate: number | string
   updated_at: string
+}
+
+export type SalaryAllocationSettings = {
+  allocation: SalaryAllocation
+  allocationRate: number
 }
 
 export type SalaryCalculationInput = {
@@ -39,11 +45,13 @@ export type KitchenSalaryCalculation = {
   startDate: string
   endDate: string
   totalRAB: number
-  allocationRate: 30
+  allocationRate: number
   totalAllocation: number
   percentages: SalaryAllocation
   roles: SalaryRoleResult[]
 }
+
+export const DEFAULT_SALARY_ALLOCATION_RATE = 30
 
 export const DEFAULT_SALARY_ALLOCATION: SalaryAllocation = {
   accountant: 25,
@@ -94,41 +102,63 @@ export function validateSalaryAllocation(
   return null
 }
 
-export async function getKitchenSalaryAllocation(
+export async function getKitchenSalarySettings(
   kitchenId: string,
   client: SupabaseClient = supabase
-): Promise<SalaryAllocation> {
+): Promise<SalaryAllocationSettings> {
   if (!kitchenId) throw new Error('Dapur wajib dipilih.')
 
   const { data, error } = await client
     .from('kitchen_salary_allocations')
     .select(
-      'kitchen_id,accountant_percent,nutritionist_percent,aslap_percent,head_percent,updated_at'
+      'kitchen_id,accountant_percent,nutritionist_percent,aslap_percent,head_percent,allocation_rate,updated_at'
     )
     .eq('kitchen_id', kitchenId)
     .maybeSingle()
 
   if (error) throw error
-  if (!data) return { ...DEFAULT_SALARY_ALLOCATION }
+  if (!data) {
+    return {
+      allocation: { ...DEFAULT_SALARY_ALLOCATION },
+      allocationRate: DEFAULT_SALARY_ALLOCATION_RATE
+    }
+  }
 
-  return allocationFromRow(data as SalaryAllocationRow)
+  const row = data as SalaryAllocationRow
+  return {
+    allocation: allocationFromRow(row),
+    allocationRate: toNumber(row.allocation_rate)
+  }
+}
+
+export async function getKitchenSalaryAllocation(
+  kitchenId: string,
+  client: SupabaseClient = supabase
+): Promise<SalaryAllocation> {
+  const settings = await getKitchenSalarySettings(kitchenId, client)
+  return settings.allocation
 }
 
 export async function saveKitchenSalaryAllocation(
   kitchenId: string,
   allocation: SalaryAllocation,
+  allocationRate = DEFAULT_SALARY_ALLOCATION_RATE,
   client: SupabaseClient = supabase
 ): Promise<void> {
   if (!kitchenId) throw new Error('Dapur wajib dipilih.')
 
   const validationError = validateSalaryAllocation(allocation)
   if (validationError) throw new Error(validationError)
+  if (!Number.isFinite(allocationRate) || allocationRate < 0 || allocationRate > 100 || Math.round(allocationRate * 100) !== allocationRate * 100) {
+    throw new Error('Alokasi sisa RAB harus berada di antara 0 dan 100 dengan maksimal dua angka desimal.')
+  }
 
   const { error } = await client
     .from('kitchen_salary_allocations')
     .upsert(
       {
         kitchen_id: kitchenId,
+        allocation_rate: allocationRate,
         accountant_percent: allocation.accountant,
         nutritionist_percent: allocation.nutritionist,
         aslap_percent: allocation.aslap,
@@ -153,7 +183,7 @@ export async function getKitchenSalaryCalculation(
     throw new Error('Tanggal awal tidak boleh melewati tanggal akhir.')
   }
 
-  const [report, percentages] = await Promise.all([
+  const [report, settings] = await Promise.all([
     getOverallReport(
       {
         startDate: input.startDate,
@@ -162,7 +192,7 @@ export async function getKitchenSalaryCalculation(
       },
       client
     ),
-    getKitchenSalaryAllocation(input.kitchenId, client)
+    getKitchenSalarySettings(input.kitchenId, client)
   ])
 
   const kitchen = report.kitchens.find(
@@ -174,12 +204,12 @@ export async function getKitchenSalaryCalculation(
   }
 
   const totalRAB = kitchen.totalRAB
-  const totalAllocation = totalRAB * 0.3
+  const totalAllocation = totalRAB * (settings.allocationRate / 100)
   const roles = (Object.keys(ROLE_LABELS) as SalaryRoleKey[]).map((key) => ({
     key,
     label: ROLE_LABELS[key],
-    percent: percentages[key],
-    amount: totalAllocation * (percentages[key] / 100)
+    percent: settings.allocation[key],
+    amount: totalAllocation * (settings.allocation[key] / 100)
   }))
 
   return {
@@ -188,7 +218,7 @@ export async function getKitchenSalaryCalculation(
     startDate: input.startDate,
     endDate: input.endDate,
     totalRAB,
-    allocationRate: 30,
+    allocationRate: settings.allocationRate,
     totalAllocation,
     percentages,
     roles
