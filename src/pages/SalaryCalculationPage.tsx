@@ -295,7 +295,7 @@ export function SalaryCalculationPage() {
               <small>{calculation.kitchenName}</small>
             </article>
             <article>
-              <span>Alokasi Gaji · 30%</span>
+              <span>Alokasi Gaji · {calculation.allocationRate.toLocaleString('id-ID', { maximumFractionDigits: 2 })}%</span>
               <strong>{formatRupiah(calculation.totalAllocation)}</strong>
               <small>{calculation.startDate} s.d. {calculation.endDate}</small>
             </article>
@@ -304,7 +304,7 @@ export function SalaryCalculationPage() {
             <div className="salary-panel-heading">
               <div>
                 <h3>Rincian alokasi</h3>
-                <p>Nominal dihitung dari alokasi tetap 30% dikalikan persentase setiap jabatan.</p>
+                <p>Nominal dihitung dari alokasi sisa RAB dikalikan persentase setiap jabatan.</p>
               </div>
             </div>
             <div className="salary-result-list">
