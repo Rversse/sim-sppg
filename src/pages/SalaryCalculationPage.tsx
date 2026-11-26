@@ -5,7 +5,9 @@ import { getActiveKitchens } from '@/features/kitchen/kitchen-service'
 import type { SalaryAllocation } from '@/features/salary-calculation/salary-calculation-service'
 import {
   DEFAULT_SALARY_ALLOCATION,
-  getKitchenSalaryAllocation,
+  DEFAULT_SALARY_ALLOCATION_RATE,
+  adjustSalaryAllocation,
+  getKitchenSalarySettings,
   getKitchenSalaryCalculation,
   saveKitchenSalaryAllocation,
   validateSalaryAllocation
@@ -49,6 +51,8 @@ export function SalaryCalculationPage() {
   const [allocation, setAllocation] = useState<SalaryAllocation>({
     ...DEFAULT_SALARY_ALLOCATION
   })
+  const [allocationRate, setAllocationRate] = useState(DEFAULT_SALARY_ALLOCATION_RATE)
+  const [allocationLoading, setAllocationLoading] = useState(false)
   const [calculation, setCalculation] = useState<KitchenSalaryCalculation | null>(null)
   const [loading, setLoading] = useState(true)
   const [calculating, setCalculating] = useState(false)
@@ -79,13 +83,22 @@ export function SalaryCalculationPage() {
     if (!kitchenId) return
 
     let cancelled = false
-    void getKitchenSalaryAllocation(kitchenId)
-      .then((value) => {
-        if (!cancelled) setAllocation(value)
+    setAllocationLoading(true)
+    setAllocation({ ...DEFAULT_SALARY_ALLOCATION })
+    setAllocationRate(DEFAULT_SALARY_ALLOCATION_RATE)
+    void getKitchenSalarySettings(kitchenId)
+      .then((settings) => {
+        if (!cancelled) {
+          setAllocation(settings.allocation)
+          setAllocationRate(settings.allocationRate)
+        }
       })
       .catch((err: unknown) => {
         console.error(err)
         if (!cancelled) toastError('Gagal memuat pembagian', 'Konfigurasi persentase dapur tidak dapat dimuat.')
+      })
+      .finally(() => {
+        if (!cancelled) setAllocationLoading(false)
       })
 
     return () => {
@@ -104,8 +117,11 @@ export function SalaryCalculationPage() {
       () => {
         void loadKitchens()
         if (kitchenId) {
-          void getKitchenSalaryAllocation(kitchenId)
-            .then(setAllocation)
+          void getKitchenSalarySettings(kitchenId)
+            .then((settings) => {
+              setAllocation(settings.allocation)
+              setAllocationRate(settings.allocationRate)
+            })
             .catch((err: unknown) => console.error('Gagal menyinkronkan alokasi gaji:', err))
           if (calculation) {
             void getKitchenSalaryCalculation({ kitchenId, startDate, endDate })
@@ -151,8 +167,8 @@ export function SalaryCalculationPage() {
 
     setSaving(true)
     try {
-      await saveKitchenSalaryAllocation(kitchenId, allocation)
-      success('Pembagian disimpan', 'Persentase alokasi untuk dapur ini berhasil disimpan.')
+      await saveKitchenSalaryAllocation(kitchenId, allocation, allocationRate)
+      success('Pembagian disimpan', 'Persentase dan alokasi sisa RAB untuk dapur ini berhasil disimpan.')
       if (calculation) await calculate()
     } catch (err) {
       console.error(err)
@@ -163,25 +179,36 @@ export function SalaryCalculationPage() {
   }
 
   const percentageTotal = ROLE_FIELDS.reduce((sum, field) => sum + Number(allocation[field.key] || 0), 0)
+  const allocationRateValid = Number.isFinite(allocationRate) && allocationRate >= 0 && allocationRate <= 100 && Math.round(allocationRate * 100) === allocationRate * 100
 
   return (
     <section className="salary-page">
-      <div className="salary-intro">
-        <div>
-          <h2>Perhitungan gaji</h2>
-          <p>Alokasi 30% dari total RAB dapur, dibagi berdasarkan persentase jabatan.</p>
-        </div>
-        <span className="salary-fixed-rate">Alokasi tetap 30%</span>
-      </div>
-
       {pageError ? <div className="salary-alert" role="alert">{pageError}</div> : null}
 
       <div className="salary-panel">
         <div className="salary-panel-heading">
           <div>
             <h3>Parameter perhitungan</h3>
-            <p>Pilih dapur dan periode transaksi yang akan dihitung.</p>
+            <p>Pilih dapur dan periode transaksi</p>
           </div>
+        </div>
+        <div className="salary-rate-row">
+          <label className="salary-field salary-rate-field" htmlFor="salary-allocation-rate">
+            <span>Alokasi sisa RAB</span>
+            <div className="salary-percent-input">
+              <input
+                id="salary-allocation-rate"
+                type="number"
+                min="0"
+                max="100"
+                step="0.01"
+                value={allocationRate}
+                onChange={(event) => setAllocationRate(event.target.value === '' ? 0 : Number(event.target.value))}
+                disabled={!kitchenId || allocationLoading}
+              />
+              <span>%</span>
+            </div>
+          </label>
         </div>
         <div className="salary-filter-grid">
           <div className="salary-field salary-field--kitchen">
@@ -216,8 +243,7 @@ export function SalaryCalculationPage() {
       <div className="salary-panel">
         <div className="salary-panel-heading salary-panel-heading--split">
           <div>
-            <h3>Pembagian persentase</h3>
-            <p>Konfigurasi tersimpan secara terpisah untuk setiap dapur.</p>
+            <h3>Persentase</h3>
           </div>
           <span className={Math.abs(percentageTotal - 100) < 0.000001 ? 'salary-total-valid' : 'salary-total-invalid'}>
             Total {percentageTotal.toLocaleString('id-ID', { maximumFractionDigits: 2 })}%
@@ -234,11 +260,12 @@ export function SalaryCalculationPage() {
                   max="100"
                   step="0.01"
                   value={allocation[field.key]}
-                  onChange={(event) => setAllocation((current) => ({
-                    ...current,
-                    [field.key]: event.target.value === '' ? 0 : Number(event.target.value)
-                  }))}
-                  disabled={!kitchenId}
+                  onChange={(event) => setAllocation((current) => adjustSalaryAllocation(
+                    current,
+                    field.key,
+                    event.target.value === '' ? 0 : Number(event.target.value)
+                  ))}
+                  disabled={!kitchenId || allocationLoading}
                 />
                 <span>%</span>
               </div>
@@ -246,10 +273,15 @@ export function SalaryCalculationPage() {
           ))}
         </div>
         <div className="salary-panel-footer">
-          <p>Jumlah persentase harus tepat 100% sebelum disimpan.</p>
-          <button type="button" className="salary-secondary-button" onClick={() => void saveAllocation()} disabled={!kitchenId || saving}>
+          <button
+            type="button"
+            className="salary-icon-button"
+            onClick={() => void saveAllocation()}
+            disabled={!kitchenId || saving || allocationLoading || !allocationRateValid || Math.abs(percentageTotal - 100) > 0.000001}
+            aria-label="Simpan persentase"
+            title={saving ? 'Menyimpan...' : 'Simpan persentase'}
+          >
             <Save aria-hidden="true" />
-            {saving ? 'Menyimpan...' : 'Simpan pembagian'}
           </button>
         </div>
       </div>
@@ -294,8 +326,7 @@ export function SalaryCalculationPage() {
       ) : (
         <div className="salary-empty">
           <Calculator aria-hidden="true" />
-          <strong>Hasil perhitungan akan tampil di sini</strong>
-          <span>Pilih dapur dan rentang tanggal, lalu tekan Hitung.</span>
+          <strong>Belum ada perhitungan</strong>
         </div>
       )}
     </section>
