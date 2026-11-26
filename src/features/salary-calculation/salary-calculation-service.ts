@@ -3,13 +3,10 @@ import type { SupabaseClient } from '@supabase/supabase-js'
 import { supabase } from '@/lib/supabase'
 import { getOverallReport } from '@/features/report/reports-service'
 
-export type SalaryRoleKey =
-  | 'accountant'
-  | 'nutritionist'
-  | 'aslap'
-  | 'head'
-
-export type SalaryAllocation = Record<SalaryRoleKey, number>
+import { validateSalaryAllocation } from '@/features/salary-calculation/salary-allocation-utils'
+import type { SalaryAllocation, SalaryRoleKey } from '@/features/salary-calculation/salary-allocation-utils'
+export { adjustSalaryAllocation, validateSalaryAllocation } from '@/features/salary-calculation/salary-allocation-utils'
+export type { SalaryAllocation, SalaryRoleKey } from '@/features/salary-calculation/salary-allocation-utils'
 
 export type SalaryAllocationRow = {
   kitchen_id: string
@@ -79,57 +76,6 @@ function allocationFromRow(row: SalaryAllocationRow): SalaryAllocation {
     aslap: toNumber(row.aslap_percent),
     head: toNumber(row.head_percent)
   }
-}
-
-export function adjustSalaryAllocation(
-  current: SalaryAllocation,
-  editedKey: SalaryRoleKey,
-  requestedValue: number
-): SalaryAllocation {
-  const keys = Object.keys(ROLE_LABELS) as SalaryRoleKey[]
-  const editedCents = Math.min(10000, Math.max(0, Math.round(requestedValue * 100)))
-  const remainingCents = 10000 - editedCents
-  const otherKeys = keys.filter((key) => key !== editedKey)
-  const weights = otherKeys.map((key) => Math.max(0, Math.round(current[key] * 100)))
-  const weightTotal = weights.reduce((sum, value) => sum + value, 0)
-
-  const shares = otherKeys.map((key, index) => {
-    const exact = weightTotal > 0
-      ? (remainingCents * weights[index]) / weightTotal
-      : remainingCents / otherKeys.length
-    return { key, cents: Math.floor(exact), remainder: exact - Math.floor(exact) }
-  })
-
-  let centsLeft = remainingCents - shares.reduce((sum, share) => sum + share.cents, 0)
-  shares.sort((a, b) => b.remainder - a.remainder || keys.indexOf(a.key) - keys.indexOf(b.key))
-  for (let index = 0; index < shares.length && centsLeft > 0; index += 1, centsLeft -= 1) {
-    shares[index].cents += 1
-  }
-
-  const result = { ...current, [editedKey]: editedCents / 100 }
-  for (const share of shares) result[share.key] = share.cents / 100
-  return result
-}
-
-export function validateSalaryAllocation(
-  allocation: SalaryAllocation
-): string | null {
-  const values = Object.values(allocation)
-
-  if (values.some((value) => !Number.isFinite(value) || value < 0 || value > 100)) {
-    return 'Setiap persentase harus berada di antara 0 dan 100.'
-  }
-
-  if (values.some((value) => Math.abs(value * 100 - Math.round(value * 100)) > 1e-7)) {
-    return 'Persentase maksimal menggunakan dua angka desimal.'
-  }
-
-  const total = values.reduce((sum, value) => sum + value, 0)
-  if (Math.round(total * 100) !== 10000) {
-    return 'Total persentase pembagian harus tepat 100%.'
-  }
-
-  return null
 }
 
 export async function getKitchenSalarySettings(
