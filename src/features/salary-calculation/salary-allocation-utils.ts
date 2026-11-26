@@ -56,8 +56,8 @@ export function validateSalaryAllocation(
   }
 
   const total = values.reduce((sum, value) => sum + value, 0)
-  if (Math.round(total * 100) !== 10000) {
-    return 'Total persentase pembagian harus tepat 100%.'
+  if (Math.round(total * 100) > 10000) {
+    return 'Total persentase pembagian tidak boleh melebihi 100%.'
   }
 
   return null
