@@ -2,9 +2,15 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import {
   adjustSalaryAllocation,
-  DEFAULT_SALARY_ALLOCATION,
   validateSalaryAllocation
 } from '../src/features/salary-calculation/salary-allocation-utils.ts'
+
+const DEFAULT_SALARY_ALLOCATION = {
+  accountant: 25,
+  nutritionist: 25,
+  aslap: 25,
+  head: 25
+}
 
 function total(allocation) {
   return Object.values(allocation).reduce((sum, value) => sum + value, 0)
