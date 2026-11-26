@@ -266,32 +266,32 @@ export function SalaryCalculationPage() {
             Total {percentageTotal.toLocaleString('id-ID', { maximumFractionDigits: 2 })}%
           </span>
         </div>
-        <div className="salary-allocation-grid">
-          {ROLE_FIELDS.map((field) => (
-            <label className="salary-field" key={field.key}>
-              <span>{field.label}</span>
-              <div className="salary-percent-input">
-                <input
-                  type="number"
-                  min="0"
-                  max="100"
-                  step="0.01"
-                  value={allocation[field.key]}
-                  onChange={(event) => setAllocation((current) => ({
-                    ...current,
-                    [field.key]: event.target.value === '' ? 0 : Number(event.target.value)
-                  }))}
-                  disabled={!kitchenId || allocationLoading}
-                />
-                <span>%</span>
-              </div>
-            </label>
-          ))}
-        </div>
-        <div className="salary-panel-footer salary-panel-footer--actions">
+        <div className="salary-allocation-row">
+          <div className="salary-allocation-grid">
+            {ROLE_FIELDS.map((field) => (
+              <label className="salary-field" key={field.key}>
+                <span>{field.label}</span>
+                <div className="salary-percent-input">
+                  <input
+                    type="number"
+                    min="0"
+                    max="100"
+                    step="0.01"
+                    value={allocation[field.key]}
+                    onChange={(event) => setAllocation((current) => ({
+                      ...current,
+                      [field.key]: event.target.value === '' ? 0 : Number(event.target.value)
+                    }))}
+                    disabled={!kitchenId || allocationLoading}
+                  />
+                  <span>%</span>
+                </div>
+              </label>
+            ))}
+          </div>
           <button
             type="button"
-            className="salary-icon-button"
+            className="salary-icon-button salary-allocation-save"
             onClick={() => void saveAllocation()}
             disabled={!kitchenId || saving || allocationLoading || !allocationRateValid || percentageTotal > 100}
             aria-label="Simpan persentase"
@@ -299,6 +299,8 @@ export function SalaryCalculationPage() {
           >
             <Save aria-hidden="true" />
           </button>
+        </div>
+        <div className="salary-panel-footer salary-panel-footer--actions">
           <button
             type="button"
             className="salary-primary-button salary-icon-only-button"
