@@ -3,6 +3,7 @@ import type { UserRole } from './auth-types'
 export type Permission =
   | 'dashboard.view'
   | 'dashboard.transaction.create'
+  | 'dashboard.ops-disbursement-real.manage'
   | 'kitchen.view'
   | 'kitchen.manage'
   | 'disbursement-accounts.view'
@@ -21,6 +22,7 @@ export type Permission =
 const permissions: Record<Permission, readonly UserRole[]> = {
   'dashboard.view': ['admin', 'operator'],
   'dashboard.transaction.create': ['admin'],
+  'dashboard.ops-disbursement-real.manage': ['admin', 'operator'],
   'kitchen.view': ['admin', 'operator'],
   'kitchen.manage': ['admin'],
   'disbursement-accounts.view': ['admin'],
@@ -35,6 +37,17 @@ const permissions: Record<Permission, readonly UserRole[]> = {
   'salary-calculation.view': ['admin'],
   'maker-import.view': ['admin'],
   'real-import.view': ['koperasi']
+}
+
+export function canManageDashboardTransaction(
+  role: UserRole | null | undefined,
+  flowType: string | null | undefined
+): boolean {
+  return role === 'admin' || (
+    role === 'operator' &&
+    canAccess(role, 'dashboard.ops-disbursement-real.manage') &&
+    flowType === 'ops_disbursement_real'
+  )
 }
 
 export function canAccess(
