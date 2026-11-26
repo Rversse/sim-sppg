@@ -1,6 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { canAccess } from '../src/features/auth/role-policy.ts'
+import { canAccess, canManageDashboardTransaction } from '../src/features/auth/role-policy.ts'
 
 test('Guest and legacy Viewer can only view bank transactions', () => {
   const deniedPermissions = [
@@ -48,6 +48,16 @@ test('Admin and Operator can access dashboard; Koperasi is limited to Real Impor
 test('Operator keeps existing Bank Transaction CRUD permission unchanged', () => {
   assert.equal(canAccess('operator', 'bank.transaction.create'), true)
   assert.equal(canAccess('operator', 'bank.export'), true)
+})
+
+test('Operator Dashboard CRUD is limited to OPS - Pencairan Real', () => {
+  assert.equal(canManageDashboardTransaction('admin', 'income'), true)
+  assert.equal(canManageDashboardTransaction('operator', 'ops_disbursement_real'), true)
+  for (const flow of ['income', 'expense', 'ops_real', 'gas', 'ops_disbursement', 'operational_disbursement']) {
+    assert.equal(canManageDashboardTransaction('operator', flow), false, `Operator cannot manage ${flow}`)
+  }
+  assert.equal(canManageDashboardTransaction('guest', 'ops_disbursement_real'), false)
+  assert.equal(canManageDashboardTransaction('koperasi', 'ops_disbursement_real'), false)
 })
 
 test('Guest cannot create, export, or mutate bank transactions', () => {
