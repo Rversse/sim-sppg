@@ -41,6 +41,7 @@ export type TransactionPayload = {
   account_id: string | null
   supplier_id: string | null
   destination_label: string | null
+  created_by?: string | null
 }
 
 export type TransactionRecord = {
