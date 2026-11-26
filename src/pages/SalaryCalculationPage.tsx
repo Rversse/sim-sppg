@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { Calculator, Save, RefreshCw } from 'lucide-react'
+import { Calculator, RefreshCw } from 'lucide-react'
 
 import { getActiveKitchens } from '@/features/kitchen/kitchen-service'
 import type { SalaryAllocation } from '@/features/salary-calculation/salary-calculation-service'
@@ -201,6 +201,7 @@ export function SalaryCalculationPage() {
                 step="0.01"
                 value={allocationRate}
                 onChange={(event) => setAllocationRate(event.target.value === '' ? 0 : Number(event.target.value))}
+                onBlur={() => void saveAllocation()}
                 disabled={!kitchenId || allocationLoading}
               />
               <span>%</span>
@@ -233,10 +234,6 @@ export function SalaryCalculationPage() {
               placeholder="Pilih rentang tanggal"
             />
           </div>
-          <button type="button" className="salary-primary-button" onClick={() => void calculate()} disabled={loading || calculating || !kitchenId}>
-            {calculating ? <RefreshCw className="salary-spin" aria-hidden="true" /> : <Calculator aria-hidden="true" />}
-            {calculating ? 'Menghitung...' : 'Hitung'}
-          </button>
         </div>
       </div>
 
@@ -265,6 +262,7 @@ export function SalaryCalculationPage() {
                     field.key,
                     event.target.value === '' ? 0 : Number(event.target.value)
                   ))}
+                  onBlur={() => void saveAllocation()}
                   disabled={!kitchenId || allocationLoading}
                 />
                 <span>%</span>
@@ -272,16 +270,15 @@ export function SalaryCalculationPage() {
             </label>
           ))}
         </div>
-        <div className="salary-panel-footer">
+        <div className="salary-panel-footer salary-panel-footer--calculate">
           <button
             type="button"
-            className="salary-icon-button"
-            onClick={() => void saveAllocation()}
-            disabled={!kitchenId || saving || allocationLoading || !allocationRateValid || Math.abs(percentageTotal - 100) > 0.000001}
-            aria-label="Simpan persentase"
-            title={saving ? 'Menyimpan...' : 'Simpan persentase'}
+            className="salary-primary-button"
+            onClick={() => void calculate()}
+            disabled={loading || calculating || saving || allocationLoading || !kitchenId || !allocationRateValid || Math.abs(percentageTotal - 100) > 0.000001}
           >
-            <Save aria-hidden="true" />
+            {calculating ? <RefreshCw className="salary-spin" aria-hidden="true" /> : <Calculator aria-hidden="true" />}
+            {calculating ? 'Menghitung...' : 'Hitung'}
           </button>
         </div>
       </div>
