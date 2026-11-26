@@ -250,7 +250,7 @@ export async function getKitchenSalaryCalculation(
     totalRAB,
     allocationRate: settings.allocationRate,
     totalAllocation,
-    percentages,
+    percentages: settings.allocation,
     roles
   }
 }
