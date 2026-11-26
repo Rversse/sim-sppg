@@ -52,7 +52,7 @@ export function SalaryCalculationPage() {
     ...DEFAULT_SALARY_ALLOCATION
   })
   const [allocationRate, setAllocationRate] = useState(DEFAULT_SALARY_ALLOCATION_RATE)
-  const [allocationLoading, setAllocationLoading] = useState(false)
+  const [allocationLoading, setAllocationLoading] = useState(true)
   const [calculation, setCalculation] = useState<KitchenSalaryCalculation | null>(null)
   const [loading, setLoading] = useState(true)
   const [calculating, setCalculating] = useState(false)
@@ -83,9 +83,6 @@ export function SalaryCalculationPage() {
     if (!kitchenId) return
 
     let cancelled = false
-    setAllocationLoading(true)
-    setAllocation({ ...DEFAULT_SALARY_ALLOCATION })
-    setAllocationRate(DEFAULT_SALARY_ALLOCATION_RATE)
     void getKitchenSalarySettings(kitchenId)
       .then((settings) => {
         if (!cancelled) {
@@ -215,6 +212,8 @@ export function SalaryCalculationPage() {
             <label htmlFor="salary-kitchen">Dapur</label>
             <select id="salary-kitchen" value={kitchenId} onChange={(event) => {
               setAllocationLoading(true)
+              setAllocation({ ...DEFAULT_SALARY_ALLOCATION })
+              setAllocationRate(DEFAULT_SALARY_ALLOCATION_RATE)
               setKitchenId(event.target.value)
               setCalculation(null)
             }} disabled={loading}>
