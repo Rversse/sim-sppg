@@ -1985,10 +1985,12 @@ export function DashboardPage() {
                     : account
                       ? account.bank + ' - ' + account.account_number
                       : ''
-                  const transactionFlowClass = flowClass(
-                    transaction.flow_type,
-                    transaction.category
-                  ).split(' ').slice(1).join(' ')
+                  const transactionFlowClass =
+                    transaction.flow_type === 'ops_disbursement_real'
+                      ? 'status-flag-pencairan-ops-real is-done'
+                      : transaction.flow_type === 'operational_disbursement'
+                        ? 'status-flag-pencairan-ops is-done'
+                        : flowClass(transaction.flow_type, transaction.category).split(' ').slice(1).join(' ')
                   const transactionTypeLabel = transaction.flow_type === 'operational_disbursement'
                     ? operationalTypeLabel(transaction.operational_type)
                     : flowLabel(transaction.flow_type, transaction.category, transaction.accounts)
