@@ -1990,9 +1990,9 @@ export function DashboardPage() {
                       : ''
                   const transactionFlowClass =
                     transaction.flow_type === 'ops_disbursement_real'
-                      ? 'status-flag-pencairan-ops-real is-done'
+                      ? 'dashboard-flow-ops-real'
                       : transaction.flow_type === 'operational_disbursement'
-                        ? 'status-flag-pencairan-ops is-done'
+                        ? 'dashboard-flow-ops-disbursement'
                         : flowClass(transaction.flow_type, transaction.category).split(' ').slice(1).join(' ')
                   const transactionTypeLabel = transaction.flow_type === 'operational_disbursement'
                     ? operationalTypeLabel(transaction.operational_type)
