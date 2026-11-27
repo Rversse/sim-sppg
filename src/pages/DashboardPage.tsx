@@ -76,7 +76,7 @@ const FLOW_OPTIONS: { value: DashboardFlow | ''; label: string }[] = [
   { value: 'gas', label: 'OPS - Arutala' },
   { value: 'ops_disbursement', label: 'OPS - Pencairan' },
   { value: 'ops_disbursement_real', label: 'OPS - Pencairan Real' },
-  { value: 'operational_disbursement', label: 'Pencairan Operasional' }
+  { value: 'operational_disbursement', label: 'Pencairan Insentif' }
 ]
 
 function isKoperasiArutalaAccount(account: DashboardTransaction['accounts'] | undefined) {
@@ -98,7 +98,7 @@ function flowLabel(
   if (flow === 'gas' || (flow === 'neutral' && category === 'GAS')) return 'GAS'
   if (flow === 'ops_disbursement') return 'OPS - Pencairan'
   if (flow === 'ops_disbursement_real') return 'OPS - Pencairan Real'
-  if (flow === 'operational_disbursement') return 'Pencairan Operasional'
+  if (flow === 'operational_disbursement') return 'Pencairan Insentif'
   return 'Transaksi'
 }
 
@@ -117,7 +117,7 @@ function operationalTypeLabel(
     case 'sppg_rent':
       return 'Insentif SPPG'
     default:
-      return 'Pencairan Operasional'
+      return 'Pencairan Insentif'
   }
 }
 
@@ -1680,7 +1680,7 @@ export function DashboardPage() {
   <article className="dashboard-panel dashboard-status-panel dashboard-main-panel">
             <div className="dashboard-panel-header">
               <div>
-                <h2>Status pencairan</h2>
+                <h2>Status Pencairan</h2>
               </div>
             </div>
   
@@ -1989,12 +1989,10 @@ export function DashboardPage() {
                       ? account.bank + ' - ' + account.account_number
                       : ''
                   // Keep history type colors aligned with the dashboard payout status palette.
-                  const transactionFlowClass =
-                    transaction.flow_type === 'ops_disbursement_real'
-                      ? 'dashboard-flow-ops-real'
-                      : transaction.flow_type === 'operational_disbursement'
-                        ? 'dashboard-flow-ops-disbursement'
-                        : flowClass(transaction.flow_type, transaction.category).split(' ').slice(1).join(' ')
+                  const transactionFlowClass = flowClass(
+                    transaction.flow_type,
+                    transaction.category
+                  ).split(' ').slice(1).join(' ')
                   const transactionTypeLabel = transaction.flow_type === 'operational_disbursement'
                     ? operationalTypeLabel(transaction.operational_type)
                     : flowLabel(transaction.flow_type, transaction.category, transaction.accounts)
