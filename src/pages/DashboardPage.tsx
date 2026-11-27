@@ -274,6 +274,7 @@ export function DashboardPage() {
   const [modalOpen, setModalOpen] = useState(false)
   const [modalMode, setModalMode] = useState<'create' | 'edit'>('create')
   const [editingId, setEditingId] = useState<string | null>(null)
+  const [editingVersion, setEditingVersion] = useState<number | null>(null)
   const [saving, setSaving] = useState(false)
   const [formError, setFormError] = useState<string | null>(null)
 
@@ -1010,6 +1011,7 @@ export function DashboardPage() {
     resetTransactionForm()
     setModalMode('create')
     setEditingId(null)
+    setEditingVersion(null)
     setModalOpen(true)
   }
 
@@ -1018,6 +1020,7 @@ export function DashboardPage() {
 
     setModalMode('edit')
     setEditingId(transaction.id)
+    setEditingVersion(transaction.version)
     setFormError(null)
     setFormDate(transaction.transaction_date)
     const isOtherIncomeTransaction =
@@ -1394,7 +1397,13 @@ export function DashboardPage() {
         }
 
         await createTransaction(
-          { ...payload, created_by: user.id },
+          {
+            ...payload,
+            created_by: user.id,
+            ...(formFlowType === 'ops_disbursement_real'
+              ? { source_created_role: isAdmin ? 'Admin' : 'Operator' }
+              : {})
+          },
           supabase,
           { allowDuplicate }
         )
@@ -1403,13 +1412,31 @@ export function DashboardPage() {
           throw new Error('ID transaksi tidak ditemukan')
         }
 
-        await updateTransaction(editingId, payload)
+        if (formFlowType === 'ops_disbursement_real' && !user?.id) {
+          throw new Error('Pengguna pengubah transaksi tidak ditemukan.')
+        }
+        await updateTransaction(
+          editingId,
+          {
+            ...payload,
+            ...(formFlowType === 'ops_disbursement_real'
+              ? {
+                  edited_by: user?.id ?? null,
+                  edited_role: isAdmin ? 'Admin' : 'Operator',
+                  edited_source: 'sim' as const
+                }
+              : {})
+          },
+          supabase,
+          formFlowType === 'ops_disbursement_real' ? editingVersion ?? undefined : undefined
+        )
       }
 
       if (modalMode === 'edit') {
         setModalOpen(false)
         setModalMode('create')
         setEditingId(null)
+        setEditingVersion(null)
         resetTransactionForm()
       } else {
         // Keep the modal open for rapid multi-entry input.
@@ -1486,7 +1513,17 @@ export function DashboardPage() {
     if (!confirmed) return
 
     try {
-      await deleteTransaction(transaction.id)
+      await deleteTransaction(
+        transaction.id,
+        supabase,
+        transaction.flow_type === 'ops_disbursement_real' && user?.id
+          ? {
+              id: user.id,
+              role: isAdmin ? 'Admin' : 'Operator',
+              version: transaction.version
+            }
+          : undefined
+      )
 
       const targetPage =
         transactionPage > 1 && transactions.length === 1
