@@ -8,7 +8,9 @@
   --flow-rab: var(--theme-data-teal);
   --flow-real-rab: color-mix(in srgb, var(--theme-data-teal) 58%, var(--theme-text-muted));
   --flow-gas: var(--theme-data-blue);
+  --flow-real-gas: color-mix(in srgb, var(--theme-data-blue) 58%, var(--theme-text-muted));
   --flow-pencairan-ops: var(--theme-data-amber);
+  --flow-real-pencairan-ops: color-mix(in srgb, var(--theme-data-amber) 58%, var(--theme-text-muted));
   --flow-inactive: var(--theme-text-muted);
 
   --dashboard-emphasis-border: color-mix(
@@ -682,7 +684,7 @@
 }
 
 .dashboard-status-flags .status-flag-rab.is-done {
-  color: #35c9bd;
+  color: var(--flow-rab);
 }
 
 .dashboard-status-flags .status-flag-real-rab {
@@ -690,7 +692,7 @@
 }
 
 .dashboard-status-flags .status-flag-real-rab.is-done {
-  color: #82aaa6;
+  color: var(--flow-real-rab);
 }
 
 .dashboard-status-flags .status-flag-real-ops {
@@ -698,7 +700,7 @@
 }
 
 .dashboard-status-flags .status-flag-real-ops.is-done {
-  color: #83a7d0;
+  color: var(--flow-real-gas);
 }
 
 .dashboard-status-flags .status-flag-gas {
@@ -706,7 +708,7 @@
 }
 
 .dashboard-status-flags .status-flag-gas.is-done {
-  color: #5799e8;
+  color: var(--flow-gas);
 }
 
 .dashboard-status-flags .status-flag-pencairan-ops {
@@ -714,7 +716,7 @@
 }
 
 .dashboard-status-flags .status-flag-pencairan-ops.is-done {
-  color: #e6a64c;
+  color: var(--flow-pencairan-ops);
 }
 
 .dashboard-status-flags .status-flag-pencairan-ops-real {
@@ -722,7 +724,7 @@
 }
 
 .dashboard-status-flags .status-flag-pencairan-ops-real.is-done {
-  color: #b68b5c;
+  color: var(--flow-real-pencairan-ops);
 }
 
 
@@ -916,15 +918,25 @@
 }
 
 .dashboard-history-party-name.dashboard-flow-ops-real {
-  color: color-mix(in srgb, #5799e8 58%, var(--theme-text-muted));
+  color: var(--flow-real-gas);
 }
 
+.dashboard-flow-ops-disbursement-real {
+  color: var(--flow-real-pencairan-ops);
+}
+
+.dashboard-history-party-name
+
 .dashboard-history-party-name.dashboard-flow-gas {
-  color: #5799e8;
+  color: var(--flow-gas);
 }
 
 .dashboard-history-party-name.dashboard-flow-ops-disbursement {
   color: var(--flow-pencairan-ops);
+}
+
+.dashboard-flow-ops-disbursement-real {
+  color: var(--flow-real-pencairan-ops);
 }
 
 .dashboard-history-party-name.dashboard-flow-neutral {
@@ -962,11 +974,15 @@
 }
 
 .dashboard-history-type.dashboard-flow-ops-real {
-  color: color-mix(in srgb, #5799e8 58%, var(--theme-text-muted));
+  color: var(--flow-real-gas);
+}
+
+.dashboard-history-type.dashboard-flow-ops-disbursement-real {
+  color: var(--flow-real-pencairan-ops);
 }
 
 .dashboard-history-type.dashboard-flow-gas {
-  color: #5799e8;
+  color: var(--flow-gas);
 }
 
 .dashboard-history-type.dashboard-flow-ops-disbursement {
@@ -1077,7 +1093,7 @@
 }
 
 .dashboard-flow-ops-real {
-  color: color-mix(in srgb, #5799e8 58%, var(--theme-text-muted));
+  color: var(--flow-real-gas);
 }
 
 .dashboard-flow-gas,
