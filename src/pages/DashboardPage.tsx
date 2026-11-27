@@ -75,7 +75,7 @@ const FLOW_OPTIONS: { value: DashboardFlow | ''; label: string }[] = [
   { value: 'ops_real', label: 'OPS - Arutala Real' },
   { value: 'gas', label: 'OPS - Arutala' },
   { value: 'ops_disbursement', label: 'OPS - Pencairan' },
-  { value: 'ops_disbursement_real', label: 'OPS - Pencairan Real' },
+  { value: 'ops_disbursement_real', label: 'OPS - PENCAIRAN REAL' },
   { value: 'operational_disbursement', label: 'Pencairan Operasional' }
 ]
 
@@ -97,7 +97,7 @@ function flowLabel(
   if (flow === 'neutral' && isKoperasiArutalaAccount(account)) return 'OPS - Arutala'
   if (flow === 'gas' || (flow === 'neutral' && category === 'GAS')) return 'GAS'
   if (flow === 'ops_disbursement') return 'OPS - Pencairan'
-  if (flow === 'ops_disbursement_real') return 'OPS - Pencairan Real'
+  if (flow === 'ops_disbursement_real') return 'OPS - PENCAIRAN REAL'
   if (flow === 'operational_disbursement') return 'Pencairan Operasional'
   return 'Transaksi'
 }
@@ -274,6 +274,7 @@ export function DashboardPage() {
   const [modalOpen, setModalOpen] = useState(false)
   const [modalMode, setModalMode] = useState<'create' | 'edit'>('create')
   const [editingId, setEditingId] = useState<string | null>(null)
+  const [editingVersion, setEditingVersion] = useState<number | null>(null)
   const [saving, setSaving] = useState(false)
   const [formError, setFormError] = useState<string | null>(null)
 
@@ -1010,6 +1011,7 @@ export function DashboardPage() {
     resetTransactionForm()
     setModalMode('create')
     setEditingId(null)
+    setEditingVersion(null)
     setModalOpen(true)
   }
 
@@ -1018,6 +1020,7 @@ export function DashboardPage() {
 
     setModalMode('edit')
     setEditingId(transaction.id)
+    setEditingVersion(transaction.version)
     setFormError(null)
     setFormDate(transaction.transaction_date)
     const isOtherIncomeTransaction =
@@ -1228,7 +1231,7 @@ export function DashboardPage() {
     if (saving) return
 
     if (isOperator && formFlowType !== 'ops_disbursement_real') {
-      setFormError('Operator hanya dapat menginput OPS - Pencairan Real.')
+      setFormError('Operator hanya dapat menginput OPS - PENCAIRAN REAL.')
       return
     }
 
@@ -1394,7 +1397,13 @@ export function DashboardPage() {
         }
 
         await createTransaction(
-          { ...payload, created_by: user.id },
+          {
+            ...payload,
+            created_by: user.id,
+            ...(formFlowType === 'ops_disbursement_real'
+              ? { source_created_role: isAdmin ? 'Admin' : 'Operator' }
+              : {})
+          },
           supabase,
           { allowDuplicate }
         )
@@ -1403,13 +1412,31 @@ export function DashboardPage() {
           throw new Error('ID transaksi tidak ditemukan')
         }
 
-        await updateTransaction(editingId, payload)
+        if (formFlowType === 'ops_disbursement_real' && !user?.id) {
+          throw new Error('Pengguna pengubah transaksi tidak ditemukan.')
+        }
+        await updateTransaction(
+          editingId,
+          {
+            ...payload,
+            ...(formFlowType === 'ops_disbursement_real'
+              ? {
+                  edited_by: user?.id ?? null,
+                  edited_role: isAdmin ? 'Admin' : 'Operator',
+                  edited_source: 'sim' as const
+                }
+              : {})
+          },
+          supabase,
+          formFlowType === 'ops_disbursement_real' ? editingVersion ?? undefined : undefined
+        )
       }
 
       if (modalMode === 'edit') {
         setModalOpen(false)
         setModalMode('create')
         setEditingId(null)
+        setEditingVersion(null)
         resetTransactionForm()
       } else {
         // Keep the modal open for rapid multi-entry input.
@@ -1486,7 +1513,17 @@ export function DashboardPage() {
     if (!confirmed) return
 
     try {
-      await deleteTransaction(transaction.id)
+      await deleteTransaction(
+        transaction.id,
+        supabase,
+        transaction.flow_type === 'ops_disbursement_real' && user?.id
+          ? {
+              id: user.id,
+              role: isAdmin ? 'Admin' : 'Operator',
+              version: transaction.version
+            }
+          : undefined
+      )
 
       const targetPage =
         transactionPage > 1 && transactions.length === 1
@@ -1628,7 +1665,7 @@ export function DashboardPage() {
               {loading ? <Skeleton className="dashboard-summary-skeleton" /> : <strong>{formatCurrency(summary.operationalDisbursement)}</strong>}
             </div>
             <div className="dashboard-summary-row">
-              <span>OPS - Pencairan Real</span>
+              <span>OPS - PENCAIRAN REAL</span>
               {loading ? <Skeleton className="dashboard-summary-skeleton" /> : <strong>{formatCurrency(summary.opsDisbursementReal)}</strong>}
             </div>
             <div className={`dashboard-summary-row dashboard-summary-row-balance ${summary.opsDisbursementRemaining > 0 ? 'is-positive' : summary.opsDisbursementRemaining < 0 ? 'is-negative' : 'is-zero'}`}>
@@ -1749,9 +1786,9 @@ export function DashboardPage() {
                             {row.opsDisbursementReal ? (
                               <span
                                 className="status-flag-pencairan-ops-real is-done"
-                                aria-label="OPS - Pencairan Real"
-                                data-tooltip="OPS - Pencairan Real"
-                                title="OPS - Pencairan Real"
+                                aria-label="OPS - PENCAIRAN REAL"
+                                data-tooltip="OPS - PENCAIRAN REAL"
+                                title="OPS - PENCAIRAN REAL"
                                 tabIndex={0}
                               >
                                 <Settings2 aria-hidden="true" />
@@ -2015,6 +2052,14 @@ export function DashboardPage() {
                         <p className="dashboard-history-note">
                           <span>Catatan:</span> {transaction.note?.trim() || '-'}
                         </p>
+                        {transaction.flow_type === 'ops_disbursement_real' ? (
+                          <p className="dashboard-history-note">
+                            <span>Dibuat:</span> {transaction.source_created_role || (transaction.source_system === 'maker' ? 'Tidak tercatat (data lama)' : 'SIM')}
+                            {transaction.edited_role ? (
+                              <> <span>· Terakhir diubah:</span> {transaction.edited_role}</>
+                            ) : null}
+                          </p>
+                        ) : null}
                       </div>
                       <div className="dashboard-history-side">
                         <strong className="dashboard-history-amount">
@@ -2220,7 +2265,7 @@ export function DashboardPage() {
                 >
                   {isOperator ? (
                     formKitchenId ? (
-                      <option value="ops_disbursement_real">OPS - Pencairan Real</option>
+                      <option value="ops_disbursement_real">OPS - PENCAIRAN REAL</option>
                     ) : (
                       <option value="">Pilih dapur terlebih dahulu</option>
                     )

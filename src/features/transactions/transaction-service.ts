@@ -42,6 +42,10 @@ export type TransactionPayload = {
   supplier_id: string | null
   destination_label: string | null
   created_by?: string | null
+  source_created_role?: string | null
+  edited_by?: string | null
+  edited_role?: string | null
+  edited_source?: 'sim' | 'maker' | null
 }
 
 export type TransactionRecord = {
@@ -64,6 +68,15 @@ export type TransactionRecord = {
     | 'sppg_rent'
     | null
   created_at: string
+  version: number
+  source_system: 'sim' | 'maker'
+  source_record_id: string | null
+  source_created_by: string | null
+  source_created_role: string | null
+  edited_by: string | null
+  edited_role: string | null
+  edited_source: 'sim' | 'maker' | null
+  edited_at: string | null
   maker_import_batch_id: string | null
   maker_import_line_number: number | null
   real_import_batch_id: string | null
@@ -110,6 +123,15 @@ export async function getTransactions(
       account_id,
       supplier_id,
       created_at,
+      version,
+      source_system,
+      source_record_id,
+      source_created_by,
+      source_created_role,
+      edited_by,
+      edited_role,
+      edited_source,
+      edited_at,
       maker_import_batch_id,
       maker_import_line_number,
       real_import_batch_id,
@@ -426,7 +448,8 @@ async function insertTransaction(
 export async function updateTransaction(
   id: string,
   payload: TransactionPayload,
-  client: SupabaseClient = supabase
+  client: SupabaseClient = supabase,
+  expectedVersion?: number
 ) {
   if (!id) {
     throw new Error('ID transaksi tidak ditemukan')
@@ -444,31 +467,51 @@ export async function updateTransaction(
     throw new Error('Transaksi dengan data yang sama sudah ada')
   }
 
-  const { data, error } = await client
+  let update = client
     .from('transactions')
     .update(payload)
     .eq('id', id)
-    .select()
-    .single()
 
-  if (error) {
-    throw error
-  }
+  if (expectedVersion !== undefined) update = update.eq('version', expectedVersion)
 
+  const { data, error } = await update.select().maybeSingle()
+  if (error) throw error
+  if (!data) throw new Error('Transaksi berubah di aplikasi lain. Muat ulang sebelum menyimpan lagi.')
   return data
 }
 
 export async function deleteTransaction(
   id: string,
-  client: SupabaseClient = supabase
+  client: SupabaseClient = supabase,
+  actor?: { id: string; role: string; version?: number }
 ) {
   if (!id) {
     throw new Error('ID transaksi tidak ditemukan')
   }
 
-  const { error } = await client.from('transactions').delete().eq('id', id)
-
-  if (error) {
-    throw error
+  if (actor) {
+    let mark = client.from('transactions')
+      .update({
+        edited_by: actor.id,
+        edited_role: actor.role,
+        edited_source: 'sim'
+      })
+      .eq('id', id)
+    if (actor.version !== undefined) mark = mark.eq('version', actor.version)
+    const { data: marked, error: markError } = await mark.select('version').maybeSingle()
+    if (markError) throw markError
+    if (!marked) throw new Error('Transaksi berubah di aplikasi lain. Muat ulang sebelum menghapus.')
+    const { data: deleted, error } = await client.from('transactions')
+      .delete()
+      .eq('id', id)
+      .eq('version', marked.version)
+      .select('id')
+      .maybeSingle()
+    if (error) throw error
+    if (!deleted) throw new Error('Transaksi berubah di aplikasi lain. Muat ulang sebelum menghapus.')
+    return
   }
+
+  const { error } = await client.from('transactions').delete().eq('id', id)
+  if (error) throw error
 }
