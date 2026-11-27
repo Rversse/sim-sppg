@@ -269,6 +269,7 @@ export function DashboardPage() {
   const [dailyStatus, setDailyStatus] = useState<StatusData | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [toastMessage, setToastMessage] = useState<string | null>(null)
 
   const [modalOpen, setModalOpen] = useState(false)
   const [modalMode, setModalMode] = useState<'create' | 'edit'>('create')
@@ -294,6 +295,12 @@ export function DashboardPage() {
   >('')
   const [formAmount, setFormAmount] = useState('')
   const [formNote, setFormNote] = useState('')
+
+  useEffect(() => {
+    if (!toastMessage) return
+    const timeoutId = window.setTimeout(() => setToastMessage(null), 4200)
+    return () => window.clearTimeout(timeoutId)
+  }, [toastMessage])
 
   useEffect(() => {
     let cancelled = false
@@ -1379,17 +1386,16 @@ export function DashboardPage() {
         let allowDuplicate = false
 
         if (duplicate) {
-          const confirmed = window.confirm(
-            formFlowType === 'ops_disbursement_real'
-              ? 'Transaksi OPS - Pencairan Real dengan tanggal, dapur, nominal, dan catatan yang sama sudah ada.\n\nTetap simpan?'
-              : 'Transaksi dengan tanggal, dapur, rekening - supplier, dan nominal yang sama sudah ada.\\n\\nTetap simpan?'
-          )
-
-          if (!confirmed) {
-            setSaving(false)
+          if (formFlowType === 'ops_disbursement_real') {
+            setToastMessage('OPS - Pencairan Real sudah tercatat dengan dapur, tanggal, nominal, dan catatan yang sama.')
             return
           }
 
+          const confirmed = window.confirm(
+            'Transaksi dengan tanggal, dapur, rekening - supplier, dan nominal yang sama sudah ada.\\n\\nTetap simpan?'
+          )
+
+          if (!confirmed) return
           allowDuplicate = true
         }
 
@@ -1397,7 +1403,7 @@ export function DashboardPage() {
           throw new Error('Pengguna pembuat transaksi tidak ditemukan.')
         }
 
-        await createTransaction(
+        const createResult = await createTransaction(
           {
             ...payload,
             created_by: user.id,
@@ -1408,6 +1414,11 @@ export function DashboardPage() {
           supabase,
           { allowDuplicate }
         )
+
+        if (createResult.duplicate && !('data' in createResult)) {
+          setToastMessage('OPS - Pencairan Real sudah tercatat. Periksa kembali nominal dan catatan transaksi.')
+          return
+        }
       } else {
         if (!editingId) {
           throw new Error('ID transaksi tidak ditemukan')
@@ -1492,6 +1503,16 @@ export function DashboardPage() {
       await refreshDashboard(false, false, targetPage)
     } catch (saveError) {
       console.error(saveError)
+      const saveErrorCode =
+        typeof saveError === 'object' && saveError !== null && 'code' in saveError
+          ? saveError.code
+          : null
+
+      if (formFlowType === 'ops_disbursement_real' && saveErrorCode === '23505') {
+        setToastMessage('Transaksi OPS - Pencairan Real dengan nominal dan catatan yang sama sudah ada untuk dapur dan tanggal ini.')
+        return
+      }
+
       setFormError(
         saveError instanceof Error
           ? saveError.message
@@ -1615,6 +1636,29 @@ export function DashboardPage() {
         }
       `}</style>
       {error ? <div className="dashboard-error">{error}</div> : null}
+      {toastMessage ? (
+        <div
+          role="alert"
+          aria-live="assertive"
+          style={{
+            position: 'fixed',
+            top: 20,
+            right: 20,
+            zIndex: 1200,
+            maxWidth: 420,
+            padding: '12px 16px',
+            border: '1px solid rgba(248, 113, 113, 0.45)',
+            borderRadius: 10,
+            background: 'var(--theme-surface, #172033)',
+            color: 'var(--theme-text, #f8fafc)',
+            boxShadow: '0 12px 32px rgba(0, 0, 0, 0.28)',
+            fontSize: 13,
+            fontWeight: 600
+          }}
+        >
+          {toastMessage}
+        </div>
+      ) : null}
 
       <section className="dashboard-layout-grid">
         <div className="dashboard-layout-column dashboard-layout-left">
