@@ -1988,6 +1988,7 @@ export function DashboardPage() {
                     : account
                       ? account.bank + ' - ' + account.account_number
                       : ''
+                  // Keep history type colors aligned with the dashboard payout status palette.
                   const transactionFlowClass =
                     transaction.flow_type === 'ops_disbursement_real'
                       ? 'dashboard-flow-ops-real'
