@@ -86,6 +86,15 @@ export type DashboardTransaction = {
     | 'sppg_rent'
     | null
   created_at: string
+  version: number
+  source_system: 'sim' | 'maker'
+  source_record_id: string | null
+  source_created_by: string | null
+  source_created_role: string | null
+  edited_by: string | null
+  edited_role: string | null
+  edited_source: 'sim' | 'maker' | null
+  edited_at: string | null
   operational_account_mapping?: DashboardOperationalAccountMapping | null
   accounts:
     | DashboardTransactionAccount
@@ -456,6 +465,15 @@ export async function getDashboardTransactionPage(
         destination_label,
         operational_type,
         created_at,
+        version,
+        source_system,
+        source_record_id,
+        source_created_by,
+        source_created_role,
+        edited_by,
+        edited_role,
+        edited_source,
+        edited_at,
         accounts(
           id,
           name,
