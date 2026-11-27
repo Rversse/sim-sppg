@@ -75,7 +75,7 @@ const FLOW_OPTIONS: { value: DashboardFlow | ''; label: string }[] = [
   { value: 'ops_real', label: 'OPS - Arutala Real' },
   { value: 'gas', label: 'OPS - Arutala' },
   { value: 'ops_disbursement', label: 'OPS - Pencairan' },
-  { value: 'ops_disbursement_real', label: 'OPS - Pencairan Real' },
+  { value: 'ops_disbursement_real', label: 'OPS - PENCAIRAN REAL' },
   { value: 'operational_disbursement', label: 'Pencairan Operasional' }
 ]
 
@@ -97,7 +97,7 @@ function flowLabel(
   if (flow === 'neutral' && isKoperasiArutalaAccount(account)) return 'OPS - Arutala'
   if (flow === 'gas' || (flow === 'neutral' && category === 'GAS')) return 'GAS'
   if (flow === 'ops_disbursement') return 'OPS - Pencairan'
-  if (flow === 'ops_disbursement_real') return 'OPS - Pencairan Real'
+  if (flow === 'ops_disbursement_real') return 'OPS - PENCAIRAN REAL'
   if (flow === 'operational_disbursement') return 'Pencairan Operasional'
   return 'Transaksi'
 }
@@ -1231,7 +1231,7 @@ export function DashboardPage() {
     if (saving) return
 
     if (isOperator && formFlowType !== 'ops_disbursement_real') {
-      setFormError('Operator hanya dapat menginput OPS - Pencairan Real.')
+      setFormError('Operator hanya dapat menginput OPS - PENCAIRAN REAL.')
       return
     }
 
@@ -1665,7 +1665,7 @@ export function DashboardPage() {
               {loading ? <Skeleton className="dashboard-summary-skeleton" /> : <strong>{formatCurrency(summary.operationalDisbursement)}</strong>}
             </div>
             <div className="dashboard-summary-row">
-              <span>OPS - Pencairan Real</span>
+              <span>OPS - PENCAIRAN REAL</span>
               {loading ? <Skeleton className="dashboard-summary-skeleton" /> : <strong>{formatCurrency(summary.opsDisbursementReal)}</strong>}
             </div>
             <div className={`dashboard-summary-row dashboard-summary-row-balance ${summary.opsDisbursementRemaining > 0 ? 'is-positive' : summary.opsDisbursementRemaining < 0 ? 'is-negative' : 'is-zero'}`}>
@@ -1786,9 +1786,9 @@ export function DashboardPage() {
                             {row.opsDisbursementReal ? (
                               <span
                                 className="status-flag-pencairan-ops-real is-done"
-                                aria-label="OPS - Pencairan Real"
-                                data-tooltip="OPS - Pencairan Real"
-                                title="OPS - Pencairan Real"
+                                aria-label="OPS - PENCAIRAN REAL"
+                                data-tooltip="OPS - PENCAIRAN REAL"
+                                title="OPS - PENCAIRAN REAL"
                                 tabIndex={0}
                               >
                                 <Settings2 aria-hidden="true" />
@@ -2052,6 +2052,14 @@ export function DashboardPage() {
                         <p className="dashboard-history-note">
                           <span>Catatan:</span> {transaction.note?.trim() || '-'}
                         </p>
+                        {transaction.flow_type === 'ops_disbursement_real' ? (
+                          <p className="dashboard-history-note">
+                            <span>Dibuat:</span> {transaction.source_created_role || 'SIM'}
+                            {transaction.edited_role ? (
+                              <> <span>· Terakhir diubah:</span> {transaction.edited_role}</>
+                            ) : null}
+                          </p>
+                        ) : null}
                       </div>
                       <div className="dashboard-history-side">
                         <strong className="dashboard-history-amount">
@@ -2257,7 +2265,7 @@ export function DashboardPage() {
                 >
                   {isOperator ? (
                     formKitchenId ? (
-                      <option value="ops_disbursement_real">OPS - Pencairan Real</option>
+                      <option value="ops_disbursement_real">OPS - PENCAIRAN REAL</option>
                     ) : (
                       <option value="">Pilih dapur terlebih dahulu</option>
                     )
