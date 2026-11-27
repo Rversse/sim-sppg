@@ -1231,7 +1231,7 @@ export function DashboardPage() {
     if (saving) return
 
     if (isOperator && formFlowType !== 'ops_disbursement_real') {
-      setFormError('Operator hanya dapat menginput OPS - PENCAIRAN REAL.')
+      setFormError('Operator hanya dapat menginput OPS - Pencairan Real.')
       return
     }
 
@@ -1665,7 +1665,7 @@ export function DashboardPage() {
               {loading ? <Skeleton className="dashboard-summary-skeleton" /> : <strong>{formatCurrency(summary.operationalDisbursement)}</strong>}
             </div>
             <div className="dashboard-summary-row">
-              <span>OPS - PENCAIRAN REAL</span>
+              <span>OPS - Pencairan Real</span>
               {loading ? <Skeleton className="dashboard-summary-skeleton" /> : <strong>{formatCurrency(summary.opsDisbursementReal)}</strong>}
             </div>
             <div className={`dashboard-summary-row dashboard-summary-row-balance ${summary.opsDisbursementRemaining > 0 ? 'is-positive' : summary.opsDisbursementRemaining < 0 ? 'is-negative' : 'is-zero'}`}>
@@ -2263,7 +2263,7 @@ export function DashboardPage() {
                 >
                   {isOperator ? (
                     formKitchenId ? (
-                      <option value="ops_disbursement_real">OPS - PENCAIRAN REAL</option>
+                      <option value="ops_disbursement_real">OPS - Pencairan Real</option>
                     ) : (
                       <option value="">Pilih dapur terlebih dahulu</option>
                     )
