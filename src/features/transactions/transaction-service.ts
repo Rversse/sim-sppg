@@ -482,15 +482,36 @@ export async function updateTransaction(
 
 export async function deleteTransaction(
   id: string,
-  client: SupabaseClient = supabase
+  client: SupabaseClient = supabase,
+  actor?: { id: string; role: string; version?: number }
 ) {
   if (!id) {
     throw new Error('ID transaksi tidak ditemukan')
   }
 
-  const { error } = await client.from('transactions').delete().eq('id', id)
-
-  if (error) {
-    throw error
+  if (actor) {
+    let mark = client.from('transactions')
+      .update({
+        edited_by: actor.id,
+        edited_role: actor.role,
+        edited_source: 'sim'
+      })
+      .eq('id', id)
+    if (actor.version !== undefined) mark = mark.eq('version', actor.version)
+    const { data: marked, error: markError } = await mark.select('version').maybeSingle()
+    if (markError) throw markError
+    if (!marked) throw new Error('Transaksi berubah di aplikasi lain. Muat ulang sebelum menghapus.')
+    const { data: deleted, error } = await client.from('transactions')
+      .delete()
+      .eq('id', id)
+      .eq('version', marked.version)
+      .select('id')
+      .maybeSingle()
+    if (error) throw error
+    if (!deleted) throw new Error('Transaksi berubah di aplikasi lain. Muat ulang sebelum menghapus.')
+    return
   }
+
+  const { error } = await client.from('transactions').delete().eq('id', id)
+  if (error) throw error
 }
