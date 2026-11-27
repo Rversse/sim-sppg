@@ -1382,7 +1382,7 @@ export function DashboardPage() {
         if (duplicate) {
           const confirmed = window.confirm(
             formFlowType === 'ops_disbursement_real'
-              ? 'Transaksi OPS - Pencairan Real dengan tanggal, dapur, nominal, dan catatan yang sama sudah ada.\\n\\nTetap simpan?'
+              ? 'Transaksi OPS - Pencairan Real dengan tanggal, dapur, nominal, dan catatan yang sama sudah ada.\n\nTetap simpan?'
               : 'Transaksi dengan tanggal, dapur, rekening - supplier, dan nominal yang sama sudah ada.\\n\\nTetap simpan?'
           )
 
