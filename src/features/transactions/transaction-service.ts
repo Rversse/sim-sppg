@@ -394,7 +394,7 @@ export async function hasDuplicateTransaction(
   if (error) throw error
 
   if (isOpsReal) {
-    const normalize = (value: string | null | undefined) => (value ?? '').trim().replace(/\\s+/g, ' ').toLocaleLowerCase('id-ID')
+    const normalize = (value: string | null | undefined) => (value ?? '').trim().replace(/\s+/g, ' ').toLocaleLowerCase('id-ID')
     return (data ?? []).some((row) => normalize((row as { note?: string | null }).note) === normalize(payload.note))
   }
 
