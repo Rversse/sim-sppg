@@ -130,9 +130,8 @@ function flowClass(flow: DashboardFlow, category?: string | null) {
   if (flow === 'gas' || flow === 'neutral') {
     return 'dashboard-flow dashboard-flow-gas'
   }
-  if (flow === 'ops_disbursement' || flow === 'ops_disbursement_real') {
-    return 'dashboard-flow dashboard-flow-ops-disbursement'
-  }
+  if (flow === 'ops_disbursement') return 'dashboard-flow dashboard-flow-ops-disbursement'
+  if (flow === 'ops_disbursement_real') return 'dashboard-flow dashboard-flow-ops-disbursement-real'
   if (flow === 'operational_disbursement') {
     return 'dashboard-flow dashboard-flow-operational-expense'
   }
