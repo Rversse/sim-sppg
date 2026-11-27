@@ -1699,7 +1699,7 @@ export function DashboardPage() {
               {loading ? <Skeleton className="dashboard-summary-skeleton" /> : <strong>{formatCurrency(summary.opsReal)}</strong>}
             </div>
             <div className={`dashboard-summary-row dashboard-summary-row-balance ${opsBalance > 0 ? 'is-positive' : opsBalance < 0 ? 'is-negative' : 'is-zero'}`}>
-              <span>Sisa OPS</span>
+              <span>Sisa OPS - Arutala</span>
               {loading ? <Skeleton className="dashboard-summary-skeleton" /> : <strong>{formatCurrency(opsBalance)}</strong>}
             </div>
   
