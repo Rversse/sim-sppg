@@ -1381,7 +1381,9 @@ export function DashboardPage() {
 
         if (duplicate) {
           const confirmed = window.confirm(
-            'Transaksi dengan tanggal, dapur, rekening - supplier, dan nominal yang sama sudah ada.\n\nTetap simpan?'
+            formFlowType === 'ops_disbursement_real'
+              ? 'Transaksi OPS - Pencairan Real dengan tanggal, dapur, nominal, dan catatan yang sama sudah ada.\\n\\nTetap simpan?'
+              : 'Transaksi dengan tanggal, dapur, rekening - supplier, dan nominal yang sama sudah ada.\\n\\nTetap simpan?'
           )
 
           if (!confirmed) {
@@ -1950,7 +1952,8 @@ export function DashboardPage() {
                   const hideUnmappedBusinessName =
                     (transaction.flow_type === 'expense' &&
                       transaction.category === 'OPS') ||
-                    transaction.flow_type === 'ops_disbursement_real'
+                    transaction.flow_type === 'ops_disbursement_real' ||
+                    transaction.flow_type === 'operational_disbursement'
                   const businessName = hideUnmappedBusinessName
                     ? ''
                     : isOtherIncomeTransaction
