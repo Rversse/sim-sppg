@@ -75,7 +75,7 @@ const FLOW_OPTIONS: { value: DashboardFlow | ''; label: string }[] = [
   { value: 'ops_real', label: 'OPS - Arutala Real' },
   { value: 'gas', label: 'OPS - Arutala' },
   { value: 'ops_disbursement', label: 'OPS - Pencairan' },
-  { value: 'ops_disbursement_real', label: 'OPS - PENCAIRAN REAL' },
+  { value: 'ops_disbursement_real', label: 'OPS - Pencairan Real' },
   { value: 'operational_disbursement', label: 'Pencairan Operasional' }
 ]
 
@@ -97,7 +97,7 @@ function flowLabel(
   if (flow === 'neutral' && isKoperasiArutalaAccount(account)) return 'OPS - Arutala'
   if (flow === 'gas' || (flow === 'neutral' && category === 'GAS')) return 'GAS'
   if (flow === 'ops_disbursement') return 'OPS - Pencairan'
-  if (flow === 'ops_disbursement_real') return 'OPS - PENCAIRAN REAL'
+  if (flow === 'ops_disbursement_real') return 'OPS - Pencairan Real'
   if (flow === 'operational_disbursement') return 'Pencairan Operasional'
   return 'Transaksi'
 }
@@ -117,7 +117,7 @@ function operationalTypeLabel(
     case 'sppg_rent':
       return 'Insentif Fasilitas SPPG'
     default:
-      return 'Pencairan Operasional'
+      return type ? 'Pencairan Operasional' : 'Pencairan Operasional'
   }
 }
 
@@ -1786,9 +1786,9 @@ export function DashboardPage() {
                             {row.opsDisbursementReal ? (
                               <span
                                 className="status-flag-pencairan-ops-real is-done"
-                                aria-label="OPS - PENCAIRAN REAL"
-                                data-tooltip="OPS - PENCAIRAN REAL"
-                                title="OPS - PENCAIRAN REAL"
+                                aria-label="OPS - Pencairan Real"
+                                data-tooltip="OPS - Pencairan Real"
+                                title="OPS - Pencairan Real"
                                 tabIndex={0}
                               >
                                 <Settings2 aria-hidden="true" />
@@ -1960,7 +1960,7 @@ export function DashboardPage() {
                         : transaction.flow_type === 'ops_disbursement'
                           ? temporaryDestination || 'Tujuan operasional'
                           : transaction.flow_type === 'operational_disbursement'
-                            ? operationalTypeLabel(transaction.operational_type)
+                            ? ''
                             : accountSupplier?.business_name?.trim() ||
                               account?.name?.trim() ||
                               'Transaksi'
@@ -1989,11 +1989,9 @@ export function DashboardPage() {
                     transaction.flow_type,
                     transaction.category
                   ).split(' ').slice(1).join(' ')
-                  const transactionTypeLabel = flowLabel(
-                    transaction.flow_type,
-                    transaction.category,
-                    transaction.accounts
-                  )
+                  const transactionTypeLabel = transaction.flow_type === 'operational_disbursement'
+                    ? operationalTypeLabel(transaction.operational_type)
+                    : flowLabel(transaction.flow_type, transaction.category, transaction.accounts)
   
                   return (
                     <div className="dashboard-history-row" key={transaction.id}>
