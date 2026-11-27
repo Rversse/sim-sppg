@@ -349,9 +349,10 @@ export async function hasDuplicateTransaction(
   client: SupabaseClient = supabase,
   excludeId?: string
 ): Promise<boolean> {
+  const isOpsReal = payload.flow_type === 'ops_disbursement_real'
   let query = client
     .from('transactions')
-    .select('id', {
+    .select(isOpsReal ? 'id,note' : 'id', isOpsReal ? undefined : {
       count: 'exact',
       head: true
     })
@@ -365,15 +366,10 @@ export async function hasDuplicateTransaction(
     query = query.is('kitchen_id', null)
   }
 
-  if (excludeId) {
-    query = query.neq('id', excludeId)
-  }
+  if (excludeId) query = query.neq('id', excludeId)
 
   if (payload.flow_type === 'expense') {
-    for (const filter of getExpenseDuplicateFilters(
-      payload.category,
-      payload.supplier_id
-    )) {
+    for (const filter of getExpenseDuplicateFilters(payload.category, payload.supplier_id)) {
       query = filter.operator === 'is'
         ? query.is(filter.column, null)
         : query.eq(filter.column, filter.value)
@@ -384,22 +380,22 @@ export async function hasDuplicateTransaction(
     query = query.eq('operational_type', payload.operational_type)
   }
 
-  if (payload.flow_type === 'ops_disbursement_real') {
+  if (isOpsReal) {
     query = query.is('account_id', null).is('supplier_id', null)
   }
 
   if (payload.flow_type === 'income' || payload.flow_type === 'gas') {
     query = query.eq('account_id', payload.account_id)
   } else if (payload.flow_type === 'ops_disbursement') {
-    query = query
-      .is('account_id', null)
-      .eq('destination_label', payload.destination_label)
+    query = query.is('account_id', null).eq('destination_label', payload.destination_label)
   }
 
-  const { count, error } = await query
+  const { data, count, error } = await query
+  if (error) throw error
 
-  if (error) {
-    throw error
+  if (isOpsReal) {
+    const normalize = (value: string | null | undefined) => (value ?? '').trim().toLocaleLowerCase('id-ID')
+    return (data ?? []).some((row) => normalize((row as { note?: string | null }).note) === normalize(payload.note))
   }
 
   return (count ?? 0) > 0

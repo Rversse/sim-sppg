@@ -75,7 +75,7 @@ const FLOW_OPTIONS: { value: DashboardFlow | ''; label: string }[] = [
   { value: 'ops_real', label: 'OPS - Arutala Real' },
   { value: 'gas', label: 'OPS - Arutala' },
   { value: 'ops_disbursement', label: 'OPS - Pencairan' },
-  { value: 'ops_disbursement_real', label: 'OPS - PENCAIRAN REAL' },
+  { value: 'ops_disbursement_real', label: 'OPS - Pencairan Real' },
   { value: 'operational_disbursement', label: 'Pencairan Operasional' }
 ]
 
@@ -97,7 +97,7 @@ function flowLabel(
   if (flow === 'neutral' && isKoperasiArutalaAccount(account)) return 'OPS - Arutala'
   if (flow === 'gas' || (flow === 'neutral' && category === 'GAS')) return 'GAS'
   if (flow === 'ops_disbursement') return 'OPS - Pencairan'
-  if (flow === 'ops_disbursement_real') return 'OPS - PENCAIRAN REAL'
+  if (flow === 'ops_disbursement_real') return 'OPS - Pencairan Real'
   if (flow === 'operational_disbursement') return 'Pencairan Operasional'
   return 'Transaksi'
 }
@@ -115,7 +115,7 @@ function operationalTypeLabel(
     case 'vehicle_rent':
       return 'Sewa Kendaraan'
     case 'sppg_rent':
-      return 'Insentif Fasilitas SPPG'
+      return 'Insentif SPPG'
     default:
       return 'Pencairan Operasional'
   }
@@ -1231,7 +1231,7 @@ export function DashboardPage() {
     if (saving) return
 
     if (isOperator && formFlowType !== 'ops_disbursement_real') {
-      setFormError('Operator hanya dapat menginput OPS - PENCAIRAN REAL.')
+      setFormError('Operator hanya dapat menginput OPS - Pencairan Real.')
       return
     }
 
@@ -1381,7 +1381,9 @@ export function DashboardPage() {
 
         if (duplicate) {
           const confirmed = window.confirm(
-            'Transaksi dengan tanggal, dapur, rekening - supplier, dan nominal yang sama sudah ada.\n\nTetap simpan?'
+            formFlowType === 'ops_disbursement_real'
+              ? 'Transaksi OPS - Pencairan Real dengan tanggal, dapur, nominal, dan catatan yang sama sudah ada.\n\nTetap simpan?'
+              : 'Transaksi dengan tanggal, dapur, rekening - supplier, dan nominal yang sama sudah ada.\\n\\nTetap simpan?'
           )
 
           if (!confirmed) {
@@ -1665,7 +1667,7 @@ export function DashboardPage() {
               {loading ? <Skeleton className="dashboard-summary-skeleton" /> : <strong>{formatCurrency(summary.operationalDisbursement)}</strong>}
             </div>
             <div className="dashboard-summary-row">
-              <span>OPS - PENCAIRAN REAL</span>
+              <span>OPS - Pencairan Real</span>
               {loading ? <Skeleton className="dashboard-summary-skeleton" /> : <strong>{formatCurrency(summary.opsDisbursementReal)}</strong>}
             </div>
             <div className={`dashboard-summary-row dashboard-summary-row-balance ${summary.opsDisbursementRemaining > 0 ? 'is-positive' : summary.opsDisbursementRemaining < 0 ? 'is-negative' : 'is-zero'}`}>
@@ -1786,9 +1788,9 @@ export function DashboardPage() {
                             {row.opsDisbursementReal ? (
                               <span
                                 className="status-flag-pencairan-ops-real is-done"
-                                aria-label="OPS - PENCAIRAN REAL"
-                                data-tooltip="OPS - PENCAIRAN REAL"
-                                title="OPS - PENCAIRAN REAL"
+                                aria-label="OPS - Pencairan Real"
+                                data-tooltip="OPS - Pencairan Real"
+                                title="OPS - Pencairan Real"
                                 tabIndex={0}
                               >
                                 <Settings2 aria-hidden="true" />
@@ -1950,7 +1952,8 @@ export function DashboardPage() {
                   const hideUnmappedBusinessName =
                     (transaction.flow_type === 'expense' &&
                       transaction.category === 'OPS') ||
-                    transaction.flow_type === 'ops_disbursement_real'
+                    transaction.flow_type === 'ops_disbursement_real' ||
+                    transaction.flow_type === 'operational_disbursement'
                   const businessName = hideUnmappedBusinessName
                     ? ''
                     : isOtherIncomeTransaction
@@ -1960,7 +1963,7 @@ export function DashboardPage() {
                         : transaction.flow_type === 'ops_disbursement'
                           ? temporaryDestination || 'Tujuan operasional'
                           : transaction.flow_type === 'operational_disbursement'
-                            ? operationalTypeLabel(transaction.operational_type)
+                            ? ''
                             : accountSupplier?.business_name?.trim() ||
                               account?.name?.trim() ||
                               'Transaksi'
@@ -1985,15 +1988,16 @@ export function DashboardPage() {
                     : account
                       ? account.bank + ' - ' + account.account_number
                       : ''
-                  const transactionFlowClass = flowClass(
-                    transaction.flow_type,
-                    transaction.category
-                  ).split(' ').slice(1).join(' ')
-                  const transactionTypeLabel = flowLabel(
-                    transaction.flow_type,
-                    transaction.category,
-                    transaction.accounts
-                  )
+                  // Keep history type colors aligned with the dashboard payout status palette.
+                  const transactionFlowClass =
+                    transaction.flow_type === 'ops_disbursement_real'
+                      ? 'dashboard-flow-ops-real'
+                      : transaction.flow_type === 'operational_disbursement'
+                        ? 'dashboard-flow-ops-disbursement'
+                        : flowClass(transaction.flow_type, transaction.category).split(' ').slice(1).join(' ')
+                  const transactionTypeLabel = transaction.flow_type === 'operational_disbursement'
+                    ? operationalTypeLabel(transaction.operational_type)
+                    : flowLabel(transaction.flow_type, transaction.category, transaction.accounts)
   
                   return (
                     <div className="dashboard-history-row" key={transaction.id}>
@@ -2265,7 +2269,7 @@ export function DashboardPage() {
                 >
                   {isOperator ? (
                     formKitchenId ? (
-                      <option value="ops_disbursement_real">OPS - PENCAIRAN REAL</option>
+                      <option value="ops_disbursement_real">OPS - Pencairan Real</option>
                     ) : (
                       <option value="">Pilih dapur terlebih dahulu</option>
                     )

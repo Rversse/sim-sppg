@@ -18,7 +18,7 @@ export const OPERATIONAL_TYPE_OPTIONS: ReadonlyArray<{
 }> = [
   { value: 'relawan_salary', label: 'Gaji Relawan' },
   { value: 'pic_incentive', label: 'Insentif PIC' },
-  { value: 'sppg_rent', label: 'Sewa SPPG' }
+  { value: 'sppg_rent', label: 'Insentif SPPG' }
 ]
 
 const RENT_ONLY_KITCHENS = new Set([
