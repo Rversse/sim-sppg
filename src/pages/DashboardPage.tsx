@@ -2054,7 +2054,7 @@ export function DashboardPage() {
                         </p>
                         {transaction.flow_type === 'ops_disbursement_real' ? (
                           <p className="dashboard-history-note">
-                            <span>Dibuat:</span> {transaction.source_created_role || 'SIM'}
+                            <span>Dibuat:</span> {transaction.source_created_role || (transaction.source_system === 'maker' ? 'Tidak tercatat (data lama)' : 'SIM')}
                             {transaction.edited_role ? (
                               <> <span>· Terakhir diubah:</span> {transaction.edited_role}</>
                             ) : null}
