@@ -115,9 +115,9 @@ function operationalTypeLabel(
     case 'vehicle_rent':
       return 'Sewa Kendaraan'
     case 'sppg_rent':
-      return 'Insentif Fasilitas SPPG'
+      return 'Insentif SPPG'
     default:
-      return type ? 'Pencairan Operasional' : 'Pencairan Operasional'
+      return 'Pencairan Operasional'
   }
 }
 
