@@ -925,9 +925,7 @@
   color: var(--flow-real-pencairan-ops);
 }
 
-.dashboard-history-party-name.dashboard-flow-ops-disbursement-real {
-  color: var(--flow-real-pencairan-ops);
-}
+.dashboard-history-party-name
 
 .dashboard-history-party-name.dashboard-flow-gas {
   color: var(--flow-gas);
